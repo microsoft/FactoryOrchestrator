@@ -6,5 +6,10 @@ using System.Net.Sockets;
 
 namespace FTFService
 {
-   
+
+    public interface IComputingService
+    {
+        float AddFloat(float x, float y);
+    }
+
 }

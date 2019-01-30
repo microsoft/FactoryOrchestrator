@@ -4,14 +4,11 @@ using PeterKottas.DotNetCore.WindowsService;
 using JKang.IpcServiceFramework;
 using System.Net;
 using System.Threading.Tasks;
+using JKang.IpcServiceFramework.Services;
 
 namespace FTFService
 {
-    public interface IComputingService
-    {
-        float AddFloat(float x, float y);
-    }
-
+   
     class ComputingService : IComputingService
     {
         public float AddFloat(float x, float y)
@@ -22,6 +19,8 @@ namespace FTFService
 
     class FTFExecutable
     {
+        public static IIpcServiceHost ipcHost;
+
         public static void Main(string[] args)
         {
 #if DEBUG
@@ -31,6 +30,15 @@ namespace FTFService
 #endif
             // Create service collection
             var services = new ServiceCollection();
+
+
+            // Configure IPC service framework server
+            services = (ServiceCollection)services.AddIpc(builder =>
+            {
+                builder
+                    .AddNamedPipe()
+                    .AddService<IComputingService, ComputingService>();
+            });
 
             // Configure service provider for logger creation and managment
             ServiceProvider svcProvider = services
@@ -42,18 +50,19 @@ namespace FTFService
                 })
                 .AddOptions()
                 .AddSingleton(new LoggerFactory())
+                //.AddSingleton(new DefaultValueConverter())
                 .BuildServiceProvider();
 
             // Enable both console logging and file logging
             svcProvider.GetService<ILoggerFactory>().AddConsole();
             svcProvider.GetRequiredService<ILoggerFactory>().AddProvider(new LogFileProvider());
 
-            // Configure IPC service framework server
-            services.AddIpc(Troll);
 
+            var a = svcProvider.GetService<IValueConverter>();
 
-            IIpcServiceHost ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IComputingService>(name: "tcp45684", ipEndpoint: IPAddress.Loopback, port: 45684)
+            ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IComputingService>("tcp", IPAddress.Loopback, 45684)
                                                                             .Build();
+
 
             var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFExecutable>();
 
@@ -95,6 +104,7 @@ namespace FTFService
         {
             builder
                 .AddTcp()
+                .AddNamedPipe()
                 .AddService<IComputingService, ComputingService>();
         }
     }

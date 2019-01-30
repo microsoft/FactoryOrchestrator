@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using JKang.IpcServiceFramework;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using PeterKottas.DotNetCore.WindowsService.Base;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
@@ -13,6 +14,7 @@ namespace FTFService
     {
         private IMicroServiceController _controller;
         private ILogger<FTFService> _logger;
+        private System.Threading.CancellationTokenSource _cancellationToken;
 
         public FTFService()
         {
@@ -29,6 +31,8 @@ namespace FTFService
         public void Start()
         {
             StartBase();
+            _cancellationToken = new System.Threading.CancellationTokenSource();
+            FTFExecutable.ipcHost.RunAsync(_cancellationToken.Token);
             Timers.Start("Poller", 1000, () =>
             {
             _logger.LogInformation(string.Format("Polling at {0}\n", DateTime.Now.ToString("o")));
@@ -39,6 +43,7 @@ namespace FTFService
         public void Stop()
         {
             StopBase();
+            _cancellationToken.Cancel();
             _logger.LogTrace("Stopped\n");
         }
     }
