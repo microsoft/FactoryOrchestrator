@@ -1,9 +1,25 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using PeterKottas.DotNetCore.WindowsService;
+using JKang.IpcServiceFramework;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace FTFService
 {
+    public interface IComputingService
+    {
+        float AddFloat(float x, float y);
+    }
+
+    class ComputingService : IComputingService
+    {
+        public float AddFloat(float x, float y)
+        {
+            return x + y;
+        }
+    }
+
     class FTFExecutable
     {
         public static void Main(string[] args)
@@ -13,8 +29,11 @@ namespace FTFService
 #else
             var _logLevel = LogLevel.Information;
 #endif
+            // Create service collection
+            var services = new ServiceCollection();
+
             // Configure service provider for logger creation and managment
-            var svcProvider = new ServiceCollection()
+            ServiceProvider svcProvider = services
                 .AddLogging(builder =>
                 {
                     builder
@@ -29,8 +48,16 @@ namespace FTFService
             svcProvider.GetService<ILoggerFactory>().AddConsole();
             svcProvider.GetRequiredService<ILoggerFactory>().AddProvider(new LogFileProvider());
 
+            // Configure IPC service framework server
+            services.AddIpc(Troll);
+
+
+            IIpcServiceHost ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IComputingService>(name: "tcp45684", ipEndpoint: IPAddress.Loopback, port: 45684)
+                                                                            .Build();
+
             var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFExecutable>();
 
+            // FTFService handler
             ServiceRunner<FTFService>.Run(config =>
             {
                 var name = config.GetDefaultName();
@@ -60,8 +87,15 @@ namespace FTFService
                 });
             });
 
-            // Dispose of loggers
+            // Dispose of loggers, this needs to be done manually
             svcProvider.GetService<ILoggerFactory>().Dispose();
+        }
+
+        private static void Troll(IIpcServiceBuilder builder)
+        {
+            builder
+                .AddTcp()
+                .AddService<IComputingService, ComputingService>();
         }
     }
 }
