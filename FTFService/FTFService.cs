@@ -7,42 +7,84 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using FTFInterfaces;
+using FTFTestExecution;
+using System.Threading;
 
 namespace FTFService
 {
-    public class FTFService : MicroService, IMicroService
+
+    // find the singleton -> pass call to it
+    public class FTFCommunicationHandler : IFTFCommunication
     {
+        // test is running?
+        public TestList EnumerateTests(string path, bool onlyTAEF)
+        {
+            return FTFService.Instance.EnumerateTests(path, onlyTAEF);
+        }
+
+        public bool RunTestList(TestList listToRun, bool runInParallel)
+        {
+            return FTFService.Instance.RunTestList(listToRun, runInParallel);
+        } 
+    }
+    
+    public class FTFService : IMicroService
+    {
+        private static FTFService _singleton = null;
+        private static readonly Mutex _constructorLock = new Mutex();
+
+
         private IMicroServiceController _controller;
         private ILogger<FTFService> _logger;
         private System.Threading.CancellationTokenSource _cancellationToken;
 
-        public FTFService()
+        public static FTFService Instance
         {
-            _controller = null;
+            get
+            {
+                return _singleton;
+            }
         }
 
         public FTFService(IMicroServiceController controller, ILogger<FTFService> logger)
         {
-            _controller = controller;
-            _logger = logger;
+            _constructorLock.WaitOne();
+            if (_singleton == null)
+            {
+                _controller = controller;
+                _logger = logger;
+                _singleton = this;
+            }
+            else
+            {
+                throw new Exception("FTFService already created! Only one instance allowed.");
+            }
+            _constructorLock.ReleaseMutex();
         }
 
-        
+        public TestList EnumerateTests(string path, bool onlyTAEF)
+        {
+            return TestManager.EnumerateTests(path, onlyTAEF);
+        }
+
+        public bool RunTestList(TestList listToRun, bool runInParallel)
+        {
+            return TestManager.RunTestList(listToRun, runInParallel);
+        }
+
+
         public void Start()
         {
-            StartBase();
             _cancellationToken = new System.Threading.CancellationTokenSource();
             FTFExecutable.ipcHost.RunAsync(_cancellationToken.Token);
-            Timers.Start("Poller", 1000, () =>
-            {
-            _logger.LogInformation(string.Format("Polling at {0}\n", DateTime.Now.ToString("o")));
-            });
+            
+            
             _logger.LogTrace("Started\n");
         }
 
         public void Stop()
         {
-            StopBase();
             _cancellationToken.Cancel();
             _logger.LogTrace("Stopped\n");
         }

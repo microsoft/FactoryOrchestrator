@@ -175,6 +175,11 @@ namespace FTFTestExecution
         public List<FactoryTest> Tests;
         private bool? _result;
 
+        public TestList()
+        {
+            Tests = new List<FactoryTest>();
+        }
+
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)Tests).GetEnumerator();

@@ -5,18 +5,11 @@ using JKang.IpcServiceFramework;
 using System.Net;
 using System.Threading.Tasks;
 using JKang.IpcServiceFramework.Services;
+using FTFInterfaces;
 
 namespace FTFService
 {
    
-    class ComputingService : IComputingService
-    {
-        public float AddFloat(float x, float y)
-        {
-            return x + y;
-        }
-    }
-
     class FTFExecutable
     {
         public static IIpcServiceHost ipcHost;
@@ -37,7 +30,7 @@ namespace FTFService
             {
                 builder
                     .AddNamedPipe()
-                    .AddService<IComputingService, ComputingService>();
+                    .AddService<IFTFCommunication, FTFCommunicationHandler>();
             });
 
             // Configure service provider for logger creation and managment
@@ -58,13 +51,10 @@ namespace FTFService
             svcProvider.GetRequiredService<ILoggerFactory>().AddProvider(new LogFileProvider());
 
 
-            var a = svcProvider.GetService<IValueConverter>();
-
-            ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IComputingService>("tcp", IPAddress.Loopback, 45684)
+            ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Loopback, 45684)
                                                                             .Build();
 
-
-            var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFExecutable>();
+           var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFExecutable>();
 
             // FTFService handler
             ServiceRunner<FTFService>.Run(config =>
@@ -98,14 +88,6 @@ namespace FTFService
 
             // Dispose of loggers, this needs to be done manually
             svcProvider.GetService<ILoggerFactory>().Dispose();
-        }
-
-        private static void Troll(IIpcServiceBuilder builder)
-        {
-            builder
-                .AddTcp()
-                .AddNamedPipe()
-                .AddService<IComputingService, ComputingService>();
         }
     }
 }

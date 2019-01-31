@@ -1,4 +1,5 @@
-﻿using FTFService;
+﻿using FTFInterfaces;
+using FTFTestExecution;
 using JKang.IpcServiceFramework;
 using System;
 using System.Collections.Generic;
@@ -25,21 +26,37 @@ namespace FTFUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        IpcServiceClient<IFTFCommunication> client;
+
         public MainPage()
         {
             this.InitializeComponent();
+
+            client = new IpcServiceClientBuilder<IFTFCommunication>()
+                .UseTcp(IPAddress.Loopback, 45684)
+                .Build();
         }
 
         private async void Button_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            this.result.Visibility = Visibility.Collapsed;
+            bool result = false;
+            if (client != null)
+            {
+                try
+                {
 
-            IpcServiceClient<IComputingService> client = new IpcServiceClientBuilder<IComputingService>()
-                .UseTcp(IPAddress.Loopback, 45684) //to invoke using TCP
-                .Build();
+                    var tests = await client.InvokeAsync(x => x.EnumerateTests("c:\\data\\tests\\", false));
+                    result = await client.InvokeAsync(x => x.RunTestList(tests, false));
+                }
+                catch (Exception ex)
+                {
+                    ex.ToString();
+                }
+            }
 
-
-            float result = await client.InvokeAsync(x => x.AddFloat(1.23f, 4.56f));
-            abc.Text = result.ToString();
+            this.result.IsChecked = result;
+            this.result.Visibility = Visibility.Visible;
         }
     }
 }

@@ -11,6 +11,7 @@
     <Grid>
         <Button Content="Button" HorizontalAlignment="Left" Margin="273,211,0,0" VerticalAlignment="Top" PointerPressed="Button_PointerPressed" PointerEntered="Button_PointerPressed"/>
         <TextBlock x:Name="abc"  Margin="304,292,0,0" Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <CheckBox x:Name="result" Content="Result" HorizontalAlignment="Left" Margin="504,363,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Page>

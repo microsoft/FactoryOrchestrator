@@ -92,11 +92,16 @@ namespace FTFTestExecution
 
         }
 
-        public bool RunTestList(TestList list, bool runInParallel = false)
+        public static bool RunTestList(TestList list, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
         {
             foreach (FactoryTest test in list)
             {
                 TestRunner runner = new TestRunner(test);
+                if (testRunEventHandler != null)
+                {
+                    runner.OnTestEvent += testRunEventHandler;
+                }
+
                 if (!runner.RunTest())
                 {
                     throw new Exception(String.Format("Unable to start test {0}", test));
@@ -162,9 +167,9 @@ namespace FTFTestExecution
 
     public class TestRunner
     {
-        public static String GlobalLogPath;
-        public static String GlobalTeExePath;
-        public static String GlobalExecutionContextPath;
+        //public static String GlobalLogPath;
+        public static String GlobalTeExePath = "c:\\taef\\te.exe";
+        //public static String GlobalExecutionContextPath;
         private readonly static String GlobalTeArgs = " /labMode /enableWttLogging /logOutput:High /console:flushWrites /coloredConsoleOutput:false";
         private Mutex outputMutex = new Mutex();
 
@@ -224,6 +229,8 @@ namespace FTFTestExecution
             TestProcess.StartInfo = startInfo;
             if(TestProcess.Start())
             {
+                IsRunning = true;
+                TestOutput = new List<string>();
                 // Start async read (OnOutputData)
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
@@ -277,6 +284,7 @@ namespace FTFTestExecution
                 File.AppendAllLines(TestContext.LogFilePath, TestOutput, System.Text.Encoding.UTF8);
             }
 
+            IsRunning = false;
             // Raise event if event handler exists
             OnTestEvent?.Invoke(this, new TestRunEventArgs(TestContext.TestStatus, (int)TestContext.ExitCode, null));
         }
@@ -307,7 +315,7 @@ namespace FTFTestExecution
             }
         }
 
-        public bool IsRunning { get; }
+        public bool IsRunning { get; set; }
         public FactoryTest TestContext { get; }
         public event TestRunEventHandler OnTestEvent;
         public Process TestProcess;
