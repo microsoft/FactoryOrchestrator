@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace FTFTestExecution
 {
@@ -23,13 +24,9 @@ namespace FTFTestExecution
     {
         public FactoryTest(String testPath)
         {
-            if (!File.Exists(testPath))
-            {
-                throw new FileNotFoundException(String.Format("Unable to find test binary at {0}", testPath));
-            }
-
             IsTAEF = false;
             TestPath = testPath;
+            Guid = Guid.NewGuid();
             Reset();
         }
 
@@ -127,7 +124,9 @@ namespace FTFTestExecution
         }
         public bool IsTAEF { get; set; }
         public List<String> Arguments;
+        public Guid Guid { get; }
 
+        [JsonIgnore]
         public TestRunner TestRunner;
     }
 
@@ -165,24 +164,20 @@ namespace FTFTestExecution
                 {
                     return null;
                 }
-
             }
         }
     }
 
-    public class TestList : IEnumerable
+    public class TestList
     {
-        public List<FactoryTest> Tests;
+        public Dictionary<Guid, Tuple<FactoryTest, bool>> Tests;
+        public Guid Guid { get; }
         private bool? _result;
 
         public TestList()
         {
-            Tests = new List<FactoryTest>();
-        }
-
-        public IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)Tests).GetEnumerator();
+            Tests = new Dictionary<Guid, Tuple<FactoryTest, bool>>();
+            Guid = Guid.NewGuid();
         }
     }
 }

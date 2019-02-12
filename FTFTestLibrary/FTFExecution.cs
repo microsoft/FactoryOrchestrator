@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FTFTestExecution
 {
     public class TestManager
     {
-        public static TestList EnumerateTests(String path, bool onlyTAEF)
+        public TestList CreateTestListFromDirectory(String path, bool onlyTAEF)
         {
             // Recursive search for all exe and dll files
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
@@ -21,7 +23,7 @@ namespace FTFTestExecution
                 var maybeTAEF = CheckForTAEFTest(dll);
                 if (maybeTAEF != null)
                 {
-                    tests.Tests.Add(maybeTAEF);
+                    tests.Tests.Add(maybeTAEF.Guid, new Tuple<FactoryTest, bool>(maybeTAEF, true));
                 }
             }
 
@@ -30,11 +32,27 @@ namespace FTFTestExecution
             {
                 foreach (var exe in exes)
                 {
-                    tests.Tests.Add(new FactoryTest(exe));
+                    var test = new FactoryTest(exe);
+                    tests.Tests.Add(test.Guid, new Tuple<FactoryTest, bool>(test, true));
                 }
             }
 
+            KnownTestLists.Add(tests.Guid, tests);
             return tests;
+        }
+
+        public TestList CreateTestListFromTestList(TestList testList)
+        {
+            try
+            {
+                KnownTestLists.Add(testList.Guid, testList);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
+            return testList;
         }
 
         /// <summary>
@@ -89,12 +107,63 @@ namespace FTFTestExecution
 
         public TestManager()
         {
+        }
 
+        public void Initialize()
+        {
+        }
+
+        public void TestListQueueManager()
+        {
+
+        }
+
+        public class TestListQueueItem
+        {
+            public TestListQueueItem(TestList testList, bool allowOtherTestListsToRun, bool runListInParallel)
+            {
+                TestList = testList;
+                AllowOtherTestListsToRun = allowOtherTestListsToRun;
+                RunListInParallel = runListInParallel;
+            }
+
+            public TestList TestList;
+            public bool AllowOtherTestListsToRun;
+            public bool RunListInParallel;
+        }
+
+        public bool RunTestList(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        {
+            TestList list = null;
+
+            // Check if test list is valid
+            lock (TestListLock)
+            {
+                if (!KnownTestLists.ContainsKey(TestListGuidToRun))
+                {
+                    return false;
+                }
+
+                list = KnownTestLists[TestListGuidToRun];
+            }
+
+            // Check if test list is already running or set to be run
+            lock (TestQueueLock)
+            {
+                if (RunningTestListTokens.ContainsKey(TestListGuidToRun) || TestListRunQueue.Select(x => x.TestList.Guid).Where(y => y.Equals(TestListGuidToRun)).Count() > 0)
+                {
+                    return true;
+                }
+
+                TestListRunQueue.Enqueue(new TestListQueueItem(list, allowOtherTestListsToRun, runListInParallel));
+            }
+            return true;
         }
 
         public static bool RunTestList(TestList list, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
         {
-            foreach (FactoryTest test in list)
+            // Run all enabled tests in the list
+            foreach (FactoryTest test in list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1))
             {
                 TestRunner runner = new TestRunner(test);
                 if (testRunEventHandler != null)
@@ -118,7 +187,7 @@ namespace FTFTestExecution
                 }
             }
 
-            foreach (FactoryTest test in list)
+            foreach (FactoryTest test in list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1))
             {
                 if (test.ExitCode != 0)
                 {
@@ -131,11 +200,18 @@ namespace FTFTestExecution
 
         public void Abort(TestList list)
         {
-            foreach (var test in list.Tests.Where(x => (x.TestRunner != null) && (x.TestRunner.IsRunning)))
-            {
-                test.TestRunner.StopTest();
-            }
+            //foreach (var test in list.Tests.Keys.Where(x => (x.TestRunner != null) && (x.TestRunner.IsRunning)))
+            //{
+            //    test.TestRunner.StopTest();
+            //}
         }
+
+        private Dictionary<Guid, TestList> KnownTestLists;
+        private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
+        private Dictionary<Guid, Queue<TestRunEventArgs>> TestEvents;
+        private Queue<TestListQueueItem> TestListRunQueue;
+        private readonly object TestListLock = new object();
+        private readonly object TestQueueLock = new object();
     }
 
     public delegate void TestRunEventHandler(object source, TestRunEventArgs e);
@@ -171,7 +247,7 @@ namespace FTFTestExecution
         public static String GlobalTeExePath = "c:\\taef\\te.exe";
         //public static String GlobalExecutionContextPath;
         private readonly static String GlobalTeArgs = " /labMode /enableWttLogging /logOutput:High /console:flushWrites /coloredConsoleOutput:false";
-        private Mutex outputMutex = new Mutex();
+        private object outputLock = new object();
 
         public TestRunner(FactoryTest testToRun)
         {
@@ -247,15 +323,16 @@ namespace FTFTestExecution
 
         private void OnOutputData(object sender, DataReceivedEventArgs e)
         {
-            // Use mutex to ensure output data is properly serialized
-            outputMutex.WaitOne();
-            TestOutput.Add(e.Data);
-
-            if (TestContext.IsTAEF)
+            // Use mutex to ensure output data is serialized
+            lock (outputLock)
             {
-                ParseTeOutput(e.Data);
+                TestOutput.Add(e.Data);
+
+                if (TestContext.IsTAEF)
+                {
+                    ParseTeOutput(e.Data);
+                }
             }
-            outputMutex.ReleaseMutex();
         }
 
         private void ParseTeOutput(string data)

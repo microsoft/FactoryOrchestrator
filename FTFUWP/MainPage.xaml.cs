@@ -46,8 +46,8 @@ namespace FTFUWP
                 try
                 {
 
-                    var tests = await client.InvokeAsync(x => x.EnumerateTests("c:\\data\\tests\\", false));
-                    result = await client.InvokeAsync(x => x.RunTestList(tests, false));
+                    var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
+                    abc.Text = DateTime.Now.ToString();
                 }
                 catch (Exception ex)
                 {

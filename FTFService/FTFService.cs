@@ -14,27 +14,96 @@ using System.Threading;
 namespace FTFService
 {
 
-    // find the singleton -> pass call to it
+    // find the FTFService singleton -> pass call to it
     public class FTFCommunicationHandler : IFTFCommunication
     {
-        // test is running?
-        public TestList EnumerateTests(string path, bool onlyTAEF)
+        public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
-            return FTFService.Instance.EnumerateTests(path, onlyTAEF);
+            return FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
         }
 
-        public bool RunTestList(TestList listToRun, bool runInParallel)
+        public TestList CreateTestListFromFile(string filePath)
         {
-            return FTFService.Instance.RunTestList(listToRun, runInParallel);
-        } 
+            throw new NotImplementedException();
+        }
+
+        public TestList CreateTestListFromTestList(TestList list)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DeleteTestList(Guid listToDelete)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TestOutput GetAllOutput(Guid guid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TestOutput GetErrors(Guid guid, ulong index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<TestOutput> GetLatestOutput(Guid guid, DateTime fromTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ServiceEventDatum GetServiceUpdate(List<FTFEventType> types)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ServiceEventDatum GetServiceUpdate(FTFEventType type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ServiceEventDatum GetServiceUpdate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TestEventDatum GetStatus(Guid guid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Guid> GetTestListGuids()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TestList QueryTestList(Guid guid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        {
+            return FTFService.Instance.TestExecutionManager.
+        }
+
+        public void SetUWPTestResult(Guid testGuid, TestEventDatum testEvent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool UpdateTestList(Guid guid, TestList testList)
+        {
+            throw new NotImplementedException();
+        }
     }
-    
+
     public class FTFService : IMicroService
     {
         private static FTFService _singleton = null;
-        private static readonly Mutex _constructorLock = new Mutex();
+        private static readonly object _constructorLock = new object();
 
-
+        private TestManager _testExecutionManager;
         private IMicroServiceController _controller;
         private ILogger<FTFService> _logger;
         private System.Threading.CancellationTokenSource _cancellationToken;
@@ -49,37 +118,29 @@ namespace FTFService
 
         public FTFService(IMicroServiceController controller, ILogger<FTFService> logger)
         {
-            _constructorLock.WaitOne();
-            if (_singleton == null)
+            lock (_constructorLock)
             {
-                _controller = controller;
-                _logger = logger;
-                _singleton = this;
+                if (_singleton == null)
+                {
+                    _controller = controller;
+                    _logger = logger;
+                    _singleton = this;
+                    _testExecutionManager = new TestManager();
+                }
+                else
+                {
+                    throw new Exception("FTFService already created! Only one instance allowed.");
+                }
             }
-            else
-            {
-                throw new Exception("FTFService already created! Only one instance allowed.");
-            }
-            _constructorLock.ReleaseMutex();
         }
 
-        public TestList EnumerateTests(string path, bool onlyTAEF)
-        {
-            return TestManager.EnumerateTests(path, onlyTAEF);
-        }
-
-        public bool RunTestList(TestList listToRun, bool runInParallel)
-        {
-            return TestManager.RunTestList(listToRun, runInParallel);
-        }
-
-
+        public TestManager TestExecutionManager { get => _testExecutionManager; }
         public void Start()
         {
+            // Start IPC server
             _cancellationToken = new System.Threading.CancellationTokenSource();
             FTFExecutable.ipcHost.RunAsync(_cancellationToken.Token);
-            
-            
+
             _logger.LogTrace("Started\n");
         }
 
