@@ -84,7 +84,7 @@ namespace FTFService
 
         public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
-            return FTFService.Instance.TestExecutionManager.
+            //return FTFService.Instance.TestExecutionManager.
         }
 
         public void SetUWPTestResult(Guid testGuid, TestEventDatum testEvent)

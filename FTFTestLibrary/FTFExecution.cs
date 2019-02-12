@@ -7,9 +7,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+// todo: split into client lib, shared lib, server lib
 namespace FTFTestExecution
 {
-    public class TestManager
+    public class TestManager // todo: server lib
     {
         public TestList CreateTestListFromDirectory(String path, bool onlyTAEF)
         {
@@ -104,18 +105,65 @@ namespace FTFTestExecution
         //public static string GetTAEFTestName(String WttLogPath)
         //{
         //}
-
         public TestManager()
         {
+            StartTestRunLock = new SemaphoreSlim(1, 1);
         }
 
         public void Initialize()
         {
         }
 
-        public void TestListQueueManager()
+        private void TestListQueueManager()
         {
+            while (true)
+            {
+                while (TestListRunQueue.Count > 0)
+                {
+                    var run = TestListRunQueue.Dequeue();
+                    var token = new CancellationTokenSource();
+                    RunningTestListTokens.Add(run.TestList.Guid, token);
+                    Task t = new Task((i) => { TestListWorker(i, token.Token); },  run, token.Token);
+                    t.Start();
+                }
 
+                Thread.Sleep(1000);
+            }
+        }
+
+        private void TestListWorker(object i, CancellationToken token)
+        {
+            var item = (TestListQueueItem)i;
+            bool usedSem = false;
+
+            if (!item.AllowOtherTestListsToRun)
+            {
+                try
+                {
+                    StartTestRunLock.Wait(token);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+
+                usedSem = true;
+            }
+            else
+            {
+                usedSem = StartTestRunLock.Wait(0);
+            }
+
+            RunTestList(item.TestList, token, item.RunListInParallel);
+
+            lock (TestQueueLock)
+            {
+                RunningTestListTokens.Remove(item.TestList.Guid);
+            }
+            if (usedSem)
+            {
+                StartTestRunLock.Release();
+            }
         }
 
         public class TestListQueueItem
@@ -132,7 +180,7 @@ namespace FTFTestExecution
             public bool RunListInParallel;
         }
 
-        public bool RunTestList(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        public bool QueueTestList(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
             TestList list = null;
 
@@ -160,10 +208,43 @@ namespace FTFTestExecution
             return true;
         }
 
-        public static bool RunTestList(TestList list, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
+        public void RunTestList(TestList list, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
         {
             // Run all enabled tests in the list
-            foreach (FactoryTest test in list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1))
+            var enumerator = list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1);
+            if (!runInParallel)
+            {
+                foreach (FactoryTest test in enumerator)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        RunTest(test, token, testRunEventHandler);
+                    }
+                }
+            }
+            else
+            {
+                Parallel.ForEach<FactoryTest>(enumerator, (test, state) =>
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        state.Stop();
+                    }
+                    else
+                    {
+                        RunTest(test, token, testRunEventHandler);
+                    }
+                });
+            }
+        }
+
+        private static void RunTest(FactoryTest test, CancellationToken token, TestRunEventHandler testRunEventHandler = null)
+        {
+            if (!token.IsCancellationRequested)
             {
                 TestRunner runner = new TestRunner(test);
                 if (testRunEventHandler != null)
@@ -176,34 +257,31 @@ namespace FTFTestExecution
                     throw new Exception(String.Format("Unable to start test {0}", test));
                 }
 
-                if (!runInParallel)
+                // Run test, waiting for it to finish or be aborted
+                bool done = false;
+                while (!token.IsCancellationRequested && !done)
                 {
-                    runner.WaitForExit();
+                    done = runner.WaitForExit(0);
+                    Thread.Sleep(500);
                 }
-                else
+                if (token.IsCancellationRequested)
                 {
-                    // TODO: Implement
-                    throw new Exception(String.Format("Parallel execution not yet supported"));
-                }
-            }
-
-            foreach (FactoryTest test in list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1))
-            {
-                if (test.ExitCode != 0)
-                {
-                    return false;
+                    runner.StopTest();
                 }
             }
-
-            return true;
         }
 
-        public void Abort(TestList list)
+        public void Abort(Guid testListToCancel)
         {
-            //foreach (var test in list.Tests.Keys.Where(x => (x.TestRunner != null) && (x.TestRunner.IsRunning)))
-            //{
-            //    test.TestRunner.StopTest();
-            //}
+            lock (TestQueueLock)
+            {
+                CancellationTokenSource token;
+                if (RunningTestListTokens.TryGetValue(testListToCancel, out token))
+                {
+                    token.Cancel();
+                    RunningTestListTokens.Remove(testListToCancel);
+                }
+            }
         }
 
         private Dictionary<Guid, TestList> KnownTestLists;
@@ -212,6 +290,7 @@ namespace FTFTestExecution
         private Queue<TestListQueueItem> TestListRunQueue;
         private readonly object TestListLock = new object();
         private readonly object TestQueueLock = new object();
+        private readonly SemaphoreSlim StartTestRunLock;
     }
 
     public delegate void TestRunEventHandler(object source, TestRunEventArgs e);
