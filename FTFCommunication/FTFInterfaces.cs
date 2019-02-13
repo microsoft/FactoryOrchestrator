@@ -67,7 +67,7 @@ namespace FTFInterfaces
         public string Message;
     }
 
-    public class TestListDatum //: IEnumerable
+    public class TestListDatum
     {
         public TestListDatum()
         { }

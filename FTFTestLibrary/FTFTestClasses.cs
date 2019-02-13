@@ -20,13 +20,83 @@ namespace FTFTestExecution
         TestNotRun
     }
 
-    public class FactoryTest
+    public enum TestType
     {
-        public FactoryTest(String testPath)
+        ConsoleExe,
+        TAEFDll,
+        UWP
+    }
+
+    public abstract class TestBase
+    {
+        public TestBase(string testPath, TestType type)
         {
-            IsTAEF = false;
-            TestPath = testPath;
             Guid = Guid.NewGuid();
+            TestType = type;
+            TestPath = testPath;
+        }
+        
+        public TestType TestType { get; }
+
+        public List<String> Arguments { get; set; }
+        public Guid Guid { get; }
+
+        public DateTime? LastTimeRun { get; set; }
+        public TestStatus TestStatus { get; set; }
+
+        public bool? TestPassed
+        {
+            get
+            {
+                if (this.TestStatus == TestStatus.TestPassed)
+                {
+                    return true;
+                }
+                else if (this.TestStatus == TestStatus.TestFailed)
+                {
+                    return false;
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+        }
+
+        public int? ExitCode { get; set; }
+        public String LogFilePath { get; set; }
+
+        public String TestPath { get; }
+
+        public virtual void Reset()
+        {
+            LastTimeRun = null;
+            TestStatus = TestStatus.TestNotRun;
+            ExitCode = null;
+            if (LogFilePath != null)
+            {
+                if (File.Exists(LogFilePath))
+                {
+                    try
+                    {
+                        File.Delete(LogFilePath);
+                    }
+                    catch { }
+                }
+            }
+        }
+    }
+
+    public class ExecutableTest : TestBase
+    {
+        public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
+        {
+            Reset();
+        }
+
+        protected ExecutableTest(String testPath, TestType type) : base(testPath, type)
+        {
             Reset();
         }
 
@@ -54,47 +124,10 @@ namespace FTFTestExecution
         //    }
         //}
 
-        public void Reset()
+        public override void Reset()
         {
-            LastTimeRun = null;
-            TestStatus = TestStatus.TestNotRun;
+            base.Reset();
             TestRunner = null;
-            ExitCode = null;
-            if (LogFilePath != null)
-            {
-                if (File.Exists(LogFilePath))
-                {
-                    try
-                    {
-                        File.Delete(LogFilePath);
-                    }
-                    catch { }
-                }
-            }
-        }
-
-        // protected instance variables
-        public DateTime? LastTimeRun { get; set; }
-        public TestStatus TestStatus { get; set; }
-
-        public bool? TestPassed
-        {
-            get
-            {
-                if (this.TestStatus == TestStatus.TestPassed)
-                {
-                    return true;
-                }
-                else if (this.TestStatus == TestStatus.TestFailed)
-                {
-                    return false;
-                }
-                else
-                {
-                    return null;
-                }
-
-            }
         }
 
         public TimeSpan TestRunTime
@@ -112,9 +145,6 @@ namespace FTFTestExecution
             }
         }
 
-        public int? ExitCode { get; set; }
-        public String LogFilePath { get; set; }
-        public String TestPath;
         public String TestName
         {
             get
@@ -122,24 +152,31 @@ namespace FTFTestExecution
                 return Path.GetFileName(TestPath);
             }
         }
-        public bool IsTAEF { get; set; }
-        public List<String> Arguments;
-        public Guid Guid { get; }
 
         [JsonIgnore]
         public TestRunner TestRunner;
     }
 
-    public class TAEFTest : FactoryTest
+    public class TAEFTest : ExecutableTest
     {
-        public TAEFTest(string testPath) : base(testPath)
+        public TAEFTest(string testPath) : base(testPath, TestType.TAEFDll)
         {
-            IsTAEF = true;
         }
 
         private List<TAEFTestCase> _testCases;
         private String _wtlFilePath;
     }
+
+    public class UWPTest : TestBase
+    {
+        public UWPTest(string packageFamilyName) : base(packageFamilyName, TestType.UWP)
+        {
+        }
+
+        public string TestName { get; set; }
+        public TimeSpan TestRunTime {get; set; }
+    }
+
     public class TAEFTestCase
     {
         public TAEFTestCase()
@@ -170,13 +207,13 @@ namespace FTFTestExecution
 
     public class TestList
     {
-        public Dictionary<Guid, Tuple<FactoryTest, bool>> Tests;
+        public Dictionary<Guid, Tuple<ExecutableTest, bool>> Tests;
         public Guid Guid { get; }
         private bool? _result;
 
         public TestList()
         {
-            Tests = new Dictionary<Guid, Tuple<FactoryTest, bool>>();
+            Tests = new Dictionary<Guid, Tuple<ExecutableTest, bool>>();
             Guid = Guid.NewGuid();
         }
     }
