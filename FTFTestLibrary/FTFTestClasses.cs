@@ -29,6 +29,10 @@ namespace FTFTestExecution
 
     public abstract class TestBase
     {
+        [JsonConstructor]
+        public TestBase()
+        { }
+
         public TestBase(string testPath, TestType type)
         {
             Guid = Guid.NewGuid();
@@ -208,13 +212,23 @@ namespace FTFTestExecution
     public class TestList
     {
         public Dictionary<Guid, Tuple<ExecutableTest, bool>> Tests;
-        public Guid Guid { get; }
+
+        public Guid Guid { get => _guid; }
+
+        [JsonRequired]
+        private Guid _guid;
+
         private bool? _result;
 
+        [JsonConstructor]
         public TestList()
         {
             Tests = new Dictionary<Guid, Tuple<ExecutableTest, bool>>();
-            Guid = Guid.NewGuid();
+        }
+
+        public TestList(Guid guid) : this()
+        {
+            _guid = guid;
         }
     }
 }

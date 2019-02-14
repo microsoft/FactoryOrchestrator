@@ -47,6 +47,11 @@ namespace FTFService
             throw new NotImplementedException();
         }
 
+        public TestEventDatum GetExecutionStatus(Guid guid)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<TestOutput> GetLatestOutput(Guid guid, DateTime fromTime)
         {
             throw new NotImplementedException();
@@ -82,9 +87,14 @@ namespace FTFService
             throw new NotImplementedException();
         }
 
+        public void ResetService()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
-            //return FTFService.Instance.TestExecutionManager.
+            return FTFService.Instance.TestExecutionManager.Run(TestListToRun, allowOtherTestListsToRun, runListInParallel);
         }
 
         public void SetUWPTestResult(Guid testGuid, TestEventDatum testEvent)
@@ -93,6 +103,11 @@ namespace FTFService
         }
 
         public bool UpdateTestList(Guid guid, TestList testList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool UpdateTestList(TestList testList)
         {
             throw new NotImplementedException();
         }

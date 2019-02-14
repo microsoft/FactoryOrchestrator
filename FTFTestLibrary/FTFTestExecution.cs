@@ -17,7 +17,7 @@ namespace FTFTestExecution
             // Recursive search for all exe and dll files
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
             var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
-            TestList tests = new TestList();
+            TestList tests = new TestList(Guid.NewGuid());
 
             foreach (var dll in dlls)
             {
@@ -38,20 +38,26 @@ namespace FTFTestExecution
                 }
             }
 
-            KnownTestLists.Add(tests.Guid, tests);
+            lock (KnownTestListLock)
+            {
+                KnownTestLists.Add(tests.Guid, tests);
+            }
             return tests;
         }
 
         public TestList CreateTestListFromTestList(TestList testList)
         {
-            try
+            lock (KnownTestListLock)
             {
-                KnownTestLists.Add(testList.Guid, testList);
-            }
-            catch (ArgumentException)
-            {
-                // list already exists
-                return KnownTestLists[testList.Guid];
+                try
+                {
+                    KnownTestLists.Add(testList.Guid, testList);
+                }
+                catch (ArgumentException)
+                {
+                    // list already exists
+                    return KnownTestLists[testList.Guid];
+                }
             }
 
             return testList;
@@ -99,42 +105,39 @@ namespace FTFTestExecution
             }
             catch (Exception e)
             {
-                throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
+                //throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
+                return null;
             }
         }
 
-        //public static string GetTAEFTestName(String WttLogPath)
-        //{
-        //}
         public TestManager()
         {
             StartTestRunLock = new SemaphoreSlim(1, 1);
+            KnownTestLists = new Dictionary<Guid, TestList>();
+            RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
+            TestEvents = new Dictionary<Guid, Queue<TestRunEventArgs>>();
         }
 
-        public void Initialize()
-        {
-        }
+        //private void TestListQueueManager()
+        //{
+        //    while (true)
+        //    {
+        //        while (TestListRunQueue.Count > 0)
+        //        {
+        //            var run = TestListRunQueue.Dequeue();
+        //            var token = new CancellationTokenSource();
+        //            RunningTestListTokens.Add(run.TestList.Guid, token);
+        //            Task t = new Task((i) => { TestListWorker(i, token.Token); },  run, token.Token);
+        //            t.Start();
+        //        }
 
-        private void TestListQueueManager()
-        {
-            while (true)
-            {
-                while (TestListRunQueue.Count > 0)
-                {
-                    var run = TestListRunQueue.Dequeue();
-                    var token = new CancellationTokenSource();
-                    RunningTestListTokens.Add(run.TestList.Guid, token);
-                    Task t = new Task((i) => { TestListWorker(i, token.Token); },  run, token.Token);
-                    t.Start();
-                }
-
-                Thread.Sleep(1000);
-            }
-        }
+        //        Thread.Sleep(1000);
+        //    }
+        //}
 
         private void TestListWorker(object i, CancellationToken token)
         {
-            var item = (TestListQueueItem)i;
+            var item = (TestListWorkItem)i;
             bool usedSem = false;
 
             if (!item.AllowOtherTestListsToRun)
@@ -157,7 +160,7 @@ namespace FTFTestExecution
 
             RunTestList(item.TestList, token, item.RunListInParallel);
 
-            lock (TestQueueLock)
+            lock (RunningTestLock)
             {
                 RunningTestListTokens.Remove(item.TestList.Guid);
             }
@@ -167,9 +170,9 @@ namespace FTFTestExecution
             }
         }
 
-        public class TestListQueueItem
+        public class TestListWorkItem
         {
-            public TestListQueueItem(TestList testList, bool allowOtherTestListsToRun, bool runListInParallel)
+            public TestListWorkItem(TestList testList, bool allowOtherTestListsToRun, bool runListInParallel)
             {
                 TestList = testList;
                 AllowOtherTestListsToRun = allowOtherTestListsToRun;
@@ -181,12 +184,12 @@ namespace FTFTestExecution
             public bool RunListInParallel;
         }
 
-        public bool QueueTestList(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        public bool Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
             TestList list = null;
 
             // Check if test list is valid
-            lock (TestListLock)
+            lock (KnownTestListLock)
             {
                 if (!KnownTestLists.ContainsKey(TestListGuidToRun))
                 {
@@ -197,19 +200,23 @@ namespace FTFTestExecution
             }
 
             // Check if test list is already running or set to be run
-            lock (TestQueueLock)
+            lock (RunningTestLock)
             {
-                if (RunningTestListTokens.ContainsKey(TestListGuidToRun) || TestListRunQueue.Select(x => x.TestList.Guid).Where(y => y.Equals(TestListGuidToRun)).Count() > 0)
+                if (RunningTestListTokens.ContainsKey(TestListGuidToRun))
                 {
                     return true;
                 }
 
-                TestListRunQueue.Enqueue(new TestListQueueItem(list, allowOtherTestListsToRun, runListInParallel));
+                var workItem = new TestListWorkItem(list, allowOtherTestListsToRun, runListInParallel);
+                var token = new CancellationTokenSource();
+                RunningTestListTokens.Add(workItem.TestList.Guid, token);
+                Task t = new Task((i) => { TestListWorker(i, token.Token); }, workItem, token.Token);
+                t.Start();
             }
             return true;
         }
 
-        public void RunTestList(TestList list, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
+        private void RunTestList(TestList list, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
         {
             // Run all enabled tests in the list
             var enumerator = list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1);
@@ -274,7 +281,7 @@ namespace FTFTestExecution
 
         public void Abort(Guid testListToCancel)
         {
-            lock (TestQueueLock)
+            lock (RunningTestLock)
             {
                 CancellationTokenSource token;
                 if (RunningTestListTokens.TryGetValue(testListToCancel, out token))
@@ -288,9 +295,8 @@ namespace FTFTestExecution
         private Dictionary<Guid, TestList> KnownTestLists;
         private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
         private Dictionary<Guid, Queue<TestRunEventArgs>> TestEvents;
-        private Queue<TestListQueueItem> TestListRunQueue;
-        private readonly object TestListLock = new object();
-        private readonly object TestQueueLock = new object();
+        private readonly object KnownTestListLock = new object();
+        private readonly object RunningTestLock = new object();
         private readonly SemaphoreSlim StartTestRunLock;
     }
 
@@ -374,6 +380,7 @@ namespace FTFTestExecution
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
+            startInfo.WorkingDirectory = Path.GetDirectoryName(TestContext.TestPath);
 
             // Configure event handling
             TestProcess.EnableRaisingEvents = true;
