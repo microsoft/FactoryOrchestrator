@@ -24,30 +24,28 @@
                Text="Factory Test Framework" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Width="514" Grid.ColumnSpan="3" Margin="136,0,0,0" />
             <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
             <TextBlock Text="Test" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+            <!--<Button Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Click="Run_Button_Click" AutomationProperties.Name="Run">-->
+                <CommandBar Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" OverflowButtonVisibility="Collapsed">
+                    <AppBarButton Icon="Play" Label="Play" Click="AppBarButton_Click"/>
+                </CommandBar>
+                <!--<Image Source="/Assets/run.png" AutomationProperties.Name="Run"/>-->
+            <!--</Button>-->
             <TextBlock Text="Results" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
 
-            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" SelectionMode = "Single" IsItemClickEnabled = "True"  ScrollViewer.VerticalScrollMode="Enabled"  ItemsSource="{x:Bind TestListGuids}" SelectionChanged="TestListsView_SelectionChanged">
-                <!--<ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="47"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Image Source="Assets/run.png" Width="32" Height="32" HorizontalAlignment="Left"/>
-                            <TextBlock Text="{Binding TestListGuids}" Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>-->
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestListGuids}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
-            
-            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled">
+
+            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" SelectionMode="None" IsItemClickEnabled="False">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
-            
+
+            <ListView x:Name="ResultsView" Grid.Column="2" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" SelectionMode="None" IsItemClickEnabled="False">
+                <ListView.Items>
+                </ListView.Items>
+            </ListView>
         </Grid>
     </Grid>
 </Page>

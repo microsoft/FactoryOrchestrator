@@ -16,7 +16,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using FTFTestExecution;
 using System.Collections.ObjectModel;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -32,8 +31,8 @@ namespace FTFUWP
         private Dictionary<Guid, TestList> testListMap = new Dictionary<Guid, TestList>();
         public ObservableCollection<Guid> TestListGuids { get { return new ObservableCollection<Guid>(testListMap.Keys); } }
 
-        private ObservableCollection<Guid> testGuids = new ObservableCollection<Guid>();
-        public ObservableCollection<Guid> TestGuids { get { return testGuids; } }
+        private ObservableCollection<String> testNames = new ObservableCollection<String>();
+        public ObservableCollection<String> TestNames { get { return testNames; } }
 
         public MainPage()
         {
@@ -43,13 +42,13 @@ namespace FTFUWP
                 .UseTcp(IPAddress.Loopback, 45684)
                 .Build();
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
-            GetTestListMap();
+            GetTestListMapAsync();
         }
 
-        private TestList getTestListAsync()
+        private async System.Threading.Tasks.Task<TestList> GetTestListAsync()
         {
             //var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
-            //result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
+            //bool result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
 
             // Test code to format UI
             TestList t = new TestList(Guid.NewGuid());
@@ -73,19 +72,19 @@ namespace FTFUWP
             return t;
         }
 
-        private Dictionary<Guid, TestList> GetTestListMap()
+        private async System.Threading.Tasks.Task<Dictionary<Guid, TestList>> GetTestListMapAsync()
         {
             for (int i = 0; i < 10; i++)
             {
-                TestList t = getTestListAsync();
+                TestList t = await GetTestListAsync();
                 testListMap.Add(t.Guid, t);
             }
             return testListMap;
         }
 
-        private ObservableCollection<Guid> GetTestGuids(Guid guid)
+        private ObservableCollection<String> GetTestNames(Guid guid)
         {
-            return new ObservableCollection<Guid>(testListMap[guid].Tests.Keys);
+            return new ObservableCollection<String>(testListMap[guid].Tests.Values.Select(x => x.Item1.TestName).ToList());
         }
 
         private void TestListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -93,10 +92,41 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                testGuids = GetTestGuids(testListGuid);
+                testNames = GetTestNames(testListGuid);
                 TestsView.Items.Clear();
-                foreach (Guid g in TestGuids) {
-                    TestsView.Items.Add(g);
+                foreach (String s in testNames)
+                {
+                    TestsView.Items.Add(s);
+                }
+            }
+        }
+
+        //void Run_Button_Click(object sender, RoutedEventArgs e)
+        //{
+        //    // right now, this just prints all of the test data results
+        //    // will really run tests and print results
+        //    if (TestListsView.SelectedItem != null)
+        //    {
+        //        Guid guid = (Guid)TestListsView.SelectedItem;
+        //        ResultsView.Items.Clear();
+        //        foreach (var test in testListMap[guid].Tests)
+        //        {
+        //            ResultsView.Items.Add(test.Value.Item1.TestStatus);
+        //        }
+        //    }
+        //}
+
+        private void AppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            // right now, this just prints all of the test data results
+            // will really run tests and print results
+            if (TestListsView.SelectedItem != null)
+            {
+                Guid guid = (Guid)TestListsView.SelectedItem;
+                ResultsView.Items.Clear();
+                foreach (var test in testListMap[guid].Tests)
+                {
+                    ResultsView.Items.Add(test.Value.Item1.TestStatus);
                 }
             }
         }
