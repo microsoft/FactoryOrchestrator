@@ -24,7 +24,7 @@ namespace FTFTestExecution
                 var maybeTAEF = CheckForTAEFTest(dll);
                 if (maybeTAEF != null)
                 {
-                    tests.Tests.Add(maybeTAEF.Guid, new Tuple<TestBase, bool>(maybeTAEF, true));
+                    tests.Tests.Add(maybeTAEF.Guid, maybeTAEF);
                 }
             }
 
@@ -34,7 +34,7 @@ namespace FTFTestExecution
                 foreach (var exe in exes)
                 {
                     var test = new ExecutableTest(exe);
-                    tests.Tests.Add(test.Guid, new Tuple<TestBase, bool>(test, true));
+                    tests.Tests.Add(test.Guid, test);
                 }
             }
 
@@ -193,7 +193,7 @@ namespace FTFTestExecution
                     // Iterate through all lists with this test and update them
                     foreach (var list in listsToUpdate)
                     {
-                        var test = list.Tests[latestTestStatus.Guid].Item1;
+                        var test = list.Tests[latestTestStatus.Guid];
                         // Replace existing Test with the Test we were given
                         lock (test.TestLock)
                         {
@@ -208,7 +208,7 @@ namespace FTFTestExecution
                                     }
                                 }
                             }
-                            list.Tests[latestTestStatus.Guid] = new Tuple<TestBase, bool>(latestTestStatus, list.Tests[latestTestStatus.Guid].Item2);
+                            list.Tests[latestTestStatus.Guid] = latestTestStatus;
                         }
                     }
                     return true;
@@ -328,7 +328,7 @@ namespace FTFTestExecution
         private void RunTestList(TestList list, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
         {
             // Run all enabled tests in the list
-            var enumerator = list.Tests.Values.Where(x => x.Item2 == true).Select(x => x.Item1);
+            var enumerator = list.Tests.Values.Where(x => x.IsEnabled == true);
             if (!runInParallel)
             {
                 foreach (TestBase test in enumerator)
@@ -468,12 +468,12 @@ namespace FTFTestExecution
 
         public static bool SetDefaultLogFolder(string logFolder)
         {
-            if (Directory.Exists(logFolder))
+            try
             {
-                GlobalLogFolder = logFolder;
+                Directory.CreateDirectory(logFolder);
                 return true;
             }
-            else
+            catch (Exception)
             {
                 return false;
             }

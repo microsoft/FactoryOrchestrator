@@ -67,7 +67,7 @@ namespace FTFUWP
                 {
                     g.TestStatus = TestStatus.TestFailed;
                 }
-                t.Tests.Add(g.Guid, new Tuple<ExecutableTest, bool>(g, true));
+                t.Tests.Add(g.Guid, g);
             }
             return t;
         }
@@ -84,7 +84,7 @@ namespace FTFUWP
 
         private ObservableCollection<String> GetTestNames(Guid guid)
         {
-            return new ObservableCollection<String>(testListMap[guid].Tests.Values.Select(x => x.Item1.TestName).ToList());
+            return new ObservableCollection<String>(testListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
         }
 
         private void TestListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -126,7 +126,7 @@ namespace FTFUWP
                 ResultsView.Items.Clear();
                 foreach (var test in testListMap[guid].Tests)
                 {
-                    ResultsView.Items.Add(test.Value.Item1.TestStatus);
+                    ResultsView.Items.Add(test.Value.TestStatus);
                 }
             }
         }

@@ -41,6 +41,7 @@ namespace FTFTestExecution
             Guid = Guid.NewGuid();
             TestType = type;
             TestPath = testPath;
+            IsEnabled = true;
             TestLock = new object();
         }
         
@@ -72,6 +73,8 @@ namespace FTFTestExecution
             }
         }
 
+        public bool IsEnabled { get; set; }
+
         public int? ExitCode { get; set; }
         public String LogFilePath { get; set; }
 
@@ -82,6 +85,14 @@ namespace FTFTestExecution
             get
             {
                 return !(TestType == TestType.UWP);
+            }
+        }
+
+        public virtual string TestName
+        {
+            get
+            {
+                return TestPath;
             }
         }
     
@@ -174,7 +185,7 @@ namespace FTFTestExecution
             }
         }
 
-        public String TestName
+        public override String TestName
         {
             get
             {
@@ -198,11 +209,19 @@ namespace FTFTestExecution
 
     public class UWPTest : TestBase
     {
-        public UWPTest(string packageFamilyName) : base(packageFamilyName, TestType.UWP)
+        public UWPTest(string packageFamilyName, string testFriendlyName = null) : base(packageFamilyName, TestType.UWP)
         {
+            if (!String.IsNullOrWhiteSpace(testFriendlyName))
+            {
+                TestName = testFriendlyName;
+            }
+            else
+            {
+                TestName = packageFamilyName;
+            }
         }
 
-        public string TestName { get; set; }
+        public override string TestName { get; }
         public TimeSpan TestRunTime {get; set; }
     }
 
@@ -236,7 +255,8 @@ namespace FTFTestExecution
 
     public class TestList
     {
-        public Dictionary<Guid, Tuple<TestBase, bool>> Tests;
+        
+        public Dictionary<Guid, TestBase> Tests;
 
         public Guid Guid { get => _guid; }
 
@@ -248,7 +268,7 @@ namespace FTFTestExecution
         [JsonConstructor]
         internal TestList()
         {
-            Tests = new Dictionary<Guid, Tuple<TestBase, bool>>();
+            Tests = new Dictionary<Guid, TestBase>();
         }
 
         public TestList(Guid guid) : this()
