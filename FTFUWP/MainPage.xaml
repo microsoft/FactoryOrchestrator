@@ -2,16 +2,52 @@
     x:Class="FTFUWP.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:FTFUWP"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="273,211,0,0" VerticalAlignment="Top" PointerPressed="Button_PointerPressed" PointerEntered="Button_PointerPressed"/>
-        <TextBlock x:Name="abc"  Margin="304,292,0,0" Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <CheckBox x:Name="result" Content="Result" HorizontalAlignment="Left" Margin="504,363,0,0" VerticalAlignment="Top"/>
 
+        <Grid x:Name="LayoutRoot" Background="#0078D7" Width="800" Height="600">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="266.67" />
+                <ColumnDefinition Width="266.67" />
+                <ColumnDefinition Width="266.67" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock FontWeight="Bold" 
+               Text="Factory Test Framework" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Width="514" Grid.ColumnSpan="3" Margin="136,0,0,0" />
+            <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+            <TextBlock Text="Test" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+            <TextBlock Text="Results" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" SelectionMode = "Single" IsItemClickEnabled = "True"  ScrollViewer.VerticalScrollMode="Enabled"  ItemsSource="{x:Bind TestListGuids}" SelectionChanged="TestListsView_SelectionChanged">
+                <!--<ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="47"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Image Source="Assets/run.png" Width="32" Height="32" HorizontalAlignment="Left"/>
+                            <TextBlock Text="{Binding TestListGuids}" Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>-->
+                <ListView.Items>
+                </ListView.Items>
+            </ListView>
+            
+            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled">
+                <ListView.Items>
+                </ListView.Items>
+            </ListView>
+            
+        </Grid>
     </Grid>
 </Page>
