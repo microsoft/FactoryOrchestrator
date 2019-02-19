@@ -14,27 +14,38 @@ using System.Threading;
 namespace FTFService
 {
 
-    // find the FTFService singleton -> pass call to it
+    // Find the FTFService singleton -> pass call to it
     public class FTFCommunicationHandler : IFTFCommunication
     {
+        // TODO: Catch exceptions & log them
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
             return FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
         }
 
-        public TestList CreateTestListFromFile(string filePath)
+        public List<Guid> LoadTestListsFromXmlFile(string filePath)
         {
             throw new NotImplementedException();
         }
 
         public TestList CreateTestListFromTestList(TestList list)
         {
-            throw new NotImplementedException();
+            return FTFService.Instance.TestExecutionManager.CreateTestListFromTestList(list);
+        }
+
+        public List<Guid> GetTestListGuids()
+        {
+            return FTFService.Instance.TestExecutionManager.GetKnownTestListGuids();
+        }
+
+        public TestList QueryTestList(Guid testListGuid)
+        {
+            return FTFService.Instance.TestExecutionManager.GetKnownTestList(testListGuid);
         }
 
         public bool DeleteTestList(Guid listToDelete)
         {
-            throw new NotImplementedException();
+            return FTFService.Instance.TestExecutionManager.DeleteTestList(listToDelete);
         }
 
         public TestOutput GetAllOutput(Guid guid)
@@ -77,19 +88,9 @@ namespace FTFService
             throw new NotImplementedException();
         }
 
-        public List<Guid> GetTestListGuids()
-        {
-            throw new NotImplementedException();
-        }
-
-        public TestList QueryTestList(Guid guid)
-        {
-            throw new NotImplementedException();
-        }
-
         public void ResetService()
         {
-            throw new NotImplementedException();
+            FTFService.Instance.TestExecutionManager.Reset();
         }
 
         public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
@@ -97,19 +98,24 @@ namespace FTFService
             return FTFService.Instance.TestExecutionManager.Run(TestListToRun, allowOtherTestListsToRun, runListInParallel);
         }
 
-        public void SetUWPTestResult(Guid testGuid, TestEventDatum testEvent)
+        public bool UpdateTestStatus(TestBase latestTestStatus)
         {
-            throw new NotImplementedException();
-        }
-
-        public bool UpdateTestList(Guid guid, TestList testList)
-        {
-            throw new NotImplementedException();
+            return FTFService.Instance.TestExecutionManager.UpdateTestStatus(latestTestStatus);
         }
 
         public bool UpdateTestList(TestList testList)
         {
-            throw new NotImplementedException();
+            return FTFService.Instance.TestExecutionManager.UpdateTestList(testList);
+        }
+
+        public bool SetDefaultTePath(string teExePath)
+        {
+            return TestRunner.SetDefaultTePath(teExePath);
+        }
+
+        public bool SetDefaultLogFolder(string logFolder)
+        {
+            return TestRunner.SetDefaultLogFolder(logFolder);
         }
     }
 

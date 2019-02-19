@@ -110,7 +110,7 @@ namespace FTFInterfaces
 
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
 
-        TestList CreateTestListFromFile(string filePath);
+        List<Guid> LoadTestListsFromXmlFile(string filePath);
 
         TestList CreateTestListFromTestList(TestList list);
 
@@ -131,12 +131,16 @@ namespace FTFInterfaces
 
         bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
 
-        void SetUWPTestResult(Guid testGuid, TestEventDatum testEvent);
+        bool UpdateTestStatus(TestBase latestTestStatus);
 
         TestOutput GetAllOutput(Guid guid);
 
         List<TestOutput> GetLatestOutput(Guid guid, DateTime fromTime);
 
         TestOutput GetErrors(Guid guid, ulong index);
+
+        bool SetDefaultTePath(string teExePath);
+
+        bool SetDefaultLogFolder(string logFolder);
     }
 }

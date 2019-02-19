@@ -29,15 +29,19 @@ namespace FTFTestExecution
 
     public abstract class TestBase
     {
+        // TODO: how do we guarantee accurate state when many things are querying test state?????
         [JsonConstructor]
-        public TestBase()
-        { }
+        internal TestBase()
+        {
+            TestLock = new object();
+        }
 
         public TestBase(string testPath, TestType type)
         {
             Guid = Guid.NewGuid();
             TestType = type;
             TestPath = testPath;
+            TestLock = new object();
         }
         
         public TestType TestType { get; }
@@ -73,23 +77,37 @@ namespace FTFTestExecution
 
         public String TestPath { get; }
 
+        public bool UsesTestRunner
+        {
+            get
+            {
+                return !(TestType == TestType.UWP);
+            }
+        }
+    
         public virtual void Reset()
         {
-            LastTimeRun = null;
-            TestStatus = TestStatus.TestNotRun;
-            ExitCode = null;
-            if (LogFilePath != null)
+            lock (TestLock)
             {
-                if (File.Exists(LogFilePath))
+                LastTimeRun = null;
+                TestStatus = TestStatus.TestNotRun;
+                ExitCode = null;
+                if (LogFilePath != null)
                 {
-                    try
+                    if (File.Exists(LogFilePath))
                     {
-                        File.Delete(LogFilePath);
+                        try
+                        {
+                            File.Delete(LogFilePath);
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
         }
+
+        [JsonIgnore]
+        internal object TestLock;
     }
 
     public class ExecutableTest : TestBase
@@ -130,8 +148,15 @@ namespace FTFTestExecution
 
         public override void Reset()
         {
+            lock (TestLock)
+            {
+                if (TestRunner.IsRunning)
+                {
+                    TestRunner.StopTest();
+                }
+                TestRunner = null;
+            }
             base.Reset();
-            TestRunner = null;
         }
 
         public TimeSpan TestRunTime
@@ -211,7 +236,7 @@ namespace FTFTestExecution
 
     public class TestList
     {
-        public Dictionary<Guid, Tuple<ExecutableTest, bool>> Tests;
+        public Dictionary<Guid, Tuple<TestBase, bool>> Tests;
 
         public Guid Guid { get => _guid; }
 
@@ -221,14 +246,21 @@ namespace FTFTestExecution
         private bool? _result;
 
         [JsonConstructor]
-        public TestList()
+        internal TestList()
         {
-            Tests = new Dictionary<Guid, Tuple<ExecutableTest, bool>>();
+            Tests = new Dictionary<Guid, Tuple<TestBase, bool>>();
         }
 
         public TestList(Guid guid) : this()
         {
-            _guid = guid;
+            if (guid != null)
+            {
+                _guid = guid;
+            }
+            else
+            {
+                _guid = Guid.NewGuid();
+            }
         }
     }
 }
