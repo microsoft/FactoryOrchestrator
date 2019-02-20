@@ -60,6 +60,30 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid guid = (Guid)TestListsView.SelectedItem;
+                List<TestStatus> testStatuses = TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList();
+                List<String> icons = new List<String>();
+                foreach (var status in testStatuses)
+                {
+                    if (status == TestStatus.TestPassed)
+                    {
+                        icons.Add(Char.ConvertFromUtf32(0xF13E));
+                    }
+                    if (status == TestStatus.TestFailed)
+                    {
+                        icons.Add(Char.ConvertFromUtf32(0xF13D));
+                    }
+                    else
+                    {
+                        icons.Add("");
+                    }
+                }
+
+                List<String> testNamesList = TestViewModel.TestData.TestNames.ToList();
+                ObservableCollection<String> results = new ObservableCollection<String>(icons.Concat(testNamesList).ToList());
+                //TestViewModel.TestData.TestNames = results;
+
+                TestViewModel.TestData.TestNames = new ObservableCollection<String>(icons);
+
                 TestViewModel.TestData.TestStatus = new ObservableCollection<TestStatus>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList());
             }
         }
