@@ -539,7 +539,7 @@ namespace FTFTestExecution
                 if (TestProcess.Start())
                 {
                     IsRunning = true;
-                    TestOutput = new List<string>();
+                    TestContext.TestOutput = new List<string>();
                     // Start async read (OnOutputData)
                     TestProcess.BeginErrorReadLine();
                     TestProcess.BeginOutputReadLine();
@@ -560,7 +560,7 @@ namespace FTFTestExecution
             // Use mutex to ensure output data is serialized
             lock (outputLock)
             {
-                TestOutput.Add(e.Data);
+                TestContext.TestOutput.Add(e.Data);
 
                 if (TestContext.TestType == TestType.TAEFDll)
                 {
@@ -596,7 +596,7 @@ namespace FTFTestExecution
                                               String.Format("Date/Time run: {0}", TestContext.LastTimeRun),
                                               String.Format("Time to complete: {0}", TestContext.TestRunTime),
                                               String.Format("---------Test's console output below--------")});
-            File.AppendAllLines(LogFilePath, TestOutput, System.Text.Encoding.UTF8);
+            File.AppendAllLines(LogFilePath, TestContext.TestOutput, System.Text.Encoding.UTF8);
 
             IsRunning = false;
             // Raise event if event handler exists
@@ -657,7 +657,6 @@ namespace FTFTestExecution
         public event TestRunEventHandler OnTestEvent;
         public Process TestProcess;
         private bool TestAborted;
-        public List<String> TestOutput;
         internal Stopwatch _timer; // The Process class counter stops working once the process exits so make our own timer
     }
 }

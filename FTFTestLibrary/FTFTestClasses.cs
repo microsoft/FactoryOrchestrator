@@ -43,6 +43,7 @@ namespace FTFTestExecution
             TestPath = testPath;
             IsEnabled = true;
             TestLock = new object();
+            TestOutput = new List<string>();
         }
         
         public TestType TestType { get; }
@@ -76,9 +77,12 @@ namespace FTFTestExecution
         public bool IsEnabled { get; set; }
 
         public int? ExitCode { get; set; }
-        public String LogFilePath { get; set; }
+        public string LogFilePath { get; set; }
 
-        public String TestPath { get; }
+        public string TestPath { get; }
+
+        // TODO: This will be replaced by the testrun class
+        public List<string> TestOutput { get; set; }
 
         public bool UsesTestRunner
         {
@@ -103,6 +107,7 @@ namespace FTFTestExecution
                 LastTimeRun = null;
                 TestStatus = TestStatus.TestNotRun;
                 ExitCode = null;
+                TestOutput = new List<string>();
                 if (LogFilePath != null)
                 {
                     if (File.Exists(LogFilePath))
