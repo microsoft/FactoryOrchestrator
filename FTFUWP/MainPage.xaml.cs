@@ -23,98 +23,29 @@ using System.ComponentModel;
 
 namespace FTFUWP
 {
-    //public class TestViewModel:INotifyPropertyChanged
-    //{
-    //    public TestViewModel()
-    //    {
-
-    //    }
-    //    public ObservableCollection<String> testNames
-    //    {
-    //        get
-    //        {
-    //            return testNames;
-    //        }
-    //        set
-    //        {
-    //            testNames = value;
-    //            NotifyPropertyChanged("TestNames");
-    //        }
-    //    }
-    //    public event PropertyChangedEventHandler PropertyChanged;
-    //    private void NotifyPropertyChanged(string v)
-    //    {
-    //        if (PropertyChanged != null)
-    //        {
-    //            this.PropertyChanged(this, new PropertyChangedEventArgs(v));
-    //        }
-    //    }
-    //}
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page
     {
         IpcServiceClient<IFTFCommunication> client;
-        private Dictionary<Guid, TestList> testListMap = new Dictionary<Guid, TestList>();
-        public ObservableCollection<Guid> TestListGuids { get { return new ObservableCollection<Guid>(testListMap.Keys); } }
-
-        private ObservableCollection<String> testNames = new ObservableCollection<String>();
-        public ObservableCollection<String> TestNames { get { return testNames; } }
 
         public MainPage()
         {
             this.InitializeComponent();
-
+            this.TestViewModel= new TestViewModel();
+            this.DataContext = TestViewModel;
             client = new IpcServiceClientBuilder<IFTFCommunication>()
                 .UseTcp(IPAddress.Loopback, 45684)
                 .Build();
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
-            GetTestListMapAsync();
         }
 
-        private TestList GetTestListAsync()
-        {
-            //var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
-            //bool result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
-
-            // Test code to format UI
-            Guid goo = Guid.NewGuid();
-            TestList t = new TestList(goo);
-            for (int i = 0; i < 100; i++)
-            {
-                TAEFTest g = new TAEFTest(i + "foo.dll")
-                {
-                    LastTimeRun = DateTime.Now,
-                    ExitCode = 1
-                };
-                if (i % 5 == 0)
-                {
-                    g.TestStatus = TestStatus.TestPassed;
-                }
-                else
-                {
-                    g.TestStatus = TestStatus.TestFailed;
-                }
-                t.Tests.Add(g.Guid, g);
-            }
-            return t;
-        }
-
-        private Dictionary<Guid, TestList> GetTestListMapAsync()
-        {
-            // TODO: Make this properly async
-            for (int i = 0; i < 10; i++)
-            {
-                TestList tl = GetTestListAsync();
-                testListMap.Add(tl.Guid, tl);
-            }
-            return testListMap;
-        }
+        public TestViewModel TestViewModel { get; set; }
 
         private ObservableCollection<String> GetTestNames(Guid guid)
         {
-            return new ObservableCollection<String>(testListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+            return new ObservableCollection<String>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
         }
 
         private void TestListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -122,31 +53,9 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                testNames = GetTestNames(testListGuid);
-                TestsView.Items.Clear();
-                
-                TestsView.Items.Add(TestNames);
-                foreach (String s in testNames)
-                {
-                    TestsView.Items.Add(s);
-                }
+                TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
             }
         }
-
-        //void Run_Button_Click(object sender, RoutedEventArgs e)
-        //{
-        //    // right now, this just prints all of the test data results
-        //    // will really run tests and print results
-        //    if (TestListsView.SelectedItem != null)
-        //    {
-        //        Guid guid = (Guid)TestListsView.SelectedItem;
-        //        ResultsView.Items.Clear();
-        //        foreach (var test in testListMap[guid].Tests)
-        //        {
-        //            ResultsView.Items.Add(test.Value.Item1.TestStatus);
-        //        }
-        //    }
-        //}
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
@@ -155,11 +64,7 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid guid = (Guid)TestListsView.SelectedItem;
-                ResultsView.Items.Clear();
-                foreach (var test in testListMap[guid].Tests)
-                {
-                    ResultsView.Items.Add(test.Value.TestStatus);
-                }
+                TestViewModel.TestData.TestStatus = new ObservableCollection<TestStatus>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList());
             }
         }
     }

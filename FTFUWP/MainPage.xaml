@@ -32,17 +32,17 @@
             <!--</Button>-->
             <TextBlock Text="Results" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
 
-            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestListGuids}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged">
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
 
-            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestNames, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
+            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
 
-            <ListView x:Name="ResultsView" Grid.Column="2" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" SelectionMode="None" IsItemClickEnabled="False">
+            <ListView x:Name="ResultsView" Grid.Column="2" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestStatus, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
