@@ -53,7 +53,7 @@ namespace FTFUWP
             }
         }
 
-        private void AppBarButton_Click(object sender, RoutedEventArgs e)
+        private void RunButton_Click(object sender, RoutedEventArgs e)
         {
             // right now, this just prints all of the test data results
             // will really run tests and print results
