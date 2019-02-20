@@ -302,7 +302,7 @@ namespace FTFTestExecution
             public bool RunListInParallel;
         }
 
-        public bool Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        public List<Guid> Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
             TestList list = null;
 

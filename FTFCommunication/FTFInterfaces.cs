@@ -132,7 +132,7 @@ namespace FTFInterfaces
 
         ServiceErrorData GetLastError();
 
-        bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
+        List<Guid> Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
 
         void StopAll();
         void Stop(Guid testListGuid);
@@ -141,7 +141,7 @@ namespace FTFInterfaces
 
         TestRun QueryTestRun(Guid testRunGuid);
 
-        TestRun GetTestRunGuids(Guid testGuid);
+        TestRun GetLatestTestRunForTest(Guid testGuid);
 
         bool SetDefaultTePath(string teExePath);
 

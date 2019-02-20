@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -42,6 +43,7 @@ namespace FTFTestExecution
             IsEnabled = true;
             TestLock = new object();
             TestOutput = new List<string>();
+            TestRunGuids = new List<Guid>();
         }
         
         public TestType TestType { get; }
@@ -74,26 +76,43 @@ namespace FTFTestExecution
             }
         }
 
-        public bool? TestPassed
+        // public bool? TestPassed
+        // {
+        //     get
+        //     {
+        //         if (TestRunGuids.Count > 0)
+        //         {
+        //             return TestRun.GetTestRunByGuid(TestRunGuids[TestRunGuids.Count - 1]).TimeRun;
+        //         }
+        //         else
+        //         {
+        //             return null;
+        //         }
+        //     }
+        // }
+
+        public TestStatus LatestTestStatus
         {
             get
             {
-                if (this.TestStatus == TestStatus.TestPassed)
+                if(TestRunGuids.Count > 0)
                 {
-                    return true;
-                }
-                else if (this.TestStatus == TestStatus.TestFailed)
-                {
-                    return false;
+                    return TestRun.GetTestRunByGuid(TestRunGuids[TestRunGuids.Count - 1]).TestRunStatus;
                 }
                 else
                 {
-                    return null;
+                    return TestStatus.TestNotRun;
                 }
-
             }
         }
 
+        // public bool? LatestTestRunPassed
+        // {
+        //     get
+        //     {
+        //         if (TestRunGuids.Count > 0)
+        //         {
+        //             var status = TestRun.GetTestRunByGuid(TestRunGuids[TestRunGuids.Count - 1]).TestRunStatus;
         public bool IsEnabled { get; set; }
 
         public int? ExitCode { get; set; }
@@ -127,6 +146,8 @@ namespace FTFTestExecution
                 TestStatus = TestStatus.TestNotRun;
                 ExitCode = null;
                 TestOutput = new List<string>();
+                TestRunGuids = new List<Guid>();
+
                 if (LogFilePath != null)
                 {
                     if (File.Exists(LogFilePath))
@@ -147,8 +168,8 @@ namespace FTFTestExecution
         [JsonIgnore]
         internal object TestLock;
 
-        // TODO: Associate with GUID, not the whole object, then add [JsonIgnore]
-        public List<TestRun> TestRuns;
+        // TestRuns are queried by GUID
+        public List<Guid> TestRunGuids;
     }
 
 
@@ -332,8 +353,36 @@ namespace FTFTestExecution
 
     // TODO: Use this to track test status instead of inside TestBase/ExecutableTest
     // TODO: Move testrunner into testrun
+    // TODO: Move to static or child class for server use?
     public class TestRun
     {
+        static TestRun()
+        {
+            _testRunMap = new Dictionary<Guid, TestRun>();
+        }
+
+        internal static List<Guid> GetTestRunGuidsByTestGuid(Guid testGuid)
+        {
+            return _testRunMap.Values.Where(x => x.OwningTestGuid == testGuid).Select(x => x.Guid).ToList();
+        }
+
+        internal static TestRun GetTestRunByGuid(Guid testRunGuid)
+        {
+            if (_testRunMap.ContainsKey(testRunGuid))
+            {
+                return _testRunMap[testRunGuid];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Tracks all the test runs that have ever occured, mapped by the test run GUID
+        /// </summary>
+        private static Dictionary<Guid, TestRun> _testRunMap;
+
         // class to track an individual run of a testbase object
         // output
         // errors
@@ -351,6 +400,7 @@ namespace FTFTestExecution
         {
             OwningTestGuid = owningTestGuid;
             Guid = Guid.NewGuid();
+            _testRunMap.Add(Guid, this);
         }
 
         public List<string> TestOutput
@@ -366,12 +416,18 @@ namespace FTFTestExecution
         public Guid OwningTestGuid { get; }
         public Guid Guid { get; }
 
-        public TimeSpan RunTime { get; }
-        public DateTime LastTimeRun { get; set; }
+        public TimeSpan TestRunTime
+        {
+            get
+            {
+                // todo: implement
+                return new TimeSpan();
+            }
+        }
 
-        //public TestStatus TestRunStatus { get; set; }
+        public DateTime TimeRun { get; set; }
+        public int? ExitCode { get; set; }
 
-        [JsonIgnore]
-        internal TestRunner _testRunner;
+        public TestStatus TestRunStatus { get; set; }
     }
 }
