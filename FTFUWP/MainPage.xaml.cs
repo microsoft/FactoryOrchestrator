@@ -60,31 +60,23 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid guid = (Guid)TestListsView.SelectedItem;
-                List<TestStatus> testStatuses = TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList();
-                List<String> icons = new List<String>();
-                foreach (var status in testStatuses)
+                List<String> testNamesAndResults = new List<String>();
+                foreach (var test in TestViewModel.TestData.TestListMap[guid].Tests.Values)
                 {
-                    if (status == TestStatus.TestPassed)
+                    if (test.TestStatus == TestStatus.TestPassed)
                     {
-                        icons.Add(Char.ConvertFromUtf32(0xF13E));
+                        testNamesAndResults.Add(test.TestName + " ✔");
                     }
-                    if (status == TestStatus.TestFailed)
+                    else if (test.TestStatus == TestStatus.TestFailed)
                     {
-                        icons.Add(Char.ConvertFromUtf32(0xF13D));
+                        testNamesAndResults.Add(test.TestName + " ❌");
                     }
                     else
                     {
-                        icons.Add("");
+                        testNamesAndResults.Add(test.TestName + " ❓");
                     }
                 }
-
-                List<String> testNamesList = TestViewModel.TestData.TestNames.ToList();
-                ObservableCollection<String> results = new ObservableCollection<String>(icons.Concat(testNamesList).ToList());
-                //TestViewModel.TestData.TestNames = results;
-
-                TestViewModel.TestData.TestNames = new ObservableCollection<String>(icons);
-
-                TestViewModel.TestData.TestStatus = new ObservableCollection<TestStatus>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList());
+                TestViewModel.TestData.TestNames = new ObservableCollection<String>(testNamesAndResults);
             }
         }
     }
