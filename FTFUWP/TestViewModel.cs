@@ -24,8 +24,8 @@ namespace FTFUWP
         {
             //TODO: make this properly async
 
-            //var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
-            //bool result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
+            //var tests = await IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
+            //bool result = await IpcClient.InvokeAsync(x => x.Run(tests.Guid, false, false));
 
             // Test code to format UI
             TestList t = new TestList(Guid.NewGuid());
