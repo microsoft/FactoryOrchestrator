@@ -37,7 +37,7 @@
                 </ListView.Items>
             </ListView>
 
-            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" SelectionMode="None" IsItemClickEnabled="False">
+            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestNames, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>

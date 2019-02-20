@@ -161,7 +161,7 @@ namespace FTFTestExecution
         {
             lock (TestLock)
             {
-                if (TestRunner.IsRunning)
+                if ((TestRunner != null) && (TestRunner.IsRunning))
                 {
                     TestRunner.StopTest();
                 }

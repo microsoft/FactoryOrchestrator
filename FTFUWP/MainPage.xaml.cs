@@ -17,11 +17,39 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace FTFUWP
 {
+    //public class TestViewModel:INotifyPropertyChanged
+    //{
+    //    public TestViewModel()
+    //    {
+
+    //    }
+    //    public ObservableCollection<String> testNames
+    //    {
+    //        get
+    //        {
+    //            return testNames;
+    //        }
+    //        set
+    //        {
+    //            testNames = value;
+    //            NotifyPropertyChanged("TestNames");
+    //        }
+    //    }
+    //    public event PropertyChangedEventHandler PropertyChanged;
+    //    private void NotifyPropertyChanged(string v)
+    //    {
+    //        if (PropertyChanged != null)
+    //        {
+    //            this.PropertyChanged(this, new PropertyChangedEventArgs(v));
+    //        }
+    //    }
+    //}
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -45,13 +73,14 @@ namespace FTFUWP
             GetTestListMapAsync();
         }
 
-        private async System.Threading.Tasks.Task<TestList> GetTestListAsync()
+        private TestList GetTestListAsync()
         {
             //var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
             //bool result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
 
             // Test code to format UI
-            TestList t = new TestList(Guid.NewGuid());
+            Guid goo = Guid.NewGuid();
+            TestList t = new TestList(goo);
             for (int i = 0; i < 100; i++)
             {
                 TAEFTest g = new TAEFTest(i + "foo.dll")
@@ -72,12 +101,13 @@ namespace FTFUWP
             return t;
         }
 
-        private async System.Threading.Tasks.Task<Dictionary<Guid, TestList>> GetTestListMapAsync()
+        private Dictionary<Guid, TestList> GetTestListMapAsync()
         {
+            // TODO: Make this properly async
             for (int i = 0; i < 10; i++)
             {
-                TestList t = await GetTestListAsync();
-                testListMap.Add(t.Guid, t);
+                TestList tl = GetTestListAsync();
+                testListMap.Add(tl.Guid, tl);
             }
             return testListMap;
         }
@@ -94,6 +124,8 @@ namespace FTFUWP
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
                 testNames = GetTestNames(testListGuid);
                 TestsView.Items.Clear();
+                
+                TestsView.Items.Add(TestNames);
                 foreach (String s in testNames)
                 {
                     TestsView.Items.Add(s);
