@@ -28,16 +28,12 @@ namespace FTFUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        IpcServiceClient<IFTFCommunication> client;
 
         public MainPage()
         {
             this.InitializeComponent();
             this.TestViewModel= new TestViewModel();
             this.DataContext = TestViewModel;
-            client = new IpcServiceClientBuilder<IFTFCommunication>()
-                .UseTcp(IPAddress.Loopback, 45684)
-                .Build();
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
         }
 

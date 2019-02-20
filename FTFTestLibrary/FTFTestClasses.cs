@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace FTFTestExecution
 {
@@ -285,6 +286,29 @@ namespace FTFTestExecution
             else
             {
                 _guid = Guid.NewGuid();
+            }
+        }
+
+        public TestStatus TestListStatus
+        {
+            get
+            {
+                if (Tests.Values.All(x => x.TestPassed == true))
+                {
+                    return TestStatus.TestPassed;
+                }
+                else if (Tests.Values.Any(x => x.TestStatus == TestStatus.TestRunning))
+                {
+                    return TestStatus.TestRunning;
+                }
+                else if (Tests.Values.Any(x => x.TestStatus == TestStatus.TestFailed))
+                {
+                    return TestStatus.TestFailed;
+                }
+                else
+                {
+                    return TestStatus.TestNotRun;
+                }
             }
         }
     }
