@@ -146,6 +146,9 @@ namespace FTFTestExecution
 
         [JsonIgnore]
         internal object TestLock;
+
+        // TODO: Associate with GUID, not the whole object, then add [JsonIgnore]
+        public List<TestRun> TestRuns;
     }
 
 
@@ -186,6 +189,7 @@ namespace FTFTestExecution
         //    }
         //}
 
+        // TODO: kill all running testrun instances, delete all old test runs?
         public override void Reset()
         {
             lock (TestLock)
@@ -323,5 +327,51 @@ namespace FTFTestExecution
                 }
             }
         }
+    }
+
+
+    // TODO: Use this to track test status instead of inside TestBase/ExecutableTest
+    // TODO: Move testrunner into testrun
+    public class TestRun
+    {
+        // class to track an individual run of a testbase object
+        // output
+        // errors
+        // log file
+        // runtime
+        // guid ptr to test
+        // status
+        [JsonConstructor]
+        internal TestRun()
+        {
+
+        }
+
+        public TestRun(Guid owningTestGuid)
+        {
+            OwningTestGuid = owningTestGuid;
+            Guid = Guid.NewGuid();
+        }
+
+        public List<string> TestOutput
+        {
+            get
+            {
+                return _testOutput;
+            }
+        }
+
+        protected internal List<string> _testOutput;
+
+        public Guid OwningTestGuid { get; }
+        public Guid Guid { get; }
+
+        public TimeSpan RunTime { get; }
+        public DateTime LastTimeRun { get; set; }
+
+        //public TestStatus TestRunStatus { get; set; }
+
+        [JsonIgnore]
+        internal TestRunner _testRunner;
     }
 }

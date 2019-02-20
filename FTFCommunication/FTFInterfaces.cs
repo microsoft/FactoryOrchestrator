@@ -94,6 +94,7 @@ namespace FTFInterfaces
         public List<TestDatum> TAEFTestCases;
     }
 
+    // TODO: Build out client-side lib for diffs, update polling state machine etc
     public interface IFTFCommunication
     {
         // create test list from list
@@ -126,9 +127,10 @@ namespace FTFInterfaces
 
         ServiceEventDatum GetServiceUpdate(List<FTFEventType> types);
         ServiceEventDatum GetServiceUpdate(FTFEventType type);
+
         ServiceEventDatum GetServiceUpdate();
 
-        TestEventDatum GetExecutionStatus(Guid guid);
+        ServiceErrorData GetLastError();
 
         bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
 
@@ -137,11 +139,9 @@ namespace FTFInterfaces
 
         bool UpdateTestStatus(TestBase latestTestStatus);
 
-        TestOutput GetAllOutput(Guid guid);
+        TestRun QueryTestRun(Guid testRunGuid);
 
-        List<TestOutput> GetLatestOutput(Guid guid, DateTime fromTime);
-
-        TestOutput GetErrors(Guid guid, ulong index);
+        TestRun GetTestRunGuids(Guid testGuid);
 
         bool SetDefaultTePath(string teExePath);
 

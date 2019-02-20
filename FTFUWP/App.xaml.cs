@@ -19,6 +19,8 @@ using FTFInterfaces;
 using FTFClient;
 using System.Net;
 
+// TODO: APP TODOS
+// Load & Save testlist from folder, file, etc
 namespace FTFUWP
 {
     /// <summary>

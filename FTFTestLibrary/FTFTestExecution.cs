@@ -206,6 +206,8 @@ namespace FTFTestExecution
             lock (KnownTestListLock)
             {
                 // Find lists with this test in them
+                // TODO: I think we are converging on unique guids per item in a list, not unique guid per test (ie, foo.dll in two lists has two unique guids)
+                // should this only get first() and error otherwise?
                 var listsToUpdate = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(latestTestStatus.Guid));
 
                 if ((listsToUpdate == null) || (listsToUpdate.Count() == 0))
@@ -247,23 +249,6 @@ namespace FTFTestExecution
             RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
             TestEvents = new Dictionary<Guid, Queue<TestRunEventArgs>>();
         }
-
-        //private void TestListQueueManager()
-        //{
-        //    while (true)
-        //    {
-        //        while (TestListRunQueue.Count > 0)
-        //        {
-        //            var run = TestListRunQueue.Dequeue();
-        //            var token = new CancellationTokenSource();
-        //            RunningTestListTokens.Add(run.TestList.Guid, token);
-        //            Task t = new Task((i) => { TestListWorker(i, token.Token); },  run, token.Token);
-        //            t.Start();
-        //        }
-
-        //        Thread.Sleep(1000);
-        //    }
-        //}
 
         private void TestListWorker(object i, CancellationToken token)
         {
@@ -535,6 +520,10 @@ namespace FTFTestExecution
                     return true;
                 }
 
+                // Create test run
+                // TODO: Testprocess in testrun?
+                TestRun run = new TestRun(TestContext.Guid);
+
                 // Create Process object
                 TestProcess = CreateTestProcess();
 
@@ -562,7 +551,6 @@ namespace FTFTestExecution
                 return StartTestProcess();
             }
         }
-        
 
         private Process CreateTestProcess()
         {
