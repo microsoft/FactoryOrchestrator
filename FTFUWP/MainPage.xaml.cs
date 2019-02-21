@@ -71,19 +71,13 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
-<<<<<<< HEAD
+
                 // comment out polling code to test UI, currently crashes after selecting a testlist
-                _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
-                _poller.OnUpdatedTestList += OnUpdatedTestList;
-                _poller.StartPolling();
-                SetTestNames(testListGuid);
-                //TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
-=======
                 //_poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
                 //_poller.OnUpdatedTestList += OnUpdatedTestList;
                 //_poller.StartPolling();
+                //SetTestNames(testListGuid);
                 TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
->>>>>>> Results page should work, but cant test because bad OS flight
             }
         }
 
@@ -131,7 +125,7 @@ namespace FTFUWP
             }; // TODO: get the test / testrun based on the guid
             for (int i = 0; i < 1000; i++)
             {
-                test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());
+                test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());
             }
             this.Frame.Navigate(typeof(ResultsPage), test);
         }
