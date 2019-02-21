@@ -52,8 +52,31 @@ namespace FTFTestExecution
         public string Arguments { get; set; }
         public Guid Guid { get; }
 
-        public DateTime? LastTimeRun { get; set; }
+        public DateTime? LastTimeStarted { get; set; }
+        public DateTime? LastTimeFinished { get; set; }
         public TestStatus TestStatus { get; set; }
+
+        public virtual TimeSpan? TestRunTime
+        {
+            get
+            {
+                if (LastTimeStarted != null)
+                {
+                    if (LastTimeFinished != null)
+                    {
+                        return LastTimeFinished - LastTimeStarted;
+                    }
+                    else
+                    {
+                        return DateTime.Now - LastTimeStarted;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
 
         public bool? TestPassed
         {
@@ -105,7 +128,6 @@ namespace FTFTestExecution
         {
             lock (TestLock)
             {
-                LastTimeRun = null;
                 TestStatus = TestStatus.TestNotRun;
                 ExitCode = null;
                 TestOutput = new List<string>();
@@ -174,21 +196,6 @@ namespace FTFTestExecution
                 TestRunner = null;
             }
             base.Reset();
-        }
-
-        public TimeSpan TestRunTime
-        {
-            get
-            {
-                if (TestRunner != null)
-                {
-                    return TestRunner._timer.Elapsed;
-                }
-                else
-                {
-                    return new TimeSpan();
-                }
-            }
         }
 
         public override String TestName
