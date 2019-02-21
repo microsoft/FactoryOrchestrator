@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Linq;
+using Newtonsoft.Json.Linq;
+using FTFJsonConverters;
 
 namespace FTFTestExecution
 {
@@ -23,15 +25,15 @@ namespace FTFTestExecution
 
     public enum TestType
     {
-        ConsoleExe,
-        TAEFDll,
-        UWP
+        ConsoleExe = 0,
+        TAEFDll = 1,
+        UWP = 2
     }
 
+    [JsonConverter(typeof(TestBaseConverter))]
     public abstract class TestBase
     {
         // TODO: how do we guarantee accurate state when many things are querying test state?????
-        [JsonConstructor]
         internal TestBase()
         {
             TestLock = new object();
@@ -149,6 +151,8 @@ namespace FTFTestExecution
         internal object TestLock;
     }
 
+
+    [JsonConverter(typeof(NoConverter))]
     public class ExecutableTest : TestBase
     {
         public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
@@ -210,6 +214,8 @@ namespace FTFTestExecution
         public TestRunner TestRunner;
     }
 
+
+    [JsonConverter(typeof(NoConverter))]
     public class TAEFTest : ExecutableTest
     {
         public TAEFTest(string testPath) : base(testPath, TestType.TAEFDll)
@@ -220,6 +226,8 @@ namespace FTFTestExecution
         private String _wtlFilePath;
     }
 
+
+    [JsonConverter(typeof(NoConverter))]
     public class UWPTest : TestBase
     {
         public UWPTest(string packageFamilyName, string testFriendlyName = null) : base(packageFamilyName, TestType.UWP)

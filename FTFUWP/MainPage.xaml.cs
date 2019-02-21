@@ -36,10 +36,14 @@ namespace FTFUWP
             this.TestViewModel= new TestViewModel();
             this.DataContext = TestViewModel;
             // create testlist in service, not working rn
-            //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-            //{
-            //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
-            //}
+            foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+            {
+                // TODO: Move to a place this works properly, likely viewmodel, since it tracks testlists, or just nuke it now, since we can use real data
+                //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+                //{
+                //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
+                //}
+            }
             //await((App)(Application.Current)).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap);
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
         }
