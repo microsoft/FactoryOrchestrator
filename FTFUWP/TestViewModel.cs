@@ -60,5 +60,26 @@ namespace FTFUWP
             }
             return testListMap;
         }
+
+        public ObservableCollection<String> GetTestNames(Guid guid)
+        {
+            return new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+        }
+
+        public void SetTestNames(Guid guid)
+        {
+            ObservableCollection<String> testNames = GetTestNames(guid);
+            TestData.TestNames = testNames;
+        }
+
+        public void SetTestNames(ObservableCollection<String> testNames)
+        {
+            TestData.TestNames = testNames;
+        }
+
+        public void SetTestList(TestList testList)
+        {
+            TestData.TestListMap[testList.Guid] = testList;
+        }
     }
 }

@@ -35,6 +35,12 @@ namespace FTFUWP
             this.InitializeComponent();
             this.TestViewModel= new TestViewModel();
             this.DataContext = TestViewModel;
+            // create testlist in service, not working rn
+            //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+            //{
+            //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
+            //}
+            //await((App)(Application.Current)).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap);
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
         }
 
@@ -42,7 +48,22 @@ namespace FTFUWP
 
         private ObservableCollection<String> GetTestNames(Guid guid)
         {
-            return new ObservableCollection<String>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+            return TestViewModel.GetTestNames(guid);
+        }
+
+        private void SetTestNames(Guid guid)
+        {
+            TestViewModel.SetTestNames(guid);
+        }
+
+        private void SetTestNames(ObservableCollection<String> testNames)
+        {
+            TestViewModel.SetTestNames(testNames);
+        }
+
+        private void SetTestList(TestList testList)
+        {
+            TestViewModel.SetTestList(testList);
         }
 
         private void TestListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -50,10 +71,12 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
+                // comment out polling code to test UI, currently crashes after selecting a testlist
                 _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
                 _poller.OnUpdatedTestList += OnUpdatedTestList;
                 _poller.StartPolling();
-                TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
+                SetTestNames(testListGuid);
+                //TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
             }
         }
 
@@ -81,13 +104,15 @@ namespace FTFUWP
                         testNamesAndResults.Add(test.TestName + " ❓");
                     }
                 }
-                TestViewModel.TestData.TestNames = new ObservableCollection<String>(testNamesAndResults);
+                SetTestNames(new ObservableCollection<String>(testNamesAndResults));
             }
         }
 
         private void OnUpdatedTestList(object source, TestListPollEventArgs e)
         {
             // call updateui api to update the testlist the viewmodel uses
+            SetTestList(e.TestList);
+            SetTestNames(e.TestList.Guid);
         }
 
         private TestListPoller _poller;

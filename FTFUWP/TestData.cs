@@ -21,6 +21,7 @@ namespace FTFUWP
                 {
                     testListMap = value;
                     NotifyPropertyChanged("TestListMap");
+
                 }
             }
         }
