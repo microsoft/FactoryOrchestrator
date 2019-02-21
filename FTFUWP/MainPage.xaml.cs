@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using FTFClient;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -49,6 +50,9 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
+                _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
+                _poller.OnUpdatedTestList += OnUpdatedTestList;
+                _poller.StartPolling();
                 TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
             }
         }
@@ -60,8 +64,16 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid guid = (Guid)TestListsView.SelectedItem;
+
                 TestViewModel.TestData.TestStatus = new ObservableCollection<TestStatus>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList());
             }
         }
+
+        private void OnUpdatedTestList(object source, TestListPollEventArgs e)
+        {
+            // call updateui api to update the testlist the viewmodel uses
+        }
+
+        private TestListPoller _poller;
     }
 }
