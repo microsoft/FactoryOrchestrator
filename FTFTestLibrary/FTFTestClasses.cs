@@ -49,7 +49,7 @@ namespace FTFTestExecution
         
         public TestType TestType { get; }
 
-        public List<String> Arguments { get; set; }
+        public string Arguments { get; set; }
         public Guid Guid { get; }
 
         public DateTime? LastTimeRun { get; set; }

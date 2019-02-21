@@ -31,13 +31,13 @@ namespace FTFClient
         public void StartPolling()
         {
             _timer = new Timer(GetUpdatedTestListAsync, null, 0, _pollingInterval);
+            _testList = null;
         }
 
         public void StopPolling()
         {
             _timer.Dispose();
             _timer = null;
-            _testList = null;
         }
 
         public TestList LatestTestList
@@ -55,7 +55,7 @@ namespace FTFClient
                 }
                 else
                 {
-                    return null;
+                    return _testList;
                 }
             }
         }

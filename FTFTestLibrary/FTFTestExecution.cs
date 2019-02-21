@@ -135,7 +135,7 @@ namespace FTFTestExecution
             TestRunner runner = new TestRunner(maybeTAEF);
             try
             {
-                if (!runner.RunTest(new List<string>() { "/list" }))
+                if (!runner.RunTest("/list"))
                 {
                     throw new Exception(String.Format("Unable to invoke TE.exe to validate possible TAEF test: {0}", dllToTest));
                 }
@@ -490,7 +490,7 @@ namespace FTFTestExecution
         {
             return RunTest(null);
         }
-        public bool RunTest(List<String> overrideArguments)
+        public bool RunTest(string overrideArguments)
         {
             lock (TestContext.TestLock)
             {
@@ -518,6 +518,10 @@ namespace FTFTestExecution
                     {
                         startInfo.Arguments += " " + arg;
                     }
+                }
+                else
+                {
+                    startInfo.Arguments += " " + TestContext.Arguments;
                 }
 
                 // Configure IO redirection
@@ -589,6 +593,7 @@ namespace FTFTestExecution
                 LogFilePath = Path.Combine(GlobalLogFolder, TestContext.TestName, ".log");
             }
 
+            Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
             File.WriteAllLines(LogFilePath,
                                new String[] { String.Format("Test: {0}", TestContext.TestName),
                                               String.Format("Result: {0}", TestContext.TestStatus),
