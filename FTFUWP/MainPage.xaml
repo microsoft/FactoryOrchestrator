@@ -9,30 +9,27 @@
 
     <Grid>
 
-        <Grid x:Name="LayoutRoot" Background="#0078D7" Width="800" Height="600">
+        <Grid x:Name="LayoutRoot" Background="White" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="266.67" />
-                <ColumnDefinition Width="266.67" />
-                <ColumnDefinition Width="266.67" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock FontWeight="Bold" 
-               Text="Factory Test Framework" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Width="514" Grid.ColumnSpan="3" Margin="136,0,0,0" />
-            <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-            <TextBlock Text="Test" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-            <!--<Button Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Click="Run_Button_Click" AutomationProperties.Name="Run">-->
-                <CommandBar Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" OverflowButtonVisibility="Collapsed">
-                    <AppBarButton Icon="Play" Label="Play" Click="RunButton_Click"/>
-                </CommandBar>
-                <!--<Image Source="/Assets/run.png" AutomationProperties.Name="Run"/>-->
-            <!--</Button>-->
-            <TextBlock Text="Results" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
 
-            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Factory Test Framework" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Grid.ColumnSpan="3"  />
+            <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <TextBlock Text="Tests" Style="{StaticResource TitleTextBlockStyle}"/>
+                <Button Margin="25,0,0,0" Click="RunButton_Click">
+                    <SymbolIcon Symbol="Play" />
+                </Button>
+            </StackPanel>
+
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,100" VerticalAlignment="Stretch">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
@@ -42,10 +39,8 @@
                 </ListView.Items>
             </ListView>
 
-            <ListView x:Name="ResultsView" Grid.Column="2" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestStatus, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
-                <ListView.Items>
-                </ListView.Items>
-            </ListView>
+            <Image Source="/Assets/Microsoft-logo_rgb_gray[1].png" Margin="0,688,465,0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
         </Grid>
     </Grid>
 </Page>

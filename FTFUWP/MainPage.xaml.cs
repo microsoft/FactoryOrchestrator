@@ -65,7 +65,23 @@ namespace FTFUWP
             {
                 Guid guid = (Guid)TestListsView.SelectedItem;
 
-                TestViewModel.TestData.TestStatus = new ObservableCollection<TestStatus>(TestViewModel.TestData.TestListMap[guid].Tests.Values.Select(x => x.TestStatus).ToList());
+                List<String> testNamesAndResults = new List<String>();
+                foreach (var test in TestViewModel.TestData.TestListMap[guid].Tests.Values)
+                {
+                    if (test.TestStatus == TestStatus.TestPassed)
+                    {
+                        testNamesAndResults.Add(test.TestName + " ✔");
+                    }
+                    else if (test.TestStatus == TestStatus.TestFailed)
+                    {
+                        testNamesAndResults.Add(test.TestName + " ❌");
+                    }
+                    else
+                    {
+                        testNamesAndResults.Add(test.TestName + " ❓");
+                    }
+                }
+                TestViewModel.TestData.TestNames = new ObservableCollection<String>(testNamesAndResults);
             }
         }
 
