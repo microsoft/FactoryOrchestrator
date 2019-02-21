@@ -20,8 +20,11 @@ namespace FTFClient
 
         private async void GetUpdatedTestListAsync(object state)
         {
-            _testList = await _client.InvokeAsync(x => x.QueryTestList(_testListGuid));
-            OnUpdatedTestList?.Invoke(this, new TestListPollEventArgs(_testList));
+            var newTestList = await _client.InvokeAsync(x => x.QueryTestList(_testListGuid));
+            if (newTestList != _testList)
+            {
+                OnUpdatedTestList?.Invoke(this, new TestListPollEventArgs(_testList));
+            }
         }
         
 
@@ -37,20 +40,23 @@ namespace FTFClient
             _testList = null;
         }
 
-        public TestList GetLatestTestList()
+        public TestList LatestTestList
         {
-            if (_timer != null)
+            get
             {
-                while (_testList == null)
+                if (_timer != null)
                 {
-                    Thread.Sleep(_pollingInterval + 10);
-                }
+                    while ((_timer != null) && (_testList == null))
+                    {
+                        Thread.Sleep(_pollingInterval + 10);
+                    }
 
-                return _testList;
-            }
-            else
-            {
-                throw new Exception("Start polling before calling this method!");
+                    return _testList;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
