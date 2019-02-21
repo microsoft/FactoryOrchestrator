@@ -9,7 +9,7 @@
 
     <Grid>
 
-        <Grid x:Name="LayoutRoot" Background="White" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
+        <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
