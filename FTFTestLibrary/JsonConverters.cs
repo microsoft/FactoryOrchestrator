@@ -29,9 +29,8 @@ namespace FTFJsonConverters
                 case TestType.UWP:
                     return JsonConvert.DeserializeObject<UWPTest>(jo.ToString());
                 default:
-                    throw new Exception();
+                    throw new Exception("Trying to deserialize an unknown test type!");
             }
-            throw new NotImplementedException();
         }
 
         public override bool CanWrite
@@ -54,9 +53,8 @@ namespace FTFJsonConverters
                     serializer.Serialize(writer, value, typeof(UWPTest));
                     break;
                 default:
-                    throw new Exception();
+                    throw new Exception("Trying to serialize an unknown test type!");
             }
-            throw new NotImplementedException();
         }
     }
 

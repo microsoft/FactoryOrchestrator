@@ -78,7 +78,7 @@ namespace FTFUWP
 
                 // comment out polling code to test UI, currently crashes after selecting a testlist
                 //_poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
-                //_poller.OnUpdatedTestList += OnUpdatedTestList;
+                //_poller.OnUpdatedTestList += OnUpdatedTestListAsync;
                 //_poller.StartPolling();
                 //SetTestNames(testListGuid);
                 TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
@@ -138,11 +138,17 @@ namespace FTFUWP
             //this.Frame.Navigate(typeof(ResultsPage), test);
         }
 
-        private void OnUpdatedTestList(object source, TestListPollEventArgs e)
+        private async void OnUpdatedTestListAsync(object source, TestListPollEventArgs e)
         {
             // TODO: call updateui api to update the testlist the viewmodel uses
-            SetTestList(e.TestList);
-            SetTestNames(e.TestList.Guid);
+            if (e.TestList != null)
+            {
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    SetTestList(e.TestList);
+                    SetTestNames(e.TestList.Guid);
+                });
+            }
         }
 
         private TestListPoller _poller;

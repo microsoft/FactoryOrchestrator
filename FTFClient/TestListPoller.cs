@@ -23,6 +23,7 @@ namespace FTFClient
             var newTestList = await _client.InvokeAsync(x => x.QueryTestList(_testListGuid));
             if (newTestList != _testList)
             {
+                _testList = newTestList;
                 OnUpdatedTestList?.Invoke(this, new TestListPollEventArgs(_testList));
             }
         }
