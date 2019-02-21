@@ -165,6 +165,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FTFClient\FTFClient.csproj">
+      <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
+      <Name>FTFClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FTFCommunication\FTFCommunication.csproj">
       <Project>{8a3ad213-8ee5-48b6-b7dd-c55cd1742360}</Project>
       <Name>FTFCommunication</Name>
