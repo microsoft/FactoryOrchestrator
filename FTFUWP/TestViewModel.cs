@@ -17,6 +17,7 @@ namespace FTFUWP
             TestData = new TestData
             {
                 TestListMap = GetTestListMapAsync(),
+                TestGuidsMap = new Dictionary<int, Guid>(),
                 TestNames = new ObservableCollection<String>(),
                 TestStatus = new ObservableCollection<TestStatus>()
             };
@@ -84,6 +85,30 @@ namespace FTFUWP
         public void SetTestList(TestList testList)
         {
             TestData.TestListMap[testList.Guid] = testList;
+        }
+
+        public void SetTestListGuid(Guid testListGuid)
+        {
+            TestData.SelectedTestListGuid = testListGuid;
+            SetTests(testListGuid);
+        }
+
+        public void SetTests(Guid testListGuid)
+        {
+            SetTestNames(testListGuid);
+            SetTestGuidsMap(testListGuid);
+        }
+
+        private void SetTestGuidsMap(Guid testListGuid)
+        {
+            Dictionary<int, Guid> testGuidsMap = new Dictionary<int, Guid>();
+            int index = 0;
+            foreach (var test in TestData.TestListMap[testListGuid].Tests.Values)
+            {
+                testGuidsMap.Add(index, test.Guid);
+                index++;
+            }
+            TestData.TestGuidsMap = testGuidsMap;
         }
     }
 }

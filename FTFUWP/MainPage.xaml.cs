@@ -33,19 +33,29 @@ namespace FTFUWP
         public MainPage()
         {
             this.InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
             this.TestViewModel= new TestViewModel();
             this.DataContext = TestViewModel;
             // create testlist in service, not working rn
-            foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-            {
+            //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+            //{
                 // TODO: Move to a place this works properly, likely viewmodel, since it tracks testlists, or just nuke it now, since we can use real data
                 //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
                 //{
                 //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
                 //}
-            }
+            //}
             //await((App)(Application.Current)).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap);
+            MakeTestLists();
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
+        }
+
+        public async void MakeTestLists()
+        {
+            foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+            {
+                await ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
+            }
         }
 
         public TestViewModel TestViewModel { get; set; }
@@ -74,18 +84,29 @@ namespace FTFUWP
         {
             if (TestListsView.SelectedItem != null)
             {
+                _selectedTestList = TestListsView.SelectedIndex;
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
+                //get tl guid
+                //set universal tl guid
+                //set test names to be display
+                // set int to test guid map
+                SetTestListGuid(testListGuid);
 
                 // comment out polling code to test UI, currently crashes after selecting a testlist
-                //_poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
-                //_poller.OnUpdatedTestList += OnUpdatedTestListAsync;
-                //_poller.StartPolling();
+                //TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
+                _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient, 10000);
+                _poller.OnUpdatedTestList += OnUpdatedTestListAsync;
+                _poller.StartPolling();
                 //SetTestNames(testListGuid);
-                TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
             }
         }
 
-        private void RunButton_Click(object sender, RoutedEventArgs e)
+        private void SetTestListGuid(Guid testListGuid)
+        {
+            TestViewModel.SetTestListGuid(testListGuid);
+        }
+
+        private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
             // right now, this just prints all of the test data results
             // will really run tests and print results
@@ -110,32 +131,43 @@ namespace FTFUWP
                     }
                 }
                 SetTestNames(new ObservableCollection<String>(testNamesAndResults));
+                await((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap[guid]));
+                // for each test also display a results button
+                // make test "clickable" -> opens results page for specific test
+                //   can i turn on the SelectMode=Clickable after the results appear? and IsItemClickEnabled=True
+                // some results flag??/
+                // map based on guid
+                // pass test object: TestListMap[testListGuid][testGuid] = test object
+                //navigate
             }
         }
 
-        private void ResultsButton_Click(object sender, RoutedEventArgs e)
+        private void TestsView_SelectionChanged(object sender, RoutedEventArgs e)
         {
             // TODO: Use TestRun when it exists
-            Control control = (Control)sender;
-            var testGuid = new Guid(control.Name); // ensure all controls have a name mapped to their guid
-            
-            ////TESTCODE
-            //var test = new ExecutableTest("foo.dll")
-            //{
-            //    LastTimeStarted = DateTime.Now - TimeSpan.FromMinutes(2),
-            //    LastTimeFinished = DateTime.Now,
-            //    TestStatus = TestStatus.TestPassed,
-            //    IsEnabled = true,
-            //    Arguments = "/arg1:anc /arg2:ghbrigsdr",
-            //    TestOutput = new List<string>()
-            //}; // TODO: get the test / testrun based on the guid
-            //for (int i = 0; i < 1000; i++)
-            //{
-            //    test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());
-            //}
-            
-            // TODO: Find the correct test object and pass to the result page
-            //this.Frame.Navigate(typeof(ResultsPage), test);
+            ListView control = (ListView)sender;
+            int index = control.SelectedIndex;
+            if (index != -1)
+            {
+                var testGuid = TestViewModel.TestData.TestGuidsMap[index];
+                TestBase test = TestViewModel.TestData.TestListMap[TestViewModel.TestData.SelectedTestListGuid].Tests[testGuid];
+
+                ////TESTCODE
+                //var test = new ExecutableTest("foo.dll")
+                //{
+                //    LastTimeStarted = DateTime.Now - TimeSpan.FromMinutes(2),
+                //    LastTimeFinished = DateTime.Now,
+                //    TestStatus = TestStatus.TestPassed,
+                //    IsEnabled = true,
+                //    Arguments = "/arg1:anc /arg2:ghbrigsdr",
+                //    TestOutput = new List<string>()
+                //}; // TODO: get the test / testrun based on the guid
+                //for (int i = 0; i < 1000; i++)
+                //{
+                //    test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());
+                //}
+                this.Frame.Navigate(typeof(ResultsPage), test);
+            }
         }
 
         private async void OnUpdatedTestListAsync(object source, TestListPollEventArgs e)
@@ -147,10 +179,33 @@ namespace FTFUWP
                 {
                     SetTestList(e.TestList);
                     SetTestNames(e.TestList.Guid);
+
+
                 });
+            }
+        }
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (_poller != null)
+            {
+                _poller.StartPolling();
+            }
+
+            if (_selectedTestList != -1)
+            {
+                TestListsView.SelectedIndex = _selectedTestList;
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            if (_poller != null)
+            {
+                _poller.StopPolling();
             }
         }
 
         private TestListPoller _poller;
+        private int _selectedTestList = -1;
     }
 }

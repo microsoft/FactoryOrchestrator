@@ -68,6 +68,8 @@ namespace FTFUWP
                 Window.Current.Content = rootFrame;
             }
 
+            rootFrame.CacheSize = 4;
+
             if (e.PrelaunchActivated == false)
             {
                 if (rootFrame.Content == null)

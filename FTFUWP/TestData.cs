@@ -28,6 +28,21 @@ namespace FTFUWP
 
         public ObservableCollection<Guid> TestListGuids { get { return new ObservableCollection<Guid>(TestListMap.Keys); } }
 
+        private Dictionary<int, Guid> testGuidsMap = new Dictionary<int, Guid>();
+
+        public Dictionary<int, Guid> TestGuidsMap
+        {
+            get { return testGuidsMap; }
+            set
+            {
+                if (value != testGuidsMap)
+                {
+                    testGuidsMap = value;
+                    NotifyPropertyChanged("TestGuidsMap");
+                }
+            }
+        }
+
         private ObservableCollection<String> testNames = new ObservableCollection<String>();
         public ObservableCollection<String> TestNames
         {
@@ -49,6 +64,21 @@ namespace FTFUWP
             if (PropertyChanged != null)
             {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(v));
+            }
+        }
+
+        private Guid selectedTestListGuid;
+
+        public Guid SelectedTestListGuid
+        {
+            get { return selectedTestListGuid; }
+            set
+            {
+                if (value != selectedTestListGuid)
+                {
+                    selectedTestListGuid = value;
+                    NotifyPropertyChanged("TestListGuid");
+                }
             }
         }
 
