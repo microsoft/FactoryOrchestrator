@@ -118,8 +118,8 @@ namespace FTFUWP
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
         {
             // TODO: Use TestRun when it exists
-            Button button = (Button)sender;
-            var testGuid = new Guid(button.Name); // TODO: ensure all buttons have a name mapped to their guid
+            //Button button = (Button)sender;
+            //var testGuid = new Guid(button.Name); // TODO: ensure all buttons have a name mapped to their guid
             var test = new ExecutableTest("foo.dll")
             {
                 LastTimeStarted = DateTime.Now - TimeSpan.FromMinutes(2),
