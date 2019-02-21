@@ -14,10 +14,12 @@ namespace FTFUWP
         public TestData TestData { get; set; }
         public TestViewModel()
         {
-            TestData = new TestData();
-            TestData.TestListMap = GetTestListMapAsync();
-            TestData.TestNames = new ObservableCollection<String>();
-            TestData.TestStatus = new ObservableCollection<TestStatus>();
+            TestData = new TestData
+            {
+                TestListMap = GetTestListMapAsync(),
+                TestNames = new ObservableCollection<String>(),
+                TestStatus = new ObservableCollection<TestStatus>()
+            };
         }
 
         private TestList GetTestListAsync()

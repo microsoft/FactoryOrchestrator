@@ -108,9 +108,27 @@ namespace FTFUWP
             }
         }
 
+        private void ResultsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Use TestRun when it exists
+            Button button = (Button)sender;
+            var testGuid = new Guid(button.Name); // TODO: ensure all buttons have a name mapped to their guid
+            var test = new ExecutableTest("foo.dll"); // TODO: get the test / testrun based on the guid
+            test.LastTimeRun = DateTime.Now;
+            test.TestStatus = TestStatus.TestPassed;
+            test.IsEnabled = true;
+            test.Arguments = "/arg1:anc /arg2:ghbrigsdr";
+            test.TestOutput = new List<string>();
+            for (int i = 0; i < 1000; i++)
+            {
+                test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());
+            }
+            this.Frame.Navigate(typeof(ResultsPage), test);
+        }
+
         private void OnUpdatedTestList(object source, TestListPollEventArgs e)
         {
-            // call updateui api to update the testlist the viewmodel uses
+            // TODO: call updateui api to update the testlist the viewmodel uses
             SetTestList(e.TestList);
             SetTestNames(e.TestList.Guid);
         }
