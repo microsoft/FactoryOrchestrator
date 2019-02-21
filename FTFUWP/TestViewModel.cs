@@ -35,16 +35,18 @@ namespace FTFUWP
             {
                 TAEFTest g = new TAEFTest(i + "foo.dll")
                 {
-                    LastTimeRun = DateTime.Now,
-                    ExitCode = 1
+                    LastTimeStarted = DateTime.Now,
+                    LastTimeFinished = DateTime.Now + TimeSpan.FromMinutes(1),
                 };
                 if (i % 5 == 0)
                 {
                     g.TestStatus = TestStatus.TestPassed;
+                    g.ExitCode = 0;
                 }
                 else
                 {
                     g.TestStatus = TestStatus.TestFailed;
+                    g.ExitCode = new Random().Next();
                 }
                 t.Tests.Add(g.Guid, g);
             }

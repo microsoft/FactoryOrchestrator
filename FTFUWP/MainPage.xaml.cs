@@ -71,12 +71,19 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
+<<<<<<< HEAD
                 // comment out polling code to test UI, currently crashes after selecting a testlist
                 _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
                 _poller.OnUpdatedTestList += OnUpdatedTestList;
                 _poller.StartPolling();
                 SetTestNames(testListGuid);
                 //TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
+=======
+                //_poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient);
+                //_poller.OnUpdatedTestList += OnUpdatedTestList;
+                //_poller.StartPolling();
+                TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
+>>>>>>> Results page should work, but cant test because bad OS flight
             }
         }
 
@@ -113,12 +120,15 @@ namespace FTFUWP
             // TODO: Use TestRun when it exists
             Button button = (Button)sender;
             var testGuid = new Guid(button.Name); // TODO: ensure all buttons have a name mapped to their guid
-            var test = new ExecutableTest("foo.dll"); // TODO: get the test / testrun based on the guid
-            test.LastTimeRun = DateTime.Now;
-            test.TestStatus = TestStatus.TestPassed;
-            test.IsEnabled = true;
-            test.Arguments = "/arg1:anc /arg2:ghbrigsdr";
-            test.TestOutput = new List<string>();
+            var test = new ExecutableTest("foo.dll")
+            {
+                LastTimeStarted = DateTime.Now - TimeSpan.FromMinutes(2),
+                LastTimeFinished = DateTime.Now,
+                TestStatus = TestStatus.TestPassed,
+                IsEnabled = true,
+                Arguments = "/arg1:anc /arg2:ghbrigsdr",
+                TestOutput = new List<string>()
+            }; // TODO: get the test / testrun based on the guid
             for (int i = 0; i < 1000; i++)
             {
                 test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());

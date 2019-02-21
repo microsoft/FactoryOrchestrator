@@ -483,7 +483,6 @@ namespace FTFTestExecution
         {
             TestContext = testToRun;
             IsRunning = false;
-            _timer = new Stopwatch();
         }
 
         public bool RunTest()
@@ -548,10 +547,9 @@ namespace FTFTestExecution
                     TestProcess.BeginErrorReadLine();
                     TestProcess.BeginOutputReadLine();
                     // Start timer
-                    _timer.Restart();
                     TestContext.TestRunner = this;
                     TestContext.TestStatus = TestStatus.TestRunning;
-                    TestContext.LastTimeRun = DateTime.Now;
+                    TestContext.LastTimeStarted = DateTime.Now;
                     return true;
                 }
 
@@ -580,10 +578,16 @@ namespace FTFTestExecution
 
         private void OnExited(object sender, EventArgs e)
         {
-            _timer.Stop();
-
-            // Get result of the test
-            TestContext.ExitCode = TestAborted ? -1 : TestProcess.ExitCode;
+            // Save the result of the test
+            if (!TestAborted)
+            {
+                TestContext.LastTimeFinished = DateTime.Now;
+                TestContext.ExitCode = TestProcess.ExitCode;
+            }
+            else
+            {
+                TestContext.ExitCode = -1;
+            }
             TestContext.TestStatus = (TestContext.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
 
             // Save test output to file
@@ -598,7 +602,7 @@ namespace FTFTestExecution
                                new String[] { String.Format("Test: {0}", TestContext.TestName),
                                               String.Format("Result: {0}", TestContext.TestStatus),
                                               String.Format("Exit code: {0}", TestContext.ExitCode),
-                                              String.Format("Date/Time run: {0}", TestContext.LastTimeRun),
+                                              String.Format("Date/Time run: {0}", TestContext.LastTimeStarted),
                                               String.Format("Time to complete: {0}", TestContext.TestRunTime),
                                               String.Format("---------Test's console output below--------")});
             File.AppendAllLines(LogFilePath, TestContext.TestOutput, System.Text.Encoding.UTF8);
@@ -662,6 +666,5 @@ namespace FTFTestExecution
         public event TestRunEventHandler OnTestEvent;
         public Process TestProcess;
         private bool TestAborted;
-        internal Stopwatch _timer; // The Process class counter stops working once the process exits so make our own timer
     }
 }
