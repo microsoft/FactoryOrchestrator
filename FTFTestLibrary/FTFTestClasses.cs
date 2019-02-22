@@ -34,14 +34,9 @@ namespace FTFTestExecution
     public abstract class TestBase
     {
         // TODO: how do we guarantee accurate state when many things are querying test state?????
-        internal TestBase()
-        {
-            TestLock = new object();
-        }
-
         public TestBase(string testPath, TestType type)
         {
-            Guid = Guid.NewGuid();
+            _guid = Guid.NewGuid();
             TestType = type;
             TestPath = testPath;
             IsEnabled = true;
@@ -52,8 +47,7 @@ namespace FTFTestExecution
         public TestType TestType { get; }
 
         public string Arguments { get; set; }
-        public Guid Guid { get; }
-
+        public Guid Guid { get => _guid; }
         public DateTime? LastTimeStarted { get; set; }
         public DateTime? LastTimeFinished { get; set; }
         public TestStatus TestStatus { get; set; }
@@ -146,6 +140,9 @@ namespace FTFTestExecution
                 }
             }
         }
+
+        [JsonRequired]
+        private Guid _guid;
 
         [JsonIgnore]
         internal object TestLock;

@@ -11,17 +11,21 @@ namespace FTFUWP
 {
     public class TestData : INotifyPropertyChanged
     {
+        private object testlock = new object();
         private Dictionary<Guid, TestList> testListMap = new Dictionary<Guid, TestList>();
         public Dictionary<Guid, TestList> TestListMap
         {
             get { return testListMap; }
             set
             {
-                if (value != testListMap)
+                lock (testlock)
                 {
-                    testListMap = value;
-                    NotifyPropertyChanged("TestListMap");
+                    if (value != testListMap)
+                    {
+                        testListMap = value;
+                        NotifyPropertyChanged("TestListMap");
 
+                    }
                 }
             }
         }
@@ -32,10 +36,13 @@ namespace FTFUWP
             get { return new ObservableCollection<Guid>(TestListMap.Keys); }
             set
             {
-                if (value != testListGuids)
+                lock (testlock)
                 {
-                    testListGuids = value;
-                    NotifyPropertyChanged("TestListGuids");
+                    if (value != testListGuids)
+                    {
+                        testListGuids = value;
+                        NotifyPropertyChanged("TestListGuids");
+                    }
                 }
             }
         }
@@ -47,10 +54,14 @@ namespace FTFUWP
             get { return testGuidsMap; }
             set
             {
-                if (value != testGuidsMap)
+
+                lock (testlock)
                 {
-                    testGuidsMap = value;
-                    NotifyPropertyChanged("TestGuidsMap");
+                    if (value != testGuidsMap)
+                    {
+                        testGuidsMap = value;
+                        NotifyPropertyChanged("TestGuidsMap");
+                    }
                 }
             }
         }
@@ -61,10 +72,14 @@ namespace FTFUWP
             get { return testNames; }
             set
             {
-                if (value != testNames)
+
+                lock (testlock)
                 {
-                    testNames = value;
-                    NotifyPropertyChanged("TestNames");
+                    if (value != testNames)
+                    {
+                        testNames = value;
+                        NotifyPropertyChanged("TestNames");
+                    }
                 }
             }
         }
@@ -86,10 +101,14 @@ namespace FTFUWP
             get { return selectedTestListGuid; }
             set
             {
-                if (value != selectedTestListGuid)
+
+                lock (testlock)
                 {
-                    selectedTestListGuid = value;
-                    NotifyPropertyChanged("TestListGuid");
+                    if (value != selectedTestListGuid)
+                    {
+                        selectedTestListGuid = value;
+                        NotifyPropertyChanged("TestListGuid");
+                    }
                 }
             }
         }
@@ -101,10 +120,14 @@ namespace FTFUWP
             get { return testStatus; }
             set
             {
-                if (value != testStatus)
+
+                lock (testlock)
                 {
-                    testStatus = value;
-                    NotifyPropertyChanged("TestStatus");
+                    if (value != testStatus)
+                    {
+                        testStatus = value;
+                        NotifyPropertyChanged("TestStatus");
+                    }
                 }
             }
         }
