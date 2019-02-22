@@ -94,7 +94,7 @@ namespace FTFUWP
                 _poller = new TestListPoller(testListGuid, IPCClientHelper.IpcClient, 10000);
                 _poller.OnUpdatedTestList += OnUpdatedTestListAsync;
 #if DEBUG
-                if ((DisablePolling != null) && (bool)(DisablePolling.IsChecked))
+                if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
 #endif
                 {
                     _poller.StartPolling();
@@ -159,7 +159,7 @@ namespace FTFUWP
             if (_poller != null)
             {
 #if DEBUG
-                if ((DisablePolling != null) && (bool)(DisablePolling.IsChecked))
+                if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
 #endif
                 {
                     _poller.StartPolling();
@@ -194,7 +194,7 @@ namespace FTFUWP
 
         private void DisablePolling_Click(object sender, RoutedEventArgs e)
         {
-            if ((DisablePolling != null) && (bool)(DisablePolling.IsChecked))
+            if ((DisablePolling.IsChecked != null) && (bool)(DisablePolling.IsChecked))
             {
                 if (_poller != null)
                 {
