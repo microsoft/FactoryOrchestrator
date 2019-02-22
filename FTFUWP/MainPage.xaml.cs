@@ -112,8 +112,17 @@ namespace FTFUWP
         {
             if (TestListsView.SelectedItem != null)
             {
-                Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, (bool)RunListInParallel.IsChecked));
+                if (RunButton.Symbol == Symbol.Play)
+                {
+                    RunButton.Symbol = Symbol.Stop;
+                    Guid testListGuid = (Guid)TestListsView.SelectedItem;
+                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, (bool)RunListInParallel.IsChecked));
+                }
+                else if (RunButton.Symbol == Symbol.Stop)
+                {
+                    // call Stop Test API
+                    RunButton.Symbol = Symbol.Play;
+                }
             }
         }
 

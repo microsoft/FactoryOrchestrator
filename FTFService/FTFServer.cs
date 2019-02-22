@@ -20,7 +20,10 @@ namespace FTFService
         // TODO: Catch exceptions & log them
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
-            return FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
+            FTFService.Instance.ServiceLogger.LogTrace("hit create tl");
+            var tl =  FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
+            FTFService.Instance.ServiceLogger.LogTrace("finished create tl");
+            return tl;
         }
 
         public List<Guid> LoadTestListsFromXmlFile(string filePath)
@@ -130,7 +133,7 @@ namespace FTFService
 
         private TestManager _testExecutionManager;
         private IMicroServiceController _controller;
-        private ILogger<FTFService> _logger;
+        public  ILogger<FTFService> ServiceLogger;
         private System.Threading.CancellationTokenSource _cancellationToken;
 
         public static FTFService Instance
@@ -148,7 +151,7 @@ namespace FTFService
                 if (_singleton == null)
                 {
                     _controller = controller;
-                    _logger = logger;
+                    ServiceLogger = logger;
                     _singleton = this;
                     _testExecutionManager = new TestManager();
                 }
@@ -166,13 +169,13 @@ namespace FTFService
             _cancellationToken = new System.Threading.CancellationTokenSource();
             FTFServiceExe.ipcHost.RunAsync(_cancellationToken.Token);
 
-            _logger.LogTrace("Started\n");
+            ServiceLogger.LogTrace("Started\n");
         }
 
         public void Stop()
         {
             _cancellationToken.Cancel();
-            _logger.LogTrace("Stopped\n");
+            ServiceLogger.LogTrace("Stopped\n");
         }
     }
 }

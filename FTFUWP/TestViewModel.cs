@@ -19,7 +19,7 @@ namespace FTFUWP
                 TestListMap = new Dictionary<Guid, TestList>(),
                 TestGuidsMap = new Dictionary<int, Guid>(),
                 TestNames = new ObservableCollection<String>(),
-                TestStatus = new ObservableCollection<TestStatus>(),
+                TestStatus = new ObservableCollection<String>(),
                 TestListGuids = new ObservableCollection<Guid>()
             };
         }
@@ -91,8 +91,27 @@ namespace FTFUWP
 
         public void SetTestNames(Guid guid)
         {
-            ObservableCollection<String> testNames = GetTestNames(guid);
-            TestData.TestNames = testNames;
+            //ObservableCollection<String> testNames = GetTestNames(guid);
+            SetTestStatus(guid);
+            TestData.TestNames = new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+        }
+
+        private void SetTestStatus(Guid guid)
+        {
+            List<String> testResults = new List<String>();
+            foreach (var test in TestData.TestListMap[guid].Tests.Values)
+            {
+                if (test.TestStatus == TestStatus.TestPassed)
+                {
+                    testResults.Add("✔");
+                }
+                else if (test.TestStatus == TestStatus.TestFailed)
+                {
+                    testResults.Add("❌");
+                }
+            }
+            //return new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+            TestData.TestStatus = new ObservableCollection<String>(testResults);
         }
 
         public void SetTestNames(ObservableCollection<String> testNames)

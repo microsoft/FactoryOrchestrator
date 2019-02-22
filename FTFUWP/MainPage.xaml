@@ -32,7 +32,7 @@
             <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <TextBlock Text="Tests" Style="{StaticResource TitleTextBlockStyle}"/>
                 <Button Margin="25,0,0,0" Click="RunButton_Click">
-                    <SymbolIcon Symbol="Play" />
+                    <SymbolIcon x:Name="RunButton" Symbol="Play" />
                 </Button>
                 <CheckBox x:Name="RunListInParallel" Content="Run List in Parallel?" Margin="25,0,0,0" IsChecked="False"/>
             </StackPanel>
@@ -41,11 +41,23 @@
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
-
-            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <ListView.Items>
-                </ListView.Items>
-            </ListView>
+            
+            <ScrollViewer x:Name="TestsScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3">
+                <Grid x:Name="TestsScrollGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ListView x:Name="TestsView" Grid.Column="0" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <ListView.Items>
+                        </ListView.Items>
+                    </ListView>
+                    <ListView x:Name="ResultsView" Grid.Column="1" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TestViewModel.TestData.TestStatus, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
+                        <ListView.Items>
+                        </ListView.Items>
+                    </ListView>
+                </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>

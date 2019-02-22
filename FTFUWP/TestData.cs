@@ -113,9 +113,9 @@ namespace FTFUWP
             }
         }
 
-        private ObservableCollection<TestStatus> testStatus = new ObservableCollection<TestStatus>();
+        private ObservableCollection<String> testStatus = new ObservableCollection<String>();
 
-        public ObservableCollection<TestStatus> TestStatus
+        public ObservableCollection<String> TestStatus
         {
             get { return testStatus; }
             set
