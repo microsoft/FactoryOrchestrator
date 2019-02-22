@@ -24,8 +24,9 @@
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Factory Test Framework" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Grid.ColumnSpan="3"  />
             <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="99" Grid.Row="1" Margin="0,20">
                 <TextBlock Text="Folder Path: " Style="{StaticResource TitleTextBlockStyle}" Margin="10,0"/>
-                <TextBox x:Name="FolderToLoad" Text="" Grid.Column="0" Grid.Row="1" Margin="0,0" Padding="200,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Button x:Name="LoadFolderButton" Content="Create TestList From Folder" Grid.Column="0" Grid.Row="1" Margin="0,0,0,-0.429" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="LoadFolderButton_Click"/>
+                <TextBox x:Name="FolderToLoad" Text="c:\data\tests" Grid.Column="0" Grid.Row="1" Margin="0,0" Width="400" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <Button x:Name="LoadFolderButton" Content="Create TestList From Folder" Grid.Column="0" Grid.Row="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFolderButton_Click"/>
+                <RadioButton x:Name="DisablePolling" Content="DisablePolling" Grid.Column="0" Grid.Row="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="False" Click="DisablePolling_Click" Visibility="Collapsed"/>
             </StackPanel>
             <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="2" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" >

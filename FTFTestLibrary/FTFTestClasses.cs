@@ -243,7 +243,7 @@ namespace FTFTestExecution
         }
 
         public override string TestName { get; }
-        public TimeSpan TestRunTime {get; set; }
+        public override TimeSpan? TestRunTime {get; }
     }
 
     public class TAEFTestCase

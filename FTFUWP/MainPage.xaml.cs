@@ -36,14 +36,17 @@ namespace FTFUWP
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             this.TestViewModel= new TestViewModel();
             this.DataContext = TestViewModel;
+#if DEBUG
+            DisablePolling.Visibility = Visibility.Visible;
+#endif
             // create testlist in service, not working rn
             //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
             //{
-                // TODO: Move to a place this works properly, likely viewmodel, since it tracks testlists, or just nuke it now, since we can use real data
-                //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-                //{
-                //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
-                //}
+            // TODO: Move to a place this works properly, likely viewmodel, since it tracks testlists, or just nuke it now, since we can use real data
+            //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+            //{
+            //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
+            //}
             //}
             //await((App)(Application.Current)).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap);
             MakeTestLists();
@@ -90,7 +93,12 @@ namespace FTFUWP
                 SetTestListGuid(testListGuid);
                 _poller = new TestListPoller(testListGuid, IPCClientHelper.IpcClient, 10000);
                 _poller.OnUpdatedTestList += OnUpdatedTestListAsync;
-                _poller.StartPolling();
+#if DEBUG
+                if ((DisablePolling != null) && (bool)(DisablePolling.IsChecked))
+#endif
+                {
+                    _poller.StartPolling();
+                }
             }
         }
 
@@ -150,7 +158,12 @@ namespace FTFUWP
         {
             if (_poller != null)
             {
-                _poller.StartPolling();
+#if DEBUG
+                if ((DisablePolling != null) && (bool)(DisablePolling.IsChecked))
+#endif
+                {
+                    _poller.StartPolling();
+                }
             }
 
             if (_selectedTestList != -1)
@@ -172,10 +185,29 @@ namespace FTFUWP
 
         private async void LoadFolderButton_Click(object sender, RoutedEventArgs e)
         {
-
             var testlist = await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(FolderToLoad.Text, false));
             SetTestList(testlist);
             TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
+            TestViewModel.TestData.SelectedTestListGuid = testlist.Guid;
+            TestListsView.SelectedItem = testlist.Guid;
+        }
+
+        private void DisablePolling_Click(object sender, RoutedEventArgs e)
+        {
+            if ((DisablePolling != null) && (bool)(DisablePolling.IsChecked))
+            {
+                if (_poller != null)
+                {
+                    _poller.StopPolling();
+                }
+            }
+            else
+            {
+                if (_poller != null)
+                {
+                    _poller.StartPolling();
+                }
+            }
         }
     }
 }
