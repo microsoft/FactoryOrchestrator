@@ -101,13 +101,26 @@ namespace FTFUWP
             List<String> testResults = new List<String>();
             foreach (var test in TestData.TestListMap[guid].Tests.Values)
             {
-                if (test.TestStatus == TestStatus.TestPassed)
+                switch (test.TestStatus)
                 {
-                    testResults.Add("✔");
-                }
-                else if (test.TestStatus == TestStatus.TestFailed)
-                {
-                    testResults.Add("❌");
+                    case TestStatus.TestPassed:
+                        testResults.Add("✔ Passed");
+                        break;
+                    case TestStatus.TestFailed:
+                        testResults.Add("❌ Failed");
+                        break;
+                    case TestStatus.TestRunning:
+                        testResults.Add("🕒 Running");
+                        break;
+                    case TestStatus.TestNotRun:
+                        testResults.Add("❔ Not Run");
+                        break;
+                    case TestStatus.TestAborted:
+                        testResults.Add("⛔ Aborted");
+                        break;
+                    default:
+                        testResults.Add("❔ Unknown");
+                        break;
                 }
             }
             //return new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
