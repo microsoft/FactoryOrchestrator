@@ -65,9 +65,11 @@ namespace FTFUWP
             return TestViewModel.GetTestNames(guid);
         }
 
-        private void SetTestNames(Guid guid)
+        private async void SetTestNames(Guid guid)
         {
+
             TestViewModel.SetTestNames(guid);
+            await((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap[guid]));
         }
 
         private void SetTestNames(ObservableCollection<String> testNames)
@@ -84,20 +86,11 @@ namespace FTFUWP
         {
             if (TestListsView.SelectedItem != null)
             {
-                _selectedTestList = TestListsView.SelectedIndex;
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                //get tl guid
-                //set universal tl guid
-                //set test names to be display
-                // set int to test guid map
                 SetTestListGuid(testListGuid);
-
-                // comment out polling code to test UI, currently crashes after selecting a testlist
-                //TestViewModel.TestData.TestNames = GetTestNames(testListGuid);
                 _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient, 10000);
                 _poller.OnUpdatedTestList += OnUpdatedTestListAsync;
                 _poller.StartPolling();
-                //SetTestNames(testListGuid);
             }
         }
 
@@ -108,37 +101,10 @@ namespace FTFUWP
 
         private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
-            // right now, this just prints all of the test data results
-            // will really run tests and print results
             if (TestListsView.SelectedItem != null)
             {
-                Guid guid = (Guid)TestListsView.SelectedItem;
-
-                List<String> testNamesAndResults = new List<String>();
-                foreach (var test in TestViewModel.TestData.TestListMap[guid].Tests.Values)
-                {
-                    if (test.TestStatus == TestStatus.TestPassed)
-                    {
-                        testNamesAndResults.Add(test.TestName + " ✔");
-                    }
-                    else if (test.TestStatus == TestStatus.TestFailed)
-                    {
-                        testNamesAndResults.Add(test.TestName + " ❌");
-                    }
-                    else
-                    {
-                        testNamesAndResults.Add(test.TestName + " ❓");
-                    }
-                }
-                SetTestNames(new ObservableCollection<String>(testNamesAndResults));
-                await((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap[guid]));
-                // for each test also display a results button
-                // make test "clickable" -> opens results page for specific test
-                //   can i turn on the SelectMode=Clickable after the results appear? and IsItemClickEnabled=True
-                // some results flag??/
-                // map based on guid
-                // pass test object: TestListMap[testListGuid][testGuid] = test object
-                //navigate
+                Guid testListGuid = (Guid)TestListsView.SelectedItem;
+                await ((App)Application.Current).IpcClient.InvokeAsync(x => x.Run(testListGuid, false, false));
             }
         }
 
@@ -151,7 +117,6 @@ namespace FTFUWP
             {
                 var testGuid = TestViewModel.TestData.TestGuidsMap[index];
                 TestBase test = TestViewModel.TestData.TestListMap[TestViewModel.TestData.SelectedTestListGuid].Tests[testGuid];
-
                 ////TESTCODE
                 //var test = new ExecutableTest("foo.dll")
                 //{
@@ -178,9 +143,6 @@ namespace FTFUWP
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     SetTestList(e.TestList);
-                    SetTestNames(e.TestList.Guid);
-
-
                 });
             }
         }

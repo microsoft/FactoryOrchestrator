@@ -68,7 +68,24 @@ namespace FTFUWP
 
         public ObservableCollection<String> GetTestNames(Guid guid)
         {
-            return new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+            List<String> testNamesAndResults = new List<String>();
+            foreach (var test in TestData.TestListMap[guid].Tests.Values)
+            {
+                if (test.TestStatus == TestStatus.TestPassed)
+                {
+                    testNamesAndResults.Add(test.TestName + " ✔");
+                }
+                else if (test.TestStatus == TestStatus.TestFailed)
+                {
+                    testNamesAndResults.Add(test.TestName + " ❌");
+                }
+                else
+                {
+                    testNamesAndResults.Add(test.TestName);
+                }
+            }
+            //return new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
+            return new ObservableCollection<String>(testNamesAndResults);
         }
 
         public void SetTestNames(Guid guid)
@@ -85,6 +102,7 @@ namespace FTFUWP
         public void SetTestList(TestList testList)
         {
             TestData.TestListMap[testList.Guid] = testList;
+            SetTestNames(testList.Guid);
         }
 
         public void SetTestListGuid(Guid testListGuid)
