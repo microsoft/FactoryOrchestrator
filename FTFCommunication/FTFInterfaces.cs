@@ -132,6 +132,9 @@ namespace FTFInterfaces
 
         bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
 
+        void StopAll();
+        void Stop(Guid testListGuid);
+
         bool UpdateTestStatus(TestBase latestTestStatus);
 
         TestOutput GetAllOutput(Guid guid);

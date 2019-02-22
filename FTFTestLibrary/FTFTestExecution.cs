@@ -422,6 +422,18 @@ namespace FTFTestExecution
             }
         }
 
+        public void Abort()
+        {
+            lock (RunningTestLock)
+            {
+                foreach (var token in RunningTestListTokens.Values)
+                {
+                    token.Cancel();
+                }
+                RunningTestListTokens.Clear();
+            }
+        }
+
         public void Abort(Guid testListToCancel)
         {
             lock (RunningTestLock)
@@ -661,13 +673,13 @@ namespace FTFTestExecution
             {
                 TestContext.LastTimeFinished = DateTime.Now;
                 TestContext.ExitCode = TestProcess.ExitCode;
+                TestContext.TestStatus = (TestContext.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
             }
             else
             {
                 TestContext.ExitCode = -1;
+                TestContext.TestStatus = TestStatus.TestAborted;
             }
-
-            TestContext.TestStatus = (TestContext.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
 
             // Save test output to file
             var LogFilePath = TestContext.LogFilePath;

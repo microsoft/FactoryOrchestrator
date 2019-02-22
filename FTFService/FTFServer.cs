@@ -124,6 +124,16 @@ namespace FTFService
         {
             return TestRunner.SetDefaultLogFolder(logFolder);
         }
+
+        public void StopAll()
+        {
+            FTFService.Instance.TestExecutionManager.Abort();
+        }
+
+        public void Stop(Guid testListGuid)
+        {
+            FTFService.Instance.TestExecutionManager.Abort(testListGuid);
+        }
     }
 
     public class FTFService : IMicroService

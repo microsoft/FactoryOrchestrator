@@ -121,6 +121,7 @@ namespace FTFUWP
                 else if (RunButton.Symbol == Symbol.Stop)
                 {
                     // call Stop Test API
+                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.StopAll());
                     RunButton.Symbol = Symbol.Play;
                 }
             }
