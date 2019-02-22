@@ -38,6 +38,7 @@ namespace FTFUWP
                 CreateHeader();
                 UpdateResultsSummary();
                 UpdateOutput();
+                UpdateArgs();
                 _poller = new FTFClient.FTFPoller(_test.Guid, typeof(TestBase), IPCClientHelper.IpcClient, 1000);
                 _poller.OnUpdatedObject += OnUpdatedTestAsync;
                 _poller.StartPolling();
@@ -197,6 +198,24 @@ namespace FTFUWP
                     });
                 }
             }
+        }
+
+        private void UpdateArgs()
+        {
+            if (_test.Arguments != null)
+            {
+                Args.Text = _test.Arguments.ToString();
+                Args.IsReadOnly = true;
+            }
+            else
+            {
+                _test.Arguments = "";
+            }
+        }
+
+        private void UpdateArgsOnServer()
+        {
+
         }
 
         private TestBase _test;

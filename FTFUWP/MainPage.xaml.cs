@@ -159,9 +159,20 @@ namespace FTFUWP
             // TODO: call updateui api to update the testlist the viewmodel uses
             if (e.Result != null)
             {
+                TestList list = (TestList)e.Result;
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    SetTestList((TestList)e.Result);
+                    
+                    SetTestList(list);
+
+                    if (list.TestListStatus == TestStatus.TestRunning)
+                    {
+                        RunButton.Symbol = Symbol.Stop;
+                    }
+                    else
+                    {
+                        RunButton.Symbol = Symbol.Play;
+                    }
                 });
             }
         }
