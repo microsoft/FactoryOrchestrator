@@ -54,7 +54,7 @@ namespace FTFUWP
         {
             foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
             {
-                await ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
+                await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
             }
         }
 
@@ -69,7 +69,7 @@ namespace FTFUWP
         {
 
             TestViewModel.SetTestNames(guid);
-            await((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap[guid]));
+            await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap[guid]));
         }
 
         private void SetTestNames(ObservableCollection<String> testNames)
@@ -88,7 +88,7 @@ namespace FTFUWP
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
                 SetTestListGuid(testListGuid);
-                _poller = new TestListPoller(testListGuid, ((App)Application.Current).IpcClient, 10000);
+                _poller = new TestListPoller(testListGuid, IPCClientHelper.IpcClient, 10000);
                 _poller.OnUpdatedTestList += OnUpdatedTestListAsync;
                 _poller.StartPolling();
             }
@@ -104,7 +104,7 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                await ((App)Application.Current).IpcClient.InvokeAsync(x => x.Run(testListGuid, false, false));
+                await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, false));
             }
         }
 

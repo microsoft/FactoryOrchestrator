@@ -16,31 +16,34 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Factory Test Framework" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Grid.ColumnSpan="3"  />
-            <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
-            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="99" Grid.Row="1" Margin="0,20">
+                <TextBlock Text="Folder Path: " Style="{StaticResource TitleTextBlockStyle}" Margin="10,0"/>
+                <TextBox x:Name="FolderToLoad" Text="" Grid.Column="0" Grid.Row="1" Margin="0,0" Padding="200,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <Button x:Name="LoadFolderButton" Content="Create TestList From Folder" Grid.Column="0" Grid.Row="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFolderButton_Click"/>
+            </StackPanel>
+            <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="2" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <TextBlock Text="Tests" Style="{StaticResource TitleTextBlockStyle}"/>
                 <Button Margin="25,0,0,0" Click="RunButton_Click">
                     <SymbolIcon Symbol="Play" />
                 </Button>
             </StackPanel>
 
-            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,100" VerticalAlignment="Stretch">
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,100" VerticalAlignment="Stretch">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
 
-            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="2" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged">
+            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
-
-            <Image Source="/Assets/Microsoft-logo_rgb_gray[1].png" Margin="0,688,465,0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-
         </Grid>
     </Grid>
 </Page>
