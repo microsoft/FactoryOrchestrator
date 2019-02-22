@@ -90,9 +90,10 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
+                _selectedTestList = TestListsView.SelectedIndex;
                 SetTestListGuid(testListGuid);
-                _poller = new TestListPoller(testListGuid, IPCClientHelper.IpcClient, 10000);
-                _poller.OnUpdatedTestList += OnUpdatedTestListAsync;
+                _poller = new FTFPoller(testListGuid, typeof(TestList), IPCClientHelper.IpcClient, 5000);
+                _poller.OnUpdatedObject += OnUpdatedTestListAsync;
 #if DEBUG
                 if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
 #endif
@@ -112,7 +113,7 @@ namespace FTFUWP
             if (TestListsView.SelectedItem != null)
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, false));
+                await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, (bool)RunListInParallel.IsChecked));
             }
         }
 
@@ -143,19 +144,22 @@ namespace FTFUWP
             }
         }
 
-        private async void OnUpdatedTestListAsync(object source, TestListPollEventArgs e)
+        private async void OnUpdatedTestListAsync(object source, FTFPollEventArgs e)
         {
             // TODO: call updateui api to update the testlist the viewmodel uses
-            if (e.TestList != null)
+            if (e.Result != null)
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    SetTestList(e.TestList);
+                    SetTestList((TestList)e.Result);
                 });
             }
         }
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            // TODO: This is a hack so that if you click on the same test again after returning from the results page the selection is changed
+            TestsView.SelectedIndex = -1;
+
             if (_poller != null)
             {
 #if DEBUG
@@ -180,7 +184,7 @@ namespace FTFUWP
             }
         }
 
-        private TestListPoller _poller;
+        private FTFPoller _poller;
         private int _selectedTestList = -1;
 
         private async void LoadFolderButton_Click(object sender, RoutedEventArgs e)

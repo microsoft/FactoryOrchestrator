@@ -117,6 +117,7 @@ namespace FTFInterfaces
         List<Guid> GetTestListGuids();
 
         TestList QueryTestList(Guid guid);
+        TestBase QueryTest(Guid guid);
 
         bool DeleteTestList(Guid listToDelete);
         bool UpdateTestList(TestList testList);

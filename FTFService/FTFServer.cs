@@ -42,6 +42,10 @@ namespace FTFService
         {
             return FTFService.Instance.TestExecutionManager.GetKnownTestList(testListGuid);
         }
+        public TestBase QueryTest(Guid testGuid)
+        {
+            return FTFService.Instance.TestExecutionManager.GetKnownTest(testGuid);
+        }
 
         public bool DeleteTestList(Guid listToDelete)
         {

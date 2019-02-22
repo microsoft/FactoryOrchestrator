@@ -50,6 +50,25 @@ namespace FTFTestExecution
             return KnownTestLists.Remove(listToDelete);
         }
 
+        public TestBase GetKnownTest(Guid testGuid)
+        {
+            var list = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(testGuid)).First();
+            if (list == null)
+            {
+                return null;
+            }
+
+            TestBase test;
+            if (list.Tests.TryGetValue(testGuid, out test))
+            {
+                return test;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public TestList GetKnownTestList(Guid guid)
         {
             TestList list = null;
@@ -132,7 +151,7 @@ namespace FTFTestExecution
         {
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
-            TestRunner runner = new TestRunner(maybeTAEF);
+            TestRunner runner = new TestRunner(ref maybeTAEF);
             try
             {
                 if (!runner.RunTest("/list"))
@@ -373,7 +392,7 @@ namespace FTFTestExecution
         {
             if (!token.IsCancellationRequested)
             {
-                TestRunner runner = new TestRunner(test);
+                TestRunner runner = new TestRunner(ref test);
                 if (testRunEventHandler != null)
                 {
                     runner.OnTestEvent += testRunEventHandler;
@@ -389,7 +408,7 @@ namespace FTFTestExecution
                 while (!token.IsCancellationRequested && !done)
                 {
                     done = runner.WaitForExit(0);
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                 }
                 if (token.IsCancellationRequested)
                 {
@@ -479,10 +498,15 @@ namespace FTFTestExecution
             }
         }
 
-        public TestRunner(ExecutableTest testToRun)
+        public TestRunner(ref ExecutableTest testToRun)
         {
             TestContext = testToRun;
             IsRunning = false;
+        }
+
+        public TestRunner(ref TAEFTest maybeTAEF)
+        {
+            TestContext = maybeTAEF;
         }
 
         public bool RunTest()
@@ -530,6 +554,7 @@ namespace FTFTestExecution
                 startInfo.RedirectStandardOutput = true;
                 startInfo.CreateNoWindow = true;
                 startInfo.WorkingDirectory = Path.GetDirectoryName(TestContext.TestPath);
+                TestContext.TestOutput = new List<string>();
 
                 // Configure event handling
                 TestProcess.EnableRaisingEvents = true;
@@ -542,7 +567,7 @@ namespace FTFTestExecution
                 if (TestProcess.Start())
                 {
                     IsRunning = true;
-                    TestContext.TestOutput = new List<string>();
+
                     // Start async read (OnOutputData)
                     TestProcess.BeginErrorReadLine();
                     TestProcess.BeginOutputReadLine();
@@ -562,14 +587,18 @@ namespace FTFTestExecution
             // Use mutex to ensure output data is serialized
             lock (outputLock)
             {
-                TestContext.TestOutput.Add(e.Data);
-
-                if (TestContext.TestType == TestType.TAEFDll)
+                if (e.Data != null)
                 {
-                    ParseTeOutput(e.Data);
+                    TestContext.TestOutput.Add(e.Data);
+
+                    if (TestContext.TestType == TestType.TAEFDll)
+                    {
+                        ParseTeOutput(e.Data);
+                    }
                 }
             }
         }
+
 
         private void ParseTeOutput(string data)
         {
@@ -588,13 +617,15 @@ namespace FTFTestExecution
             {
                 TestContext.ExitCode = -1;
             }
+
             TestContext.TestStatus = (TestContext.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
 
             // Save test output to file
             var LogFilePath = TestContext.LogFilePath;
             if (LogFilePath == null)
             {
-                LogFilePath = Path.Combine(GlobalLogFolder, TestContext.TestName, ".log");
+                LogFilePath = Path.Combine(GlobalLogFolder, TestContext.TestName + ".log");
+                TestContext.LogFilePath = LogFilePath;
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));

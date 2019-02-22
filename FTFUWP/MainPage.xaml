@@ -34,14 +34,15 @@
                 <Button Margin="25,0,0,0" Click="RunButton_Click">
                     <SymbolIcon Symbol="Play" />
                 </Button>
+                <CheckBox x:Name="RunListInParallel" Content="Run List in Parallel?" Margin="25,0,0,0" IsChecked="False"/>
             </StackPanel>
 
-            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged" HorizontalAlignment="Stretch" Margin="0,0,0,100" VerticalAlignment="Stretch">
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
 
-            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged">
+            <ListView x:Name="TestsView" Grid.Column="1" Grid.Row="3" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListView.Items>
                 </ListView.Items>
             </ListView>
