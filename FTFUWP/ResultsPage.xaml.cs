@@ -176,11 +176,19 @@ namespace FTFUWP
 
                 if (_test.TestOutput[i] != null)
                 {
-                    OutputStack.Children.Add(new TextBlock()
+                    var textBlock = new TextBlock()
                     {
                         Text = _test.TestOutput[i],
                         Name = "OuptutForLineNo" + line
-                    });
+                    };
+
+                    if (line.StartsWith("ERROR: "))
+                    {
+                        textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
+                        textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
+                    }
+
+                    OutputStack.Children.Add(textBlock);
 
                     LineNoStack.Children.Add(new TextBlock()
                     {

@@ -18,7 +18,8 @@ namespace FTFTestExecution
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
             var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
             TestList tests = new TestList(Guid.NewGuid());
-
+            // TODO: Parallel
+            //Parallel.ForEach<string>(dlls, (dll) =>
             foreach (var dll in dlls)
             {
                 var maybeTAEF = CheckForTAEFTest(dll);
@@ -27,6 +28,7 @@ namespace FTFTestExecution
                     tests.Tests.Add(maybeTAEF.Guid, maybeTAEF);
                 }
             }
+            //);
 
             // Assume every .exe is a valid console test
             if (!onlyTAEF)
@@ -154,7 +156,7 @@ namespace FTFTestExecution
             TestRunner runner = new TestRunner(ref maybeTAEF);
             try
             {
-                if (!runner.RunTest("/list"))
+                if (!runner.CheckIfTaefTest())
                 {
                     throw new Exception(String.Format("Unable to invoke TE.exe to validate possible TAEF test: {0}", dllToTest));
                 }
@@ -165,16 +167,19 @@ namespace FTFTestExecution
                     throw new Exception(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
                 }
 
-                // If it exits successfully, it was able to enumerate the test cases.
-                if (maybeTAEF.ExitCode == 0)
-                {
-                    maybeTAEF.Reset();
-                    return maybeTAEF;
-                }
+                
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
+                // todo: but not always???
                 // https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/exit-codes-for-taef
-                else if (maybeTAEF.ExitCode == 117440512)
+                if ((maybeTAEF.ExitCode == 117440512) || (maybeTAEF.ExitCode == 0))
                 {
+                    // Check if it was able to enumerate the test cases.
+                    if (!maybeTAEF.TestOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !maybeTAEF.TestOutput.Any(x => x.Contains("Failed to load")))
+                    {
+                        // TODO: We need a better mechanism here
+                        maybeTAEF.Reset();
+                        return maybeTAEF;
+                    }
                     return null;
                 }
                 else
@@ -182,7 +187,7 @@ namespace FTFTestExecution
                     throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.ExitCode, dllToTest));
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // TODO: undo this
                 //throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
@@ -469,7 +474,7 @@ namespace FTFTestExecution
     {
         public static string GlobalTeExePath = "c:\\taef\\te.exe";
         public static string GlobalLogFolder = "c:\\data\\FTFLogs";
-        private readonly static string GlobalTeArgs = " /labMode /enableWttLogging /logOutput:High /console:flushWrites /coloredConsoleOutput:false";
+        private readonly static string GlobalTeArgs = "";
         private object outputLock = new object();
 
         public static bool SetDefaultTePath(string teExePath)
@@ -511,9 +516,22 @@ namespace FTFTestExecution
 
         public bool RunTest()
         {
-            return RunTest(null);
+            lock (TestContext.TestLock)
+            {
+                if (IsRunning == true)
+                {
+                    return true;
+                }
+
+                // Create Process object
+                TestProcess = CreateTestProcess();
+
+                // Start the process
+                return StartTestProcess();
+            }
         }
-        public bool RunTest(string overrideArguments)
+
+        internal bool CheckIfTaefTest()
         {
             lock (TestContext.TestLock)
             {
@@ -522,63 +540,86 @@ namespace FTFTestExecution
                     return true;
                 }
 
-                TestProcess = new Process();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
+                // Create Process object
+                TestProcess = CreateTestProcess();
 
-                if (TestContext.TestType == TestType.TAEFDll)
-                {
-                    startInfo.FileName = GlobalTeExePath;
-                    startInfo.Arguments += TestContext.TestPath + GlobalTeArgs;
-                }
-                else
-                {
-                    startInfo.FileName = TestContext.TestPath;
-                }
-
-                if (overrideArguments != null)
-                {
-                    foreach (var arg in overrideArguments)
-                    {
-                        startInfo.Arguments += " " + arg;
-                    }
-                }
-                else
-                {
-                    startInfo.Arguments += " " + TestContext.Arguments;
-                }
-
-                // Configure IO redirection
-                startInfo.UseShellExecute = false;
-                startInfo.RedirectStandardError = true;
-                startInfo.RedirectStandardInput = true;
-                startInfo.RedirectStandardOutput = true;
-                startInfo.CreateNoWindow = true;
-                startInfo.WorkingDirectory = Path.GetDirectoryName(TestContext.TestPath);
-                TestContext.TestOutput = new List<string>();
-
-                // Configure event handling
-                TestProcess.EnableRaisingEvents = true;
-                TestProcess.Exited += OnExited;
-                TestProcess.OutputDataReceived += OnOutputData;
-                TestProcess.ErrorDataReceived += OnOutputData;
+                // Override args to check if this is a valid TAEF test, not try to run it
+                TestProcess.StartInfo.Arguments = TestContext.TestPath + " /list";
 
                 // Start the process
-                TestProcess.StartInfo = startInfo;
-                if (TestProcess.Start())
-                {
-                    IsRunning = true;
+                return StartTestProcess();
+            }
+        }
+        
 
-                    // Start async read (OnOutputData)
-                    TestProcess.BeginErrorReadLine();
-                    TestProcess.BeginOutputReadLine();
-                    // Start timer
-                    TestContext.TestRunner = this;
-                    TestContext.TestStatus = TestStatus.TestRunning;
-                    TestContext.LastTimeStarted = DateTime.Now;
-                    return true;
-                }
+        private Process CreateTestProcess()
+        {
+            TestProcess = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo();
 
-                return false;
+            if (TestContext.TestType == TestType.TAEFDll)
+            {
+                startInfo.FileName = GlobalTeExePath;
+                startInfo.Arguments += TestContext.TestPath + GlobalTeArgs;
+            }
+            else
+            {
+                startInfo.FileName = TestContext.TestPath;
+            }
+
+            startInfo.Arguments += TestContext.Arguments;
+
+            // Configure IO redirection
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardError = true;
+            startInfo.RedirectStandardInput = true;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.CreateNoWindow = true;
+            if (TestContext.TestType == TestType.TAEFDll)
+            {
+                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(startInfo.FileName);
+            }
+            else
+            {
+                startInfo.WorkingDirectory = Path.GetDirectoryName(TestContext.TestPath);
+            }
+            TestContext.TestOutput = new List<string>();
+
+            // Configure event handling
+            TestProcess.EnableRaisingEvents = true;
+            TestProcess.Exited += OnExited;
+            TestProcess.OutputDataReceived += OnOutputData;
+            TestProcess.ErrorDataReceived += OnErrorData;
+
+            TestProcess.StartInfo = startInfo;
+            return TestProcess;
+        }
+
+        private bool StartTestProcess()
+        {
+            if (TestProcess.Start())
+            {
+                IsRunning = true;
+
+                // Start async read (OnOutputData)
+                TestProcess.BeginErrorReadLine();
+                TestProcess.BeginOutputReadLine();
+                // Start timer
+                TestContext.TestRunner = this;
+                TestContext.TestStatus = TestStatus.TestRunning;
+                TestContext.LastTimeStarted = DateTime.Now;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void OnErrorData(object sender, DataReceivedEventArgs e)
+        {
+            // Use mutex to ensure output data is serialized
+            lock (outputLock)
+            {
+                AddOutputLine(true, e.Data);
             }
         }
 
@@ -587,18 +628,26 @@ namespace FTFTestExecution
             // Use mutex to ensure output data is serialized
             lock (outputLock)
             {
-                if (e.Data != null)
-                {
-                    TestContext.TestOutput.Add(e.Data);
-
-                    if (TestContext.TestType == TestType.TAEFDll)
-                    {
-                        ParseTeOutput(e.Data);
-                    }
-                }
+                AddOutputLine(false, e.Data);
             }
         }
 
+        private void AddOutputLine(bool isStdErr, string line)
+        {
+            if (line != null)
+            {
+                if (isStdErr)
+                {
+                    line = "ERROR: " + line;
+                }
+                TestContext.TestOutput.Add(line);
+
+                if (TestContext.TestType == TestType.TAEFDll)
+                {
+                    ParseTeOutput(line);
+                }
+            }
+        }
 
         private void ParseTeOutput(string data)
         {
@@ -625,17 +674,24 @@ namespace FTFTestExecution
             if (LogFilePath == null)
             {
                 LogFilePath = Path.Combine(GlobalLogFolder, TestContext.TestName + ".log");
-                TestContext.LogFilePath = LogFilePath;
             }
+
+            uint i = 2;
+            while (File.Exists(LogFilePath))
+            {
+                LogFilePath = String.Format("{0}_Run{1}{2}", LogFilePath.Substring(0, LogFilePath.Length - 4), i, ".log");
+            }
+
+            TestContext.LogFilePath = LogFilePath;
 
             Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
             File.WriteAllLines(LogFilePath,
-                               new String[] { String.Format("Test: {0}", TestContext.TestName),
-                                              String.Format("Result: {0}", TestContext.TestStatus),
-                                              String.Format("Exit code: {0}", TestContext.ExitCode),
-                                              String.Format("Date/Time run: {0}", TestContext.LastTimeStarted),
-                                              String.Format("Time to complete: {0}", TestContext.TestRunTime),
-                                              String.Format("---------Test's console output below--------")});
+                                new String[] { String.Format("Test: {0}", TestContext.TestName),
+                                            String.Format("Result: {0}", TestContext.TestStatus),
+                                            String.Format("Exit code: {0}", TestContext.ExitCode),
+                                            String.Format("Date/Time run: {0}", TestContext.LastTimeStarted),
+                                            String.Format("Time to complete: {0}", TestContext.TestRunTime),
+                                            String.Format("---------Test's console output below--------")});
             File.AppendAllLines(LogFilePath, TestContext.TestOutput, System.Text.Encoding.UTF8);
 
             IsRunning = false;
