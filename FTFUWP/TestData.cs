@@ -26,7 +26,19 @@ namespace FTFUWP
             }
         }
 
-        public ObservableCollection<Guid> TestListGuids { get { return new ObservableCollection<Guid>(TestListMap.Keys); } }
+        private ObservableCollection<Guid> testListGuids = new ObservableCollection<Guid>();
+        public ObservableCollection<Guid> TestListGuids
+        {
+            get { return new ObservableCollection<Guid>(TestListMap.Keys); }
+            set
+            {
+                if (value != testListGuids)
+                {
+                    testListGuids = value;
+                    NotifyPropertyChanged("TestListGuids");
+                }
+            }
+        }
 
         private Dictionary<int, Guid> testGuidsMap = new Dictionary<int, Guid>();
 

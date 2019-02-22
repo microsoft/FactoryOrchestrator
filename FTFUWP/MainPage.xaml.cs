@@ -169,5 +169,13 @@ namespace FTFUWP
 
         private TestListPoller _poller;
         private int _selectedTestList = -1;
+
+        private async void LoadFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            var testlist = await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(FolderToLoad.Text, false));
+            SetTestList(testlist);
+            TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
+        }
     }
 }

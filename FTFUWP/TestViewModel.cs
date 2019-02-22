@@ -16,55 +16,56 @@ namespace FTFUWP
         {
             TestData = new TestData
             {
-                TestListMap = GetTestListMapAsync(),
+                TestListMap = new Dictionary<Guid, TestList>(),
                 TestGuidsMap = new Dictionary<int, Guid>(),
                 TestNames = new ObservableCollection<String>(),
-                TestStatus = new ObservableCollection<TestStatus>()
+                TestStatus = new ObservableCollection<TestStatus>(),
+                TestListGuids = new ObservableCollection<Guid>()
             };
         }
 
-        private TestList GetTestListAsync()
-        {
-            //TODO: make this properly async
+        //private TestList GetTestListAsync()
+        //{
+        //    //TODO: make this properly async
 
-            //var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
-            //bool result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
+        //    //var tests = await client.InvokeAsync(x => x.CreateTestListFromDirectory("c:\\data\\tests\\", false));
+        //    //bool result = await client.InvokeAsync(x => x.Run(tests.Guid, false, false));
 
-            // Test code to format UI
-            TestList t = new TestList(Guid.NewGuid());
-            for (int i = 0; i < 100; i++)
-            {
-                TAEFTest g = new TAEFTest(i + "foo.dll")
-                {
-                    LastTimeStarted = DateTime.Now,
-                    LastTimeFinished = DateTime.Now + TimeSpan.FromMinutes(1),
-                };
-                if (i % 5 == 0)
-                {
-                    g.TestStatus = TestStatus.TestPassed;
-                    g.ExitCode = 0;
-                }
-                else
-                {
-                    g.TestStatus = TestStatus.TestFailed;
-                    g.ExitCode = new Random().Next();
-                }
-                t.Tests.Add(g.Guid, g);
-            }
-            return t;
-        }
+        //    // Test code to format UI
+        //    TestList t = new TestList(Guid.NewGuid());
+        //    for (int i = 0; i < 100; i++)
+        //    {
+        //        TAEFTest g = new TAEFTest(i + "foo.dll")
+        //        {
+        //            LastTimeStarted = DateTime.Now,
+        //            LastTimeFinished = DateTime.Now + TimeSpan.FromMinutes(1),
+        //        };
+        //        if (i % 5 == 0)
+        //        {
+        //            g.TestStatus = TestStatus.TestPassed;
+        //            g.ExitCode = 0;
+        //        }
+        //        else
+        //        {
+        //            g.TestStatus = TestStatus.TestFailed;
+        //            g.ExitCode = new Random().Next();
+        //        }
+        //        t.Tests.Add(g.Guid, g);
+        //    }
+        //    return t;
+        //}
 
-        private Dictionary<Guid, TestList> GetTestListMapAsync()
-        {
-            // TODO: Make this properly async
-            Dictionary<Guid, TestList> testListMap = new Dictionary<Guid, TestList>();
-            for (int i = 0; i < 10; i++)
-            {
-                TestList tl = GetTestListAsync();
-                testListMap.Add(tl.Guid, tl);
-            }
-            return testListMap;
-        }
+        //private Dictionary<Guid, TestList> GetTestListMapAsync()
+        //{
+        //    // TODO: Make this properly async
+        //    Dictionary<Guid, TestList> testListMap = new Dictionary<Guid, TestList>();
+        //    for (int i = 0; i < 10; i++)
+        //    {
+        //        TestList tl = GetTestListAsync();
+        //        testListMap.Add(tl.Guid, tl);
+        //    }
+        //    return testListMap;
+        //}
 
         public ObservableCollection<String> GetTestNames(Guid guid)
         {
@@ -101,7 +102,16 @@ namespace FTFUWP
 
         public void SetTestList(TestList testList)
         {
-            TestData.TestListMap[testList.Guid] = testList;
+            if (TestData.TestListMap.ContainsKey(testList.Guid))
+            {
+                TestData.TestListMap[testList.Guid] = testList;
+
+            } else
+            {
+                TestData.TestListMap.Add(testList.Guid, testList);
+                TestData.TestListGuids.Add(testList.Guid);
+            }
+
             SetTestNames(testList.Guid);
         }
 
