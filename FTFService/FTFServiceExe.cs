@@ -51,8 +51,8 @@ namespace FTFService
 
             // Allow any client on the network to connect to the FTFService, including loopback (other processes on this device)
             // For network clients to work, we need to createa firewall entry:
-            // netsh advfirewall firewall add rule name=ftfservice_tcp_in protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
-            // netsh advfirewall firewall add rule name=ftfservice_tcp_out protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
+            // netsh advfirewall firewall add rule name=ftfservice_tcp_in program=<Path to FTFService.exe> protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
+            // netsh advfirewall firewall add rule name=ftfservice_tcp_out program=<Path to FTFService.exe> protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
             ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Any, 45684)
                                                             .Build();
 
