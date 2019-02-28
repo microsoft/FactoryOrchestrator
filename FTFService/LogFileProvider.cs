@@ -49,7 +49,7 @@ namespace FTFService
             lock (_logLock)
             {
                 _logStream.WriteLine(message);
-               // _logStream.Flush();
+                _logStream.Flush();
             }
         }
     }
