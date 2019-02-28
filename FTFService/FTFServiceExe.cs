@@ -29,7 +29,7 @@ namespace FTFService
             services = (ServiceCollection)services.AddIpc(builder =>
             {
                 builder
-                    .AddNamedPipe()
+                    .AddTcp()
                     .AddService<IFTFCommunication, FTFCommunicationHandler>();
             });
 
@@ -43,16 +43,18 @@ namespace FTFService
                 })
                 .AddOptions()
                 .AddSingleton(new LoggerFactory())
-                //.AddSingleton(new DefaultValueConverter())
                 .BuildServiceProvider();
 
             // Enable both console logging and file logging
             svcProvider.GetService<ILoggerFactory>().AddConsole();
             svcProvider.GetRequiredService<ILoggerFactory>().AddProvider(new LogFileProvider());
 
-
-            ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Loopback, 45684)
-                                                                            .Build();
+            // Allow any client on the network to connect to the FTFService, including loopback (other processes on this device)
+            // For network clients to work, we need to createa firewall entry:
+            // netsh advfirewall firewall add rule name=ftfservice_tcp_in protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
+            // netsh advfirewall firewall add rule name=ftfservice_tcp_out protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
+            ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Any, 45684)
+                                                            .Build();
 
            var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFServiceExe>();
 

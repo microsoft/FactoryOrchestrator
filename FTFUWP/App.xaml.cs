@@ -34,7 +34,7 @@ namespace FTFUWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            IPCClientHelper.StartIPCConnection(45684);
+            IPCClientHelper.StartIPCConnection(IPAddress.Loopback, 45684);
         }
 
         /// <summary>

@@ -9,10 +9,10 @@ namespace FTFClient
 {
     public static class IPCClientHelper
     {
-        public static void StartIPCConnection(int port)
+        public static void StartIPCConnection(IPAddress host, int port)
         {
             _ipcClient = new IpcServiceClientBuilder<IFTFCommunication>()
-                .UseTcp(IPAddress.Loopback, port)
+                .UseTcp(host, port)
                 .Build();
         }
 
