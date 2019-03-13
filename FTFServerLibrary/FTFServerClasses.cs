@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FTFSharedLibrary;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,10 +9,50 @@ using System.Threading;
 using System.Threading.Tasks;
 
 // todo: split into client lib, shared lib, server lib
-namespace FTFTestExecution
+namespace FTFServerLibrary
 {
-    public class TestManager // todo: server lib
+    public static class TestBase_ServerExtensions
     {
+        public static Guid CreateTestRun(this TestBase test)
+        {
+            TestRun_Server run;
+            lock (test.TestLock)
+            {
+                run = new TestRun_Server(test);
+                test.TestRunGuids.Add(run.Guid);
+            }
+            return run.Guid;
+        }
+
+        public static void GetLatestTestRun(this TestBase test)
+        {
+            TestRun_Server.GetTestRunByGuid(test.TestRunGuids.Last());
+        }
+
+        public static void Reset(this TestBase test, bool preserveLogs = true)
+        {
+            lock (test.TestLock)
+            {
+                test.LastRunStatus = TestStatus.TestNotRun;
+                test.LastExitCode = null;
+                test.LastTimeFinished = null;
+                test.LastTimeStarted = null;
+                test.TestRunGuids = new List<Guid>();
+            }
+
+            TestRun_Server.RemoveTestRunsForTest(test.Guid, preserveLogs);
+        }
+    }
+
+    public class TestManager_Server // todo: server lib
+    {
+        public TestManager_Server()
+        {
+            StartTestRunLock = new SemaphoreSlim(1, 1);
+            KnownTestLists = new Dictionary<Guid, TestList>();
+            RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
+        }
+
         public TestList CreateTestListFromDirectory(String path, bool onlyTAEF)
         {
             // Recursive search for all exe and dll files
@@ -107,17 +148,25 @@ namespace FTFTestExecution
             return testList;
         }
 
-        public void Reset()
+        public void Reset(bool preserveLogs = true)
         {
             lock (RunningTestLock)
             {
                 lock (KnownTestListLock)
                 {
-                    // Cancel all running tests, create new dictionaries
+                    // Cancel all running tests
                     foreach (var token in RunningTestListTokens.Values)
                     {
                         token.Cancel();
                     }
+
+                    // Reset all tests
+                    foreach (var test in KnownTestLists.Values.SelectMany(x => x.Tests.Values))
+                    {
+                        test.Reset(preserveLogs);
+                    }
+
+                    // Create new dictionaries
                     RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
                     KnownTestLists = new Dictionary<Guid, TestList>();
                 }
@@ -153,7 +202,9 @@ namespace FTFTestExecution
         {
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
-            TestRunner runner = new TestRunner(ref maybeTAEF);
+            TestRun_Server testRun = new TestRun_Server(maybeTAEF);
+            TestRunner runner = new TestRunner(testRun);
+            bool isTaef = false;
             try
             {
                 if (!runner.CheckIfTaefTest())
@@ -167,30 +218,40 @@ namespace FTFTestExecution
                     throw new Exception(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
                 }
 
-                
+                testRun = TestRun_Server.GetTestRunByGuid(maybeTAEF.TestRunGuids[0]);
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
                 // todo: but not always???
                 // https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/exit-codes-for-taef
-                if ((maybeTAEF.ExitCode == 117440512) || (maybeTAEF.ExitCode == 0))
+                if ((testRun.ExitCode == 117440512) || (testRun.ExitCode == 0))
                 {
                     // Check if it was able to enumerate the test cases.
-                    if (!maybeTAEF.TestOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !maybeTAEF.TestOutput.Any(x => x.Contains("Failed to load")))
+                    if (!testRun.TestOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !testRun.TestOutput.Any(x => x.Contains("Failed to load")))
                     {
                         // TODO: We need a better mechanism here
-                        maybeTAEF.Reset();
-                        return maybeTAEF;
+                        isTaef = true;
                     }
-                    return null;
                 }
                 else
                 {
-                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.ExitCode, dllToTest));
+                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.LastExitCode, dllToTest));
                 }
             }
             catch (Exception)
             {
+                maybeTAEF.Reset(false);
                 // TODO: undo this
                 //throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
+            }
+
+            // Cleanup test run
+            maybeTAEF.Reset(false);
+
+            if (isTaef)
+            {
+                return maybeTAEF;
+            }
+            else
+            {
                 return null;
             }
         }
@@ -223,16 +284,9 @@ namespace FTFTestExecution
                         // Replace existing Test with the Test we were given
                         lock (test.TestLock)
                         {
-                            if (test.TestStatus == TestStatus.TestRunning)
+                            if (test.LastRunStatus == TestStatus.TestRunning)
                             {
-                                if (test.UsesTestRunner)
-                                {
-                                    if(!((ExecutableTest)test).TestRunner.StopTest())
-                                    {
-                                        // Since GUIDs match error out on the first one, the tests with matching GUIDs better be the same object
-                                        return false;
-                                    }
-                                }
+                               return false;
                             }
                             list.Tests[latestTestStatus.Guid] = latestTestStatus;
                         }
@@ -242,12 +296,54 @@ namespace FTFTestExecution
             }
         }
 
-        public TestManager()
+        public bool Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
-            StartTestRunLock = new SemaphoreSlim(1, 1);
-            KnownTestLists = new Dictionary<Guid, TestList>();
-            RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
-            TestEvents = new Dictionary<Guid, Queue<TestRunEventArgs>>();
+            TestList list = null;
+
+            // Check if test list is valid
+            if (!KnownTestLists.TryGetValue(TestListGuidToRun, out list))
+            {
+                return false;
+            }
+
+            // Check if test list is already running or set to be run
+            lock (RunningTestLock)
+            {
+                if (RunningTestListTokens.ContainsKey(TestListGuidToRun))
+                {
+                    return false;
+                }
+
+                // Create testrun for all tests in the list
+                List<Guid> testRunGuids = new List<Guid>();
+                foreach (var test in list.Tests.Values)
+                {
+                    testRunGuids.Add(test.CreateTestRun());
+                }
+
+                var workItem = new TestListWorkItem(list.Guid, testRunGuids, allowOtherTestListsToRun, runListInParallel);
+                var token = new CancellationTokenSource();
+                RunningTestListTokens.Add(workItem.TestListGuid, token);
+                Task t = new Task((i) => { TestListWorker(i, token.Token); }, workItem, token.Token);
+                t.Start();
+            }
+            return true;
+        }
+
+        public class TestListWorkItem
+        {
+            public TestListWorkItem(Guid testListGuid, List<Guid> testRunGuids, bool allowOtherTestListsToRun, bool runListInParallel)
+            {
+                TestListGuid = testListGuid;
+                AllowOtherTestListsToRun = allowOtherTestListsToRun;
+                RunListInParallel = runListInParallel;
+                TestRunGuids = testRunGuids;
+            }
+
+            public Guid TestListGuid;
+            public bool AllowOtherTestListsToRun;
+            public bool RunListInParallel;
+            public List<Guid> TestRunGuids;
         }
 
         private void TestListWorker(object i, CancellationToken token)
@@ -275,11 +371,11 @@ namespace FTFTestExecution
 
             if (!token.IsCancellationRequested)
             {
-                RunTestList(item.TestList, token, item.RunListInParallel);
+                StartTestRuns(item.TestRunGuids, token, item.RunListInParallel);
 
                 lock (RunningTestLock)
                 {
-                    RunningTestListTokens.Remove(item.TestList.Guid);
+                    RunningTestListTokens.Remove(item.TestListGuid);
                 }
                 if (usedSem)
                 {
@@ -288,101 +384,65 @@ namespace FTFTestExecution
             }
         }
 
-        public class TestListWorkItem
-        {
-            public TestListWorkItem(TestList testList, bool allowOtherTestListsToRun, bool runListInParallel)
-            {
-                TestList = testList;
-                AllowOtherTestListsToRun = allowOtherTestListsToRun;
-                RunListInParallel = runListInParallel;
-            }
-
-            public TestList TestList;
-            public bool AllowOtherTestListsToRun;
-            public bool RunListInParallel;
-        }
-
-        public List<Guid> Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
-        {
-            TestList list = null;
-
-            // Check if test list is valid
-            lock (KnownTestListLock)
-            {
-                if (!KnownTestLists.ContainsKey(TestListGuidToRun))
-                {
-                    return false;
-                }
-
-                list = KnownTestLists[TestListGuidToRun];
-            }
-
-            // Check if test list is already running or set to be run
-            lock (RunningTestLock)
-            {
-                if (RunningTestListTokens.ContainsKey(TestListGuidToRun))
-                {
-                    return true;
-                }
-
-                var workItem = new TestListWorkItem(list, allowOtherTestListsToRun, runListInParallel);
-                var token = new CancellationTokenSource();
-                RunningTestListTokens.Add(workItem.TestList.Guid, token);
-                Task t = new Task((i) => { TestListWorker(i, token.Token); }, workItem, token.Token);
-                t.Start();
-            }
-            return true;
-        }
-
-        private void RunTestList(TestList list, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
+        private void StartTestRuns(List<Guid> testRunGuids, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
         {
             // Run all enabled tests in the list
-            var enumerator = list.Tests.Values.Where(x => x.IsEnabled == true);
             if (!runInParallel)
             {
-                foreach (TestBase test in enumerator)
+                foreach (var runGuid in testRunGuids)
                 {
+                    // find testrun, run it
                     if (token.IsCancellationRequested)
                     {
                         break;
                     }
 
-                    if(test.UsesTestRunner)
+                    var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
+                    if(testRun.OwningTest.RunByServer)
                     {
-                        RunTest((ExecutableTest)test, token, testRunEventHandler);
+                        StartTest(testRun, token, testRunEventHandler);
                     }
                     else
                     {
-                        // TODO: Wait for UWP result
+                        // TODO: Notify waiting for UWP result
+                        while (!testRun.TestRunComplete)
+                        {
+                            Thread.Sleep(1000);
+                        }
                     }
                 }
             }
             else
             {
-                Parallel.ForEach<TestBase>(enumerator, (test, state) =>
+                Parallel.ForEach(testRunGuids, (runGuid, state) =>
                 {
                     if (token.IsCancellationRequested)
                     {
                         state.Stop();
                     }
 
-                    if (test.UsesTestRunner)
+                    var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
+                    if (testRun.OwningTest.RunByServer)
                     {
-                        RunTest((ExecutableTest)test, token, testRunEventHandler);
+                        StartTest(testRun, token, testRunEventHandler);
                     }
                     else
                     {
-                        // TODO: Notify waiting on UWP????
+                        // TODO: Notify waiting for UWP result
+                        while (!testRun.TestRunComplete)
+                        {
+                            Thread.Sleep(1000);
+                        }
                     }
                 });
             }
         }
 
-        private static void RunTest(ExecutableTest test, CancellationToken token, TestRunEventHandler testRunEventHandler = null)
+        private static void StartTest(TestRun_Server testRun, CancellationToken token, TestRunEventHandler testRunEventHandler = null)
         {
             if (!token.IsCancellationRequested)
             {
-                TestRunner runner = new TestRunner(ref test);
+                TestRunner runner = new TestRunner(testRun);
                 if (testRunEventHandler != null)
                 {
                     runner.OnTestEvent += testRunEventHandler;
@@ -390,7 +450,7 @@ namespace FTFTestExecution
 
                 if (!runner.RunTest())
                 {
-                    throw new Exception(String.Format("Unable to start test {0}", test));
+                    throw new Exception(String.Format("Unable to start TestRun {0} for test {1}", testRun.Guid, testRun.OwningTest.TestName));
                 }
 
                 // Run test, waiting for it to finish or be aborted
@@ -434,7 +494,6 @@ namespace FTFTestExecution
 
         private Dictionary<Guid, TestList> KnownTestLists;
         private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
-        private Dictionary<Guid, Queue<TestRunEventArgs>> TestEvents;
         private readonly object KnownTestListLock = new object();
         private readonly object RunningTestLock = new object();
         private readonly SemaphoreSlim StartTestRunLock;
@@ -472,7 +531,6 @@ namespace FTFTestExecution
         public static string GlobalTeExePath = "c:\\taef\\te.exe";
         public static string GlobalLogFolder = "c:\\data\\FTFLogs";
         private readonly static string GlobalTeArgs = "";
-        private object outputLock = new object();
 
         public static bool SetDefaultTePath(string teExePath)
         {
@@ -500,29 +558,21 @@ namespace FTFTestExecution
             }
         }
 
-        public TestRunner(ref ExecutableTest testToRun)
+        public TestRunner(TestRun_Server testRun)
         {
-            TestContext = testToRun;
+            // TODO: Lock test to prevent a client from changing args etc when in the middle of creating a testrunner. might not be needed if args and binary name are GET only
             IsRunning = false;
-        }
-
-        public TestRunner(ref TAEFTest maybeTAEF)
-        {
-            TestContext = maybeTAEF;
+            ActiveTestRun = testRun;
         }
 
         public bool RunTest()
         {
-            lock (TestContext.TestLock)
+            lock (runnerStateLock)
             {
                 if (IsRunning == true)
                 {
                     return true;
                 }
-
-                // Create test run
-                // TODO: Testprocess in testrun?
-                TestRun run = new TestRun(TestContext.Guid);
 
                 // Create Process object
                 TestProcess = CreateTestProcess();
@@ -534,7 +584,8 @@ namespace FTFTestExecution
 
         internal bool CheckIfTaefTest()
         {
-            lock (TestContext.TestLock)
+            ActiveTestRun.LogFilePath = null;
+            lock (runnerStateLock)
             {
                 if (IsRunning == true)
                 {
@@ -545,7 +596,7 @@ namespace FTFTestExecution
                 TestProcess = CreateTestProcess();
 
                 // Override args to check if this is a valid TAEF test, not try to run it
-                TestProcess.StartInfo.Arguments = TestContext.TestPath + " /list";
+                TestProcess.StartInfo.Arguments = ActiveTestRun.OwningTest.TestPath + " /list";
 
                 // Start the process
                 return StartTestProcess();
@@ -557,17 +608,17 @@ namespace FTFTestExecution
             TestProcess = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
 
-            if (TestContext.TestType == TestType.TAEFDll)
+            if (ActiveTestRun.OwningTest.TestType == TestType.TAEFDll)
             {
                 startInfo.FileName = GlobalTeExePath;
-                startInfo.Arguments += TestContext.TestPath + GlobalTeArgs;
+                startInfo.Arguments += ActiveTestRun.OwningTest.TestPath + GlobalTeArgs;
             }
             else
             {
-                startInfo.FileName = TestContext.TestPath;
+                startInfo.FileName = ActiveTestRun.OwningTest.TestPath;
             }
 
-            startInfo.Arguments += TestContext.Arguments;
+            startInfo.Arguments += ActiveTestRun.OwningTest.Arguments;
 
             // Configure IO redirection
             startInfo.UseShellExecute = false;
@@ -575,15 +626,15 @@ namespace FTFTestExecution
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
-            if (TestContext.TestType == TestType.TAEFDll)
+            if (ActiveTestRun.OwningTest.TestType == TestType.TAEFDll)
             {
-                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(startInfo.FileName);
+                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(ActiveTestRun.OwningTest.TestPath);
+                startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
             }
             else
             {
-                startInfo.WorkingDirectory = Path.GetDirectoryName(TestContext.TestPath);
+                startInfo.WorkingDirectory = Path.GetDirectoryName(ActiveTestRun.OwningTest.TestPath);
             }
-            TestContext.TestOutput = new List<string>();
 
             // Configure event handling
             TestProcess.EnableRaisingEvents = true;
@@ -600,15 +651,19 @@ namespace FTFTestExecution
             if (TestProcess.Start())
             {
                 IsRunning = true;
+                ActiveTestRun.TestStatus = TestStatus.TestRunning;
+                ActiveTestRun.TimeStarted = DateTime.Now;
 
-                // Start async read (OnOutputData)
+                // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
-                // Start timer
-                TestContext.TestRunner = this;
-                TestContext.TestStatus = TestStatus.TestRunning;
-                TestContext.LastTimeStarted = DateTime.Now;
+
                 return true;
+            }
+            else
+            {
+                ActiveTestRun.TestStatus = TestStatus.TestFailed;
+                // TODO: log error
             }
 
             return false;
@@ -640,9 +695,9 @@ namespace FTFTestExecution
                 {
                     line = "ERROR: " + line;
                 }
-                TestContext.TestOutput.Add(line);
+                ActiveTestRun.TestOutput.Add(line);
 
-                if (TestContext.TestType == TestType.TAEFDll)
+                if (ActiveTestRun.OwningTest.TestType == TestType.TAEFDll)
                 {
                     ParseTeOutput(line);
                 }
@@ -659,73 +714,67 @@ namespace FTFTestExecution
             // Save the result of the test
             if (!TestAborted)
             {
-                TestContext.LastTimeFinished = DateTime.Now;
-                TestContext.ExitCode = TestProcess.ExitCode;
-                TestContext.TestStatus = (TestContext.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
+                ActiveTestRun.TimeFinished = DateTime.Now;
+                ActiveTestRun.ExitCode = TestProcess.ExitCode;
+                ActiveTestRun.TestStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
             }
             else
             {
-                TestContext.ExitCode = -1;
-                TestContext.TestStatus = TestStatus.TestAborted;
+                ActiveTestRun.ExitCode = -1;
+                ActiveTestRun.TestStatus = TestStatus.TestAborted;
             }
-
+            
             // Save test output to file
-            var LogFilePath = TestContext.LogFilePath;
-            if (LogFilePath == null)
+            var LogFilePath = ActiveTestRun.LogFilePath;
+            if (LogFilePath != null)
             {
-                LogFilePath = Path.Combine(GlobalLogFolder, TestContext.TestName + ".log");
+                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
+                File.WriteAllLines(LogFilePath,
+                                    new String[] { String.Format("Test: {0}", ActiveTestRun.OwningTest.TestName),
+                                        String.Format("Result: {0}", ActiveTestRun.TestStatus),
+                                        String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
+                                        String.Format("Date/Time run: {0}", ActiveTestRun.TimeStarted),
+                                        String.Format("Time to complete: {0}", ActiveTestRun.RunTime),
+                                        String.Format("---------Test's console output below--------")});
+                File.AppendAllLines(LogFilePath, ActiveTestRun.TestOutput, System.Text.Encoding.UTF8);
             }
-
-            uint i = 2;
-            while (File.Exists(LogFilePath))
-            {
-                LogFilePath = String.Format("{0}_Run{1}{2}", LogFilePath.Substring(0, LogFilePath.Length - 4), i, ".log");
-            }
-
-            TestContext.LogFilePath = LogFilePath;
-
-            Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
-            File.WriteAllLines(LogFilePath,
-                                new String[] { String.Format("Test: {0}", TestContext.TestName),
-                                            String.Format("Result: {0}", TestContext.TestStatus),
-                                            String.Format("Exit code: {0}", TestContext.ExitCode),
-                                            String.Format("Date/Time run: {0}", TestContext.LastTimeStarted),
-                                            String.Format("Time to complete: {0}", TestContext.TestRunTime),
-                                            String.Format("---------Test's console output below--------")});
-            File.AppendAllLines(LogFilePath, TestContext.TestOutput, System.Text.Encoding.UTF8);
 
             IsRunning = false;
+
             // Raise event if event handler exists
-            OnTestEvent?.Invoke(this, new TestRunEventArgs(TestContext.TestStatus, (int)TestContext.ExitCode, null));
+            OnTestEvent?.Invoke(this, new TestRunEventArgs(ActiveTestRun.TestStatus, (int)ActiveTestRun.ExitCode, null));
         }
 
         public bool StopTest()
         {
-            // See if you get lucky and the test finishes on its own???
-            if (!TestProcess.WaitForExit(500))
+            lock (runnerStateLock)
             {
-                TestAborted = true;
-                TestProcess.Kill();
-                // Wait ten seconds for OnExited to fire
-                for (int i = 0; i < 100; i++)
+                // See if you get lucky and the test finishes on its own???
+                if (!TestProcess.WaitForExit(500))
                 {
+                    TestAborted = true;
+                    TestProcess.Kill();
+                    // Wait ten seconds for OnExited to fire
+                    for (int i = 0; i < 100; i++)
+                    {
+                        if (IsRunning)
+                        {
+                            Thread.Sleep(100);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
                     if (IsRunning)
                     {
-                        Thread.Sleep(100);
+                        return false;
                     }
                     else
                     {
-                        break;
+                        return true;
                     }
-                }
-
-                if (IsRunning)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
                 }
             }
 
@@ -749,9 +798,104 @@ namespace FTFTestExecution
         }
 
         public bool IsRunning { get; set; }
-        public ExecutableTest TestContext { get; }
+        //public ExecutableTest Test { get; }
+        
         public event TestRunEventHandler OnTestEvent;
-        public Process TestProcess;
+
+        private TestRun_Server ActiveTestRun;
+        private Process TestProcess;
         private bool TestAborted;
+        /// <summary>
+        /// Lock to maintain consistent state of execution status (Run, Abort etc)
+        /// </summary>
+        private object runnerStateLock = new object();
+        /// <summary>
+        /// Lock to maintain serial ordering of test stdout & stderr
+        /// </summary>
+        private object outputLock = new object();
+    }
+
+    /// <summary>
+    /// Server side only TestRun class.
+    /// </summary>
+    public class TestRun_Server : TestRun
+    {
+        // TODO: Move testrunner into testrun_server
+        static TestRun_Server()
+        {
+            _testRunMap = new Dictionary<Guid, TestRun_Server>();
+            _testMapLock = new object();
+        }
+
+        public static List<Guid> GetTestRunGuidsByTestGuid(Guid testGuid)
+        {
+            return _testRunMap.Values.Where(x => x.OwningTestGuid == testGuid).Select(x => x.Guid).ToList();
+        }
+
+        public static TestRun_Server GetTestRunByGuid(Guid testRunGuid)
+        {
+            if (_testRunMap.ContainsKey(testRunGuid))
+            {
+                return _testRunMap[testRunGuid];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static void RemoveTestRun(Guid testRunGuid, bool preserveLogs)
+        {
+            TestRun_Server testRun = null;
+            lock (_testMapLock)
+            {
+                if (_testRunMap.TryGetValue(testRunGuid, out testRun))
+                {
+                    _testRunMap.Remove(testRunGuid);
+                    if (!preserveLogs)
+                    {
+                        if (File.Exists(testRun.LogFilePath))
+                        {
+                            File.Delete(testRun.LogFilePath);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void RemoveTestRunsForTest(Guid testGuid, bool preserveLogs)
+        {
+            Parallel.ForEach(GetTestRunGuidsByTestGuid(testGuid), testRunGuid =>
+            {
+                RemoveTestRun(testRunGuid, preserveLogs);
+            });
+        }
+
+        public TestRun_Server(TestBase owningTest) : base(owningTest)
+        {
+            lock (_testMapLock)
+            {
+                _testRunMap.Add(Guid, this);
+            }
+
+            OwningTest = owningTest;
+
+            string LogFolder = OwningTest.LogFolder;
+            if (LogFolder == null)
+            {
+                LogFolder = TestRunner.GlobalLogFolder;
+            }
+
+            LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}", OwningTest.TestName, Guid));
+        }
+
+        /// <summary>
+        /// Tracks all the test runs that have ever occured, mapped by the test run GUID
+        /// </summary>
+        private static Dictionary<Guid, TestRun_Server> _testRunMap;
+
+        private static object _testMapLock;
+
+        public TestBase OwningTest;
     }
 }

@@ -1,24 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using System.Linq;
-using Newtonsoft.Json.Linq;
 using FTFJsonConverters;
 
-namespace FTFTestExecution
+namespace FTFSharedLibrary
 {
     public enum TestStatus
     {
         TestPassed,
         TestFailed,
-        TAEFTestCasePassed,
-        TAEFTestCaseFailed,
-        TestWarning,
-        TestError,
-        TestException,
         TestAborted,
         TestRunning,
         TestNotRun
@@ -42,17 +34,44 @@ namespace FTFTestExecution
             TestPath = testPath;
             IsEnabled = true;
             TestLock = new object();
-            TestOutput = new List<string>();
+            LastRunStatus = TestStatus.TestNotRun;
+            LastExitCode = null;
+            LastTimeFinished = null;
+            LastTimeStarted = null;
             TestRunGuids = new List<Guid>();
         }
         
+        // TODO: Make only getters and add internal apis to set
         public TestType TestType { get; }
-
+        public string TestPath { get; }
+        public string LogFolder { get; set; }
         public string Arguments { get; set; }
         public Guid Guid { get => _guid; }
         public DateTime? LastTimeStarted { get; set; }
         public DateTime? LastTimeFinished { get; set; }
-        public TestStatus TestStatus { get; set; }
+        public TestStatus LastRunStatus { get; set; }
+        public bool? LastRunPassed
+        {
+            get
+            {
+                if (LastRunStatus == TestStatus.TestPassed)
+                {
+                    return true;
+                }
+                else if (LastRunStatus == TestStatus.TestFailed)
+                {
+                    return false;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public bool IsEnabled { get; set; }
+
+        public int? LastExitCode { get; set; }
 
         public virtual TimeSpan? TestRunTime
         {
@@ -76,54 +95,9 @@ namespace FTFTestExecution
             }
         }
 
-        // public bool? TestPassed
-        // {
-        //     get
-        //     {
-        //         if (TestRunGuids.Count > 0)
-        //         {
-        //             return TestRun.GetTestRunByGuid(TestRunGuids[TestRunGuids.Count - 1]).TimeRun;
-        //         }
-        //         else
-        //         {
-        //             return null;
-        //         }
-        //     }
-        // }
 
-        public TestStatus LatestTestStatus
-        {
-            get
-            {
-                if(TestRunGuids.Count > 0)
-                {
-                    return TestRun.GetTestRunByGuid(TestRunGuids[TestRunGuids.Count - 1]).TestRunStatus;
-                }
-                else
-                {
-                    return TestStatus.TestNotRun;
-                }
-            }
-        }
 
-        // public bool? LatestTestRunPassed
-        // {
-        //     get
-        //     {
-        //         if (TestRunGuids.Count > 0)
-        //         {
-        //             var status = TestRun.GetTestRunByGuid(TestRunGuids[TestRunGuids.Count - 1]).TestRunStatus;
-        public bool IsEnabled { get; set; }
-
-        public int? ExitCode { get; set; }
-        public string LogFilePath { get; set; }
-
-        public string TestPath { get; }
-
-        // TODO: This will be replaced by the testrun class
-        public List<string> TestOutput { get; set; }
-
-        public bool UsesTestRunner
+        public bool RunByServer
         {
             get
             {
@@ -138,38 +112,15 @@ namespace FTFTestExecution
                 return TestPath;
             }
         }
-    
-        public virtual void Reset()
-        {
-            lock (TestLock)
-            {
-                TestStatus = TestStatus.TestNotRun;
-                ExitCode = null;
-                TestOutput = new List<string>();
-                TestRunGuids = new List<Guid>();
-
-                if (LogFilePath != null)
-                {
-                    if (File.Exists(LogFilePath))
-                    {
-                        try
-                        {
-                            File.Delete(LogFilePath);
-                        }
-                        catch { }
-                    }
-                }
-            }
-        }
 
         [JsonRequired]
         private Guid _guid;
 
         [JsonIgnore]
-        internal object TestLock;
+        public object TestLock;
 
         // TestRuns are queried by GUID
-        public List<Guid> TestRunGuids;
+        public List<Guid> TestRunGuids { get; set; }
     }
 
 
@@ -178,12 +129,10 @@ namespace FTFTestExecution
     {
         public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
         {
-            Reset();
         }
 
         protected ExecutableTest(String testPath, TestType type) : base(testPath, type)
         {
-            Reset();
         }
 
         public override string ToString()
@@ -211,18 +160,14 @@ namespace FTFTestExecution
         //}
 
         // TODO: kill all running testrun instances, delete all old test runs?
-        public override void Reset()
-        {
-            lock (TestLock)
-            {
-                if ((TestRunner != null) && (TestRunner.IsRunning))
-                {
-                    TestRunner.StopTest();
-                }
-                TestRunner = null;
-            }
-            base.Reset();
-        }
+        //public override void Reset()
+        //{
+        //    if (LatestTestStatus == TestStatus.TestRunning)
+        //    {
+        //        TestRunGuids.Last()
+        //    }
+        //    base.Reset();
+        //}
 
         public override String TestName
         {
@@ -231,11 +176,7 @@ namespace FTFTestExecution
                 return Path.GetFileName(TestPath);
             }
         }
-
-        [JsonIgnore]
-        public TestRunner TestRunner;
     }
-
 
     [JsonConverter(typeof(NoConverter))]
     public class TAEFTest : ExecutableTest
@@ -280,11 +221,12 @@ namespace FTFTestExecution
         {
             get
             {
-                if (this.TestStatus == TestStatus.TAEFTestCasePassed)
+                // TODO: Fix me up
+                if (this.TestStatus == TestStatus.TestPassed)
                 {
                     return true;
                 }
-                else if (this.TestStatus == TestStatus.TAEFTestCaseFailed)
+                else if (this.TestStatus == TestStatus.TestFailed)
                 {
                     return false;
                 }
@@ -330,15 +272,15 @@ namespace FTFTestExecution
         {
             get
             {
-                if (Tests.Values.All(x => x.TestPassed == true))
+                if (Tests.Values.All(x => x.LastRunPassed == true))
                 {
                     return TestStatus.TestPassed;
                 }
-                else if (Tests.Values.Any(x => x.TestStatus == TestStatus.TestRunning))
+                else if (Tests.Values.Any(x => x.LastRunStatus == TestStatus.TestRunning))
                 {
                     return TestStatus.TestRunning;
                 }
-                else if (Tests.Values.Any(x => x.TestStatus == TestStatus.TestFailed))
+                else if (Tests.Values.Any(x => x.LastRunStatus == TestStatus.TestFailed))
                 {
                     return TestStatus.TestFailed;
                 }
@@ -352,37 +294,11 @@ namespace FTFTestExecution
 
 
     // TODO: Use this to track test status instead of inside TestBase/ExecutableTest
-    // TODO: Move testrunner into testrun
-    // TODO: Move to static or child class for server use?
+    /// <summary>
+    /// Share client & server TestRun class
+    /// </summary>
     public class TestRun
     {
-        static TestRun()
-        {
-            _testRunMap = new Dictionary<Guid, TestRun>();
-        }
-
-        internal static List<Guid> GetTestRunGuidsByTestGuid(Guid testGuid)
-        {
-            return _testRunMap.Values.Where(x => x.OwningTestGuid == testGuid).Select(x => x.Guid).ToList();
-        }
-
-        internal static TestRun GetTestRunByGuid(Guid testRunGuid)
-        {
-            if (_testRunMap.ContainsKey(testRunGuid))
-            {
-                return _testRunMap[testRunGuid];
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Tracks all the test runs that have ever occured, mapped by the test run GUID
-        /// </summary>
-        private static Dictionary<Guid, TestRun> _testRunMap;
-
         // class to track an individual run of a testbase object
         // output
         // errors
@@ -396,38 +312,66 @@ namespace FTFTestExecution
 
         }
 
-        public TestRun(Guid owningTestGuid)
+        public TestRun(TestBase owningTest)
         {
-            OwningTestGuid = owningTestGuid;
+            OwningTestGuid = owningTest.Guid;
             Guid = Guid.NewGuid();
-            _testRunMap.Add(Guid, this);
+            LogFilePath = null;
+            TestStatus = TestStatus.TestNotRun;
+            TimeFinished = null;
+            TimeStarted = null;
+            ExitCode = null;
+            TestOutput = new List<string>();
         }
 
-        public List<string> TestOutput
-        {
-            get
-            {
-                return _testOutput;
-            }
-        }
-
-        protected internal List<string> _testOutput;
+        public List<string> TestOutput { get; set; }
 
         public Guid OwningTestGuid { get; }
         public Guid Guid { get; }
 
-        public TimeSpan TestRunTime
+        public DateTime? TimeStarted { get; set; }
+        public DateTime? TimeFinished { get; set; }
+        public TestStatus TestStatus { get; set; }
+        public string LogFilePath { get; set; }
+
+        public bool TestRunComplete
         {
             get
             {
-                // todo: implement
-                return new TimeSpan();
+                switch (TestStatus)
+                {
+                    case TestStatus.TestAborted:
+                    case TestStatus.TestFailed:
+                    case TestStatus.TestPassed:
+                        return true;
+                    default:
+                        return false;
+                }
             }
         }
 
-        public DateTime TimeRun { get; set; }
-        public int? ExitCode { get; set; }
+        public virtual TimeSpan? RunTime
+        {
+            get
+            {
+                if (TimeStarted != null)
+                {
+                    if (TimeFinished != null)
+                    {
+                        return TimeFinished - TimeStarted;
+                    }
+                    else
+                    {
+                        return DateTime.Now - TimeStarted;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
 
-        public TestStatus TestRunStatus { get; set; }
+        public int? ExitCode { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using FTFClient;
-using FTFTestExecution;
+using FTFSharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -130,7 +130,7 @@ namespace FTFUWP
             {
                 case TestStatus.TestPassed:
                 case TestStatus.TestFailed:
-                    ExitCode.Text = _test.ExitCode.ToString();
+                    ExitCode.Text = _test.LastExitCode.ToString();
                     ExitCodeConst.Visibility = Visibility.Visible;
                     ExitCode.Visibility = Visibility.Visible;
                     break;
