@@ -123,7 +123,6 @@ namespace FTFSharedLibrary
         public List<Guid> TestRunGuids { get; set; }
     }
 
-
     [JsonConverter(typeof(NoConverter))]
     public class ExecutableTest : TestBase
     {
@@ -159,16 +158,6 @@ namespace FTFSharedLibrary
         //    }
         //}
 
-        // TODO: kill all running testrun instances, delete all old test runs?
-        //public override void Reset()
-        //{
-        //    if (LatestTestStatus == TestStatus.TestRunning)
-        //    {
-        //        TestRunGuids.Last()
-        //    }
-        //    base.Reset();
-        //}
-
         public override String TestName
         {
             get
@@ -188,7 +177,6 @@ namespace FTFSharedLibrary
         private List<TAEFTestCase> _testCases;
         private String _wtlFilePath;
     }
-
 
     [JsonConverter(typeof(NoConverter))]
     public class UWPTest : TestBase
@@ -292,10 +280,8 @@ namespace FTFSharedLibrary
         }
     }
 
-
-    // TODO: Use this to track test status instead of inside TestBase/ExecutableTest
     /// <summary>
-    /// Share client & server TestRun class
+    /// Shared client & server TestRun class
     /// </summary>
     public class TestRun
     {

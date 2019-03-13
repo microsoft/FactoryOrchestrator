@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-// todo: split into client lib, shared lib, server lib
 namespace FTFServerLibrary
 {
     public static class TestBase_ServerExtensions
@@ -44,7 +43,7 @@ namespace FTFServerLibrary
         }
     }
 
-    public class TestManager_Server // todo: server lib
+    public class TestManager_Server
     {
         public TestManager_Server()
         {
@@ -560,7 +559,6 @@ namespace FTFServerLibrary
 
         public TestRunner(TestRun_Server testRun)
         {
-            // TODO: Lock test to prevent a client from changing args etc when in the middle of creating a testrunner. might not be needed if args and binary name are GET only
             IsRunning = false;
             ActiveTestRun = testRun;
         }
