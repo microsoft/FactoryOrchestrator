@@ -14,6 +14,7 @@ namespace FTFInterfaces
         TestListRunStarted,
         TestListRunEnded,
         TestStatusUpdatedByClient,
+        WaitingForTestRunByClient,
         ServiceError,
         ServiceStarted,
         ServiceStopped
@@ -27,6 +28,9 @@ namespace FTFInterfaces
     }
 
     // TODO: Build out client-side lib for diffs, update polling state machine etc
+    /// <summary>
+    /// IFTFCommunication defines the client <> server communication model. 
+    /// </summary>
     public interface IFTFCommunication
     {
         // create test list from list
@@ -66,6 +70,5 @@ namespace FTFInterfaces
         // Test Run APIs
         bool SetTestRunStatus(TestRun testRunStatuus);
         TestRun QueryTestRun(Guid testRunGuid);
-        TestRun GetLatestTestRunForTest(Guid testGuid);
     }
 }

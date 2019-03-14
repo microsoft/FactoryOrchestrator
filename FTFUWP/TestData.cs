@@ -1,4 +1,4 @@
-﻿using FTFTestExecution;
+﻿using FTFSharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,7 +24,6 @@ namespace FTFUWP
                     {
                         testListMap = value;
                         NotifyPropertyChanged("TestListMap");
-
                     }
                 }
             }

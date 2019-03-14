@@ -186,12 +186,7 @@ namespace FTFService
 
         public TestRun QueryTestRun(Guid testRunGuid)
         {
-            throw new NotImplementedException();
-        }
-
-        public TestRun GetLatestTestRunForTest(Guid testGuid)
-        {
-            throw new NotImplementedException();
+            return TestRun_Server.GetTestRunByGuid(testRunGuid);
         }
 
         public bool SetTestRunStatus(TestRun testRunStatuus)

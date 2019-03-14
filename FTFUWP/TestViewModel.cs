@@ -1,4 +1,4 @@
-﻿using FTFTestExecution;
+﻿using FTFSharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -72,11 +72,11 @@ namespace FTFUWP
             List<String> testNamesAndResults = new List<String>();
             foreach (var test in TestData.TestListMap[guid].Tests.Values)
             {
-                if (test.TestStatus == TestStatus.TestPassed)
+                if (test.LastRunStatus == TestStatus.TestPassed)
                 {
                     testNamesAndResults.Add(test.TestName + " ✔");
                 }
-                else if (test.TestStatus == TestStatus.TestFailed)
+                else if (test.LastRunStatus == TestStatus.TestFailed)
                 {
                     testNamesAndResults.Add(test.TestName + " ❌");
                 }
@@ -101,7 +101,7 @@ namespace FTFUWP
             List<String> testResults = new List<String>();
             foreach (var test in TestData.TestListMap[guid].Tests.Values)
             {
-                switch (test.TestStatus)
+                switch (test.LastRunStatus)
                 {
                     case TestStatus.TestPassed:
                         testResults.Add("✔ Passed");

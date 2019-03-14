@@ -397,7 +397,7 @@ namespace FTFServerLibrary
                     }
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
-                    if(testRun.OwningTest.RunByServer)
+                    if(testRun.RunByServer)
                     {
                         StartTest(testRun, token, testRunEventHandler);
                     }
@@ -421,7 +421,7 @@ namespace FTFServerLibrary
                     }
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
-                    if (testRun.OwningTest.RunByServer)
+                    if (testRun.RunByServer)
                     {
                         StartTest(testRun, token, testRunEventHandler);
                     }
@@ -449,7 +449,7 @@ namespace FTFServerLibrary
 
                 if (!runner.RunTest())
                 {
-                    throw new Exception(String.Format("Unable to start TestRun {0} for test {1}", testRun.Guid, testRun.OwningTest.TestName));
+                    throw new Exception(String.Format("Unable to start TestRun {0} for test {1}", testRun.Guid, testRun.TestName));
                 }
 
                 // Run test, waiting for it to finish or be aborted
@@ -594,7 +594,7 @@ namespace FTFServerLibrary
                 TestProcess = CreateTestProcess();
 
                 // Override args to check if this is a valid TAEF test, not try to run it
-                TestProcess.StartInfo.Arguments = ActiveTestRun.OwningTest.TestPath + " /list";
+                TestProcess.StartInfo.Arguments = ActiveTestRun.TestPath + " /list";
 
                 // Start the process
                 return StartTestProcess();
@@ -606,17 +606,17 @@ namespace FTFServerLibrary
             TestProcess = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
 
-            if (ActiveTestRun.OwningTest.TestType == TestType.TAEFDll)
+            if (ActiveTestRun.TestType == TestType.TAEFDll)
             {
                 startInfo.FileName = GlobalTeExePath;
-                startInfo.Arguments += ActiveTestRun.OwningTest.TestPath + GlobalTeArgs;
+                startInfo.Arguments += ActiveTestRun.TestPath + GlobalTeArgs;
             }
             else
             {
-                startInfo.FileName = ActiveTestRun.OwningTest.TestPath;
+                startInfo.FileName = ActiveTestRun.TestPath;
             }
 
-            startInfo.Arguments += ActiveTestRun.OwningTest.Arguments;
+            startInfo.Arguments += ActiveTestRun.Arguments;
 
             // Configure IO redirection
             startInfo.UseShellExecute = false;
@@ -624,14 +624,14 @@ namespace FTFServerLibrary
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
-            if (ActiveTestRun.OwningTest.TestType == TestType.TAEFDll)
+            if (ActiveTestRun.TestType == TestType.TAEFDll)
             {
-                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(ActiveTestRun.OwningTest.TestPath);
+                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(ActiveTestRun.TestPath);
                 startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
             }
             else
             {
-                startInfo.WorkingDirectory = Path.GetDirectoryName(ActiveTestRun.OwningTest.TestPath);
+                startInfo.WorkingDirectory = Path.GetDirectoryName(ActiveTestRun.TestPath);
             }
 
             // Configure event handling
@@ -649,8 +649,8 @@ namespace FTFServerLibrary
             if (TestProcess.Start())
             {
                 IsRunning = true;
-                ActiveTestRun.TestStatus = TestStatus.TestRunning;
-                ActiveTestRun.TimeStarted = DateTime.Now;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestRunning;
+                ActiveTestRun.TimeStarted = ActiveTestRun.OwningTest.LastTimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
@@ -660,7 +660,7 @@ namespace FTFServerLibrary
             }
             else
             {
-                ActiveTestRun.TestStatus = TestStatus.TestFailed;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestFailed;
                 // TODO: log error
             }
 
@@ -695,7 +695,7 @@ namespace FTFServerLibrary
                 }
                 ActiveTestRun.TestOutput.Add(line);
 
-                if (ActiveTestRun.OwningTest.TestType == TestType.TAEFDll)
+                if (ActiveTestRun.TestType == TestType.TAEFDll)
                 {
                     ParseTeOutput(line);
                 }
@@ -712,14 +712,14 @@ namespace FTFServerLibrary
             // Save the result of the test
             if (!TestAborted)
             {
-                ActiveTestRun.TimeFinished = DateTime.Now;
-                ActiveTestRun.ExitCode = TestProcess.ExitCode;
-                ActiveTestRun.TestStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
+                ActiveTestRun.TimeFinished = ActiveTestRun.OwningTest.LastTimeFinished = DateTime.Now;
+                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LastExitCode = TestProcess.ExitCode;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
             }
             else
             {
-                ActiveTestRun.ExitCode = -1;
-                ActiveTestRun.TestStatus = TestStatus.TestAborted;
+                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LastExitCode = -1;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestAborted;
             }
             
             // Save test output to file
@@ -728,7 +728,7 @@ namespace FTFServerLibrary
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
                 File.WriteAllLines(LogFilePath,
-                                    new String[] { String.Format("Test: {0}", ActiveTestRun.OwningTest.TestName),
+                                    new String[] { String.Format("Test: {0}", ActiveTestRun.TestName),
                                         String.Format("Result: {0}", ActiveTestRun.TestStatus),
                                         String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
                                         String.Format("Date/Time run: {0}", ActiveTestRun.TimeStarted),
@@ -871,29 +871,35 @@ namespace FTFServerLibrary
 
         public TestRun_Server(TestBase owningTest) : base(owningTest)
         {
+            LogFilePath = null;
+            TestStatus = TestStatus.TestNotRun;
+            TimeFinished = null;
+            TimeStarted = null;
+            ExitCode = null;
+            TestOutput = new List<string>();
+            OwningTest = owningTest;
+
+            // Add to GUID -> TestRun map
             lock (_testMapLock)
             {
                 _testRunMap.Add(Guid, this);
             }
 
-            OwningTest = owningTest;
-
-            string LogFolder = OwningTest.LogFolder;
+            // Setup log path
+            string LogFolder = owningTest.LogFolder;
             if (LogFolder == null)
             {
                 LogFolder = TestRunner.GlobalLogFolder;
             }
 
-            LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}", OwningTest.TestName, Guid));
+            LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TestName, Guid));
         }
 
+        public TestBase OwningTest { get; }
         /// <summary>
         /// Tracks all the test runs that have ever occured, mapped by the test run GUID
         /// </summary>
         private static Dictionary<Guid, TestRun_Server> _testRunMap;
-
         private static object _testMapLock;
-
-        public TestBase OwningTest;
     }
 }

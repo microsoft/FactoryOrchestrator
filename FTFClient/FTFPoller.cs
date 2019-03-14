@@ -7,6 +7,10 @@ using System.Threading;
 
 namespace FTFClient
 {
+    /// <summary>
+    /// FTFPoller is used to create a polling thread for a given FTF GUID. It can optionally raise a FTFPollerEvent event via OnUpdatedObject.
+    /// All FTF GUID types are supported.
+    /// </summary>
     public class FTFPoller
     {
         public FTFPoller(Guid guidToPoll, Type guidType, IpcServiceClient<IFTFCommunication> ipcServiceClient, int pollingIntervalMs = 1000)
@@ -17,12 +21,12 @@ namespace FTFClient
             _latestObject = null;
             _timer = new Timer(GetUpdatedObjectAsync, null, Timeout.Infinite, pollingIntervalMs);
             _stoplock = new object();
-            _stopped = false;
+            _stopped = true;
             OnUpdatedObject = null;
 
-            if ((guidType != typeof(TestBase)) && (guidType != typeof(ExecutableTest)) && (guidType != typeof(UWPTest)) && (guidType != typeof(TAEFTest)) && (guidType != typeof(TestList)))
+            if ((guidType != typeof(TestBase)) && (guidType != typeof(ExecutableTest)) && (guidType != typeof(UWPTest)) && (guidType != typeof(TAEFTest)) && (guidType != typeof(TestList)) && (guidType != typeof(TestRun)))
             {
-                throw new Exception("Unsupported type!");
+                throw new Exception("Unsupported guid type to poll!");
             }
             _guidType = guidType;
         }
@@ -30,15 +34,20 @@ namespace FTFClient
         private async void GetUpdatedObjectAsync(object state)
         {
             object newObj;
-            try // TODO: Try to improve resiliency here
+            try
             {
+                // TODO: check for failure
                 if ((_guidType == typeof(TestBase)) || (_guidType == typeof(ExecutableTest)) || (_guidType == typeof(UWPTest)) || (_guidType == typeof(TAEFTest)))
                 {
                     newObj = await _client.InvokeAsync(x => x.QueryTest(_guidToPoll));
                 }
-                else // if (_guidType == typeof(TestList))
+                else if (_guidType == typeof(TestList))
                 {
                     newObj = await _client.InvokeAsync(x => x.QueryTestList(_guidToPoll));
+                }
+                else //if (_guidType == typeof(TestRun))
+                {
+                    newObj = await _client.InvokeAsync(x => x.QueryTestRun(_guidToPoll));
                 }
 
                 if (newObj != _latestObject)
@@ -55,16 +64,18 @@ namespace FTFClient
             }
             catch(Exception)
             {
-
+                // TODO: Handle somehow
             }
         }
-        
 
         public void StartPolling()
         {
-            _stopped = false;
-            _timer = new Timer(GetUpdatedObjectAsync, null, 0, _pollingInterval);
-            _latestObject = null;
+            if (_stopped != false)
+            {
+                _stopped = false;
+                _timer = new Timer(GetUpdatedObjectAsync, null, 0, _pollingInterval);
+                _latestObject = null;
+            }
         }
 
         public void StopPolling()
@@ -100,6 +111,9 @@ namespace FTFClient
             }
         }
 
+        public Guid PollingGuid { get => _guidToPoll; }
+        public bool IsPolling { get => !_stopped; }
+
         private Guid _guidToPoll;
         private IpcServiceClient<IFTFCommunication> _client;
         private object _latestObject;
@@ -109,7 +123,6 @@ namespace FTFClient
         private Type _guidType;
         private bool _stopped;
         public event FTFPollerEventHandler OnUpdatedObject;
-
     }
 
     public class FTFPollEventArgs : EventArgs

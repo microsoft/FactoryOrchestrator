@@ -4,4 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FTFCommunication\FTFCommunication.csproj" />
+    <ProjectReference Include="..\FTFTestLibrary\FTFTestLibrary.csproj" />
+  </ItemGroup>
+
 </Project>
