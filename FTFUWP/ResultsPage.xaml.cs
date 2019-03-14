@@ -1,5 +1,5 @@
 ﻿using FTFClient;
-using FTFTestExecution;
+using FTFSharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,12 +36,15 @@ namespace FTFUWP
             {
                 _test = (TestBase)e.Parameter;
                 CreateHeader();
-                UpdateResultsSummary();
-                UpdateOutput();
                 UpdateArgs();
-                _poller = new FTFClient.FTFPoller(_test.Guid, typeof(TestBase), IPCClientHelper.IpcClient, 1000);
-                _poller.OnUpdatedObject += OnUpdatedTestAsync;
-                _poller.StartPolling();
+                _testPoller = new FTFClient.FTFPoller(_test.Guid, typeof(TestBase), IPCClientHelper.IpcClient, 5000);
+                _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
+                _testPoller.StartPolling();
+                if (!TryCreateTestRunPoller(_test.LastTestRunGuid))
+                {
+                    // Set test status to not run
+                    OverallTestResult.Text = "❔ Not Run";
+                }
             }
             else
             {
@@ -53,26 +56,49 @@ namespace FTFUWP
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (_poller != null)
+            if (_testPoller != null)
             {
-                _poller.StopPolling();
+                _testPoller.StopPolling();
+            }
+            if (_testRunPoller != null)
+            {
+                _testRunPoller.StopPolling();
+                _testRunPoller = null;
             }
         }
 
         private async void OnUpdatedTestAsync(object source, FTFPollEventArgs e)
         {
+            _test = (TestBase)e.Result;
+            if ((_test != null) && (_testRunPoller == null))
+            {
+                TryCreateTestRunPoller(_test.LastTestRunGuid);
+            }
+
             if (_test != null)
             {
-                _test = (TestBase)e.Result;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    CreateHeader();
+                    UpdateArgs();
+                });
             }
-            //CreateHeader();
-
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                UpdateResultsSummary();
-                UpdateOutput();
-            });
         }
+
+        private async void OnUpdatedTestRunAsync(object source, FTFPollEventArgs e)
+        {
+            _selectedRun = (TestRun)e.Result;
+
+            if (_selectedRun != null)
+            {
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    UpdateResultsSummary();
+                    UpdateOutput();
+                });
+            }
+        }
+
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
@@ -103,7 +129,7 @@ namespace FTFUWP
         private void UpdateResultsSummary()
         {
             var children = TestResultSummaryStack.Children;
-            switch (_test.TestStatus)
+            switch (_selectedRun.TestStatus)
             {
                 case TestStatus.TestPassed:
                     OverallTestResult.Text = "✔ Passed";
@@ -126,11 +152,11 @@ namespace FTFUWP
             }
 
 
-            switch (_test.TestStatus)
+            switch (_selectedRun.TestStatus)
             {
                 case TestStatus.TestPassed:
                 case TestStatus.TestFailed:
-                    ExitCode.Text = _test.ExitCode.ToString();
+                    ExitCode.Text = _selectedRun.ExitCode.ToString();
                     ExitCodeConst.Visibility = Visibility.Visible;
                     ExitCode.Visibility = Visibility.Visible;
                     break;
@@ -138,30 +164,23 @@ namespace FTFUWP
                     break;
             }
 
-            if (_test.LastTimeStarted != null)
+            if (_selectedRun.TimeStarted != null)
             {
-                LastTimeRun.Text = _test.LastTimeStarted.ToString();
+                LastTimeRun.Text = _selectedRun.TimeStarted.ToString();
                 LastTimeRunConst.Visibility = Visibility.Visible;
                 LastTimeRun.Visibility = Visibility.Visible;
             }
 
-            if (_test.TestRunTime != null)
+            if (_selectedRun.RunTime != null)
             {
-                RunTime.Text = _test.TestRunTime.ToString();
+                RunTime.Text = _selectedRun.RunTime.ToString();
                 RunTimeConst.Visibility = Visibility.Visible;
                 RunTime.Visibility = Visibility.Visible;
             }
 
-            if (_test.TestRunTime != null)
+            if (_selectedRun.LogFilePath != null)
             {
-                RunTime.Text = _test.TestRunTime.ToString();
-                RunTimeConst.Visibility = Visibility.Visible;
-                RunTime.Visibility = Visibility.Visible;
-            }
-
-            if (_test.LogFilePath != null)
-            {
-                LogPath.Text = _test.LogFilePath.ToString();
+                LogPath.Text = _selectedRun.LogFilePath.ToString();
                 LogPathConst.Visibility = Visibility.Visible;
                 LogPath.Visibility = Visibility.Visible;
             }
@@ -171,15 +190,15 @@ namespace FTFUWP
 
         private void UpdateOutput()
         {
-            for (int i = OutputStack.Children.Count; i < _test.TestOutput.Count; i++)
+            for (int i = OutputStack.Children.Count; i < _selectedRun.TestOutput.Count; i++)
             {
                 var line = (i + 1).ToString();
 
-                if (_test.TestOutput[i] != null)
+                if (_selectedRun.TestOutput[i] != null)
                 {
                     var textBlock = new TextBlock()
                     {
-                        Text = _test.TestOutput[i],
+                        Text = _selectedRun.TestOutput[i],
                         Name = "OuptutForLineNo" + line
                     };
 
@@ -218,7 +237,41 @@ namespace FTFUWP
 
         }
 
+        private bool TryCreateTestRunPoller(Guid? testRunGuid)
+        {
+            lock (_testRunPollLock)
+            {
+                if (testRunGuid != null)
+                {
+                    if (_testRunPoller != null)
+                    {
+                        if (_testRunPoller.PollingGuid == testRunGuid)
+                        {
+                            if (!_testRunPoller.IsPolling)
+                            {
+                                _testRunPoller.StartPolling();
+                            }
+                            return true;
+                        }
+                        else
+                        {
+                            _testRunPoller.StopPolling();
+                        }
+                    }
+
+                    _testRunPoller = new FTFClient.FTFPoller((Guid)testRunGuid, typeof(TestRun), IPCClientHelper.IpcClient, 1000);
+                    _testRunPoller.OnUpdatedObject += OnUpdatedTestRunAsync;
+                    _testRunPoller.StartPolling();
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private TestBase _test;
-        private FTFClient.FTFPoller _poller;
+        private TestRun _selectedRun;
+        private FTFPoller _testRunPoller;
+        private FTFPoller _testPoller;
+        private object _testRunPollLock = new object();
     }
 }

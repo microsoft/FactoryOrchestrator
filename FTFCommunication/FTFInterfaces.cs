@@ -1,99 +1,36 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using FTFTestExecution;
+using FTFSharedLibrary;
 
 namespace FTFInterfaces
 {
-    public enum FactoryTestType
-    {
-        Console,
-        TAEF,
-        TAEFTestCase,
-        UWP
-    }
-
-    public enum OutputType
-    {
-        StdOut,
-        StdError
-    }
-
-    public class TestOutput
-    {
-        public string Message;
-        public OutputType Type;
-        public DateTime Time;
-    }
-
-    public enum FTFEventType
+    public enum ServiceEventType
     {
         NewTestList,
         UpdatedTestList,
-        TestStatusUpdate,
-        ServiceError
+        DeletedTestList,
+        ServiceReset,
+        TestListRunStarted,
+        TestListRunEnded,
+        TestStatusUpdatedByClient,
+        WaitingForTestRunByClient,
+        ServiceError,
+        ServiceStarted,
+        ServiceStopped
     }
 
-    public class ServiceEventDatum
+    public class ServiceEvent
     {
-        public FTFEventType EventType;
-        public Guid Object;
+        ServiceEventType ServiceEventType { get; }
+        Guid Guid { get; }
+        String Message { get; }
     }
 
-    public class ServiceErrorData
-    {
-        public uint ErrorCode;
-        public string Message;
-    }
-
-    public enum TestEvent
-    {
-        NotRun,
-        Passed,
-        Failed,
-        Warning,
-        Error,
-        Exception,
-        Aborted,
-        Running,
-        Unknown = int.MaxValue
-    }
-
-    public class TestEventDatum : ServiceEventDatum
-    {
-        public TestEvent TestEvent;
-        public bool TestResult;
-        public uint ErrorCode;
-        public string Message;
-    }
-
-    public class TestListDatum
-    {
-        public TestListDatum()
-        { }
-
-        public List<TestDatum> Tests;
-        public Guid Guid;
-
-        //IEnumerator IEnumerable.GetEnumerator()
-        //{
-        //    return ((IEnumerable)Tests).GetEnumerator();
-        //}
-    }
-
-    public class TestDatum
-    {
-        public string TestName;
-        public string TestPath;
-        public FactoryTestType TestType;
-        public Guid Guid;
-    }
-
-    public class TaefTestDatum : TestDatum
-    {
-        public List<TestDatum> TAEFTestCases;
-    }
-
+    // TODO: Build out client-side lib for diffs, update polling state machine etc
+    /// <summary>
+    /// IFTFCommunication defines the client <> server communication model. 
+    /// </summary>
     public interface IFTFCommunication
     {
         // create test list from list
@@ -108,43 +45,30 @@ namespace FTFInterfaces
         // get test output
         // query for all test lists
 
+        // Service APIs
+        void ResetService(bool preserveLogs = true);
+        List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked, ServiceEventType serviceEventType);
+        List<ServiceEvent> GetServiceEvents(long lastEventIndex, ServiceEventType serviceEventType);
+
+        // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
-
         List<Guid> LoadTestListsFromXmlFile(string filePath);
-
         TestList CreateTestListFromTestList(TestList list);
-
         List<Guid> GetTestListGuids();
-
         TestList QueryTestList(Guid guid);
         TestBase QueryTest(Guid guid);
-
         bool DeleteTestList(Guid listToDelete);
         bool UpdateTestList(TestList testList);
 
-        void ResetService();
-
-        ServiceEventDatum GetServiceUpdate(List<FTFEventType> types);
-        ServiceEventDatum GetServiceUpdate(FTFEventType type);
-        ServiceEventDatum GetServiceUpdate();
-
-        TestEventDatum GetExecutionStatus(Guid guid);
-
+        // Test Execution APIs
         bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
-
         void StopAll();
         void Stop(Guid testListGuid);
-
-        bool UpdateTestStatus(TestBase latestTestStatus);
-
-        TestOutput GetAllOutput(Guid guid);
-
-        List<TestOutput> GetLatestOutput(Guid guid, DateTime fromTime);
-
-        TestOutput GetErrors(Guid guid, ulong index);
-
         bool SetDefaultTePath(string teExePath);
-
         bool SetDefaultLogFolder(string logFolder);
+
+        // Test Run APIs
+        bool SetTestRunStatus(TestRun testRunStatuus);
+        TestRun QueryTestRun(Guid testRunGuid);
     }
 }
