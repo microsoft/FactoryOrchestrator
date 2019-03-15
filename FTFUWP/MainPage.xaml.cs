@@ -49,11 +49,19 @@ namespace FTFUWP
             //}
             //}
             //await((App)(Application.Current)).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap);
-            MakeTestLists();
+            //MakeTestLists();
             // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
         }
 
         public async void MakeTestLists()
+        {
+            foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
+            {
+                await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
+            }
+        }
+
+        public async void Check()
         {
             foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
             {
@@ -92,13 +100,13 @@ namespace FTFUWP
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
                 _selectedTestList = TestListsView.SelectedIndex;
                 SetTestListGuid(testListGuid);
-                _poller = new FTFPoller(testListGuid, typeof(TestList), IPCClientHelper.IpcClient, 5000);
-                _poller.OnUpdatedObject += OnUpdatedTestListAsync;
+                _activeListPoller = new FTFPoller(testListGuid, typeof(TestList), IPCClientHelper.IpcClient, 5000);
+                _activeListPoller.OnUpdatedObject += OnUpdatedTestListAsync;
 #if DEBUG
                 if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
 #endif
                 {
-                    _poller.StartPolling();
+                    _activeListPoller.StartPolling();
                 }
             }
         }
@@ -156,7 +164,6 @@ namespace FTFUWP
 
         private async void OnUpdatedTestListAsync(object source, FTFPollEventArgs e)
         {
-            // TODO: call updateui api to update the testlist the viewmodel uses
             if (e.Result != null)
             {
                 TestList list = (TestList)e.Result;
@@ -176,20 +183,54 @@ namespace FTFUWP
                 });
             }
         }
+
+        private async void OnUpdatedTestListGuidsAsync(object source, FTFPollEventArgs e)
+        {
+            var testListGuids = e.Result as List<Guid>;
+
+            if (testListGuids != null)
+            {
+                foreach (var guid in testListGuids)
+                {
+                    if (!TestViewModel.TestData.TestListGuids.Contains(guid))
+                    {
+                        var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestList(guid));
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            SetTestList(list);
+                            TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
+                            TestViewModel.TestData.SelectedTestListGuid = list.Guid;
+                            TestListsView.SelectedItem = list.Guid;
+                        });
+                    }
+                }
+            }
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // TODO: This is a hack so that if you click on the same test again after returning from the results page the selection is changed
             TestsView.SelectedIndex = -1;
 
-            if (_poller != null)
+            if (_activeListPoller != null)
             {
 #if DEBUG
                 if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
 #endif
                 {
-                    _poller.StartPolling();
+                    _activeListPoller.StartPolling();
                 }
             }
+
+            if (_testListGuidPoller == null)
+            {
+                _testListGuidPoller = new FTFPoller(null, typeof(TestList), IPCClientHelper.IpcClient, 2000);
+                _testListGuidPoller.OnUpdatedObject += OnUpdatedTestListGuidsAsync;
+            }
+
+#if DEBUG
+            _testListGuidPoller.StartPolling();
+#endif
 
             if (_selectedTestList != -1)
             {
@@ -199,39 +240,42 @@ namespace FTFUWP
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (_poller != null)
+            if (_activeListPoller != null)
             {
-                _poller.StopPolling();
+                _activeListPoller.StopPolling();
             }
+
+            _testListGuidPoller.StopPolling();
         }
 
-        private FTFPoller _poller;
+        private FTFPoller _activeListPoller;
+        private FTFPoller _testListGuidPoller;
         private int _selectedTestList = -1;
 
         private async void LoadFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var testlist = await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(FolderToLoad.Text, false));
-            SetTestList(testlist);
-            TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
-            TestViewModel.TestData.SelectedTestListGuid = testlist.Guid;
-            TestListsView.SelectedItem = testlist.Guid;
         }
 
         private void DisablePolling_Click(object sender, RoutedEventArgs e)
         {
             if ((DisablePolling.IsChecked != null) && (bool)(DisablePolling.IsChecked))
             {
-                if (_poller != null)
+                if (_activeListPoller != null)
                 {
-                    _poller.StopPolling();
+                    _activeListPoller.StopPolling();
                 }
+
+                _testListGuidPoller.StopPolling();
             }
             else
             {
-                if (_poller != null)
+                if (_activeListPoller != null)
                 {
-                    _poller.StartPolling();
+                    _activeListPoller.StartPolling();
                 }
+
+                _testListGuidPoller.StartPolling();
             }
         }
     }

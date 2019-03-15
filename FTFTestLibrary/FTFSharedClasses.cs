@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using FTFJsonConverters;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Shared FTF Client & Server classes and enums.
@@ -25,6 +26,19 @@ namespace FTFSharedLibrary
         TAEFDll = 1,
         UWP = 2,
         External = 3
+    }
+
+    public class TestBaseEqualityComparer : EqualityComparer<TestBase>
+    {
+        public override bool Equals(TestBase x, TestBase y)
+        {
+            return x.Equals(y);
+        }
+
+        public override int GetHashCode(TestBase obj)
+        {
+            return obj.GetHashCode();
+        }
     }
 
     /// <summary>
@@ -103,8 +117,6 @@ namespace FTFSharedLibrary
             }
         }
 
-
-
         public bool RunByServer
         {
             get
@@ -144,6 +156,95 @@ namespace FTFSharedLibrary
             }
         }
 
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TestBase;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            if (this.Guid != rhs.Guid)
+            {
+                return false;
+            }
+
+            if (this.Arguments != rhs.Arguments)
+            {
+                return false;
+            }
+
+            if (this.IsEnabled != rhs.IsEnabled)
+            {
+                return false;
+            }
+
+            if (this.LastExitCode != rhs.LastExitCode)
+            {
+                return false;
+            }
+
+            if (this.LastRunStatus != rhs.LastRunStatus)
+            {
+                return false;
+            }
+
+            if (this.LastTestRunGuid != rhs.LastTestRunGuid)
+            {
+                return false;
+            }
+
+            if (this.LastTimeFinished != rhs.LastTimeFinished)
+            {
+                return false;
+            }
+
+            if (this.LastTimeStarted != rhs.LastTimeStarted)
+            {
+                return false;
+            }
+
+            if (this.LogFolder != rhs.LogFolder)
+            {
+                return false;
+            }
+
+            if (this.TestType != rhs.TestType)
+            {
+                return false;
+            }
+
+            //if (!this.TestRunGuids.Equals(rhs.TestRunGuids))
+            //{
+            //    return false;
+            //}
+
+            if (this.TestRunGuids.Count != rhs.TestRunGuids.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < this.TestRunGuids.Count; i++)
+            {
+                if (!this.TestRunGuids[i].Equals(rhs.TestRunGuids[i]))
+                {
+                    return false;
+                }
+                if (!this.TestRunGuids[i].Equals(rhs.TestRunGuids[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return -737073652 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
+        }
+
         [JsonRequired]
         private Guid _guid;
 
@@ -174,24 +275,17 @@ namespace FTFSharedLibrary
             return TestName;
         }
 
-        //public override bool Equals(object obj)
-        //{
-        //    try
-        //    {
-        //        if (String.Compare(((FactoryTest)obj).TestPath, TestPath, true) == 0)
-        //        {
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //    catch (InvalidCastException)
-        //    {
-        //        return false;
-        //    }
-        //}
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as ExecutableTest;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            return base.Equals(obj as TestBase);
+        }
 
         public override String TestName
         {
@@ -211,6 +305,18 @@ namespace FTFSharedLibrary
     {
         public TAEFTest(string testPath) : base(testPath, TestType.TAEFDll)
         {
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TestBase;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            return base.Equals(obj as ExecutableTest);
         }
 
         private List<TAEFTestCase> _testCases;
@@ -268,8 +374,24 @@ namespace FTFSharedLibrary
             }
         }
 
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as UWPTest;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            if (this.TestName != this.TestName)
+            {
+                return false;
+            }
+
+            return base.Equals(obj as TestBase);
+        }
+
         public override string TestName { get; }
-        public override TimeSpan? TestRunTime {get; }
     }
 
     /// <summary>
@@ -323,6 +445,55 @@ namespace FTFSharedLibrary
                     return TestStatus.TestNotRun;
                 }
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TestList;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            if (this.Guid != rhs.Guid)
+            {
+                return false;
+            }
+
+            //if (!this.Tests.Keys.Equals(rhs.Tests.Keys))
+            //{
+            //    return false;
+            //}
+
+            //if (this.Tests.Values != rhs.Tests.Values)
+            //{
+            //    return false;
+            //}
+
+            if (this.Tests.Count != rhs.Tests.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < this.Tests.Count; i++)
+            {
+                if (!this.Tests.Keys.ToArray()[i].Equals(rhs.Tests.Keys.ToArray()[i]))
+                {
+                    return false;
+                }
+                if (!this.Tests.Values.ToArray()[i].Equals(rhs.Tests.Values.ToArray()[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return -2045414129 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
     }
 
@@ -423,6 +594,86 @@ namespace FTFSharedLibrary
                     return null;
                 }
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TestRun;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            if (this.Guid != rhs.Guid)
+            {
+                return false;
+            }
+
+            if (this.OwningTestGuid != rhs.OwningTestGuid)
+            {
+                return false;
+            }
+
+            if (this.TestType != rhs.TestType)
+            {
+                return false;
+            }
+
+            if (this.TestName != rhs.TestName)
+            {
+                return false;
+            }
+
+            if (this.Arguments != rhs.Arguments)
+            {
+                return false;
+            }
+
+            if (this.ExitCode != rhs.ExitCode)
+            {
+                return false;
+            }
+
+            if (this.TestStatus != rhs.TestStatus)
+            {
+                return false;
+            }
+
+            if (this.TimeFinished != rhs.TimeFinished)
+            {
+                return false;
+            }
+
+            if (this.TimeStarted != rhs.TimeStarted)
+            {
+                return false;
+            }
+
+            if (this.LogFilePath != rhs.LogFilePath)
+            {
+                return false;
+            }
+
+            if (this.TestOutput.Count != rhs.TestOutput.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < this.TestOutput.Count; i++)
+            {
+                if (this.TestOutput[i] != rhs.TestOutput[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return -737073652 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
 
         [JsonRequired]
