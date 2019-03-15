@@ -13,7 +13,7 @@ namespace FTFClient
     /// </summary>
     public class FTFPoller
     {
-        public FTFPoller(Guid guidToPoll, Type guidType, IpcServiceClient<IFTFCommunication> ipcServiceClient, int pollingIntervalMs = 1000)
+        public FTFPoller(Guid? guidToPoll, Type guidType, IpcServiceClient<IFTFCommunication> ipcServiceClient, int pollingIntervalMs = 1000)
         {
             _guidToPoll = guidToPoll;
             _client = ipcServiceClient;
@@ -39,18 +39,25 @@ namespace FTFClient
                 // TODO: check for failure
                 if ((_guidType == typeof(TestBase)) || (_guidType == typeof(ExecutableTest)) || (_guidType == typeof(UWPTest)) || (_guidType == typeof(TAEFTest)))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTest(_guidToPoll));
+                    newObj = await _client.InvokeAsync(x => x.QueryTest((Guid)_guidToPoll));
                 }
                 else if (_guidType == typeof(TestList))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTestList(_guidToPoll));
+                    if (_guidToPoll != null)
+                    {
+                        newObj = await _client.InvokeAsync(x => x.QueryTestList((Guid)_guidToPoll));
+                    }
+                    else
+                    {
+                        newObj = await _client.InvokeAsync(x => x.GetTestListGuids());
+                    }
                 }
                 else //if (_guidType == typeof(TestRun))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTestRun(_guidToPoll));
+                    newObj = await _client.InvokeAsync(x => x.QueryTestRun((Guid)_guidToPoll));
                 }
 
-                if (newObj != _latestObject)
+                if (!newObj.Equals(_latestObject))
                 {
                     _latestObject = newObj;
                     lock (_stoplock)
@@ -111,10 +118,10 @@ namespace FTFClient
             }
         }
 
-        public Guid PollingGuid { get => _guidToPoll; }
+        public Guid? PollingGuid { get => _guidToPoll; }
         public bool IsPolling { get => !_stopped; }
 
-        private Guid _guidToPoll;
+        private Guid? _guidToPoll;
         private IpcServiceClient<IFTFCommunication> _client;
         private object _latestObject;
         private int _pollingInterval;
