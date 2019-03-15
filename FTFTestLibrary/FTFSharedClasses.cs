@@ -215,26 +215,9 @@ namespace FTFSharedLibrary
                 return false;
             }
 
-            //if (!this.TestRunGuids.Equals(rhs.TestRunGuids))
-            //{
-            //    return false;
-            //}
-
-            if (this.TestRunGuids.Count != rhs.TestRunGuids.Count)
+            if (!this.TestRunGuids.SequenceEqual(rhs.TestRunGuids))
             {
                 return false;
-            }
-
-            for (int i = 0; i < this.TestRunGuids.Count; i++)
-            {
-                if (!this.TestRunGuids[i].Equals(rhs.TestRunGuids[i]))
-                {
-                    return false;
-                }
-                if (!this.TestRunGuids[i].Equals(rhs.TestRunGuids[i]))
-                {
-                    return false;
-                }
             }
 
             return true;
@@ -471,21 +454,9 @@ namespace FTFSharedLibrary
             //    return false;
             //}
 
-            if (this.Tests.Count != rhs.Tests.Count)
+            if (!this.Tests.SequenceEqual(rhs.Tests))
             {
                 return false;
-            }
-
-            for (int i = 0; i < this.Tests.Count; i++)
-            {
-                if (!this.Tests.Keys.ToArray()[i].Equals(rhs.Tests.Keys.ToArray()[i]))
-                {
-                    return false;
-                }
-                if (!this.Tests.Values.ToArray()[i].Equals(rhs.Tests.Values.ToArray()[i]))
-                {
-                    return false;
-                }
             }
 
             return true;
@@ -655,17 +626,9 @@ namespace FTFSharedLibrary
                 return false;
             }
 
-            if (this.TestOutput.Count != rhs.TestOutput.Count)
+            if (!this.TestOutput.SequenceEqual(rhs.TestOutput))
             {
                 return false;
-            }
-
-            for (int i = 0; i < this.TestOutput.Count; i++)
-            {
-                if (this.TestOutput[i] != rhs.TestOutput[i])
-                {
-                    return false;
-                }
             }
 
             return true;
