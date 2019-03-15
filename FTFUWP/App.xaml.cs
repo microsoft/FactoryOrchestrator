@@ -36,7 +36,6 @@ namespace FTFUWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            IPCClientHelper.StartIPCConnection(IPAddress.Loopback, 45684);
         }
 
         /// <summary>
@@ -75,7 +74,7 @@ namespace FTFUWP
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    rootFrame.Navigate(typeof(ConnectionPage), e.Arguments);
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
