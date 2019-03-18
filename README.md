@@ -1,7 +1,12 @@
 # Introduction 
-Factory Test Framework
+Factory Test Framework (FTF)
 
-TODO: Explain different projects
+Factory Test Framework consists of the following projects:
+1) FTFCoreLibrary - A .NET Standard library containing the core FTF classes. Required in all projects.
+2) FTFServerLibrary - A .NET Standard library containing the server-side FTF classes. Required on all FTF server projects.
+3) FTFClientLibrary - A .NET Standard library containing the client-side FTF classes. Has helper classes which are optional for all FTF client projects.
+4) FTFService - A .NET Core Executable project for FTFService.exe, the FTF server implementation.
+5) FTFUWP - A .NET UWP app project for FTFUWP.exe, the UWP used to communicate with FTFService and run UI tests.
 
 # Usage
 To use FTF UWP on FactoryOS:

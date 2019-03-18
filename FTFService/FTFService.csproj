@@ -15,9 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FTFCommunication\FTFCommunication.csproj" />
     <ProjectReference Include="..\FTFServerLibrary\FTFServerLibrary.csproj" />
-    <ProjectReference Include="..\FTFTestLibrary\FTFTestLibrary.csproj" />
+    <ProjectReference Include="..\FTFCoreLibrary\FTFCoreLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

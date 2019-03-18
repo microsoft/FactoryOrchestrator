@@ -1,28 +1,15 @@
-﻿using FTFInterfaces;
-using FTFSharedLibrary;
-using JKang.IpcServiceFramework;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using FTFClient;
+using Microsoft.FactoryTestFramework.Client;
+using Microsoft.FactoryTestFramework.Core;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace FTFUWP
+namespace Microsoft.FactoryTestFramework.UWP
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.

@@ -7,7 +7,7 @@
     <ProjectGuid>{BAD1C9B4-70E1-40F7-92AC-9B1E2049E9C5}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FTFUWP</RootNamespace>
+    <RootNamespace>Microsoft.FactoryTestFramework.UWP</RootNamespace>
     <AssemblyName>FTFUWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -185,17 +185,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FTFClient\FTFClient.csproj">
+    <ProjectReference Include="..\FTFClientLibrary\FTFClientLibrary.csproj">
       <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
-      <Name>FTFClient</Name>
+      <Name>FTFClientLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FTFCommunication\FTFCommunication.csproj">
-      <Project>{8a3ad213-8ee5-48b6-b7dd-c55cd1742360}</Project>
-      <Name>FTFCommunication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FTFTestLibrary\FTFTestLibrary.csproj">
+    <ProjectReference Include="..\FTFCoreLibrary\FTFCoreLibrary.csproj">
       <Project>{5ED97075-7281-4FA3-8E5F-D4B8D273BDCB}</Project>
-      <Name>FTFTestLibrary</Name>
+      <Name>FTFCoreLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

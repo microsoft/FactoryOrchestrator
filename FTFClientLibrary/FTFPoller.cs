@@ -1,11 +1,10 @@
-﻿using FTFInterfaces;
-using FTFSharedLibrary;
-using JKang.IpcServiceFramework;
+﻿using JKang.IpcServiceFramework;
 using System;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.FactoryTestFramework.Core;
 
-namespace FTFClient
+namespace Microsoft.FactoryTestFramework.Client
 {
     /// <summary>
     /// FTFPoller is used to create a polling thread for a given FTF GUID. It can optionally raise a FTFPollerEvent event via OnUpdatedObject.
@@ -69,7 +68,7 @@ namespace FTFClient
                     }
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 // TODO: Handle somehow
             }

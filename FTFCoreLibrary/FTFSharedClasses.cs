@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using FTFJsonConverters;
+using Microsoft.FactoryTestFramework.Core.JSONConverters;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Shared FTF Client & Server classes and enums.
-/// </summary>
-namespace FTFSharedLibrary
+
+namespace Microsoft.FactoryTestFramework.Core
 {
     public enum TestStatus
     {
@@ -62,7 +60,7 @@ namespace FTFSharedLibrary
             LastTimeStarted = null;
             TestRunGuids = new List<Guid>();
         }
-        
+
         // TODO: Make only getters and add internal apis to set
         public TestType TestType { get; }
         public string TestPath { get; }

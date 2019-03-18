@@ -1,11 +1,11 @@
-﻿using FTFInterfaces;
-using JKang.IpcServiceFramework;
+﻿using JKang.IpcServiceFramework;
+using Microsoft.FactoryTestFramework.Core;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace FTFClient
+namespace Microsoft.FactoryTestFramework.Client
 {
     public static class IPCClientHelper
     {

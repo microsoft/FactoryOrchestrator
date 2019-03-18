@@ -1,4 +1,4 @@
-﻿using FTFSharedLibrary;
+﻿using Microsoft.FactoryTestFramework.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FTFServerLibrary
+namespace Microsoft.FactoryTestFramework.Server
 {
     public static class TestBase_ServerExtensions
     {
@@ -257,10 +257,10 @@ namespace FTFServerLibrary
 
         public bool UpdateTestStatus(TestBase latestTestStatus)
         {
-           if (latestTestStatus == null)
-           {
+            if (latestTestStatus == null)
+            {
                 return false;
-           }
+            }
 
             // Changing state, lock the test lists
             lock (KnownTestListLock)
@@ -285,7 +285,7 @@ namespace FTFServerLibrary
                         {
                             if (test.LastRunStatus == TestStatus.TestRunning)
                             {
-                               return false;
+                                return false;
                             }
                             list.Tests[latestTestStatus.Guid] = latestTestStatus;
                         }
@@ -397,7 +397,7 @@ namespace FTFServerLibrary
                     }
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
-                    if(testRun.RunByServer)
+                    if (testRun.RunByServer)
                     {
                         StartTest(testRun, token, testRunEventHandler);
                     }
@@ -721,7 +721,7 @@ namespace FTFServerLibrary
                 ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LastExitCode = -1;
                 ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestAborted;
             }
-            
+
             // Save test output to file
             var LogFilePath = ActiveTestRun.LogFilePath;
             if (LogFilePath != null)
@@ -729,11 +729,11 @@ namespace FTFServerLibrary
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
                 File.WriteAllLines(LogFilePath,
                                     new String[] { String.Format("Test: {0}", ActiveTestRun.TestName),
-                                        String.Format("Result: {0}", ActiveTestRun.TestStatus),
-                                        String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
-                                        String.Format("Date/Time run: {0}", ActiveTestRun.TimeStarted),
-                                        String.Format("Time to complete: {0}", ActiveTestRun.RunTime),
-                                        String.Format("---------Test's console output below--------")});
+                                String.Format("Result: {0}", ActiveTestRun.TestStatus),
+                                String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
+                                String.Format("Date/Time run: {0}", ActiveTestRun.TimeStarted),
+                                String.Format("Time to complete: {0}", ActiveTestRun.RunTime),
+                                String.Format("---------Test's console output below--------")});
                 File.AppendAllLines(LogFilePath, ActiveTestRun.TestOutput, System.Text.Encoding.UTF8);
             }
 
@@ -797,7 +797,7 @@ namespace FTFServerLibrary
 
         public bool IsRunning { get; set; }
         //public ExecutableTest Test { get; }
-        
+
         public event TestRunEventHandler OnTestEvent;
 
         private TestRun_Server ActiveTestRun;

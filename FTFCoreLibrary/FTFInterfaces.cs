@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using FTFSharedLibrary;
 
-namespace FTFInterfaces
+namespace Microsoft.FactoryTestFramework.Core
 {
     public enum ServiceEventType
     {

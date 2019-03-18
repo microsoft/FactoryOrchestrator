@@ -1,14 +1,10 @@
-﻿using FTFSharedLibrary;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-/// <summary>
-/// JSON converters for various FTF classes. Used for IPC via IFTFCommunication.
-/// </summary>
-namespace FTFJsonConverters
+namespace Microsoft.FactoryTestFramework.Core.JSONConverters
 {
     /// <summary>
     /// TestBaseConverter serializes "instances" of the abstract class TestBase.

@@ -1,23 +1,16 @@
-﻿using FTFClient;
-using FTFSharedLibrary;
+﻿using Microsoft.FactoryTestFramework.Client;
+using Microsoft.FactoryTestFramework.Core;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace FTFUWP
+namespace Microsoft.FactoryTestFramework.UWP
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -37,7 +30,7 @@ namespace FTFUWP
                 _test = (TestBase)e.Parameter;
                 CreateHeader();
                 UpdateArgs();
-                _testPoller = new FTFClient.FTFPoller(_test.Guid, typeof(TestBase), IPCClientHelper.IpcClient, 5000);
+                _testPoller = new FTFPoller(_test.Guid, typeof(TestBase), IPCClientHelper.IpcClient, 5000);
                 _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
                 _testPoller.StartPolling();
                 if (!TryCreateTestRunPoller(_test.LastTestRunGuid))
@@ -259,7 +252,7 @@ namespace FTFUWP
                         }
                     }
 
-                    _testRunPoller = new FTFClient.FTFPoller((Guid)testRunGuid, typeof(TestRun), IPCClientHelper.IpcClient, 1000);
+                    _testRunPoller = new FTFPoller((Guid)testRunGuid, typeof(TestRun), IPCClientHelper.IpcClient, 1000);
                     _testRunPoller.OnUpdatedObject += OnUpdatedTestRunAsync;
                     _testRunPoller.StartPolling();
                     return true;

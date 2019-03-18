@@ -5,16 +5,14 @@ using JKang.IpcServiceFramework;
 using System.Net;
 using System.Threading.Tasks;
 using JKang.IpcServiceFramework.Services;
-using FTFInterfaces;
 using System.Collections.Generic;
-using FTFSharedLibrary;
-using FTFServerLibrary;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System;
+using Microsoft.FactoryTestFramework.Core;
+using Microsoft.FactoryTestFramework.Server;
 
-namespace FTFService
+namespace Microsoft.FactoryTestFramework.Service
 {
-   
     class FTFServiceExe
     {
         public static IIpcServiceHost ipcHost;
@@ -24,7 +22,7 @@ namespace FTFService
 #if DEBUG
             var _logLevel = LogLevel.Debug;
 #else
-            var _logLevel = LogLevel.Information;
+    var _logLevel = LogLevel.Information;
 #endif
             // Create service collection
             var services = new ServiceCollection();
@@ -61,7 +59,7 @@ namespace FTFService
             ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Any, 45684)
                                                             .Build();
 
-           var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFServiceExe>();
+            var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFServiceExe>();
 
             // FTFService handler
             ServiceRunner<FTFService>.Run(config =>

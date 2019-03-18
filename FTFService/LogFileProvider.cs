@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace FTFService
+namespace Microsoft.FactoryTestFramework.Service
 {
     public class LogFileProvider : ILoggerProvider
     {
         // Log to file next to the service binary
-        private static readonly String _logPath= Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFService.log");
+        private static readonly String _logPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFService.log");
         private static StreamWriter _logStream = null;
         private static uint _logCount = 0;
         private static object _logLock = new object();
