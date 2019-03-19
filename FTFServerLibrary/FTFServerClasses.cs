@@ -19,6 +19,10 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 run = new TestRun_Server(test, logFolder);
                 test.TestRunGuids.Add(run.Guid);
+                test.LatestTestRunExitCode = null;
+                test.LatestTestRunStatus = TestStatus.TestNotRun;
+                test.LatestTestRunTimeFinished = null;
+                test.LatestTestRunTimeStarted = null;
             }
             return run.Guid;
         }
