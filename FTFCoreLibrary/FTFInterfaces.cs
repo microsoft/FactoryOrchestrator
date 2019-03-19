@@ -67,7 +67,7 @@ namespace Microsoft.FactoryTestFramework.Core
         bool SetDefaultLogFolder(string logFolder);
 
         // Test Run APIs
-        bool SetTestRunStatus(TestRun testRunStatuus);
+        bool SetTestRunStatus(TestRun testRunStatus);
         TestRun QueryTestRun(Guid testRunGuid);
     }
 }

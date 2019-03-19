@@ -12,12 +12,12 @@ namespace Microsoft.FactoryTestFramework.Server
 {
     public static class TestBase_ServerExtensions
     {
-        public static Guid CreateTestRun(this TestBase test)
+        public static Guid CreateTestRun(this TestBase test, string logFolder)
         {
             TestRun_Server run;
             lock (test.TestLock)
             {
-                run = new TestRun_Server(test);
+                run = new TestRun_Server(test, logFolder);
                 test.TestRunGuids.Add(run.Guid);
             }
             return run.Guid;
@@ -32,10 +32,10 @@ namespace Microsoft.FactoryTestFramework.Server
         {
             lock (test.TestLock)
             {
-                test.LastRunStatus = TestStatus.TestNotRun;
-                test.LastExitCode = null;
-                test.LastTimeFinished = null;
-                test.LastTimeStarted = null;
+                test.LatestTestRunStatus = TestStatus.TestNotRun;
+                test.LatestTestRunExitCode = null;
+                test.LatestTestRunTimeFinished = null;
+                test.LatestTestRunTimeStarted = null;
                 test.TestRunGuids = new List<Guid>();
             }
 
@@ -45,11 +45,27 @@ namespace Microsoft.FactoryTestFramework.Server
 
     public class TestManager_Server
     {
-        public TestManager_Server()
+        public TestManager_Server(string defaultLogFolder)
         {
             StartTestRunLock = new SemaphoreSlim(1, 1);
             KnownTestLists = new Dictionary<Guid, TestList>();
             RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
+            SetDefaultLogFolder(defaultLogFolder);
+        }
+
+        public bool SetDefaultLogFolder(string logFolder)
+        {
+            try
+            {
+                _defaultLogFolder = logFolder;
+                Directory.CreateDirectory(logFolder);
+                return true;
+            }
+            catch (Exception)
+            {
+                // todo log
+                return false;
+            }
         }
 
         public TestList CreateTestListFromDirectory(String path, bool onlyTAEF)
@@ -89,7 +105,12 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public bool DeleteTestList(Guid listToDelete)
         {
-            return KnownTestLists.Remove(listToDelete);
+            lock (KnownTestListLock)
+            {
+                // Abort() gracefully returns if the guid is invalid
+                Abort(listToDelete);
+                return KnownTestLists.Remove(listToDelete);   
+            }
         }
 
         public TestBase GetKnownTest(Guid testGuid)
@@ -149,7 +170,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public void Reset(bool preserveLogs = true)
         {
-            lock (RunningTestLock)
+            lock (RunningTestListLock)
             {
                 lock (KnownTestListLock)
                 {
@@ -172,36 +193,17 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public bool UpdateTestList(TestList testList)
-        {
-            if (testList == null)
-            {
-                return false;
-            }
-
-            // todo: what if it is running or queued to run?
-            lock (KnownTestListLock)
-            {
-                if (KnownTestLists.ContainsKey(testList.Guid))
-                {
-                    KnownTestLists[testList.Guid] = testList;
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         /// <summary>
         /// Checks if a DLL is a TAEF test. Returns an initialized TAEFTest instance if it is.
         /// </summary>
         /// <param name="dllToTest">Path to DLL to check</param>
         /// <returns>null if DLL is not a TAEF test. TAEFTest instance if it is.</returns>
-        public static TAEFTest CheckForTAEFTest(String dllToTest)
+        public TAEFTest CheckForTAEFTest(String dllToTest)
         {
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
-            TestRun_Server testRun = new TestRun_Server(maybeTAEF);
+            TestRun_Server testRun = new TestRun_Server(maybeTAEF, DefaultLogFolder);
             TestRunner runner = new TestRunner(testRun);
             bool isTaef = false;
             try
@@ -232,7 +234,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
-                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.LastExitCode, dllToTest));
+                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.LatestTestRunExitCode, dllToTest));
                 }
             }
             catch (Exception)
@@ -255,9 +257,39 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public bool UpdateTestStatus(TestBase latestTestStatus)
+        public bool UpdateTestList(TestList testList)
         {
-            if (latestTestStatus == null)
+            if (testList == null)
+            {
+                return false;
+            }
+
+            lock (KnownTestListLock)
+            {
+                if (KnownTestLists.ContainsKey(testList.Guid))
+                {
+                    lock (RunningTestListLock)
+                    {
+                        // if it is running don't update the testlist
+                        if (RunningTestListTokens.Keys.Contains(testList.Guid))
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            KnownTestLists[testList.Guid] = testList;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool UpdateTest(TestBase updatedTest)
+        {
+            if (updatedTest == null)
             {
                 return false;
             }
@@ -265,33 +297,55 @@ namespace Microsoft.FactoryTestFramework.Server
             // Changing state, lock the test lists
             lock (KnownTestListLock)
             {
-                // Find lists with this test in them
-                // TODO: I think we are converging on unique guids per item in a list, not unique guid per test (ie, foo.dll in two lists has two unique guids)
-                // should this only get first() and error otherwise?
-                var listsToUpdate = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(latestTestStatus.Guid));
+                // Find list this test in it
+                var testList = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(updatedTest.Guid)).DefaultIfEmpty(null).First();
 
-                if ((listsToUpdate == null) || (listsToUpdate.Count() == 0))
+                if (testList == null)
                 {
                     return false;
                 }
                 else
                 {
-                    // Iterate through all lists with this test and update them
-                    foreach (var list in listsToUpdate)
+                    lock (RunningTestListLock)
                     {
-                        var test = list.Tests[latestTestStatus.Guid];
-                        // Replace existing Test with the Test we were given
-                        lock (test.TestLock)
+                        // if it is running don't update the test
+                        if (RunningTestListTokens.Keys.Contains(testList.Guid))
                         {
-                            if (test.LastRunStatus == TestStatus.TestRunning)
-                            {
-                                return false;
-                            }
-                            list.Tests[latestTestStatus.Guid] = latestTestStatus;
+                            return false;
+                        }
+                        else
+                        {
+                            testList.Tests[updatedTest.Guid] = updatedTest;
+                            return true;
                         }
                     }
-                    return true;
                 }
+            }
+        }
+
+        public bool UpdateTestRunStatus(TestRun latestTestRun)
+        {
+            if (latestTestRun == null)
+            {
+                return false;
+            }
+
+            // Test GUIDs are unique across testlists
+            var testList = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(latestTestRun.OwningTestGuid)).DefaultIfEmpty(null).First();
+
+            if (testList == null)
+            {
+                return false;
+            }
+            else
+            {
+                var test = testList.Tests[latestTestRun.OwningTestGuid];
+                if (!test.TestRunGuids.Contains(latestTestRun.Guid))
+                {
+                    return false;
+                }
+
+                return TestRun_Server.UpdateTestRun(latestTestRun, test);
             }
         }
 
@@ -306,7 +360,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
 
             // Check if test list is already running or set to be run
-            lock (RunningTestLock)
+            lock (RunningTestListLock)
             {
                 if (RunningTestListTokens.ContainsKey(TestListGuidToRun))
                 {
@@ -317,7 +371,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 List<Guid> testRunGuids = new List<Guid>();
                 foreach (var test in list.Tests.Values)
                 {
-                    testRunGuids.Add(test.CreateTestRun());
+                    testRunGuids.Add(test.CreateTestRun(DefaultLogFolder));
                 }
 
                 var workItem = new TestListWorkItem(list.Guid, testRunGuids, allowOtherTestListsToRun, runListInParallel);
@@ -372,7 +426,7 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 StartTestRuns(item.TestRunGuids, token, item.RunListInParallel);
 
-                lock (RunningTestLock)
+                lock (RunningTestListLock)
                 {
                     RunningTestListTokens.Remove(item.TestListGuid);
                 }
@@ -468,7 +522,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public void Abort()
         {
-            lock (RunningTestLock)
+            lock (RunningTestListLock)
             {
                 foreach (var token in RunningTestListTokens.Values)
                 {
@@ -480,7 +534,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public void Abort(Guid testListToCancel)
         {
-            lock (RunningTestLock)
+            lock (RunningTestListLock)
             {
                 CancellationTokenSource token;
                 if (RunningTestListTokens.TryGetValue(testListToCancel, out token))
@@ -494,8 +548,11 @@ namespace Microsoft.FactoryTestFramework.Server
         private Dictionary<Guid, TestList> KnownTestLists;
         private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
         private readonly object KnownTestListLock = new object();
-        private readonly object RunningTestLock = new object();
+        private readonly object RunningTestListLock = new object();
         private readonly SemaphoreSlim StartTestRunLock;
+        private string _defaultLogFolder;
+
+        public string DefaultLogFolder { get => _defaultLogFolder; }
     }
 
     public delegate void TestRunEventHandler(object source, TestRunEventArgs e);
@@ -527,33 +584,25 @@ namespace Microsoft.FactoryTestFramework.Server
 
     public class TestRunner
     {
-        public static string GlobalTeExePath = "c:\\taef\\te.exe";
-        public static string GlobalLogFolder = "c:\\data\\FTFLogs";
+        private static string _globalTeExePath = "c:\\taef\\te.exe";
         private readonly static string GlobalTeArgs = "";
 
-        public static bool SetDefaultTePath(string teExePath)
+        public static string GlobalTeExePath
         {
-            if (File.Exists(teExePath))
+            get
             {
-                GlobalTeExePath = teExePath;
-                return true;
+                return _globalTeExePath;
             }
-            else
+            set
             {
-                return false;
-            }
-        }
-
-        public static bool SetDefaultLogFolder(string logFolder)
-        {
-            try
-            {
-                Directory.CreateDirectory(logFolder);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
+                if (File.Exists(value))
+                {
+                    _globalTeExePath = value;
+                }
+                else
+                {
+                    throw new Exception($"{value} is not a valid file path!");
+                }
             }
         }
 
@@ -582,7 +631,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
         internal bool CheckIfTaefTest()
         {
-            ActiveTestRun.LogFilePath = null;
+            ActiveTestRun.ConsoleLogFilePath = null;
             lock (runnerStateLock)
             {
                 if (IsRunning == true)
@@ -649,8 +698,8 @@ namespace Microsoft.FactoryTestFramework.Server
             if (TestProcess.Start())
             {
                 IsRunning = true;
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestRunning;
-                ActiveTestRun.TimeStarted = ActiveTestRun.OwningTest.LastTimeStarted = DateTime.Now;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = TestStatus.TestRunning;
+                ActiveTestRun.TimeStarted = ActiveTestRun.OwningTest.LatestTestRunTimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
@@ -660,9 +709,12 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             else
             {
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestFailed;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = TestStatus.TestFailed;
                 // TODO: log error
             }
+
+            ActiveTestRun.OwningTest.LatestTestRunTimeFinished = null;
+            ActiveTestRun.OwningTest.LatestTestRunExitCode = null;
 
             return false;
         }
@@ -712,18 +764,18 @@ namespace Microsoft.FactoryTestFramework.Server
             // Save the result of the test
             if (!TestAborted)
             {
-                ActiveTestRun.TimeFinished = ActiveTestRun.OwningTest.LastTimeFinished = DateTime.Now;
-                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LastExitCode = TestProcess.ExitCode;
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
+                ActiveTestRun.TimeFinished = ActiveTestRun.OwningTest.LatestTestRunTimeFinished = DateTime.Now;
+                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LatestTestRunExitCode = TestProcess.ExitCode;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
             }
             else
             {
-                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LastExitCode = -1;
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LastRunStatus = TestStatus.TestAborted;
+                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LatestTestRunExitCode = -1;
+                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = TestStatus.TestAborted;
             }
 
             // Save test output to file
-            var LogFilePath = ActiveTestRun.LogFilePath;
+            var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
             if (LogFilePath != null)
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
@@ -852,14 +904,47 @@ namespace Microsoft.FactoryTestFramework.Server
                     _testRunMap.Remove(testRunGuid);
                     if (!preserveLogs)
                     {
-                        if (File.Exists(testRun.LogFilePath))
+                        if (File.Exists(testRun.ConsoleLogFilePath))
                         {
-                            File.Delete(testRun.LogFilePath);
+                            File.Delete(testRun.ConsoleLogFilePath);
                         }
                     }
                 }
             }
         }
+
+        public static bool UpdateTestRun(TestRun updatedTestRun, TestBase test)
+        {
+            if (updatedTestRun == null)
+            {
+                return false;
+            }
+
+            if (test == null)
+            {
+                return false;
+            }
+
+            lock (_testMapLock)
+            {
+                if (!_testRunMap.ContainsKey(updatedTestRun.Guid))
+                {
+                    return false;
+                }
+
+                lock (test.TestLock)
+                {
+                    _testRunMap[updatedTestRun.Guid] = new TestRun_Server(updatedTestRun, test);
+                    test.LatestTestRunExitCode = updatedTestRun.ExitCode;
+                    test.LatestTestRunStatus = updatedTestRun.TestStatus;
+                    test.LatestTestRunTimeFinished = updatedTestRun.TimeFinished;
+                    test.LatestTestRunTimeStarted = updatedTestRun.TimeStarted;
+                }
+
+                return true;
+            }
+        }
+
 
         public static void RemoveTestRunsForTest(Guid testGuid, bool preserveLogs)
         {
@@ -869,9 +954,9 @@ namespace Microsoft.FactoryTestFramework.Server
             });
         }
 
-        public TestRun_Server(TestBase owningTest) : base(owningTest)
+        public TestRun_Server(TestBase owningTest, string defaultLogFolder) : base(owningTest)
         {
-            LogFilePath = null;
+            ConsoleLogFilePath = null;
             TestStatus = TestStatus.TestNotRun;
             TimeFinished = null;
             TimeStarted = null;
@@ -889,10 +974,21 @@ namespace Microsoft.FactoryTestFramework.Server
             string LogFolder = owningTest.LogFolder;
             if (LogFolder == null)
             {
-                LogFolder = TestRunner.GlobalLogFolder;
+                LogFolder = defaultLogFolder;
             }
 
-            LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TestName, Guid));
+            ConsoleLogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TestName, Guid));
+        }
+
+        private TestRun_Server(TestRun testRun, TestBase owningTest) : base(owningTest)
+        {
+            ConsoleLogFilePath = testRun.ConsoleLogFilePath;
+            TestStatus = testRun.TestStatus;
+            TimeFinished = testRun.TimeFinished;
+            TimeStarted = testRun.TimeStarted;
+            ExitCode = testRun.ExitCode;
+            TestOutput = testRun.TestOutput;
+            OwningTest = owningTest;
         }
 
         public TestBase OwningTest { get; }

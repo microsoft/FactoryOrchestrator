@@ -171,9 +171,9 @@ namespace Microsoft.FactoryTestFramework.UWP
                 RunTime.Visibility = Visibility.Visible;
             }
 
-            if (_selectedRun.LogFilePath != null)
+            if (_selectedRun.ConsoleLogFilePath != null)
             {
-                LogPath.Text = _selectedRun.LogFilePath.ToString();
+                LogPath.Text = _selectedRun.ConsoleLogFilePath.ToString();
                 LogPathConst.Visibility = Visibility.Visible;
                 LogPath.Visibility = Visibility.Visible;
             }

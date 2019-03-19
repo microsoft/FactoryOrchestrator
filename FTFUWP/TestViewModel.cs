@@ -69,11 +69,11 @@ namespace Microsoft.FactoryTestFramework.UWP
             List<String> testNamesAndResults = new List<String>();
             foreach (var test in TestData.TestListMap[guid].Tests.Values)
             {
-                if (test.LastRunStatus == TestStatus.TestPassed)
+                if (test.LatestTestRunStatus == TestStatus.TestPassed)
                 {
                     testNamesAndResults.Add(test.TestName + " ✔");
                 }
-                else if (test.LastRunStatus == TestStatus.TestFailed)
+                else if (test.LatestTestRunStatus == TestStatus.TestFailed)
                 {
                     testNamesAndResults.Add(test.TestName + " ❌");
                 }
@@ -98,7 +98,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             List<String> testResults = new List<String>();
             foreach (var test in TestData.TestListMap[guid].Tests.Values)
             {
-                switch (test.LastRunStatus)
+                switch (test.LatestTestRunStatus)
                 {
                     case TestStatus.TestPassed:
                         testResults.Add("✔ Passed");

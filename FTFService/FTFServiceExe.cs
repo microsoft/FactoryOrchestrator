@@ -142,9 +142,9 @@ namespace Microsoft.FactoryTestFramework.Service
             FTFService.Instance.TestExecutionManager.Reset(preserveLogs);
         }
 
-        public bool UpdateTestStatus(TestBase latestTestStatus)
+        public bool UpdateTest(TestBase updatedTest)
         {
-            return FTFService.Instance.TestExecutionManager.UpdateTestStatus(latestTestStatus);
+            return FTFService.Instance.TestExecutionManager.UpdateTest(updatedTest);
         }
 
         public bool UpdateTestList(TestList testList)
@@ -154,12 +154,21 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public bool SetDefaultTePath(string teExePath)
         {
-            return TestRunner.SetDefaultTePath(teExePath);
+            try
+            {
+                TestRunner.GlobalTeExePath = teExePath;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool SetDefaultLogFolder(string logFolder)
         {
-            return TestRunner.SetDefaultLogFolder(logFolder);
+            return FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder);
         }
 
         public void StopAll()
@@ -187,9 +196,9 @@ namespace Microsoft.FactoryTestFramework.Service
             return TestRun_Server.GetTestRunByGuid(testRunGuid);
         }
 
-        public bool SetTestRunStatus(TestRun testRunStatuus)
+        public bool SetTestRunStatus(TestRun testRunStatus)
         {
-            throw new NotImplementedException();
+            return FTFService.Instance.TestExecutionManager.UpdateTestRunStatus(testRunStatus);
         }
 
         public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
@@ -225,7 +234,7 @@ namespace Microsoft.FactoryTestFramework.Service
                     _controller = controller;
                     ServiceLogger = logger;
                     _singleton = this;
-                    _testExecutionManager = new TestManager_Server();
+                    _testExecutionManager = new TestManager_Server(@"c:\data\FTFLogs");
                 }
                 else
                 {

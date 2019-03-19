@@ -15,7 +15,8 @@ namespace Microsoft.FactoryTestFramework.Core
         TestFailed,
         TestAborted,
         TestRunning,
-        TestNotRun
+        TestNotRun,
+        TestWaitingForExternalResult
     }
 
     public enum TestType
@@ -54,10 +55,10 @@ namespace Microsoft.FactoryTestFramework.Core
             TestPath = testPath;
             IsEnabled = true;
             TestLock = new object();
-            LastRunStatus = TestStatus.TestNotRun;
-            LastExitCode = null;
-            LastTimeFinished = null;
-            LastTimeStarted = null;
+            LatestTestRunStatus = TestStatus.TestNotRun;
+            LatestTestRunExitCode = null;
+            LatestTestRunTimeFinished = null;
+            LatestTestRunTimeStarted = null;
             TestRunGuids = new List<Guid>();
         }
 
@@ -67,18 +68,18 @@ namespace Microsoft.FactoryTestFramework.Core
         public string LogFolder { get; set; }
         public string Arguments { get; set; }
         public Guid Guid { get => _guid; }
-        public DateTime? LastTimeStarted { get; set; }
-        public DateTime? LastTimeFinished { get; set; }
-        public TestStatus LastRunStatus { get; set; }
-        public bool? LastRunPassed
+        public DateTime? LatestTestRunTimeStarted { get; set; }
+        public DateTime? LatestTestRunTimeFinished { get; set; }
+        public TestStatus LatestTestRunStatus { get; set; }
+        public bool? LatestTestRunPassed
         {
             get
             {
-                if (LastRunStatus == TestStatus.TestPassed)
+                if (LatestTestRunStatus == TestStatus.TestPassed)
                 {
                     return true;
                 }
-                else if (LastRunStatus == TestStatus.TestFailed)
+                else if (LatestTestRunStatus == TestStatus.TestFailed)
                 {
                     return false;
                 }
@@ -91,21 +92,21 @@ namespace Microsoft.FactoryTestFramework.Core
 
         public bool IsEnabled { get; set; }
 
-        public int? LastExitCode { get; set; }
+        public int? LatestTestRunExitCode { get; set; }
 
-        public virtual TimeSpan? TestRunTime
+        public virtual TimeSpan? LatestTestRunRunTime
         {
             get
             {
-                if (LastTimeStarted != null)
+                if (LatestTestRunTimeStarted != null)
                 {
-                    if (LastTimeFinished != null)
+                    if (LatestTestRunTimeFinished != null)
                     {
-                        return LastTimeFinished - LastTimeStarted;
+                        return LatestTestRunTimeFinished - LatestTestRunTimeStarted;
                     }
                     else
                     {
-                        return DateTime.Now - LastTimeStarted;
+                        return DateTime.Now - LatestTestRunTimeStarted;
                     }
                 }
                 else
@@ -178,12 +179,12 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.LastExitCode != rhs.LastExitCode)
+            if (this.LatestTestRunExitCode != rhs.LatestTestRunExitCode)
             {
                 return false;
             }
 
-            if (this.LastRunStatus != rhs.LastRunStatus)
+            if (this.LatestTestRunStatus != rhs.LatestTestRunStatus)
             {
                 return false;
             }
@@ -193,12 +194,12 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.LastTimeFinished != rhs.LastTimeFinished)
+            if (this.LatestTestRunTimeFinished != rhs.LatestTestRunTimeFinished)
             {
                 return false;
             }
 
-            if (this.LastTimeStarted != rhs.LastTimeStarted)
+            if (this.LatestTestRunTimeStarted != rhs.LatestTestRunTimeStarted)
             {
                 return false;
             }
@@ -409,15 +410,15 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             get
             {
-                if (Tests.Values.All(x => x.LastRunPassed == true))
+                if (Tests.Values.All(x => x.LatestTestRunPassed == true))
                 {
                     return TestStatus.TestPassed;
                 }
-                else if (Tests.Values.Any(x => x.LastRunStatus == TestStatus.TestRunning))
+                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.TestRunning))
                 {
                     return TestStatus.TestRunning;
                 }
-                else if (Tests.Values.Any(x => x.LastRunStatus == TestStatus.TestFailed))
+                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.TestFailed))
                 {
                     return TestStatus.TestFailed;
                 }
@@ -486,7 +487,7 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             _owningGuid = owningTest.Guid;
             _guid = Guid.NewGuid();
-            LogFilePath = null;
+            ConsoleLogFilePath = null;
             TestStatus = TestStatus.TestNotRun;
             TimeFinished = null;
             TimeStarted = null;
@@ -509,7 +510,7 @@ namespace Microsoft.FactoryTestFramework.Core
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeFinished { get; set; }
         public TestStatus TestStatus { get; set; }
-        public string LogFilePath { get; set; }
+        public string ConsoleLogFilePath { get; set; }
 
         public bool RunByServer
         {
@@ -619,7 +620,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.LogFilePath != rhs.LogFilePath)
+            if (this.ConsoleLogFilePath != rhs.ConsoleLogFilePath)
             {
                 return false;
             }
