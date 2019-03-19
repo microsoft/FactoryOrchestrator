@@ -16,8 +16,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 TestListMap = new Dictionary<Guid, TestList>(),
                 TestGuidsMap = new Dictionary<int, Guid>(),
                 TestNames = new ObservableCollection<String>(),
-                TestStatus = new ObservableCollection<String>(),
-                TestListGuids = new ObservableCollection<Guid>()
+                TestStatus = new ObservableCollection<String>()
             };
         }
 
@@ -82,13 +81,11 @@ namespace Microsoft.FactoryTestFramework.UWP
                     testNamesAndResults.Add(test.TestName);
                 }
             }
-            //return new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
             return new ObservableCollection<String>(testNamesAndResults);
         }
 
         public void SetTestNames(Guid guid)
         {
-            //ObservableCollection<String> testNames = GetTestNames(guid);
             SetTestStatus(guid);
             TestData.TestNames = new ObservableCollection<String>(TestData.TestListMap[guid].Tests.Values.Select(x => x.TestName).ToList());
         }
@@ -129,13 +126,14 @@ namespace Microsoft.FactoryTestFramework.UWP
             TestData.TestNames = testNames;
         }
 
-        public void SetTestList(TestList testList)
+        public void AddOrUpdateTestList(TestList testList)
         {
             if (TestData.TestListMap.ContainsKey(testList.Guid))
             {
                 TestData.TestListMap[testList.Guid] = testList;
 
-            } else
+            }
+            else
             {
                 TestData.TestListMap.Add(testList.Guid, testList);
                 TestData.TestListGuids.Add(testList.Guid);
@@ -144,16 +142,44 @@ namespace Microsoft.FactoryTestFramework.UWP
             SetTestNames(testList.Guid);
         }
 
-        public void SetTestListGuid(Guid testListGuid)
+        public void SetActiveTestList(Guid testListGuid)
         {
             TestData.SelectedTestListGuid = testListGuid;
             SetTests(testListGuid);
+        }
+
+        public void ClearActiveTestList()
+        {
+            TestData.SelectedTestListGuid = null;
+            TestData.TestNames = new ObservableCollection<string>();
+            TestData.TestStatus = new ObservableCollection<string>();
+            TestData.TestGuidsMap = new Dictionary<int, Guid>();
         }
 
         public void SetTests(Guid testListGuid)
         {
             SetTestNames(testListGuid);
             SetTestGuidsMap(testListGuid);
+        }
+
+        public bool PruneKnownTestLists(List<Guid> testListGuids)
+        {
+            bool guidRemoved = false;
+
+            foreach (var guid in TestData.TestListGuids)
+            {
+                if (!testListGuids.Contains(guid))
+                {
+                    TestData.TestListMap.Remove(guid);
+                    guidRemoved = true;
+                    if (TestData.SelectedTestListGuid == guid)
+                    {
+                        ClearActiveTestList();
+                    }
+                }
+            }
+
+            return guidRemoved;
         }
 
         private void SetTestGuidsMap(Guid testListGuid)

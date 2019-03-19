@@ -6,6 +6,8 @@ using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
 using Microsoft.FactoryTestFramework.Client;
 using Microsoft.FactoryTestFramework.Core;
+using System.Linq;
+using System.Threading;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -21,64 +23,16 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
-            this.TestViewModel= new TestViewModel();
+            this.TestViewModel = new TestViewModel();
             this.DataContext = TestViewModel;
+            _listUpdateSem = new SemaphoreSlim(1, 1);
+            _selectedTestList = -1;
 #if DEBUG
             DisablePolling.Visibility = Visibility.Visible;
 #endif
-            // create testlist in service, not working rn
-            //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-            //{
-            // TODO: Move to a place this works properly, likely viewmodel, since it tracks testlists, or just nuke it now, since we can use real data
-            //foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-            //{
-            //    ((App)Application.Current).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
-            //}
-            //}
-            //await((App)(Application.Current)).IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap);
-            //MakeTestLists();
-            // We generate 10 TestLists each with 100 Tests, every 5 tests pass and the rest fail
-        }
-
-        public async void MakeTestLists()
-        {
-            foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-            {
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
-            }
-        }
-
-        public async void Check()
-        {
-            foreach (TestList tl in TestViewModel.TestData.TestListMap.Values)
-            {
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(tl));
-            }
         }
 
         public TestViewModel TestViewModel { get; set; }
-
-        private ObservableCollection<String> GetTestNames(Guid guid)
-        {
-            return TestViewModel.GetTestNames(guid);
-        }
-
-        private async void SetTestNames(Guid guid)
-        {
-
-            TestViewModel.SetTestNames(guid);
-            await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromTestList(TestViewModel.TestData.TestListMap[guid]));
-        }
-
-        private void SetTestNames(ObservableCollection<String> testNames)
-        {
-            TestViewModel.SetTestNames(testNames);
-        }
-
-        private void SetTestList(TestList testList)
-        {
-            TestViewModel.SetTestList(testList);
-        }
 
         private void TestListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -86,8 +40,12 @@ namespace Microsoft.FactoryTestFramework.UWP
             {
                 Guid testListGuid = (Guid)TestListsView.SelectedItem;
                 _selectedTestList = TestListsView.SelectedIndex;
-                SetTestListGuid(testListGuid);
-                _activeListPoller = new FTFPoller(testListGuid, typeof(TestList), IPCClientHelper.IpcClient, 5000);
+                TestViewModel.SetActiveTestList(testListGuid);
+                if (_activeListPoller != null)
+                {
+                    _activeListPoller.StopPolling();
+                }
+                _activeListPoller = new FTFPoller(testListGuid, typeof(TestList), IPCClientHelper.IpcClient, 2000);
                 _activeListPoller.OnUpdatedObject += OnUpdatedTestListAsync;
 #if DEBUG
                 if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
@@ -96,11 +54,6 @@ namespace Microsoft.FactoryTestFramework.UWP
                     _activeListPoller.StartPolling();
                 }
             }
-        }
-
-        private void SetTestListGuid(Guid testListGuid)
-        {
-            TestViewModel.SetTestListGuid(testListGuid);
         }
 
         private async void RunButton_Click(object sender, RoutedEventArgs e)
@@ -130,7 +83,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             if (index != -1)
             {
                 var testGuid = TestViewModel.TestData.TestGuidsMap[index];
-                TestBase test = TestViewModel.TestData.TestListMap[TestViewModel.TestData.SelectedTestListGuid].Tests[testGuid];
+                TestBase test = TestViewModel.TestData.TestListMap[(Guid)TestViewModel.TestData.SelectedTestListGuid].Tests[testGuid];
                 ////TESTCODE
                 //var test = new ExecutableTest("foo.dll")
                 //{
@@ -156,8 +109,8 @@ namespace Microsoft.FactoryTestFramework.UWP
                 TestList list = (TestList)e.Result;
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    
-                    SetTestList(list);
+
+                    TestViewModel.AddOrUpdateTestList(list);
 
                     if (list.TestListStatus == TestStatus.TestRunning)
                     {
@@ -181,16 +134,35 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     if (!TestViewModel.TestData.TestListGuids.Contains(guid))
                     {
-                        var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestList(guid));
-                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        _listUpdateSem.Wait();
+                        if (!TestViewModel.TestData.TestListGuids.Contains(guid))
                         {
-                            SetTestList(list);
-                            TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
-                            TestViewModel.TestData.SelectedTestListGuid = list.Guid;
-                            TestListsView.SelectedItem = list.Guid;
-                        });
+                            var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestList(guid));
+
+                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                            {
+                                TestViewModel.AddOrUpdateTestList(list);
+                                TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
+                                if (TestListsView.SelectedItem == null)
+                                {
+                                    TestViewModel.TestData.SelectedTestListGuid = list.Guid;
+                                    TestListsView.SelectedItem = list.Guid;
+                                }
+                            });
+                        }
+
+                        _listUpdateSem.Release();
                     }
                 }
+                
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    if (TestViewModel.PruneKnownTestLists(testListGuids))
+                    {
+                        TestListsView.ItemsSource = TestViewModel.TestData.TestListGuids;
+                    }
+                });
+                
             }
         }
 
@@ -235,10 +207,6 @@ namespace Microsoft.FactoryTestFramework.UWP
             _testListGuidPoller.StopPolling();
         }
 
-        private FTFPoller _activeListPoller;
-        private FTFPoller _testListGuidPoller;
-        private int _selectedTestList = -1;
-
         private async void LoadFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var testlist = await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(FolderToLoad.Text, false));
@@ -265,5 +233,10 @@ namespace Microsoft.FactoryTestFramework.UWP
                 _testListGuidPoller.StartPolling();
             }
         }
+
+        private FTFPoller _activeListPoller;
+        private FTFPoller _testListGuidPoller;
+        private int _selectedTestList;
+        private SemaphoreSlim _listUpdateSem;
     }
 }

@@ -26,21 +26,9 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
-        private ObservableCollection<Guid> testListGuids = new ObservableCollection<Guid>();
         public ObservableCollection<Guid> TestListGuids
         {
             get { return new ObservableCollection<Guid>(TestListMap.Keys); }
-            set
-            {
-                lock (testlock)
-                {
-                    if (value != testListGuids)
-                    {
-                        testListGuids = value;
-                        NotifyPropertyChanged("TestListGuids");
-                    }
-                }
-            }
         }
 
         private Dictionary<int, Guid> testGuidsMap = new Dictionary<int, Guid>();
@@ -68,7 +56,6 @@ namespace Microsoft.FactoryTestFramework.UWP
             get { return testNames; }
             set
             {
-
                 lock (testlock)
                 {
                     if (value != testNames)
@@ -90,9 +77,9 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
-        private Guid selectedTestListGuid;
+        private Guid? selectedTestListGuid;
 
-        public Guid SelectedTestListGuid
+        public Guid? SelectedTestListGuid
         {
             get { return selectedTestListGuid; }
             set

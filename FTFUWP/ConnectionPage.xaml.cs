@@ -44,10 +44,23 @@ namespace Microsoft.FactoryTestFramework.UWP
             if ((bool)LocalDeviceCheckBox.IsChecked)
             {
                 IpTextBox.IsEnabled = false;
+                ConnectButton.IsEnabled = true;
             }
             else
             {
                 IpTextBox.IsEnabled = true;
+            }
+        }
+
+        private void IpTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(!string.IsNullOrWhiteSpace(IpTextBox.Text))
+            {
+                ConnectButton.IsEnabled = true;
+            }
+            else if (!(bool)LocalDeviceCheckBox.IsChecked)
+            {
+                ConnectButton.IsEnabled = false;
             }
         }
     }
