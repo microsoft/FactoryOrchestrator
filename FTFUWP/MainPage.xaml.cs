@@ -188,8 +188,11 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
 
 #if DEBUG
-            _testListGuidPoller.StartPolling();
+            if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
 #endif
+            {
+                _testListGuidPoller.StartPolling();
+            }
 
             if (_selectedTestList != -1)
             {
