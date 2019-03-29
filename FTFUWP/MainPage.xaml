@@ -22,6 +22,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Factory Test Framework" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}" Grid.ColumnSpan="3"  />
+            <Button x:Name="AboutButton" Grid.Row="0" Grid.Column="0" Content="About Factory Test Framework" VerticalAlignment="Center" Grid.ColumnSpan="3" HorizontalAlignment="Right" Click="AboutButton_Click"/>
             <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="99" Grid.Row="1" Margin="0,20">
                 <TextBlock Text="Folder Path: " Style="{StaticResource TitleTextBlockStyle}" Margin="10,0"/>
                 <TextBox x:Name="FolderToLoad" Text="c:\data\tests" Grid.Column="0" Grid.Row="1" Margin="0,0" Width="400" HorizontalAlignment="Left" VerticalAlignment="Center"/>

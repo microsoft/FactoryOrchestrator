@@ -63,5 +63,10 @@ namespace Microsoft.FactoryTestFramework.UWP
                 ConnectButton.IsEnabled = false;
             }
         }
+
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(AboutPage));
+        }
     }
 }

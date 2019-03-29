@@ -241,5 +241,10 @@ namespace Microsoft.FactoryTestFramework.UWP
         private FTFPoller _testListGuidPoller;
         private int _selectedTestList;
         private SemaphoreSlim _listUpdateSem;
+
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(AboutPage));
+        }
     }
 }
