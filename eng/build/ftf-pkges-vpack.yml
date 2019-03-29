@@ -1,10 +1,20 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
-name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
-pool:
+queue:
   name: Package ES Lab E
+  timeoutInMinutes: 60
+  cancelTimeoutInMinutes: 5
   demands:
-  - msbuild
-  - visualstudio
+    - msbuild
+    - visualstudio
+    - cmd
+  parallel: 2
+  matrix:
+    Build (Release):
+      BuildConfiguration: Release
+    Build (Debug):
+      BuildConfiguration: Debug
+
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
 trigger:
   tags:
@@ -31,7 +41,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution x86'
   inputs:
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\MsBuild.log;Verbosity=Detailed'
+    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x86_MsBuild.log;Verbosity=Detailed'
     platform: 'x86'
     configuration: '$(BuildConfiguration)'
     clean: false
@@ -40,7 +50,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution x64'
   inputs:
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\MsBuild.log;Verbosity=Detailed'
+    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x64_MsBuild.log;Verbosity=Detailed'
     platform: 'x64'
     configuration: '$(BuildConfiguration)'
     clean: false
@@ -49,13 +59,13 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution ARM'
   inputs:
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\MsBuild.log;Verbosity=Detailed'
+    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_arm_MsBuild.log;Verbosity=Detailed'
     platform: 'ARM'
     configuration: '$(BuildConfiguration)'
     clean: false
     maximumCpuCount: true
 
-  # Disabling this task until we have Visual Studio tests here
+    # Disabling this task until we have Visual Studio tests here
 - task: VSTest@1
   displayName: 'Test Assemblies *test*.dll'
   inputs:
@@ -68,14 +78,14 @@ steps:
 - task: PublishSymbols@1
   displayName: 'Source Index Symbols'
   inputs:
-    SearchPattern: '$(Build.SourcesDirectory)\**\*.pdb'
+    SearchPattern: '$(Build.ARTIFACTSTAGINGDIRECTORY)\**\*.pdb'
 
 - task: ms-vscs-artifact.build-tasks.artifactSymbolTask-1.artifactSymbolTask@0
   displayName: 'Publish to Symbols to Artifact Services'
   inputs:
     symbolServiceURI: 'https://microsoft.artifacts.visualstudio.com/DefaultCollection'
     requestName: '$(system.teamProject)/$(Build.BuildNumber)_$(BuildConfiguration)/$(Build.BuildId)'
-    sourcePath: '$(Build.SourcesDirectory)'
+    sourcePath: '$(Build.ARTIFACTSTAGINGDIRECTORY)'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: $(TFS_BUILDNUMBER)'
@@ -88,8 +98,9 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(BUILD.ARTIFACTSTAGINGDIRECTORY)\publish\x86\FTFService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FTFService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
     zipAfterPublish: False
+  condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
@@ -97,18 +108,19 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(BUILD.ARTIFACTSTAGINGDIRECTORY)\publish\x64\FTFService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FTFService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
     zipAfterPublish: False
+  condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
-
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FTFService ARM'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(BUILD.ARTIFACTSTAGINGDIRECTORY)\publish\ARM\FTFService_SCD --self-contained --runtime win-arm --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FTFService_SCD --self-contained --runtime win-arm --verbosity Detailed'
     zipAfterPublish: False
+  condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
@@ -116,69 +128,65 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(BUILD.ARTIFACTSTAGINGDIRECTORY)\publish\ARM64\FTFService_SCD --self-contained --runtime win-arm64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FTFService_SCD --self-contained --runtime win-arm64 --verbosity Detailed'
     zipAfterPublish: false
+  condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
-
-- task: PkgESSerializeForPostBuild@10
-  displayName: 'PkgES Post Build Serialization'
 
 - task: CopyFiles@2
   displayName: 'Copy Artifacts to DFS DROP for: $(XES_DFSDROP)'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\bin\'
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin'
     TargetFolder: '$(XES_DFSDROP)\'
 
 - task: CopyFiles@2
-  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - FTFService'
+  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - FTFService publish'
   inputs:
-    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\publish\'
-    TargetFolder: '$(XES_DFSDROP)\$(BuildConfiguration)\'
+    SourceFolder: '$(Build.SourcesDirectory)\bin\'
+    TargetFolder: '$(XES_DFSDROP)\'
+  condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
+
+- task: PkgESSerializeForPostBuild@10
+  displayName: 'PkgES Post Build Serialization'
 
 - task: BatchScript@1
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
     filename: eng/build/MakeAppxBundle.cmd
   continueOnError: true
-
-#- task: PublishBuildArtifacts@1
-#  displayName: 'Publish Artifact: $(TFS_BUILDNUMBER)_Logs'
-#  inputs:
-#    PathtoPublish: '$(XES_DfsMsBuildLogDir)'
-#    ArtifactName: '$(TFS_BUILDNUMBER)_$(BuildConfiguration)_Logs'
-# Duplicate of the other log publish 
-
-# I have no idea what this is, and FTF doesn't run any Atlas tests, so I'm not going to run this task
-#- task: PkgESSpkgGeneration@10
-# displayName: 'PkgES Run Atlas Tests'
-# enabled: false
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release'
-    pushPkgName: '$(Build.Repository.Name).$(BUILDCONFIGURATION)'
-    description: '$(Build.Repository.Name).$(BUILDCONFIGURATION)'
+    pushPkgName: '$(Build.Repository.Name)'
+    description: '$(Build.Repository.Name)'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
-#- task: PkgESVPack@10
-#  displayName: 'PkgES Create VPack - Service'
-#  inputs:
-#    sourceDirectory: '$(BUILD.ARTIFACTSTAGINGDIRECTORY)\publish\FTFService'
-#    pushPkgName: '$(Build.Repository.Name).$(BUILDCONFIGURATION)-Service'
-#    description: '$(Build.Repository.Name).$(BUILDCONFIGURATION)-Service'
-#  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
-# No automatic manifest publish for now
-#- task: PkgESFCIBGit@10
-# displayName: 'PkgES Publish Manifest To Windows'
+- task: PkgESFCIBGit@10
+  displayName: 'Package ES - Submit VPack Manifest to Git'
+  inputs:
+    configPath: 'eng/build/GitCheckin.json'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  enabled: false
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
+  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')
 
 - task: PkgESLateTasks@10
   displayName: 'PkgES Finalize and Cleanup'
   inputs:
     dfsReleaseInPb: true
+  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')

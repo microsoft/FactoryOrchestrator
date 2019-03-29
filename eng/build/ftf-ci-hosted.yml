@@ -38,30 +38,3 @@ steps:
   inputs:
     platform: ARM
     configuration: '$(BuildConfiguration)'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FTFService'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --self-contained --runtime win-x64 --verbosity Detailed'
-    zipAfterPublish: False
-
-- task: PublishSymbols@2
-  displayName: 'Publish symbols path'
-  inputs:
-    SearchPattern: '**\bin\**\*.pdb'
-    PublishSymbols: false
-  continueOnError: true
-
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**\bin\**'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'

@@ -92,10 +92,10 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputPath>..\bin\$(Configuration)\$(Platform)\FTFUWP</OutputPath>
+    <OutputPath>..\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
-    <OutputPath>..\bin\$(Configuration)\$(Platform)\FTFUWP</OutputPath>
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AboutPage.xaml.cs">
