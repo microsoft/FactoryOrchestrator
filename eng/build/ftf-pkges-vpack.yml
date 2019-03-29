@@ -157,8 +157,8 @@ steps:
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)'
-    pushPkgName: '$(Build.Repository.Name)'
+    sourceDirectory: '$(XES_DFSDROP)\Release'
+    pushPkgName: '$(Build.Repository.Name).$(BUILDCONFIGURATION)'
     description: '$(Build.Repository.Name).$(BUILDCONFIGURATION)'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
