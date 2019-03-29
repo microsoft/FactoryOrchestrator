@@ -6,9 +6,11 @@ pool:
   - msbuild
   - visualstudio
 
-#trigger:
-#- master
-#pr: none
+trigger:
+  tags:
+    include:
+    - VPack
+    - Release
 
 # NOTES FOR PEOPLE USING THIS BUILD DEFINITION
 # XES_DfsMsBuildLogDir, XES_OUTDIR, and TFS_BUILDNUMBER are defined by PackageES build agents. If you are using this definition on another pool, you'll need to define these variables for yourself
