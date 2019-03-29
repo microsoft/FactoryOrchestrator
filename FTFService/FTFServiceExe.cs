@@ -10,6 +10,8 @@ using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System;
 using Microsoft.FactoryTestFramework.Core;
 using Microsoft.FactoryTestFramework.Server;
+using System.Reflection;
+using System.Linq;
 
 namespace Microsoft.FactoryTestFramework.Service
 {
@@ -205,6 +207,11 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             return FTFService.Instance.TestExecutionManager.Run(TestListToRun, allowOtherTestListsToRun, runListInParallel);
         }
+
+        public string GetServiceVersionString()
+        {
+            return FTFService.GetServiceVersionString();
+        }
     }
 
     public class FTFService : IMicroService
@@ -223,6 +230,27 @@ namespace Microsoft.FactoryTestFramework.Service
             {
                 return _singleton;
             }
+        }
+
+        public static string GetServiceVersionString()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            string assemblyVersion = assembly.GetName().Version.ToString();
+            object[] attributes = assembly.GetCustomAttributes(true);
+
+            string description = "";
+
+            var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
+            if (descrAttr != null)
+            {
+                description = descrAttr.Description;
+            }
+
+#if DEBUG
+            description = "Debug" + description;
+#endif
+
+            return $"{assemblyVersion} ({description})";
         }
 
         public FTFService(IMicroServiceController controller, ILogger<FTFService> logger)

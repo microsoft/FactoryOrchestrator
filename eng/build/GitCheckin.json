@@ -1,0 +1,22 @@
+{
+	"Branch": [
+		{
+			"collection": "microsoft",
+			"project": "OS",
+			"repo": "os",
+			"name": "official/rs_onecore_sigma_dplat_d6",
+			"CheckinFiles": [
+        {
+          "source": "FactoryTestFramework.man",
+          "path": "/onecoreuap/base/manufacturing/FactoryTestFramework",
+          "type": "File"
+        }
+			]
+		}
+	],
+	"Email": [
+		{
+			"sendTo": "jafriedm;moreill"
+		}
+	]
+}

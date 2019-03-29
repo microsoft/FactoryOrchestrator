@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.FactoryTestFramework.Client;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -25,9 +27,35 @@ namespace Microsoft.FactoryTestFramework.UWP
         public AboutPage()
         {
             this.InitializeComponent();
+            var assembly = Assembly.GetExecutingAssembly();
+            string assemblyVersion = assembly.GetName().Version.ToString();
+            object[] attributes = assembly.GetCustomAttributes(true);
+
+            string description = "";
+
+            var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
+            if (descrAttr != null)
+            {
+                description = descrAttr.Description;
+            }
+
+#if DEBUG
+            description = "Debug" + description;
+#endif
+
+            AppVersionText.Text = $"App Version: {assemblyVersion} ({description})";
         }
 
-        private void Back_Click(object sender, RoutedEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (IPCClientHelper.IpcClient != null)
+            {
+                ServiceVersionText.Text = "Service Version: ";
+                ServiceVersionText.Text += await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+            }
+        }
+
+            private void Back_Click(object sender, RoutedEventArgs e)
         {
             On_BackRequested();
         }

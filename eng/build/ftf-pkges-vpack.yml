@@ -152,11 +152,14 @@ steps:
 - task: PkgESSerializeForPostBuild@10
   displayName: 'PkgES Post Build Serialization'
 
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')
+
 - task: BatchScript@1
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
     filename: eng/build/MakeAppxBundle.cmd
-  continueOnError: true
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
@@ -182,10 +185,6 @@ steps:
     configPath: 'eng/build/GitCheckin.json'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: false
-
-- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-  displayName: 'Component Detection'
-  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')
 
 - task: PkgESLateTasks@10
   displayName: 'PkgES Finalize and Cleanup'

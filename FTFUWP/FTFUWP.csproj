@@ -181,6 +181,9 @@
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Target Name="BeforeBuild">
+    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)"/>
+  </Target>
   <Target Name="AfterBuild" Condition="'$(IsTFSBuild)' == 'true'">
     <Copy SourceFiles="$(AppxPackageOutput)" DestinationFolder="$(OutputPath)" />
   </Target>

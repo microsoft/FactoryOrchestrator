@@ -48,6 +48,7 @@ namespace Microsoft.FactoryTestFramework.Core
         void ResetService(bool preserveLogs = true);
         List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked, ServiceEventType serviceEventType);
         List<ServiceEvent> GetServiceEvents(long lastEventIndex, ServiceEventType serviceEventType);
+        string GetServiceVersionString();
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);

@@ -18,7 +18,10 @@
         <Button x:Name="BackButton" Grid.Row="0" VerticalAlignment="Top" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="5">
             <TextBlock Text="Factory Test Framework" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center"/>
-            <TextBlock Text="(c) Microsoft Corporation" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="AppVersionText" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="ServiceVersionText" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
+            <TextBlock Text="" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
+            <TextBlock Text="(c) Microsoft Corporation" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Grid.Row="2" Margin="5">
             <TextBlock Text="Open Source Software" HorizontalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}"/>
