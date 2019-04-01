@@ -54,6 +54,9 @@ project.fragment.lock.json
 artifacts/
 **/Properties/launchSettings.json
 
+# AssemblyInfo is auto-modified
+**/Properties/AssemblyInfo.cs
+
 # StyleCop
 StyleCopReport.xml
 
