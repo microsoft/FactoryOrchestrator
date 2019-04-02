@@ -78,6 +78,7 @@ steps:
   displayName: 'Source Index Symbols'
   inputs:
     SearchPattern: '$(Build.ARTIFACTSTAGINGDIRECTORY)\**\*.pdb'
+  condition: ne(variables['prototype'], 'true')
 
 - task: ms-vscs-artifact.build-tasks.artifactSymbolTask-1.artifactSymbolTask@0
   displayName: 'Publish to Symbols to Artifact Services'
@@ -85,12 +86,14 @@ steps:
     symbolServiceURI: 'https://microsoft.artifacts.visualstudio.com/DefaultCollection'
     requestName: '$(system.teamProject)/$(Build.BuildNumber)_$(BuildConfiguration)/$(Build.BuildId)'
     sourcePath: '$(Build.ARTIFACTSTAGINGDIRECTORY)'
+  condition: ne(variables['prototype'], 'true')
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: $(TFS_BUILDNUMBER)'
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)\FTFUWP\AppPackages'
     ArtifactName: '$(TFS_BUILDNUMBER)_$(BuildConfiguration)'
+  condition: ne(variables['prototype'], 'true')
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FTFService x86'
@@ -132,6 +135,16 @@ steps:
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
+- task: PowerShell@2
+  displayName: 'Create FTFService Manifest for VPack'
+  inputs:
+    targetType: filePath
+    filePath: ./eng/build/CreateServiceManifestForPkgES.ps1
+    arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryTestFrameworkVPack'
+    failOnStderr: true
+  condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
+  timeoutInMinutes: 5
+
 - task: CopyFiles@2
   displayName: 'Copy Artifacts to DFS DROP for: $(XES_DFSDROP)'
   inputs:
@@ -158,6 +171,7 @@ steps:
   inputs:
     filename: eng/build/MakeAppxBundle.cmd
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  enabled: false
 
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack'

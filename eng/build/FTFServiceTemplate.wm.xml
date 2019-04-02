@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    >
+  <service
+      description="Factory Test Framework Service"
+      displayName="Factory Test Framework Service"
+      errorControl="normal"
+      imagePath="%systemroot%\system32\manufacturing\FTFService\FTFService.exe action:run"
+      name="FTFService"
+      objectName="LocalSystem"
+      start="auto"
+      type="win32OwnProcess"
+      >
+    <failureActions resetPeriod="1000">
+      <actions>
+        <action
+            delay="5"
+            type="restartService"
+            />
+        <action
+            delay="5"
+            type="restartService"
+            />
+        <action
+            delay="5"
+            type="restartService"
+            />
+        <action
+            delay="5"
+            type="restartService"
+            />
+      </actions>
+    </failureActions>
+  </service>
+  <files>
+  </files>
+</identity>
