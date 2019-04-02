@@ -170,8 +170,8 @@ steps:
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
     filename: eng/build/MakeAppxBundle.cmd
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-  enabled: false
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['prototype'], 'true')))
+  enabled: true
 
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack'
