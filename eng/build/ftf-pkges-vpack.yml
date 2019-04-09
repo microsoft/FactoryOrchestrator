@@ -174,16 +174,67 @@ steps:
   enabled: true
 
 - task: PkgESVPack@10
-  displayName: 'PkgES Create VPack'
+  displayName: 'PkgES Create VPack ARM'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release'
-    pushPkgName: '$(Build.Repository.Name)'
-    description: '$(Build.Repository.Name)'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM'
+    pushPkgName: '$(Build.Repository.Name).ARM'
+    description: '$(Build.Repository.Name).ARM'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
 - task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop'
+  displayName: 'Copy VPack Manifest to Drop ARM'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: PkgESVPack@10
+  displayName: 'PkgES Create VPack ARM64'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64'
+    pushPkgName: '$(Build.Repository.Name).ARM64'
+    description: '$(Build.Repository.Name).ARM64'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop ARM64'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: PkgESVPack@10
+  displayName: 'PkgES Create VPack x86'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\Release\x86'
+    pushPkgName: '$(Build.Repository.Name).x86'
+    description: '$(Build.Repository.Name).x86'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop x86'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: PkgESVPack@10
+  displayName: 'PkgES Create VPack x64'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\Release\x64'
+    pushPkgName: '$(Build.Repository.Name).x64'
+    description: '$(Build.Repository.Name).x64'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop x64'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
