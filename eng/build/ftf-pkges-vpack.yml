@@ -272,7 +272,7 @@ steps:
   inputs:
     configPath: 'eng/build/GitCheckin.json'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-  enabled: false
+  enabled: true
 
 - task: PkgESLateTasks@10
   displayName: 'PkgES Finalize and Cleanup'
