@@ -176,7 +176,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy appxbundle to root of drop'
   inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)\release\appxbundle\Multi\FTFUWP'
+    SourceFolder: '$(XES_DFSDROP)\release\appxbundle\Multi\FTFUWP'
     Contents: 'Microsoft.FTFUWP_8wekyb3d8bbwe.appxbundle'
     TargetFolder: '$(XES_DFSDROP)\AppXBundle'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
