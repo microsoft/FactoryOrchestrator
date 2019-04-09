@@ -6,11 +6,31 @@
 			"repo": "os",
 			"name": "official/rs_onecore_sigma_dplat_d6",
 			"CheckinFiles": [
-        {
-          "source": "FactoryTestFramework.man",
-          "path": "/onecoreuap/base/manufacturing/FactoryTestFramework",
-          "type": "File"
-        }
+				{
+				"source": "FactoryTestFramework.Service.x86.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/x86",
+				"type": "File"
+				},
+				{
+				"source": "FactoryTestFramework.Service.x64.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/x64",
+				"type": "File"
+				},
+				{
+				"source": "FactoryTestFramework.Service.ARM.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/arm",
+				"type": "File"
+				},
+				{
+				"source": "FactoryTestFramework.Service.ARM64.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/arm64",
+				"type": "File"
+				},
+				{
+				"source": "FactoryTestFramework.Service.AppxBundle.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/appx",
+				"type": "File"
+				}
 			]
 		}
 	],
