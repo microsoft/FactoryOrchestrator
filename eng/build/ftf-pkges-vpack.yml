@@ -173,12 +173,20 @@ steps:
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['prototype'], 'true')))
   enabled: true
 
+- task: CopyFiles@2
+  displayName: 'Copy appxbundle to root of drop'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)\release\appxbundle\Multi\FTFUWP'
+    Contents: 'Microsoft.FTFUWP_8wekyb3d8bbwe.appxbundle'
+    TargetFolder: '$(XES_DFSDROP)\AppXBundle'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack ARM'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM'
-    pushPkgName: '$(Build.Repository.Name).ARM'
-    description: '$(Build.Repository.Name).ARM'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FTFService_SCD'
+    pushPkgName: '$(Build.Repository.Name).Service.ARM'
+    description: '$(Build.Repository.Name).Service.ARM'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
@@ -193,9 +201,9 @@ steps:
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack ARM64'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64'
-    pushPkgName: '$(Build.Repository.Name).ARM64'
-    description: '$(Build.Repository.Name).ARM64'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FTFService_SCD'
+    pushPkgName: '$(Build.Repository.Name).Service.ARM64'
+    description: '$(Build.Repository.Name).Service.ARM64'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
@@ -210,9 +218,9 @@ steps:
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack x86'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x86'
-    pushPkgName: '$(Build.Repository.Name).x86'
-    description: '$(Build.Repository.Name).x86'
+    sourceDirectory: '$(XES_DFSDROP)\Release\x86\FTFService_SCD'
+    pushPkgName: '$(Build.Repository.Name).Service.x86'
+    description: '$(Build.Repository.Name).Service.x86'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
@@ -227,14 +235,32 @@ steps:
 - task: PkgESVPack@10
   displayName: 'PkgES Create VPack x64'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x64'
-    pushPkgName: '$(Build.Repository.Name).x64'
-    description: '$(Build.Repository.Name).x64'
+    sourceDirectory: '$(XES_DFSDROP)\Release\x64\FTFService_SCD'
+    pushPkgName: '$(Build.Repository.Name).Service.x64'
+    description: '$(Build.Repository.Name).Service.x64'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest to Drop x64'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+
+- task: PkgESVPack@10
+  displayName: 'PkgES Create VPack AppXBundle'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\AppXBundle'
+    pushPkgName: '$(Build.Repository.Name).AppXBundle'
+    description: '$(Build.Repository.Name).AppXBundle'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop AppXBundle'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
