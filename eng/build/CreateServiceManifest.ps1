@@ -60,7 +60,6 @@ foreach ($file in $filesToAdd)
 
     $newElement = $templateXml.CreateElement("file", $wmxmlNs)
     $newElement.SetAttribute("destinationDir", "$fileDestinationDir")
-    $newElement.SetAttribute("securityDescriptor", "WRP_FILE_DEFAULT_SDDL")
     $newElement.SetAttribute("source", "$source")
     $node = $filesNode.Node.AppendChild($newElement)
 	Write-Host "Added $($file.FullName)."
