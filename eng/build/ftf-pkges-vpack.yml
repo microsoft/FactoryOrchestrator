@@ -271,6 +271,7 @@ steps:
   displayName: 'Package ES - Submit VPack Manifest to Git'
   inputs:
     configPath: 'eng/build/GitCheckin.json'
+    binVersion: PreProduction
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
