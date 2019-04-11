@@ -272,7 +272,7 @@ steps:
   inputs:
     configPath: 'eng/build/GitCheckin.json'
     binVersion: Custom
-    binVersionOverride: '1.5.190410004-GitFCIBurilogging'
+    binVersionOverride: '1.5.190411006-GitFCIBurilogging'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
