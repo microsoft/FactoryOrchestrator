@@ -268,6 +268,8 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESFCIBGit@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'Package ES - Submit VPack Manifest to Git'
   inputs:
     configPath: 'eng/build/GitCheckin.json'
