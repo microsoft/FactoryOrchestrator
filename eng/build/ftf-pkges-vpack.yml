@@ -140,7 +140,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./eng/build/CreateServiceManifestForPkgES.ps1
-    arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryTestFrameworkVPack'
+    arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryTestFramework'
     failOnStderr: true
   condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
   timeoutInMinutes: 5
