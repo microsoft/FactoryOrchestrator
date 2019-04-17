@@ -163,6 +163,8 @@ steps:
   displayName: 'PkgES Post Build Serialization'
 
 - task: BatchScript@1
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
     filename: eng/build/MakeAppxBundle.cmd
@@ -178,6 +180,8 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ARM'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FTFService_SCD'
@@ -195,6 +199,8 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ARM64'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FTFService_SCD'
@@ -212,6 +218,8 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack x86'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\x86\FTFService_SCD'
@@ -229,6 +237,8 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack x64'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\x64\FTFService_SCD'
@@ -247,6 +257,8 @@ steps:
 
 
 - task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack AppXBundle'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\AppXBundle'
@@ -263,7 +275,6 @@ steps:
     TargetFolder: '$(XES_DFSDROP)'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
-steps:
 - task: PkgESSecComp@10
   displayName: 'Security and Compliance tasks'
   inputs:
