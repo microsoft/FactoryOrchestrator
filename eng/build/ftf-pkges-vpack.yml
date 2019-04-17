@@ -275,13 +275,9 @@ steps:
     TargetFolder: '$(XES_DFSDROP)'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
-- task: PkgESSecComp@10
-  displayName: 'Security and Compliance tasks'
-  inputs:
-    areaPath: 'OS\Core\SiGMa\Device Platform\OC - OneCore\Manufacturing\FactoryOS'
-    iterationPath: OS
-    bugTags: FTF
-    scanAll: false
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')
 
 - task: PkgESFCIBGit@10
   env:
