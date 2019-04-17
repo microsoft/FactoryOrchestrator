@@ -162,10 +162,6 @@ steps:
 - task: PkgESSerializeForPostBuild@10
   displayName: 'PkgES Post Build Serialization'
 
-- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-  displayName: 'Component Detection'
-  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')
-
 - task: BatchScript@1
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
@@ -266,6 +262,15 @@ steps:
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(XES_DFSDROP)'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+steps:
+- task: PkgESSecComp@10
+  displayName: 'Security and Compliance tasks'
+  inputs:
+    areaPath: 'OS\Core\SiGMa\Device Platform\OC - OneCore\Manufacturing\FactoryOS'
+    iterationPath: OS
+    bugTags: FTF
+    scanAll: false
 
 - task: PkgESFCIBGit@10
   env:
