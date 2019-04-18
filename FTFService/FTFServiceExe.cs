@@ -262,7 +262,8 @@ namespace Microsoft.FactoryTestFramework.Service
                     _controller = controller;
                     ServiceLogger = logger;
                     _singleton = this;
-                    _testExecutionManager = new TestManager_Server(@"c:\data\FTFLogs");
+                    // Save logs to DATA
+                    _testExecutionManager = new TestManager_Server(@"U:\FTFLogs");
                 }
                 else
                 {

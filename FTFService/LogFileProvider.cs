@@ -10,7 +10,8 @@ namespace Microsoft.FactoryTestFramework.Service
     public class LogFileProvider : ILoggerProvider
     {
         // Log to file next to the service binary
-        private static readonly String _logPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFService.log");
+        private static readonly String _logName = "FTFService.log";
+        private static String _logPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, _logName);
         private static StreamWriter _logStream = null;
         private static uint _logCount = 0;
         private static object _logLock = new object();
@@ -23,7 +24,20 @@ namespace Microsoft.FactoryTestFramework.Service
                 _logCount++;
                 if (_logStream == null)
                 {
-                    _logStream = new StreamWriter(_logPath);
+                    try
+                    {
+                        _logStream = new StreamWriter(_logPath);
+                    }
+                    catch (System.IO.IOException)
+                    {
+                        // We are likely on a state separated system and trying to save the log on a write protected partition, check by looking for OSData env var
+                        if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
+                        {
+                            // Try again, saving to the DATA partition
+                            _logPath = Path.Combine(@"U:\FTFLogs", _logName);
+                            _logStream = new StreamWriter(_logPath);
+                        }
+                    }
                 }
             }
             return new FileLogger(this, categoryName);
