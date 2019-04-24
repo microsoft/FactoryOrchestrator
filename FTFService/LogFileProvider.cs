@@ -35,6 +35,7 @@ namespace Microsoft.FactoryTestFramework.Service
                         {
                             // Try again, saving to the DATA partition
                             _logPath = Path.Combine(@"U:\FTFLogs", _logName);
+                            Directory.CreateDirectory(_logPath);
                             _logStream = new StreamWriter(_logPath);
                         }
                     }
