@@ -35,6 +35,28 @@
       </actions>
     </failureActions>
   </service>
+  <firewallRule
+    Protocol="TCP"
+    action="Allow"
+    active="True"
+    binary="%systemroot%\system32\manufacturing\FTFService\FTFService.exe"
+    desc="Allow outbound TCP traffic from FTFService"
+    dir="Out"
+    group="FTFService"
+    internalName="FTFService-Out-TCP"
+    name="FTFService_Allow_Out_TCP"
+    />
+  <firewallRule
+    Protocol="TCP"
+    action="Allow"
+    active="True"
+    binary="%systemroot%\system32\manufacturing\FTFService\FTFService.exe"
+    desc="Allow inbound TCP traffic from FTFService"
+    dir="In"
+    group="FTFService"
+    internalName="FTFService-In-TCP"
+    name="FTFService_Allow_In_TCP"
+    />
   <files>
   </files>
 </identity>

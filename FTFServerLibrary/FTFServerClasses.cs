@@ -12,12 +12,12 @@ namespace Microsoft.FactoryTestFramework.Server
 {
     public static class TestBase_ServerExtensions
     {
-        public static Guid CreateTestRun(this TestBase test, string logFolder)
+        public static Guid CreateTestRun(this TestBase test, string defaultLogFolder)
         {
             TestRun_Server run;
             lock (test.TestLock)
             {
-                run = new TestRun_Server(test, logFolder);
+                run = new TestRun_Server(test, defaultLogFolder);
                 test.TestRunGuids.Add(run.Guid);
                 test.LatestTestRunExitCode = null;
                 test.LatestTestRunStatus = TestStatus.TestNotRun;
@@ -455,18 +455,7 @@ namespace Microsoft.FactoryTestFramework.Server
                     }
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
-                    if (testRun.RunByServer)
-                    {
-                        StartTest(testRun, token, testRunEventHandler);
-                    }
-                    else
-                    {
-                        // TODO: Notify waiting for UWP result
-                        while (!testRun.TestRunComplete)
-                        {
-                            Thread.Sleep(1000);
-                        }
-                    }
+                    StartTest(testRun, token, testRunEventHandler);
                 }
             }
             else
@@ -479,18 +468,7 @@ namespace Microsoft.FactoryTestFramework.Server
                     }
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
-                    if (testRun.RunByServer)
-                    {
-                        StartTest(testRun, token, testRunEventHandler);
-                    }
-                    else
-                    {
-                        // TODO: Notify waiting for UWP result
-                        while (!testRun.TestRunComplete)
-                        {
-                            Thread.Sleep(1000);
-                        }
-                    }
+                    StartTest(testRun, token, testRunEventHandler);
                 });
             }
         }
@@ -499,27 +477,38 @@ namespace Microsoft.FactoryTestFramework.Server
         {
             if (!token.IsCancellationRequested)
             {
-                TestRunner runner = new TestRunner(testRun);
-                if (testRunEventHandler != null)
+                if (testRun.RunByServer)
                 {
-                    runner.OnTestEvent += testRunEventHandler;
-                }
+                    TestRunner runner = new TestRunner(testRun);
+                    if (testRunEventHandler != null)
+                    {
+                        runner.OnTestEvent += testRunEventHandler;
+                    }
 
-                if (!runner.RunTest())
-                {
-                    throw new Exception(String.Format("Unable to start TestRun {0} for test {1}", testRun.Guid, testRun.TestName));
-                }
+                    if (!runner.RunTest())
+                    {
+                        throw new Exception(String.Format("Unable to start TestRun {0} for test {1}", testRun.Guid, testRun.TestName));
+                    }
 
-                // Run test, waiting for it to finish or be aborted
-                bool done = false;
-                while (!token.IsCancellationRequested && !done)
-                {
-                    done = runner.WaitForExit(0);
-                    Thread.Sleep(1000);
+                    // Run test, waiting for it to finish or be aborted
+                    bool done = false;
+                    while (!token.IsCancellationRequested && !done)
+                    {
+                        done = runner.WaitForExit(0);
+                        Thread.Sleep(1000);
+                    }
+                    if (token.IsCancellationRequested)
+                    {
+                        runner.StopTest();
+                    }
                 }
-                if (token.IsCancellationRequested)
+                else
                 {
-                    runner.StopTest();
+                    // TODO: Notify waiting for UWP result
+                    while (!testRun.TestRunComplete)
+                    {
+                        Thread.Sleep(1000);
+                    }
                 }
             }
         }
@@ -548,6 +537,42 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
             }
         }
+
+        public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        {
+            if (!File.Exists(exeFilePath))
+            {
+                // TODO: log error
+                return null;
+            }
+
+            // TODO: enable canceling the test
+            var run = TestRun_Server.CreateTestRunWithoutTest(exeFilePath, arguments, consoleLogFilePath);
+            Task t = new Task(() => { StartTest(run, new CancellationToken());});
+            t.Start();
+
+            return run;
+        }
+
+        public TestRun RunTestOutsideTestList(Guid executableTestGuid)
+        {
+            var test = KnownTestLists.SelectMany(x => x.Value.Tests.Values).Where(y => y.Guid.Equals(executableTestGuid)).DefaultIfEmpty(null).First();
+
+            if (test == null)
+            {
+                // TODO: log error
+                return null;
+            }
+
+            // TODO: enable canceling the test
+            var runGuid = test.CreateTestRun(DefaultLogFolder);
+            var run = TestRun_Server.GetTestRunByGuid(runGuid);
+            Task t = new Task(() => { StartTest(run, new CancellationToken()); });
+            t.Start();
+
+            return run;
+        }
+
 
         private Dictionary<Guid, TestList> KnownTestLists;
         private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
@@ -702,25 +727,22 @@ namespace Microsoft.FactoryTestFramework.Server
             if (TestProcess.Start())
             {
                 IsRunning = true;
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = TestStatus.TestRunning;
-                ActiveTestRun.TimeStarted = ActiveTestRun.OwningTest.LatestTestRunTimeStarted = DateTime.Now;
+                ActiveTestRun.TestStatus = TestStatus.TestRunning;
+                ActiveTestRun.TimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
-
-                return true;
             }
             else
             {
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = TestStatus.TestFailed;
+                ActiveTestRun.TestStatus = TestStatus.TestFailed;
                 // TODO: log error
             }
 
-            ActiveTestRun.OwningTest.LatestTestRunTimeFinished = null;
-            ActiveTestRun.OwningTest.LatestTestRunExitCode = null;
+            ActiveTestRun.UpdateTestFromTestRun();
 
-            return false;
+            return IsRunning;
         }
 
         private void OnErrorData(object sender, DataReceivedEventArgs e)
@@ -859,6 +881,7 @@ namespace Microsoft.FactoryTestFramework.Server
         private TestRun_Server ActiveTestRun;
         private Process TestProcess;
         private bool TestAborted;
+
         /// <summary>
         /// Lock to maintain consistent state of execution status (Run, Abort etc)
         /// </summary>
@@ -896,6 +919,11 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 return null;
             }
+        }
+
+        public static TestRun_Server CreateTestRunWithoutTest(string filePath, string arguments, string logFileOrFolder)
+        {
+            return new TestRun_Server(filePath, arguments, logFileOrFolder);
         }
 
         public static void RemoveTestRun(Guid testRunGuid, bool preserveLogs)
@@ -960,19 +988,8 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public TestRun_Server(TestBase owningTest, string defaultLogFolder) : base(owningTest)
         {
-            ConsoleLogFilePath = null;
-            TestStatus = TestStatus.TestNotRun;
-            TimeFinished = null;
-            TimeStarted = null;
-            ExitCode = null;
-            TestOutput = new List<string>();
+            CtorCommon();
             OwningTest = owningTest;
-
-            // Add to GUID -> TestRun map
-            lock (_testMapLock)
-            {
-                _testRunMap.Add(Guid, this);
-            }
 
             // Setup log path
             string LogFolder = owningTest.LogFolder;
@@ -984,8 +1001,48 @@ namespace Microsoft.FactoryTestFramework.Server
             ConsoleLogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TestName, Guid));
         }
 
+        private TestRun_Server(string filePath, string arguments, string logFileOrPath)
+        {
+            CtorCommon();
+            
+            if (logFileOrPath != null)
+            {
+                var ext = logFileOrPath.Substring(logFileOrPath.Length - 3);
+                if (ext == ".log" || ext == ".txt")
+                {
+                    ConsoleLogFilePath = logFileOrPath;
+                }
+                else
+                {
+                    ConsoleLogFilePath = Path.Combine(logFileOrPath, String.Format("{0}_Run{1}.log", TestName, Guid));
+                }
+            }
+            
+            OwningTest = null;
+            _testPath = filePath;
+            _arguments = arguments;
+            _testName = Path.GetFileName(filePath);
+        }
+
+        private void CtorCommon()
+        {
+            TestStatus = TestStatus.TestNotRun;
+            TimeFinished = null;
+            TimeStarted = null;
+            ExitCode = null;
+            TestOutput = new List<string>();
+
+
+            // Add to GUID -> TestRun map
+            lock (_testMapLock)
+            {
+                _testRunMap.Add(Guid, this);
+            }
+        }
+
         private TestRun_Server(TestRun testRun, TestBase owningTest) : base(owningTest)
         {
+            // This is used as a copy constructor. Don't add it to the map, it should be there already.
             ConsoleLogFilePath = testRun.ConsoleLogFilePath;
             TestStatus = testRun.TestStatus;
             TimeFinished = testRun.TimeFinished;
@@ -993,6 +1050,21 @@ namespace Microsoft.FactoryTestFramework.Server
             ExitCode = testRun.ExitCode;
             TestOutput = testRun.TestOutput;
             OwningTest = owningTest;
+        }
+
+
+        public void UpdateTestFromTestRun()
+        {
+            if (OwningTest != null)
+            {
+                lock (OwningTest.TestLock)
+                {
+                    OwningTest.LatestTestRunStatus = this.TestStatus;
+                    OwningTest.LatestTestRunTimeStarted = this.TimeStarted;
+                    OwningTest.LatestTestRunTimeFinished = this.TimeFinished;
+                    OwningTest.LatestTestRunExitCode = this.ExitCode;
+                }
+            }
         }
 
         public TestBase OwningTest { get; }

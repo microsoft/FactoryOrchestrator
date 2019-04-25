@@ -49,6 +49,8 @@ namespace Microsoft.FactoryTestFramework.Core
         List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked, ServiceEventType serviceEventType);
         List<ServiceEvent> GetServiceEvents(long lastEventIndex, ServiceEventType serviceEventType);
         string GetServiceVersionString();
+        TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        TestRun RunTestOutsideTestList(Guid executableTestGuid);
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);

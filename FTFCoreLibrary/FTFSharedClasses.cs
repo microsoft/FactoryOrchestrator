@@ -474,7 +474,7 @@ namespace Microsoft.FactoryTestFramework.Core
     public class TestRun
     {
         [JsonConstructor]
-        private TestRun()
+        protected TestRun()
         {
 
         }
@@ -493,18 +493,18 @@ namespace Microsoft.FactoryTestFramework.Core
             TimeStarted = null;
             ExitCode = null;
             TestOutput = new List<string>();
-            TestPath = owningTest.TestPath;
-            Arguments = owningTest.Arguments;
-            TestName = owningTest.TestName;
+            _testPath = owningTest.TestPath;
+            _arguments = owningTest.Arguments;
+            _testName = owningTest.TestName;
             TestType = owningTest.TestType;
         }
 
         public List<string> TestOutput { get; set; }
 
         public Guid OwningTestGuid { get => _owningGuid; }
-        public string TestName { get; }
-        public string TestPath { get; }
-        public string Arguments { get; }
+        public string TestName { get => _testName; }
+        public string TestPath { get => _testPath; }
+        public string Arguments { get => _arguments; }
         public TestType TestType { get; }
         public Guid Guid { get => _guid; }
         public DateTime? TimeStarted { get; set; }
@@ -642,6 +642,10 @@ namespace Microsoft.FactoryTestFramework.Core
         private Guid _guid;
         [JsonRequired]
         private Guid _owningGuid;
+
+        protected string _testPath;
+        protected string _testName;
+        protected string _arguments;
 
         public int? ExitCode { get; set; }
     }

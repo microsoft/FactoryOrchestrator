@@ -12,6 +12,7 @@ using Microsoft.FactoryTestFramework.Core;
 using Microsoft.FactoryTestFramework.Server;
 using System.Reflection;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace Microsoft.FactoryTestFramework.Service
 {
@@ -101,23 +102,37 @@ namespace Microsoft.FactoryTestFramework.Service
     // Find the FTFService singleton -> pass call to it
     public class FTFCommunicationHandler : IFTFCommunication
     {
+        //[MethodImpl(MethodImplOptions.NoInlining)]
+        //public static string GetCurrentMethod()
+        //{
+        //    var st = new StackTrace();
+        //    var sf = st.GetFrame(1);
+
+        //    return sf.GetMethod().Name;
+        //}
+
         // TODO: Catch exceptions & log them
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
-            FTFService.Instance.ServiceLogger.LogTrace("hit create tl");
+            FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromDirectory {path}");
             var tl = FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
-            FTFService.Instance.ServiceLogger.LogTrace("finished create tl");
+            FTFService.Instance.ServiceLogger.LogTrace($"Finish: CreateTestListFromDirectory {path}");
             return tl;
         }
 
         public List<Guid> LoadTestListsFromXmlFile(string filePath)
         {
+            FTFService.Instance.ServiceLogger.LogTrace($"Start: LoadTestListsFromXmlFile {filePath}");
             throw new NotImplementedException();
+            FTFService.Instance.ServiceLogger.LogTrace($"Finish: LoadTestListsFromXmlFile {filePath}");
         }
 
         public TestList CreateTestListFromTestList(TestList list)
         {
-            return FTFService.Instance.TestExecutionManager.CreateTestListFromTestList(list);
+            FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromTestList {list.Guid}");
+            var serverList = FTFService.Instance.TestExecutionManager.CreateTestListFromTestList(list);
+            FTFService.Instance.ServiceLogger.LogTrace($"Finish: CreateTestListFromTestList {list.Guid}");
+            return serverList;
         }
 
         public List<Guid> GetTestListGuids()
@@ -208,9 +223,21 @@ namespace Microsoft.FactoryTestFramework.Service
             return FTFService.Instance.TestExecutionManager.Run(TestListToRun, allowOtherTestListsToRun, runListInParallel);
         }
 
+
         public string GetServiceVersionString()
         {
             return FTFService.GetServiceVersionString();
+        }
+
+        public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        {
+            return FTFService.Instance.TestExecutionManager.RunExecutableOutsideTestList(exeFilePath, arguments, consoleLogFilePath);
+        }
+
+
+        public TestRun RunTestOutsideTestList(Guid testGuid)
+        {
+            return FTFService.Instance.TestExecutionManager.RunTestOutsideTestList(testGuid);
         }
     }
 
@@ -223,7 +250,14 @@ namespace Microsoft.FactoryTestFramework.Service
         private IMicroServiceController _controller;
         public ILogger<FTFService> ServiceLogger;
         private System.Threading.CancellationTokenSource _cancellationToken;
+        private readonly string _serviceRegPath = @"System\CurrentControlSet\Control\FactoryTestFramework";
+        private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
+        //private readonly string _firewallValue = @"FirewallConfigured";
+        private RegistryKey _ftfKey = null;
 
+        /// <summary>
+        /// FTFService singleton
+        /// </summary>
         public static FTFService Instance
         {
             get
@@ -232,6 +266,10 @@ namespace Microsoft.FactoryTestFramework.Service
             }
         }
 
+        /// <summary>
+        /// Returns build number of FTFService.
+        /// </summary>
+        /// <returns></returns>
         public static string GetServiceVersionString()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -273,19 +311,104 @@ namespace Microsoft.FactoryTestFramework.Service
         }
 
         public TestManager_Server TestExecutionManager { get => _testExecutionManager; }
+        
+        /// <summary>
+        /// Service start.
+        /// </summary>
         public void Start()
         {
             // Start IPC server
             _cancellationToken = new System.Threading.CancellationTokenSource();
             FTFServiceExe.ipcHost.RunAsync(_cancellationToken.Token);
 
-            ServiceLogger.LogTrace("Started\n");
+            // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
+            ExecuteBootTasks();
+
+            ServiceLogger.LogTrace("FactoryTestFramework Service Started\n");
         }
 
+        /// <summary>
+        /// Service stop.
+        /// </summary>
         public void Stop()
         {
             _cancellationToken.Cancel();
-            ServiceLogger.LogTrace("Stopped\n");
+            ServiceLogger.LogTrace("FactoryTestFramework Service Stopped\n");
         }
+
+        /// <summary>
+        /// Executes tasks that should run on first boot (of FTF) or every boot.
+        /// </summary>
+        /// <returns></returns>
+        public bool ExecuteBootTasks()
+        {
+            return EnableUWPLocalLoopback();
+        }
+
+        /// <summary>
+        /// Check if UWP local loopback needs to be enabled. Turn it on if so.
+        /// </summary>
+        /// <returns></returns>
+        private bool EnableUWPLocalLoopback()
+        {
+            try
+            {
+                if (_ftfKey == null)
+                {
+                    OpenOrCreateRegKey();
+                }
+
+                var value = (int)_ftfKey.GetValue(_loopbackValue, 0);
+
+                if (value != 1)
+                {
+                    // Run localloopback command
+                    var run = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList("cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
+                    _ftfKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Unable to enable UWP local loopback! You may not be able to use the FTF UWP app locally ({e.Message})");
+            }
+
+            return false;
+        }
+
+        private void OpenOrCreateRegKey()
+        {
+            _ftfKey = Registry.LocalMachine.CreateSubKey(_serviceRegPath, true);
+        }
+
+        //private bool AddFirewallRules()
+        //{
+        //    try
+        //    {
+        //        if (_ftfKey == null)
+        //        {
+        //            OpenOrCreateRegKey();
+        //        }
+
+        //        var value = (int)_ftfKey.GetValue(_firewallValue, 0);
+
+        //        if (value == 0)
+        //        {
+        //            // Run firewall commands
+        //       //     netsh advfirewall firewall add rule name = ftfservice_tcp_in program =< Path to FTFService.exe > protocol = tcp dir =in enable = yes action = allow profile =public,private,domain
+
+        //     //netsh advfirewall firewall add rule name=ftfservice_tcp_out program =< Path to FTFService.exe> protocol= tcp dir=out enable= yes action= allow profile=public,private,domain
+
+        //            _ftfKey.SetValue(_firewallValue, 1, RegistryValueKind.DWord);
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        ServiceLogger.LogError($"Unable to create FTFService firewall rules! You may not be able to use the FTF UWP app over the network ({e.Message})");
+        //    }
+
+        //    return false;
+        //}
     }
 }
