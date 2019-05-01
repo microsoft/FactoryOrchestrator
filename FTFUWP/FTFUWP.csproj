@@ -118,10 +118,17 @@
     <Compile Include="TestData.cs" />
     <Compile Include="TestViewModel.cs" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(IsTFSBuild)' == 'true'">
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+  </ItemGroup>
+  <ItemGroup Condition="'$(IsTFSBuild)' != 'true'">
+    <AppxManifest Include="DevPackage.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="FTFUWP_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
