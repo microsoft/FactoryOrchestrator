@@ -105,6 +105,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConsolePage.xaml.cs">
+      <DependentUpon>ConsolePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConnectionPage.xaml.cs">
       <DependentUpon>ConnectionPage.xaml</DependentUpon>
     </Compile>
@@ -185,6 +188,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ConsolePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
