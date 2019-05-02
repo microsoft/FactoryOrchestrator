@@ -540,14 +540,15 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)
         {
-            if (!File.Exists(exeFilePath))
+            var expandedPath = Environment.ExpandEnvironmentVariables(exeFilePath);
+            if (!File.Exists(expandedPath))
             {
                 // TODO: log error
                 return null;
             }
 
             // TODO: enable canceling the test
-            var run = TestRun_Server.CreateTestRunWithoutTest(exeFilePath, arguments, consoleLogFilePath);
+            var run = TestRun_Server.CreateTestRunWithoutTest(expandedPath, arguments, consoleLogFilePath);
             Task t = new Task(() => { StartTest(run, new CancellationToken());});
             t.Start();
 
@@ -790,15 +791,16 @@ namespace Microsoft.FactoryTestFramework.Server
             // Save the result of the test
             if (!TestAborted)
             {
-                ActiveTestRun.TimeFinished = ActiveTestRun.OwningTest.LatestTestRunTimeFinished = DateTime.Now;
-                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LatestTestRunExitCode = TestProcess.ExitCode;
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
+                ActiveTestRun.TimeFinished = DateTime.Now;
+                ActiveTestRun.ExitCode = TestProcess.ExitCode;
+                ActiveTestRun.TestStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
             }
             else
             {
-                ActiveTestRun.ExitCode = ActiveTestRun.OwningTest.LatestTestRunExitCode = -1;
-                ActiveTestRun.TestStatus = ActiveTestRun.OwningTest.LatestTestRunStatus = TestStatus.TestAborted;
+                ActiveTestRun.ExitCode = -1;
+                ActiveTestRun.TestStatus = TestStatus.TestAborted;
             }
+            ActiveTestRun.UpdateTestFromTestRun();
 
             // Save test output to file
             var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
@@ -1001,7 +1003,13 @@ namespace Microsoft.FactoryTestFramework.Server
             ConsoleLogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TestName, Guid));
         }
 
-        private TestRun_Server(string filePath, string arguments, string logFileOrPath)
+        /// <summary>
+        /// Private Ctor used for test runs not backed by a TestBase object
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="arguments"></param>
+        /// <param name="logFileOrPath"></param>
+        private TestRun_Server(string filePath, string arguments, string logFileOrPath) : base(null)
         {
             CtorCommon();
             
@@ -1018,21 +1026,15 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
             }
             
-            OwningTest = null;
+            // Set remaining values via method args. They weren't set by base Ctor since the owning test is null.
             _testPath = filePath;
             _arguments = arguments;
             _testName = Path.GetFileName(filePath);
+            _testType = TestType.ConsoleExe;
         }
 
         private void CtorCommon()
         {
-            TestStatus = TestStatus.TestNotRun;
-            TimeFinished = null;
-            TimeStarted = null;
-            ExitCode = null;
-            TestOutput = new List<string>();
-
-
             // Add to GUID -> TestRun map
             lock (_testMapLock)
             {

@@ -485,7 +485,6 @@ namespace Microsoft.FactoryTestFramework.Core
         /// <param name="owningTest"></param>
         protected TestRun(TestBase owningTest)
         {
-            _owningGuid = owningTest.Guid;
             _guid = Guid.NewGuid();
             ConsoleLogFilePath = null;
             TestStatus = TestStatus.TestNotRun;
@@ -493,10 +492,15 @@ namespace Microsoft.FactoryTestFramework.Core
             TimeStarted = null;
             ExitCode = null;
             TestOutput = new List<string>();
-            _testPath = owningTest.TestPath;
-            _arguments = owningTest.Arguments;
-            _testName = owningTest.TestName;
-            TestType = owningTest.TestType;
+
+            if (owningTest != null)
+            {
+                _owningGuid = owningTest.Guid;
+                _testPath = owningTest.TestPath;
+                _arguments = owningTest.Arguments;
+                _testName = owningTest.TestName;
+                _testType = owningTest.TestType;
+            }
         }
 
         public List<string> TestOutput { get; set; }
@@ -505,7 +509,7 @@ namespace Microsoft.FactoryTestFramework.Core
         public string TestName { get => _testName; }
         public string TestPath { get => _testPath; }
         public string Arguments { get => _arguments; }
-        public TestType TestType { get; }
+        public TestType TestType { get => _testType; }
         public Guid Guid { get => _guid; }
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeFinished { get; set; }
@@ -646,6 +650,7 @@ namespace Microsoft.FactoryTestFramework.Core
         protected string _testPath;
         protected string _testName;
         protected string _arguments;
+        protected TestType _testType;
 
         public int? ExitCode { get; set; }
     }
