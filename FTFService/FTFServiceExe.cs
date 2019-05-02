@@ -13,6 +13,8 @@ using Microsoft.FactoryTestFramework.Server;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Win32;
+using Microsoft.Extensions.PlatformAbstractions;
+using System.IO;
 
 namespace Microsoft.FactoryTestFramework.Service
 {
@@ -300,8 +302,17 @@ namespace Microsoft.FactoryTestFramework.Service
                     _controller = controller;
                     ServiceLogger = logger;
                     _singleton = this;
-                    // Save logs to DATA
-                    _testExecutionManager = new TestManager_Server(@"U:\FTFLogs");
+
+                    if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
+                    {
+                        // Save logs to DATA if on a WCOS system
+                        _testExecutionManager = new TestManager_Server(@"U:\FTFLogs");
+                    }
+                    else
+                    {
+                        // Otherwise save them next to the FTFService.exe
+                        _testExecutionManager = new TestManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFLogs")); ;
+                    }
                 }
                 else
                 {

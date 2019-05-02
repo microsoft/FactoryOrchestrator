@@ -60,17 +60,17 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             if (TestListsView.SelectedItem != null)
             {
-                if (RunButton.Symbol == Symbol.Play)
+                if (RunButtonIcon.Symbol == Symbol.Play)
                 {
-                    RunButton.Symbol = Symbol.Stop;
+                    RunButtonIcon.Symbol = Symbol.Stop;
                     Guid testListGuid = (Guid)TestListsView.SelectedItem;
                     await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, (bool)RunListInParallel.IsChecked));
                 }
-                else if (RunButton.Symbol == Symbol.Stop)
+                else if (RunButtonIcon.Symbol == Symbol.Stop)
                 {
                     // call Stop Test API
                     await IPCClientHelper.IpcClient.InvokeAsync(x => x.StopAll());
-                    RunButton.Symbol = Symbol.Play;
+                    RunButtonIcon.Symbol = Symbol.Play;
                 }
             }
         }
@@ -114,11 +114,11 @@ namespace Microsoft.FactoryTestFramework.UWP
 
                     if (list.TestListStatus == TestStatus.TestRunning)
                     {
-                        RunButton.Symbol = Symbol.Stop;
+                        RunButtonIcon.Symbol = Symbol.Stop;
                     }
                     else
                     {
-                        RunButton.Symbol = Symbol.Play;
+                        RunButtonIcon.Symbol = Symbol.Play;
                     }
                 });
             }
@@ -237,14 +237,18 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
-        private FTFPoller _activeListPoller;
-        private FTFPoller _testListGuidPoller;
-        private int _selectedTestList;
-        private SemaphoreSlim _listUpdateSem;
-
         private void AboutButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AboutPage));
         }
+        private void ConsoleButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(ConsolePage));
+        }
+
+        private FTFPoller _activeListPoller;
+        private FTFPoller _testListGuidPoller;
+        private int _selectedTestList;
+        private SemaphoreSlim _listUpdateSem;
     }
 }

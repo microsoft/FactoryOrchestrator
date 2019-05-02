@@ -53,9 +53,12 @@ namespace Microsoft.FactoryTestFramework.UWP
                 ServiceVersionText.Text = "Service Version: ";
                 ServiceVersionText.Text += await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceVersionString());
             }
+
+            BackButton.IsEnabled = this.Frame.CanGoBack;
+            base.OnNavigatedTo(e);
         }
 
-            private void Back_Click(object sender, RoutedEventArgs e)
+        private void Back_Click(object sender, RoutedEventArgs e)
         {
             On_BackRequested();
         }
