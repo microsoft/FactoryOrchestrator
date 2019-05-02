@@ -20,7 +20,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
-            <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="1" Text="Console" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="1" Text="Factory Test Framework Console" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
             <Grid x:Name="CommandStack" Grid.Row="1" Grid.Column="1" Margin="0" VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
