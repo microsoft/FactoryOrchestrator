@@ -728,6 +728,7 @@ namespace Microsoft.FactoryTestFramework.Server
             if (TestProcess.Start())
             {
                 IsRunning = true;
+                ActiveTestRun.OwningTestRunner = this;
                 ActiveTestRun.TestStatus = TestStatus.TestRunning;
                 ActiveTestRun.TimeStarted = DateTime.Now;
 
@@ -865,12 +866,40 @@ namespace Microsoft.FactoryTestFramework.Server
         }
         public bool WaitForExit(int milliseconds)
         {
+            // After TestProcess.WaitForExit returns true, we still may need to wait for the OnExited method to complete.
+            // Maintain our own timer so we can still exit close to the expected ms timeout value the user supplied.
+            var timer = Stopwatch.StartNew();
+
             if (IsRunning)
             {
-                return TestProcess.WaitForExit(milliseconds);
+                if (TestProcess.WaitForExit(milliseconds))
+                {
+                    // Process exited, wait for IsRunning to be updated at the end of OnExited
+                    while ((IsRunning) && (timer.ElapsedMilliseconds < milliseconds))
+                    {
+                        Thread.Sleep(15);
+                    }
+
+                    if (IsRunning)
+                    {
+                        // OnExited is still going on
+                        return false;
+                    }
+                    else
+                    {
+                        // OnExited is complete
+                        return true;
+                    }
+                }
+                else
+                {
+                    // Process is still running
+                    return false;
+                }
             }
             else
             {
+                // Process is not running and OnExited is complete
                 return true;
             }
         }
@@ -1035,6 +1064,8 @@ namespace Microsoft.FactoryTestFramework.Server
 
         private void CtorCommon()
         {
+            OwningTestRunner = null;
+
             // Add to GUID -> TestRun map
             lock (_testMapLock)
             {
@@ -1070,6 +1101,7 @@ namespace Microsoft.FactoryTestFramework.Server
         }
 
         public TestBase OwningTest { get; }
+        public TestRunner OwningTestRunner { get; set; }
         /// <summary>
         /// Tracks all the test runs that have ever occured, mapped by the test run GUID
         /// </summary>

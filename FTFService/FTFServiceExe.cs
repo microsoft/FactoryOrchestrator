@@ -369,14 +369,49 @@ namespace Microsoft.FactoryTestFramework.Service
                     OpenOrCreateRegKey();
                 }
 
+                // Check if this was successfully run once
                 var value = (int)_ftfKey.GetValue(_loopbackValue, 0);
 
                 if (value != 1)
                 {
-                    // Run localloopback command
-                    var run = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList("cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
-                    _ftfKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
-                    return true;
+                    // Run localloopback command for both "official" and "DEV" apps
+                    var runDev = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe\"");
+                    var runOfficial = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
+
+                    // Wait 2 seconds for both processes to start
+                    int waitCount = 0;
+                    const int waitMS = 100;
+                    const int maxWaits = waitMS * 20; // 2 seconds
+
+                    while (((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null)) && (waitCount < maxWaits))
+                    {
+                        waitCount++;
+                        System.Threading.Thread.Sleep(100);
+                    }
+
+                    if ((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null))
+                    {
+                        throw new Exception($"checknetisolation never started");
+                    }
+
+                    // Wait 5 seconds for both process to exit
+                    if ((!runDev.OwningTestRunner.WaitForExit(5000)) || (!runOfficial.OwningTestRunner.WaitForExit(5000)))
+                    {
+                        runDev.OwningTestRunner.StopTest();
+                        runOfficial.OwningTestRunner.StopTest();
+                        throw new Exception("checknetisolation did not exit after 5 seconds!");
+                    }
+
+                    if ((runDev.TestStatus == TestStatus.TestPassed) && (runOfficial.TestStatus == TestStatus.TestPassed))
+                    {
+                        // Success! Set regkey so this isn't run again.
+                        _ftfKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
+                        return true;
+                    }
+                    else
+                    {
+                        throw new Exception($"checknetisolation exited with {runDev.ExitCode} and {runOfficial.ExitCode}");
+                    }
                 }
             }
             catch (Exception e)
