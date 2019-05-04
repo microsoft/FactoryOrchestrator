@@ -77,7 +77,6 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void TestsView_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            // TODO: Use TestRun when it exists
             ListView control = (ListView)sender;
             int index = control.SelectedIndex;
             if (index != -1)
