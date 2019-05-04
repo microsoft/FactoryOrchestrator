@@ -25,6 +25,8 @@ namespace Microsoft.FactoryTestFramework.Core.JSONConverters
                     return JsonConvert.DeserializeObject<ExecutableTest>(jo.ToString());
                 case TestType.TAEFDll:
                     return JsonConvert.DeserializeObject<TAEFTest>(jo.ToString());
+                case TestType.External:
+                    return JsonConvert.DeserializeObject<ExternalTest>(jo.ToString());
                 case TestType.UWP:
                     return JsonConvert.DeserializeObject<UWPTest>(jo.ToString());
                 default:
@@ -47,6 +49,9 @@ namespace Microsoft.FactoryTestFramework.Core.JSONConverters
                     break;
                 case TestType.TAEFDll:
                     serializer.Serialize(writer, value, typeof(TAEFTest));
+                    break;
+                case TestType.External:
+                    serializer.Serialize(writer, value, typeof(ExternalTest));
                     break;
                 case TestType.UWP:
                     serializer.Serialize(writer, value, typeof(UWPTest));

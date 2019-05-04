@@ -202,12 +202,26 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked, ServiceEventType serviceEventType)
         {
-            throw new NotImplementedException();
+            if (timeLastChecked < FTFService.Instance.LastEventTime)
+            {
+                return FTFService.Instance.ServiceEvents.Values.Where(x => x.EventTime > timeLastChecked).ToList();
+            }
+            else
+            {
+                return new List<ServiceEvent>();
+            }
         }
 
-        public List<ServiceEvent> GetServiceEvents(long lastEventIndex, ServiceEventType serviceEventType)
+        public List<ServiceEvent> GetServiceEvents(ulong lastEventIndex, ServiceEventType serviceEventType)
         {
-            throw new NotImplementedException();
+            if (lastEventIndex < FTFService.Instance.LastEventIndex)
+            {
+                return FTFService.Instance.ServiceEvents.Where(x => x.Key > lastEventIndex).Select(x => x.Value).ToList();
+            }
+            else
+            {
+                return new List<ServiceEvent>();
+            }
         }
 
         public TestRun QueryTestRun(Guid testRunGuid)
@@ -257,6 +271,10 @@ namespace Microsoft.FactoryTestFramework.Service
         //private readonly string _firewallValue = @"FirewallConfigured";
         private RegistryKey _ftfKey = null;
 
+        public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
+        public ulong LastEventIndex { get; private set; }
+        public DateTime LastEventTime { get; private set; }
+
         /// <summary>
         /// FTFService singleton
         /// </summary>
@@ -302,6 +320,9 @@ namespace Microsoft.FactoryTestFramework.Service
                     _controller = controller;
                     ServiceLogger = logger;
                     _singleton = this;
+                    ServiceEvents = new Dictionary<ulong, ServiceEvent>();
+                    LastEventIndex = 0;
+                    LastEventTime = DateTime.MinValue;
 
                     if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
                     {
@@ -330,6 +351,7 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             // Start IPC server
             _cancellationToken = new System.Threading.CancellationTokenSource();
+            _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
             FTFServiceExe.ipcHost.RunAsync(_cancellationToken.Token);
 
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
@@ -345,6 +367,34 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             _cancellationToken.Cancel();
             ServiceLogger.LogTrace("FactoryTestFramework Service Stopped\n");
+        }
+
+        private void HandleTestManagerEvent(object source, TestManagerEventArgs e)
+        {
+            ServiceEvent serviceEvent = null;
+            switch (e.Event)
+            {
+                case TestManagerEventType.WaitingForExternalTestRunResult:
+                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForTestRunByClient, e.Guid, $"TestRun {e.Guid} is waiting on an external result.");
+                    break;
+                case TestManagerEventType.ExternalTestRunFinished:
+                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForTestRunByClient, e.Guid, $"TestRun {e.Guid} received an external result and is finished.");
+                    break;
+                default:
+                    break;
+            }
+
+            if (serviceEvent != null)
+            {
+                LogServiceEvent(serviceEvent);
+            }
+        }
+
+        public void LogServiceEvent(ServiceEvent serviceEvent)
+        {
+            ServiceEvents.Add(serviceEvent.EventIndex, serviceEvent);
+            LastEventIndex = serviceEvent.EventIndex;
+            LastEventTime = serviceEvent.EventTime;
         }
 
         /// <summary>
@@ -427,6 +477,7 @@ namespace Microsoft.FactoryTestFramework.Service
             _ftfKey = Registry.LocalMachine.CreateSubKey(_serviceRegPath, true);
         }
 
+        // Firewall is configured in FTFServiceTemplate.wm.xml Windows Manifest file
         //private bool AddFirewallRules()
         //{
         //    try

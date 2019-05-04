@@ -441,7 +441,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        private void StartTestRuns(List<Guid> testRunGuids, CancellationToken token, bool runInParallel = false, TestRunEventHandler testRunEventHandler = null)
+        private void StartTestRuns(List<Guid> testRunGuids, CancellationToken token, bool runInParallel = false, TestRunnerEventHandler testRunEventHandler = null)
         {
             // Run all enabled tests in the list
             if (!runInParallel)
@@ -473,7 +473,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        private static void StartTest(TestRun_Server testRun, CancellationToken token, TestRunEventHandler testRunEventHandler = null)
+        private void StartTest(TestRun_Server testRun, CancellationToken token, TestRunnerEventHandler testRunEventHandler = null)
         {
             if (!token.IsCancellationRequested)
             {
@@ -495,6 +495,7 @@ namespace Microsoft.FactoryTestFramework.Server
                     while (!token.IsCancellationRequested && !done)
                     {
                         done = runner.WaitForExit(0);
+                        // todo: replace with a signal mechanism
                         Thread.Sleep(1000);
                     }
                     if (token.IsCancellationRequested)
@@ -504,11 +505,17 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
-                    // TODO: Notify waiting for UWP result
+                    testRun.StartWaitingForExternalResult();
+                    OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTestRunResult, testRun.Guid));
+
                     while (!testRun.TestRunComplete)
                     {
+                        // todo: replace with a signal mechanism
                         Thread.Sleep(1000);
                     }
+
+                    testRun.EndWaitingForExternalResult();
+                    OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTestRunFinished, testRun.Guid));
                 }
             }
         }
@@ -574,7 +581,6 @@ namespace Microsoft.FactoryTestFramework.Server
             return run;
         }
 
-
         private Dictionary<Guid, TestList> KnownTestLists;
         private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
         private readonly object KnownTestListLock = new object();
@@ -583,13 +589,42 @@ namespace Microsoft.FactoryTestFramework.Server
         private string _defaultLogFolder;
 
         public string DefaultLogFolder { get => _defaultLogFolder; }
+
+        public event TestManagerEventHandler OnTestManagerEvent;
     }
 
-    public delegate void TestRunEventHandler(object source, TestRunEventArgs e);
+    public delegate void TestManagerEventHandler(object source, TestManagerEventArgs e);
 
-    public class TestRunEventArgs : EventArgs
+    public enum TestManagerEventType
     {
-        public TestRunEventArgs(TestStatus testStatus, int eventStatusCode, String eventMessage)
+        NewTestList,
+        UpdatedTestList,
+        DeletedTestList,
+        TestListRunStarted,
+        TestListRunEnded,
+        WaitingForExternalTestRunResult,
+        ExternalTestRunFinished,
+        StandaloneTestStarted,
+        StandaloneTestFinished
+    }
+
+    public class TestManagerEventArgs : EventArgs
+    {
+        public TestManagerEventArgs(TestManagerEventType eventType, Guid? guid)
+        {
+            Event = eventType;
+            Guid = guid;
+        }
+
+        public TestManagerEventType Event { get; }
+        public Guid? Guid { get; }
+    }
+
+    public delegate void TestRunnerEventHandler(object source, TestRunnerEventArgs e);
+
+    public class TestRunnerEventArgs : EventArgs
+    {
+        public TestRunnerEventArgs(TestStatus testStatus, int eventStatusCode, String eventMessage)
         {
             TestStatus = testStatus;
             EventStatusCode = eventStatusCode;
@@ -601,7 +636,7 @@ namespace Microsoft.FactoryTestFramework.Server
         public String EventMessage { get; }
     }
 
-    public class TestRunExceptionEvent : TestRunEventArgs
+    public class TestRunExceptionEvent : TestRunnerEventArgs
     {
         public TestRunExceptionEvent(TestStatus eventType, int eventStatusCode, Exception eventException) :
             base(eventType, eventStatusCode, (eventException != null) ? eventException.ToString() : null)
@@ -742,7 +777,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 // TODO: log error
             }
 
-            ActiveTestRun.UpdateTestFromTestRun();
+            ActiveTestRun.UpdateOwningTestFromTestRun();
 
             return IsRunning;
         }
@@ -801,7 +836,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 ActiveTestRun.ExitCode = -1;
                 ActiveTestRun.TestStatus = TestStatus.TestAborted;
             }
-            ActiveTestRun.UpdateTestFromTestRun();
+            ActiveTestRun.UpdateOwningTestFromTestRun();
 
             // Save test output to file
             var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
@@ -821,7 +856,7 @@ namespace Microsoft.FactoryTestFramework.Server
             IsRunning = false;
 
             // Raise event if event handler exists
-            OnTestEvent?.Invoke(this, new TestRunEventArgs(ActiveTestRun.TestStatus, (int)ActiveTestRun.ExitCode, null));
+            OnTestEvent?.Invoke(this, new TestRunnerEventArgs(ActiveTestRun.TestStatus, (int)ActiveTestRun.ExitCode, null));
         }
 
         public bool StopTest()
@@ -907,7 +942,7 @@ namespace Microsoft.FactoryTestFramework.Server
         public bool IsRunning { get; set; }
         //public ExecutableTest Test { get; }
 
-        public event TestRunEventHandler OnTestEvent;
+        public event TestRunnerEventHandler OnTestEvent;
 
         private TestRun_Server ActiveTestRun;
         private Process TestProcess;
@@ -994,15 +1029,13 @@ namespace Microsoft.FactoryTestFramework.Server
                 {
                     return false;
                 }
-
-                lock (test.TestLock)
-                {
-                    _testRunMap[updatedTestRun.Guid] = new TestRun_Server(updatedTestRun, test);
-                    test.LatestTestRunExitCode = updatedTestRun.ExitCode;
-                    test.LatestTestRunStatus = updatedTestRun.TestStatus;
-                    test.LatestTestRunTimeFinished = updatedTestRun.TimeFinished;
-                    test.LatestTestRunTimeStarted = updatedTestRun.TimeStarted;
-                }
+                // TODO: Must fix!
+                var run = _testRunMap[updatedTestRun.Guid];
+                run.ExitCode = updatedTestRun.ExitCode;
+                run.TestStatus = updatedTestRun.TestStatus;
+                run.TimeFinished = updatedTestRun.TimeFinished;
+                run.TimeStarted = updatedTestRun.TimeStarted;
+                run.UpdateOwningTestFromTestRun();
 
                 return true;
             }
@@ -1086,7 +1119,7 @@ namespace Microsoft.FactoryTestFramework.Server
         }
 
 
-        public void UpdateTestFromTestRun()
+        public void UpdateOwningTestFromTestRun()
         {
             if (OwningTest != null)
             {
@@ -1098,6 +1131,19 @@ namespace Microsoft.FactoryTestFramework.Server
                     OwningTest.LatestTestRunExitCode = this.ExitCode;
                 }
             }
+        }
+
+        public void StartWaitingForExternalResult()
+        {
+            TimeStarted = DateTime.Now;
+            TestStatus = TestStatus.TestWaitingForExternalResult;
+            UpdateOwningTestFromTestRun();
+        }
+
+        public void EndWaitingForExternalResult()
+        {
+            TimeFinished = DateTime.Now;
+            UpdateOwningTestFromTestRun();
         }
 
         public TestBase OwningTest { get; }

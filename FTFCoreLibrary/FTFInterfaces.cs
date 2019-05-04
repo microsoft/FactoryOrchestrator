@@ -9,11 +9,11 @@ namespace Microsoft.FactoryTestFramework.Core
         NewTestList,
         UpdatedTestList,
         DeletedTestList,
-        ServiceReset,
         TestListRunStarted,
         TestListRunEnded,
         TestStatusUpdatedByClient,
         WaitingForTestRunByClient,
+        ServiceReset,
         ServiceError,
         ServiceStarted,
         ServiceStopped
@@ -21,9 +21,22 @@ namespace Microsoft.FactoryTestFramework.Core
 
     public class ServiceEvent
     {
-        ServiceEventType ServiceEventType { get; }
-        Guid Guid { get; }
-        String Message { get; }
+        public ServiceEvent(ServiceEventType type, Guid? guid, String message)
+        {
+            EventIndex = _indexCount++;
+            EventTime = DateTime.Now;
+            ServiceEventType = type;
+            Guid = guid;
+            Message = message;
+        }
+
+        public ulong EventIndex { get; }
+        public DateTime EventTime { get; }
+        public ServiceEventType ServiceEventType { get; }
+        public Guid? Guid { get; }
+        public String Message { get; }
+
+        private static ulong _indexCount = 0;
     }
 
     // TODO: Build out client-side lib for diffs, update polling state machine etc
@@ -47,10 +60,8 @@ namespace Microsoft.FactoryTestFramework.Core
         // Service APIs
         void ResetService(bool preserveLogs = true);
         List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked, ServiceEventType serviceEventType);
-        List<ServiceEvent> GetServiceEvents(long lastEventIndex, ServiceEventType serviceEventType);
+        List<ServiceEvent> GetServiceEvents(ulong lastEventIndex, ServiceEventType serviceEventType);
         string GetServiceVersionString();
-        TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
-        TestRun RunTestOutsideTestList(Guid executableTestGuid);
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
@@ -68,6 +79,8 @@ namespace Microsoft.FactoryTestFramework.Core
         void Stop(Guid testListGuid);
         bool SetDefaultTePath(string teExePath);
         bool SetDefaultLogFolder(string logFolder);
+        TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        TestRun RunTestOutsideTestList(Guid executableTestGuid);
 
         // Test Run APIs
         bool SetTestRunStatus(TestRun testRunStatus);
