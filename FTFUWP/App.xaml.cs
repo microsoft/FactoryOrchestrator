@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.FactoryTestFramework.Client;
+using Microsoft.FactoryTestFramework.Core;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -60,6 +65,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
+                    IPCClientHelper.OnConnected += OnIpcConnected;
                     rootFrame.Navigate(typeof(ConnectionPage), e.Arguments);
                 }
                 // Ensure the current window is active
@@ -90,5 +96,65 @@ namespace Microsoft.FactoryTestFramework.UWP
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+
+        private void OnIpcConnected()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    CheckForServiceEvents();
+                    System.Threading.Thread.Sleep(1000);
+                }
+            });
+        }
+
+        private async void CheckForServiceEvents()
+        {
+            List<ServiceEvent> newEvents;
+
+            if (firstPoll)
+            {
+                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents());
+            }
+            else
+            {
+                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
+            }
+
+            // Handle events in a queue
+            lastEventIndex = newEvents[newEvents.Count - 1].EventIndex;
+            foreach (var evnt in newEvents)
+            {
+                serviceEventQueue.Enqueue(evnt);
+            }
+        }
+
+        private async void HandleServiceEvents()
+        {
+            // Handle one event at a time, oldest first
+            ServiceEvent evnt;
+            while (serviceEventQueue.TryDequeue(out evnt))
+            {
+                switch(evnt.ServiceEventType)
+                {
+                    case ServiceEventType.WaitingForTestRunByClient:
+                        var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
+                        DoExternalAppTestRun(run);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void DoExternalAppTestRun(TestRun run)
+        {
+            
+        }
+
+        private bool firstPoll = true;
+        private ulong lastEventIndex;
+        private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
     }
 }
