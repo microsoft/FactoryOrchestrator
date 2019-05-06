@@ -17,6 +17,8 @@ namespace Microsoft.FactoryTestFramework.Client
 
         public static async void StartIPCConnection(IPAddress host, int port)
         {
+            IsLocalHost = (host == IPAddress.Loopback) ? true : false;
+
             IpcClient = new IpcServiceClientBuilder<IFTFCommunication>()
                 .UseTcp(host, port)
                 .Build();
@@ -29,6 +31,7 @@ namespace Microsoft.FactoryTestFramework.Client
 
         public static IpcServiceClient<IFTFCommunication> IpcClient { get; private set; }
         public static event IPCClientOnConnected OnConnected;
+        public static bool IsLocalHost { get; private set; }
 
         public delegate void IPCClientOnConnected();
     }

@@ -139,8 +139,13 @@ namespace Microsoft.FactoryTestFramework.UWP
                 switch(evnt.ServiceEventType)
                 {
                     case ServiceEventType.WaitingForTestRunByClient:
-                        var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
-                        DoExternalAppTestRun(run);
+                        // Check if we are localhost, if so we are the DUT and need to run the UWP test for the server.
+                        // If not, do nothing, as we are not the DUT.
+                        if (IPCClientHelper.IsLocalHost)
+                        {
+                            var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
+                            DoExternalAppTestRun(run);
+                        }
                         break;
                     default:
                         break;
