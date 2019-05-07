@@ -67,7 +67,7 @@ namespace Microsoft.FactoryTestFramework.Core
         private static ulong _indexCount = 0;
     }
 
-    // TODO: Build out client-side lib for diffs, update polling state machine etc
+    // TODO: FeatureWork: Build out client-side lib for diffs, update polling state machine etc
     /// <summary>
     /// IFTFCommunication defines the client <> server communication model. 
     /// </summary>

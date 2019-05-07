@@ -15,8 +15,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
-// TODO: APP TODOS
-// Load & Save testlist from folder, file, etc
 namespace Microsoft.FactoryTestFramework.UWP
 {
     /// <summary>
@@ -164,7 +162,9 @@ namespace Microsoft.FactoryTestFramework.UWP
                         // If not, do nothing, as we are not the DUT.
                         if (IPCClientHelper.IsLocalHost)
                         {
-                            // TODO: this should be in its own thread
+                            // TODO: Performance: this should be in its own thread, so other service events can be handled
+                            // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FTF
+                            // Only allow one external run at a time though
                             var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
                             DoExternalAppTestRunAsync(run);
                         }
@@ -180,10 +180,9 @@ namespace Microsoft.FactoryTestFramework.UWP
             RunWaitingForResult = run;
             if (RunWaitingForResult.TestType == TestType.UWP)
             {
-                // Launch UWP for results using the PFN in the testrun
+                // Launch UWP for results using the PFN in saved in the testrun
                 var app = await GetAppByPackageFamilyNameAsync(RunWaitingForResult.TestPath);
 
-                // TODO: Check if it implements a FTF protocol?
                 if (app != null)
                 {
                     // Start testRun
@@ -201,7 +200,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 }
             }
 
-            // TODO: Use signaling
+            // TODO: Performance: Use signaling
             // Block from handing a new system event until the current one is handled
             // This is set by ExternalTestResultPage
             while (!RunWaitingForResult.TestRunComplete)
@@ -218,7 +217,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
             if (pkg == null)
             {
-                // TODO: Log error
+                // TODO: Logging: Log error
                 return null;
             }
 

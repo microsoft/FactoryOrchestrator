@@ -47,7 +47,8 @@ namespace Microsoft.FactoryTestFramework.Core
     [JsonConverter(typeof(TestBaseConverter))]
     public abstract class TestBase
     {
-        // TODO: how do we guarantee accurate state when many things are querying test state?????
+        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
+        // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
         public TestBase(string testPath, TestType type)
         {
             _guid = Guid.NewGuid();
@@ -513,6 +514,8 @@ namespace Microsoft.FactoryTestFramework.Core
     /// </summary>
     public class TestRun
     {
+        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
+        // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
         [JsonConstructor]
         protected TestRun()
         {

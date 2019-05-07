@@ -39,7 +39,8 @@ namespace Microsoft.FactoryTestFramework.UWP
             var pkgManager = new PackageManager();
             packages = pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main).ToList();
             packageStrings = packages.Select(x => x.Id.FamilyName).ToList();
-            // todo: bind properly
+
+            // todo: quality: bind properly with template
             PackageList.ItemsSource = packageStrings;
             base.OnNavigatedTo(e);
         }

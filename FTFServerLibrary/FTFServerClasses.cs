@@ -67,7 +67,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             catch (Exception)
             {
-                // todo log
+                // TODO: logging
                 return false;
             }
         }
@@ -78,7 +78,7 @@ namespace Microsoft.FactoryTestFramework.Server
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
             var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
             TestList tests = new TestList(Guid.NewGuid());
-            // TODO: Parallel
+            // TODO: Performance: Parallel
             //Parallel.ForEach<string>(dlls, (dll) =>
             foreach (var dll in dlls)
             {
@@ -225,14 +225,14 @@ namespace Microsoft.FactoryTestFramework.Server
 
                 testRun = TestRun_Server.GetTestRunByGuid(maybeTAEF.TestRunGuids[0]);
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
-                // todo: but not always???
+                // todo: Feature: but not always???
                 // https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/exit-codes-for-taef
                 if ((testRun.ExitCode == 117440512) || (testRun.ExitCode == 0))
                 {
                     // Check if it was able to enumerate the test cases.
                     if (!testRun.TestOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !testRun.TestOutput.Any(x => x.Contains("Failed to load")))
                     {
-                        // TODO: We need a better mechanism here
+                        // TODO: Feature: We need a better mechanism here
                         isTaef = true;
                     }
                 }
@@ -244,7 +244,7 @@ namespace Microsoft.FactoryTestFramework.Server
             catch (Exception)
             {
                 maybeTAEF.Reset(false);
-                // TODO: undo this
+                // TODO: Logging: undo this
                 //throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
             }
 
@@ -334,23 +334,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 return false;
             }
 
-            // Test GUIDs are unique across testlists
-            var testList = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(latestTestRun.OwningTestGuid)).DefaultIfEmpty(null).First();
-
-            if (testList == null)
-            {
-                return false;
-            }
-            else
-            {
-                var test = testList.Tests[latestTestRun.OwningTestGuid];
-                if (!test.TestRunGuids.Contains(latestTestRun.Guid))
-                {
-                    return false;
-                }
-
-                return TestRun_Server.UpdateTestRun(latestTestRun, test);
-            }
+            return TestRun_Server.UpdateTestRun(latestTestRun);
         }
 
         public bool Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
@@ -495,7 +479,7 @@ namespace Microsoft.FactoryTestFramework.Server
                     while (!token.IsCancellationRequested && !done)
                     {
                         done = runner.WaitForExit(0);
-                        // todo: replace with a signal mechanism
+                        // TODO: Performance: replace with a signal mechanism
                         Thread.Sleep(1000);
                     }
                     if (token.IsCancellationRequested)
@@ -505,13 +489,13 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
-                    // TODO: Log External tests to file
+                    // TODO: Logging : Log External tests to file
                     testRun.StartWaitingForExternalResult();
                     OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTestRunResult, testRun.Guid));
 
                     while (!testRun.TestRunComplete)
                     {
-                        // TODO: replace with a signal mechanism
+                        // TODO: Performance: replace with a signal mechanism
                         Thread.Sleep(1000);
                     }
 
@@ -551,11 +535,11 @@ namespace Microsoft.FactoryTestFramework.Server
             var expandedPath = Environment.ExpandEnvironmentVariables(exeFilePath);
             if (!File.Exists(expandedPath))
             {
-                // TODO: log error
+                // TODO: Logging: log error
                 return null;
             }
 
-            // TODO: enable canceling the test
+            // TODO: Feature: enable canceling the test
             var run = TestRun_Server.CreateTestRunWithoutTest(expandedPath, arguments, consoleLogFilePath, TestType.ConsoleExe);
             Task t = new Task(() => { StartTest(run, new CancellationToken());});
             t.Start();
@@ -569,11 +553,11 @@ namespace Microsoft.FactoryTestFramework.Server
 
             if (test == null)
             {
-                // TODO: log error
+                // TODO: Logging: log error
                 return null;
             }
 
-            // TODO: enable canceling the test
+            // TODO: Feature: enable canceling the test
             var runGuid = test.CreateTestRun(DefaultLogFolder);
             var run = TestRun_Server.GetTestRunByGuid(runGuid);
             Task t = new Task(() => { StartTest(run, new CancellationToken()); });
@@ -1021,14 +1005,9 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public static bool UpdateTestRun(TestRun updatedTestRun, TestBase test)
+        public static bool UpdateTestRun(TestRun updatedTestRun)
         {
             if (updatedTestRun == null)
-            {
-                return false;
-            }
-
-            if (test == null)
             {
                 return false;
             }
@@ -1039,8 +1018,15 @@ namespace Microsoft.FactoryTestFramework.Server
                 {
                     return false;
                 }
-                // TODO: Must fix!
+
                 var run = _testRunMap[updatedTestRun.Guid];
+
+                if (run.TestRunComplete)
+                {
+                    // TestRun was marked as finished, don't let it be edited post-completion
+                    return false;
+                }
+
                 run.ExitCode = updatedTestRun.ExitCode;
                 run.TestStatus = updatedTestRun.TestStatus;
                 run.TimeFinished = updatedTestRun.TimeFinished;

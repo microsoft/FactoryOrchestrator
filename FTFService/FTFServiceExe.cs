@@ -113,7 +113,7 @@ namespace Microsoft.FactoryTestFramework.Service
         //    return sf.GetMethod().Name;
         //}
 
-        // TODO: Catch exceptions & log them
+        // TODO: Logging: Catch exceptions & log them
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
             FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromDirectory {path}");
@@ -405,7 +405,7 @@ namespace Microsoft.FactoryTestFramework.Service
             ServiceEvents.Add(serviceEvent.EventIndex, serviceEvent);
             LastEventIndex = serviceEvent.EventIndex;
             LastEventTime = serviceEvent.EventTime;
-            ServiceLogger.LogInformation($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Guid} - {serviceEvent.Message}");
+            ServiceLogger.LogInformation($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Message}");
         }
 
         /// <summary>

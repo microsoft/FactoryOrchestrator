@@ -17,8 +17,6 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Microsoft.FactoryTestFramework.UWP
 {
-    // TODO: Periodically check that the testRun was not completed externally
-
     /// <summary>
     /// A result entry page that queries the user if a given TestRun for an external/UWP test passed or failed on the DUT.
     /// The page is automatically navigated from if the TestRun is "completed" by a remote FTF client.
@@ -55,15 +53,23 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
+        /// <summary>
+        /// Periodically checks if the TestRun has been completed.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         private void OnUpdatedRun(object source, FTFPollEventArgs e)
         {
             lock (updateLock)
             {
-                testRun = (TestRun)e.Result;
-
-                if ((!testReportReady) && (testRun.TestRunComplete))
+                if (!testReportReady)
                 {
-                    ExitPage();
+                    testRun = (TestRun)e.Result;
+
+                    if (testRun.TestRunComplete)
+                    {
+                        ExitPage();
+                    }
                 }
             }
         }
@@ -86,11 +92,13 @@ namespace Microsoft.FactoryTestFramework.UWP
         private async void ReportTestRunResultAsync(TestStatus result)
         {
             lock (updateLock)
-            {
-                // TODO: More properly check if the TestRun was changed by another client
+            {   
+                // Prevent OnUpdatedRun from firing
+                testRunPoller.StopPolling();
+
                 if (testRun.TestRunComplete)
                 {
-                    // The poll event handler will exit the page
+                    // The test was finished right before user interaction. Return, the poll event handler will exit the page.
                     return;
                 }
 
@@ -108,7 +116,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 }
             }
 
-            // Report result to server
+            // Report selected result to server
             await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(testRun));
 
             ExitPage();
