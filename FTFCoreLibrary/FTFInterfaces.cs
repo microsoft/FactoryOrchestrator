@@ -110,7 +110,7 @@ namespace Microsoft.FactoryTestFramework.Core
         bool SetDefaultLogFolder(string logFolder);
         TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
         TestRun RunUWPOutsideTestList(string packageFamilyName);
-        TestRun RunTestOutsideTestList(Guid executableTestGuid);
+        TestRun RunTestOutsideTestList(Guid testGuid);
 
         // Test Run APIs
         bool SetTestRunStatus(TestRun testRunStatus);
