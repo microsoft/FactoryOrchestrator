@@ -123,6 +123,9 @@
     </Compile>
     <Compile Include="TestData.cs" />
     <Compile Include="TestViewModel.cs" />
+    <Compile Include="UtilitiesPage.xaml.cs">
+      <DependentUpon>UtilitiesPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup Condition="'$(IsTFSBuild)' == 'true'">
     <AppxManifest Include="Package.appxmanifest">
@@ -211,6 +214,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ResultsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UtilitiesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

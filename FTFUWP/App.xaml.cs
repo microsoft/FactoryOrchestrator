@@ -104,6 +104,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         private void OnIpcConnected()
         {
             // One thread queues events, another dequeues and handles them
+            // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
             Task.Run(() =>
             {
                 while (true)
@@ -157,6 +158,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                         // If not, do nothing, as we are not the DUT.
                         if (IPCClientHelper.IsLocalHost)
                         {
+                            // TODO: this should be in its own thread
                             var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
                             DoExternalAppTestRunAsync(run);
                         }
@@ -169,33 +171,42 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private async void DoExternalAppTestRunAsync(TestRun run)
         {
-            if (run.TestType == TestType.UWP)
+            RunWaitingForResult = run;
+            if (RunWaitingForResult.TestType == TestType.UWP)
             {
                 // Launch UWP for results using the PFN in the testrun
-                var app = await GetAppByPackageFamilyNameAsync(run.TestPath);
+                var app = await GetAppByPackageFamilyNameAsync(RunWaitingForResult.TestPath);
 
                 // TODO: Check if it implements a FTF protocol?
                 if (app != null)
                 {
                     // Start testRun
-                    run.TimeStarted = DateTime.Now;
+                    RunWaitingForResult.TimeStarted = DateTime.Now;
                     await app.LaunchAsync();
                 }
             }
 
-            // Go to result entry page, passing in the active TestRun
-            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage), run);
+            // Go to result entry page
+            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
 
-            // TODO: Block until result is reported by ExternalTestResultPage
+            // TODO: Use signaling
+            // Block from handing a new system event until the current one is handled
+            // This is set by ExternalTestResultPage
+            while (!RunWaitingForResult.TestRunComplete)
+            {
+                System.Threading.Thread.Sleep(2000);
+            }
+
         }
 
         private static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
         {
             var pkgManager = new PackageManager();
-            var pkg = pkgManager.FindPackagesForUser("", packageFamilyName).FirstOrDefault();
+            var pkg = pkgManager.FindPackageForUser("", packageFamilyName);
 
             if (pkg == null)
             {
+                // TODO: Log error
                 return null;
             }
 
@@ -204,6 +215,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             return firstApp;
         }
 
+        public TestRun RunWaitingForResult { get; private set; }
         private bool firstPoll = true;
         private ulong lastEventIndex;
         private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();

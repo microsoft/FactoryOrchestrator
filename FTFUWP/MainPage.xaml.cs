@@ -245,6 +245,11 @@ namespace Microsoft.FactoryTestFramework.UWP
             this.Frame.Navigate(typeof(ConsolePage));
         }
 
+        private void UtilitiesButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(UtilitiesPage));
+        }
+
         private FTFPoller _activeListPoller;
         private FTFPoller _testListGuidPoller;
         private int _selectedTestList;

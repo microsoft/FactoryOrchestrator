@@ -81,6 +81,7 @@ namespace Microsoft.FactoryTestFramework.Core
         bool SetDefaultTePath(string teExePath);
         bool SetDefaultLogFolder(string logFolder);
         TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        TestRun RunUWPOutsideTestList(string packageFamilyName);
         TestRun RunTestOutsideTestList(Guid executableTestGuid);
 
         // Test Run APIs

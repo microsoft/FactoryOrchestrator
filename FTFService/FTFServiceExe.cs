@@ -260,6 +260,11 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             return FTFService.Instance.TestExecutionManager.RunTestOutsideTestList(testGuid);
         }
+
+        public TestRun RunUWPOutsideTestList(string packageFamilyName)
+        {
+            return FTFService.Instance.TestExecutionManager.RunUWPOutsideTestList(packageFamilyName);
+        }
     }
 
     public class FTFService : IMicroService

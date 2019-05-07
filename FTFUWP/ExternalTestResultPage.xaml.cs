@@ -28,18 +28,44 @@ namespace Microsoft.FactoryTestFramework.UWP
         public ExternalTestResultPage()
         {
             this.InitializeComponent();
+            updateLock = new object();
+            testReportReady = false;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // Get TestRun we are reporting results for
-            testRun = (TestRun)e.Parameter;
+            testRun = ((App)Application.Current).RunWaitingForResult;
+            testRunPoller = new FTFPoller(testRun.Guid, typeof(TestRun), IPCClientHelper.IpcClient, 1000);
+            testRunPoller.OnUpdatedObject += OnUpdatedRun;
 
             // Append test details to UI
             TestText.Text += testRun.TestName;
             TestRunText.Text += testRun.Guid.ToString();
 
             base.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            if (testRunPoller != null)
+            {
+                testRunPoller.StopPolling();
+                testRunPoller = null;
+            }
+        }
+
+        private void OnUpdatedRun(object source, FTFPollEventArgs e)
+        {
+            lock (updateLock)
+            {
+                testRun = (TestRun)e.Result;
+
+                if ((!testReportReady) && (testRun.TestRunComplete))
+                {
+                    ExitPage();
+                }
+            }
         }
 
         private void AbortButton_Click(object sender, RoutedEventArgs e)
@@ -59,21 +85,37 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private async void ReportTestRunResultAsync(TestStatus result)
         {
-            testRun.TestStatus = result;
-
-            if (result != TestStatus.TestAborted)
+            lock (updateLock)
             {
-                // Don't consider the test "done" until the test passed/failed and that result was chosen by the user.
-                // This is consistent with how FTFServer handles exe & TAEF tests.
-                testRun.TimeFinished = DateTime.Now;
+                // TODO: More properly check if the TestRun was changed by another client
+                if (testRun.TestRunComplete)
+                {
+                    // The poll event handler will exit the page
+                    return;
+                }
 
-                // Set the exit code
-                testRun.ExitCode = result == (TestStatus.TestPassed) ? 0 : -1;
+                testReportReady = true;
+                testRun.TestStatus = result;
+
+                if (result != TestStatus.TestAborted)
+                {
+                    // Don't consider the test "done" until the test passed/failed and that result was chosen by the user.
+                    // This is consistent with how FTFServer handles exe & TAEF tests.
+                    testRun.TimeFinished = DateTime.Now;
+
+                    // Set the exit code
+                    testRun.ExitCode = result == (TestStatus.TestPassed) ? 0 : -1;
+                }
             }
 
-            // Return result to server
+            // Report result to server
             await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(testRun));
 
+            ExitPage();
+        }
+
+        private void ExitPage()
+        {
             if (this.Frame.CanGoBack)
             {
                 // Return to last page
@@ -86,6 +128,9 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
+        private bool testReportReady;
         private TestRun testRun;
+        private FTFPoller testRunPoller;
+        private object updateLock;
     }
 }

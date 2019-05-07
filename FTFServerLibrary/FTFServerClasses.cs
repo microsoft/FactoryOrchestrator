@@ -505,12 +505,13 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
+                    // TODO: Log External tests to file
                     testRun.StartWaitingForExternalResult();
                     OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTestRunResult, testRun.Guid));
 
                     while (!testRun.TestRunComplete)
                     {
-                        // todo: replace with a signal mechanism
+                        // TODO: replace with a signal mechanism
                         Thread.Sleep(1000);
                     }
 
@@ -555,7 +556,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
 
             // TODO: enable canceling the test
-            var run = TestRun_Server.CreateTestRunWithoutTest(expandedPath, arguments, consoleLogFilePath);
+            var run = TestRun_Server.CreateTestRunWithoutTest(expandedPath, arguments, consoleLogFilePath, TestType.ConsoleExe);
             Task t = new Task(() => { StartTest(run, new CancellationToken());});
             t.Start();
 
@@ -575,6 +576,15 @@ namespace Microsoft.FactoryTestFramework.Server
             // TODO: enable canceling the test
             var runGuid = test.CreateTestRun(DefaultLogFolder);
             var run = TestRun_Server.GetTestRunByGuid(runGuid);
+            Task t = new Task(() => { StartTest(run, new CancellationToken()); });
+            t.Start();
+
+            return run;
+        }
+
+        public TestRun RunUWPOutsideTestList(string packageFamilyName)
+        {
+            var run = TestRun_Server.CreateTestRunWithoutTest(packageFamilyName, null, null, TestType.UWP);
             Task t = new Task(() => { StartTest(run, new CancellationToken()); });
             t.Start();
 
@@ -987,9 +997,9 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public static TestRun_Server CreateTestRunWithoutTest(string filePath, string arguments, string logFileOrFolder)
+        public static TestRun_Server CreateTestRunWithoutTest(string filePath, string arguments, string logFileOrFolder, TestType type)
         {
-            return new TestRun_Server(filePath, arguments, logFileOrFolder);
+            return new TestRun_Server(filePath, arguments, logFileOrFolder, type);
         }
 
         public static void RemoveTestRun(Guid testRunGuid, bool preserveLogs)
@@ -1068,10 +1078,10 @@ namespace Microsoft.FactoryTestFramework.Server
         /// <summary>
         /// Private Ctor used for test runs not backed by a TestBase object
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="testPath"></param>
         /// <param name="arguments"></param>
         /// <param name="logFileOrPath"></param>
-        private TestRun_Server(string filePath, string arguments, string logFileOrPath) : base(null)
+        private TestRun_Server(string testPath, string arguments, string logFileOrPath, TestType type) : base(null)
         {
             CtorCommon();
             
@@ -1089,10 +1099,10 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             
             // Set remaining values via method args. They weren't set by base Ctor since the owning test is null.
-            _testPath = filePath;
+            _testPath = testPath;
             _arguments = arguments;
-            _testName = Path.GetFileName(filePath);
-            _testType = TestType.ConsoleExe;
+            _testName = Path.GetFileName(testPath);
+            _testType = type;
         }
 
         private void CtorCommon()
