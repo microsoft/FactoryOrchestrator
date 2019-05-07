@@ -23,10 +23,14 @@
             <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
             <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="1" Text="Factory Test Framework Console" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
 
-            <StackPanel x:Name="PackageStack" Orientation="Vertical" Grid.ColumnSpan="99" Grid.Row="2">
-                <TextBlock Text="Launch installed package as test:" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                <ListView x:Name="PackageList" SelectionChanged="PackageList_SelectionChanged"/>
-            </StackPanel>
+            <Grid Grid.Row="2" Grid.ColumnSpan="99">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Launch installed package as test:" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <ListView x:Name="PackageList" Grid.Row="1" Height="Auto" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="PackageList_ItemClick"/>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

@@ -187,14 +187,24 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     // Start testRun
                     RunWaitingForResult.TimeStarted = DateTime.Now;
+                    bool launched = false;
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        var launched = await app.LaunchAsync();
+                        launched = await app.LaunchAsync();
+
                         if (launched)
                         {
                             // Go to result entry page
+                            RunWaitingForResult.TestStatus = TestStatus.TestRunning;
                             ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+                        }
+                        else
+                        {
+                            // Report failure to server
+                            RunWaitingForResult.TimeFinished = DateTime.Now;
+                            RunWaitingForResult.TestStatus = TestStatus.TestFailed;
+                            await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(RunWaitingForResult));
                         }
                     });
                 }
@@ -208,6 +218,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 System.Threading.Thread.Sleep(2000);
             }
 
+            RunWaitingForResult = null;
         }
 
         private static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)

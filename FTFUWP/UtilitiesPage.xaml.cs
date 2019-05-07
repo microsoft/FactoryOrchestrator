@@ -42,18 +42,13 @@ namespace Microsoft.FactoryTestFramework.UWP
 
             // todo: quality: bind properly with template
             PackageList.ItemsSource = packageStrings;
+            PackageList.UpdateLayout();
             base.OnNavigatedTo(e);
         }
 
-        private List<Windows.ApplicationModel.Package> packages;
-        private List<string> packageStrings;
-
-        private async void PackageList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void PackageList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (PackageList.SelectedIndex != -1)
-            {
-                var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunUWPOutsideTestList((string)PackageList.SelectedItem));
-            }
+            var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunUWPOutsideTestList((string)e.ClickedItem));
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
@@ -76,6 +71,9 @@ namespace Microsoft.FactoryTestFramework.UWP
             On_BackRequested();
             args.Handled = true;
         }
+
+        private List<Windows.ApplicationModel.Package> packages;
+        private List<string> packageStrings;
     }
 
 }
