@@ -3,9 +3,13 @@ using Microsoft.FactoryTestFramework.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Core;
+using Windows.Management.Deployment;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -99,11 +103,21 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void OnIpcConnected()
         {
+            // One thread queues events, another dequeues and handles them
             Task.Run(() =>
             {
                 while (true)
                 {
                     CheckForServiceEvents();
+                    System.Threading.Thread.Sleep(1000);
+                }
+            });
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    HandleServiceEvents();
                     System.Threading.Thread.Sleep(1000);
                 }
             });
@@ -144,7 +158,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                         if (IPCClientHelper.IsLocalHost)
                         {
                             var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
-                            DoExternalAppTestRun(run);
+                            DoExternalAppTestRunAsync(run);
                         }
                         break;
                     default:
@@ -153,9 +167,41 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
-        private void DoExternalAppTestRun(TestRun run)
+        private async void DoExternalAppTestRunAsync(TestRun run)
         {
-            
+            if (run.TestType == TestType.UWP)
+            {
+                // Launch UWP for results using the PFN in the testrun
+                var app = await GetAppByPackageFamilyNameAsync(run.TestPath);
+
+                // TODO: Check if it implements a FTF protocol?
+                if (app != null)
+                {
+                    // Start testRun
+                    run.TimeStarted = DateTime.Now;
+                    await app.LaunchAsync();
+                }
+            }
+
+            // Go to result entry page, passing in the active TestRun
+            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage), run);
+
+            // TODO: Block until result is reported by ExternalTestResultPage
+        }
+
+        private static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
+        {
+            var pkgManager = new PackageManager();
+            var pkg = pkgManager.FindPackagesForUser("", packageFamilyName).FirstOrDefault();
+
+            if (pkg == null)
+            {
+                return null;
+            }
+
+            var apps = await pkg.GetAppListEntriesAsync();
+            var firstApp = apps.FirstOrDefault();
+            return firstApp;
         }
 
         private bool firstPoll = true;
