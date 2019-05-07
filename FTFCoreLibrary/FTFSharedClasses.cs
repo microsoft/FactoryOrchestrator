@@ -684,12 +684,14 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [JsonRequired]
         private Guid _guid;
-        [JsonRequired]
-        private Guid _owningGuid;
 
+        private Guid _owningGuid;
+        [JsonRequired]
         protected string _testPath;
+        [JsonRequired]
         protected string _testName;
         protected string _arguments;
+        [JsonRequired]
         protected TestType _testType;
 
         public int? ExitCode { get; set; }

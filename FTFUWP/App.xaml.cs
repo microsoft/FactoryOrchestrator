@@ -10,6 +10,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Management.Deployment;
 using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -105,32 +106,32 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             // One thread queues events, another dequeues and handles them
             // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (true)
                 {
-                    CheckForServiceEvents();
+                    await CheckForServiceEvents();
                     System.Threading.Thread.Sleep(1000);
                 }
             });
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (true)
                 {
-                    HandleServiceEvents();
+                    await HandleServiceEvents();
                     System.Threading.Thread.Sleep(1000);
                 }
             });
         }
 
-        private async void CheckForServiceEvents()
+        private async Task CheckForServiceEvents()
         {
             List<ServiceEvent> newEvents;
 
-            if (firstPoll)
+            if (!eventSeen)
             {
-                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents());
+                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetAllServiceEvents());
             }
             else
             {
@@ -138,14 +139,19 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
 
             // Handle events in a queue
-            lastEventIndex = newEvents[newEvents.Count - 1].EventIndex;
+            if (newEvents.Count > 0)
+            {
+                eventSeen = true;
+                lastEventIndex = newEvents[newEvents.Count - 1].EventIndex;
+            }
+
             foreach (var evnt in newEvents)
             {
                 serviceEventQueue.Enqueue(evnt);
             }
         }
 
-        private async void HandleServiceEvents()
+        private async Task HandleServiceEvents()
         {
             // Handle one event at a time, oldest first
             ServiceEvent evnt;
@@ -182,12 +188,18 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     // Start testRun
                     RunWaitingForResult.TimeStarted = DateTime.Now;
-                    await app.LaunchAsync();
+
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        var launched = await app.LaunchAsync();
+                        if (launched)
+                        {
+                            // Go to result entry page
+                            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+                        }
+                    });
                 }
             }
-
-            // Go to result entry page
-            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
 
             // TODO: Use signaling
             // Block from handing a new system event until the current one is handled
@@ -202,7 +214,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         private static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
         {
             var pkgManager = new PackageManager();
-            var pkg = pkgManager.FindPackageForUser("", packageFamilyName);
+            var pkg = pkgManager.FindPackagesForUserWithPackageTypes("", packageFamilyName, PackageTypes.Main).FirstOrDefault();
 
             if (pkg == null)
             {
@@ -211,12 +223,13 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
 
             var apps = await pkg.GetAppListEntriesAsync();
+            var count = apps.Count;
             var firstApp = apps.FirstOrDefault();
             return firstApp;
         }
 
         public TestRun RunWaitingForResult { get; private set; }
-        private bool firstPoll = true;
+        private bool eventSeen = false;
         private ulong lastEventIndex;
         private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
     }

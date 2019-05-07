@@ -26,6 +26,6 @@
     <Capability Name="internetClient" />
     <Capability Name="internetClientServer" />
     <Capability Name="privateNetworkClientServer" />
-    <rescap:Capability Name="packageQuery" />
+    <rescap:Capability Name="packageQuery"/>
   </Capabilities>
 </Package>

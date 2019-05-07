@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -6,35 +7,62 @@ namespace Microsoft.FactoryTestFramework.Core
 {
     public enum ServiceEventType
     {
-        NewTestList,
-        UpdatedTestList,
-        DeletedTestList,
-        TestListRunStarted,
-        TestListRunEnded,
-        TestStatusUpdatedByClient,
-        WaitingForTestRunByClient,
-        ServiceReset,
-        ServiceError,
-        ServiceStarted,
-        ServiceStopped
+        NewTestList = 0,
+        UpdatedTestList = 1,
+        DeletedTestList = 2,
+        TestListRunStarted = 3,
+        TestListRunEnded = 4,
+        TestStatusUpdatedByClient = 5,
+        WaitingForTestRunByClient = 6,
+        ServiceReset = 7,
+        ServiceError = 8,
+        ServiceStarted = 9,
+        ServiceStopped = 10
     }
 
     public class ServiceEvent
     {
-        public ServiceEvent(ServiceEventType type, Guid? guid, String message)
+        [JsonConstructor]
+        public ServiceEvent()
         {
-            EventIndex = _indexCount++;
-            EventTime = DateTime.Now;
-            ServiceEventType = type;
-            Guid = guid;
-            Message = message;
+
         }
 
-        public ulong EventIndex { get; }
-        public DateTime EventTime { get; }
-        public ServiceEventType ServiceEventType { get; }
-        public Guid? Guid { get; }
-        public String Message { get; }
+        public ServiceEvent(ServiceEventType type, Guid? guid, String message)
+        {
+            _eventIndex = _indexCount++;
+            _eventTime = DateTime.Now;
+            _eventType = type;
+            _guid = guid;
+            _message = message;
+        }
+
+
+        [JsonRequired]
+        public ulong EventIndex { get => _eventIndex; }
+
+        public DateTime EventTime { get => _eventTime; }
+
+        public ServiceEventType ServiceEventType { get => _eventType; }
+
+        public Guid? Guid { get => _guid; }
+
+        public String Message { get => _message; }
+
+        [JsonRequired]
+        private ulong _eventIndex;
+
+        [JsonRequired]
+        private ServiceEventType _eventType;
+
+        [JsonRequired]
+        private DateTime _eventTime;
+
+        [JsonRequired]
+        private string _message;
+
+        [JsonRequired]
+        private Guid? _guid;
 
         private static ulong _indexCount = 0;
     }
@@ -59,7 +87,7 @@ namespace Microsoft.FactoryTestFramework.Core
 
         // Service APIs
         void ResetService(bool preserveLogs = true);
-        List<ServiceEvent> GetServiceEvents();
+        List<ServiceEvent> GetAllServiceEvents();
         List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked);
         List<ServiceEvent> GetServiceEvents(ulong lastEventIndex);
         string GetServiceVersionString();

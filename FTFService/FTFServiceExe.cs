@@ -200,7 +200,7 @@ namespace Microsoft.FactoryTestFramework.Service
             FTFService.Instance.TestExecutionManager.Abort(testListGuid);
         }
 
-        public List<ServiceEvent> GetServiceEvents()
+        public List<ServiceEvent> GetAllServiceEvents()
         {
             return FTFService.Instance.ServiceEvents.Values.ToList();
         }
@@ -405,6 +405,7 @@ namespace Microsoft.FactoryTestFramework.Service
             ServiceEvents.Add(serviceEvent.EventIndex, serviceEvent);
             LastEventIndex = serviceEvent.EventIndex;
             LastEventTime = serviceEvent.EventTime;
+            ServiceLogger.LogInformation($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Guid} - {serviceEvent.Message}");
         }
 
         /// <summary>
