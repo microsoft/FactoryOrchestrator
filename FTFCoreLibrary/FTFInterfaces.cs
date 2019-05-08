@@ -88,8 +88,8 @@ namespace Microsoft.FactoryTestFramework.Core
         // Service APIs
         void ResetService(bool preserveLogs = true);
         List<ServiceEvent> GetAllServiceEvents();
-        List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked);
-        List<ServiceEvent> GetServiceEvents(ulong lastEventIndex);
+        List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked);
+        List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex);
         string GetServiceVersionString();
 
         // Test List APIs
