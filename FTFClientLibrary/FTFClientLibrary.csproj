@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.2.1" />
+    <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

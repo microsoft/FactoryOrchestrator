@@ -111,6 +111,9 @@
     <Compile Include="ConnectionPage.xaml.cs">
       <DependentUpon>ConnectionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ExternalTestResultPage.xaml.cs">
+      <DependentUpon>ExternalTestResultPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -120,6 +123,9 @@
     </Compile>
     <Compile Include="TestData.cs" />
     <Compile Include="TestViewModel.cs" />
+    <Compile Include="UtilitiesPage.xaml.cs">
+      <DependentUpon>UtilitiesPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup Condition="'$(IsTFSBuild)' == 'true'">
     <AppxManifest Include="Package.appxmanifest">
@@ -199,6 +205,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ExternalTestResultPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -207,13 +217,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UtilitiesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JKang.IpcServiceFramework.Client">
-      <Version>2.2.1</Version>
+      <Version>2.2.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.3</Version>
+      <Version>6.2.8</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

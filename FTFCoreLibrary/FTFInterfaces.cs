@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -6,27 +7,67 @@ namespace Microsoft.FactoryTestFramework.Core
 {
     public enum ServiceEventType
     {
-        NewTestList,
-        UpdatedTestList,
-        DeletedTestList,
-        ServiceReset,
-        TestListRunStarted,
-        TestListRunEnded,
-        TestStatusUpdatedByClient,
-        WaitingForTestRunByClient,
-        ServiceError,
-        ServiceStarted,
-        ServiceStopped
+        NewTestList = 0,
+        UpdatedTestList = 1,
+        DeletedTestList = 2,
+        TestListRunStarted = 3,
+        TestListRunEnded = 4,
+        TestStatusUpdatedByClient = 5,
+        WaitingForTestRunByClient = 6,
+        ServiceReset = 7,
+        ServiceError = 8,
+        ServiceStarted = 9,
+        ServiceStopped = 10
     }
 
     public class ServiceEvent
     {
-        ServiceEventType ServiceEventType { get; }
-        Guid Guid { get; }
-        String Message { get; }
+        [JsonConstructor]
+        public ServiceEvent()
+        {
+
+        }
+
+        public ServiceEvent(ServiceEventType type, Guid? guid, String message)
+        {
+            _eventIndex = _indexCount++;
+            _eventTime = DateTime.Now;
+            _eventType = type;
+            _guid = guid;
+            _message = message;
+        }
+
+
+        [JsonRequired]
+        public ulong EventIndex { get => _eventIndex; }
+
+        public DateTime EventTime { get => _eventTime; }
+
+        public ServiceEventType ServiceEventType { get => _eventType; }
+
+        public Guid? Guid { get => _guid; }
+
+        public String Message { get => _message; }
+
+        [JsonRequired]
+        private ulong _eventIndex;
+
+        [JsonRequired]
+        private ServiceEventType _eventType;
+
+        [JsonRequired]
+        private DateTime _eventTime;
+
+        [JsonRequired]
+        private string _message;
+
+        [JsonRequired]
+        private Guid? _guid;
+
+        private static ulong _indexCount = 0;
     }
 
-    // TODO: Build out client-side lib for diffs, update polling state machine etc
+    // TODO: FeatureWork: Build out client-side lib for diffs, update polling state machine etc
     /// <summary>
     /// IFTFCommunication defines the client <> server communication model. 
     /// </summary>
@@ -46,11 +87,10 @@ namespace Microsoft.FactoryTestFramework.Core
 
         // Service APIs
         void ResetService(bool preserveLogs = true);
-        List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked, ServiceEventType serviceEventType);
-        List<ServiceEvent> GetServiceEvents(long lastEventIndex, ServiceEventType serviceEventType);
+        List<ServiceEvent> GetAllServiceEvents();
+        List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked);
+        List<ServiceEvent> GetServiceEvents(ulong lastEventIndex);
         string GetServiceVersionString();
-        TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
-        TestRun RunTestOutsideTestList(Guid executableTestGuid);
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
@@ -68,6 +108,9 @@ namespace Microsoft.FactoryTestFramework.Core
         void Stop(Guid testListGuid);
         bool SetDefaultTePath(string teExePath);
         bool SetDefaultLogFolder(string logFolder);
+        TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        TestRun RunUWPOutsideTestList(string packageFamilyName);
+        TestRun RunTestOutsideTestList(Guid testGuid);
 
         // Test Run APIs
         bool SetTestRunStatus(TestRun testRunStatus);

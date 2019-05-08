@@ -35,7 +35,7 @@ namespace Microsoft.FactoryTestFramework.Client
             object newObj;
             try
             {
-                // TODO: check for failure
+                // TODO: Logging: check for failure
                 if ((_guidType == typeof(TestBase)) || (_guidType == typeof(ExecutableTest)) || (_guidType == typeof(UWPTest)) || (_guidType == typeof(TAEFTest)))
                 {
                     newObj = await _client.InvokeAsync(x => x.QueryTest((Guid)_guidToPoll));
@@ -70,7 +70,7 @@ namespace Microsoft.FactoryTestFramework.Client
             }
             catch (Exception)
             {
-                // TODO: Handle somehow
+                // TODO: Logging: Log exception
             }
         }
 

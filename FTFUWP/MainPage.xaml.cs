@@ -77,7 +77,6 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void TestsView_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            // TODO: Use TestRun when it exists
             ListView control = (ListView)sender;
             int index = control.SelectedIndex;
             if (index != -1)
@@ -93,7 +92,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 //    IsEnabled = true,
                 //    Arguments = "/arg1:anc /arg2:ghbrigsdr",
                 //    TestOutput = new List<string>()
-                //}; // TODO: get the test / testrun based on the guid
+                //}; // old: get the test / testrun based on the guid
                 //for (int i = 0; i < 1000; i++)
                 //{
                 //    test.TestOutput.Add("Line " + i + ":" + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString() + Guid.NewGuid().ToString());
@@ -168,7 +167,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            // TODO: This is a hack so that if you click on the same test again after returning from the results page the selection is changed
+            // TODO: Quality: This is a hack so that if you click on the same test again after returning from the results page the selection is changed
             TestsView.SelectedIndex = -1;
 
             if (_activeListPoller != null)
@@ -244,6 +243,11 @@ namespace Microsoft.FactoryTestFramework.UWP
         private void ConsoleButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(ConsolePage));
+        }
+
+        private void UtilitiesButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(UtilitiesPage));
         }
 
         private FTFPoller _activeListPoller;

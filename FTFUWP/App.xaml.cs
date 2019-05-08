@@ -1,12 +1,20 @@
-﻿using System;
+﻿using Microsoft.FactoryTestFramework.Client;
+using Microsoft.FactoryTestFramework.Core;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Core;
+using Windows.Management.Deployment;
+using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
-// TODO: APP TODOS
-// Load & Save testlist from folder, file, etc
 namespace Microsoft.FactoryTestFramework.UWP
 {
     /// <summary>
@@ -60,6 +68,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
+                    IPCClientHelper.OnConnected += OnIpcConnected;
                     rootFrame.Navigate(typeof(ConnectionPage), e.Arguments);
                 }
                 // Ensure the current window is active
@@ -90,5 +99,148 @@ namespace Microsoft.FactoryTestFramework.UWP
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+
+        private void OnIpcConnected()
+        {
+            // One thread queues events, another dequeues and handles them
+            // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await CheckForServiceEvents();
+                    System.Threading.Thread.Sleep(1000);
+                }
+            });
+
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await HandleServiceEvents();
+                    System.Threading.Thread.Sleep(1000);
+                }
+            });
+        }
+
+        private async Task CheckForServiceEvents()
+        {
+            List<ServiceEvent> newEvents;
+
+            if (!eventSeen)
+            {
+                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetAllServiceEvents());
+            }
+            else
+            {
+                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
+            }
+
+            // Handle events in a queue
+            if (newEvents.Count > 0)
+            {
+                eventSeen = true;
+                lastEventIndex = newEvents[newEvents.Count - 1].EventIndex;
+            }
+
+            foreach (var evnt in newEvents)
+            {
+                serviceEventQueue.Enqueue(evnt);
+            }
+        }
+
+        private async Task HandleServiceEvents()
+        {
+            // Handle one event at a time, oldest first
+            ServiceEvent evnt;
+            while (serviceEventQueue.TryDequeue(out evnt))
+            {
+                switch(evnt.ServiceEventType)
+                {
+                    case ServiceEventType.WaitingForTestRunByClient:
+                        // Check if we are localhost, if so we are the DUT and need to run the UWP test for the server.
+                        // If not, do nothing, as we are not the DUT.
+                        if (IPCClientHelper.IsLocalHost)
+                        {
+                            // TODO: Performance: this should be in its own thread, so other service events can be handled
+                            // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FTF
+                            // Only allow one external run at a time though
+                            var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
+                            DoExternalAppTestRunAsync(run);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private async void DoExternalAppTestRunAsync(TestRun run)
+        {
+            RunWaitingForResult = run;
+            if (RunWaitingForResult.TestType == TestType.UWP)
+            {
+                // Launch UWP for results using the PFN in saved in the testrun
+                var app = await GetAppByPackageFamilyNameAsync(RunWaitingForResult.TestPath);
+
+                if (app != null)
+                {
+                    // Start testRun
+                    RunWaitingForResult.TimeStarted = DateTime.Now;
+                    bool launched = false;
+
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        launched = await app.LaunchAsync();
+
+                        if (launched)
+                        {
+                            // Go to result entry page
+                            RunWaitingForResult.TestStatus = TestStatus.TestRunning;
+                            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+                        }
+                        else
+                        {
+                            // Report failure to server
+                            RunWaitingForResult.TimeFinished = DateTime.Now;
+                            RunWaitingForResult.TestStatus = TestStatus.TestFailed;
+                            await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(RunWaitingForResult));
+                        }
+                    });
+                }
+            }
+
+            // TODO: Performance: Use signaling
+            // Block from handing a new system event until the current one is handled
+            // This is set by ExternalTestResultPage
+            while (!RunWaitingForResult.TestRunComplete)
+            {
+                System.Threading.Thread.Sleep(2000);
+            }
+
+            RunWaitingForResult = null;
+        }
+
+        private static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
+        {
+            var pkgManager = new PackageManager();
+            var pkg = pkgManager.FindPackagesForUserWithPackageTypes("", packageFamilyName, PackageTypes.Main).FirstOrDefault();
+
+            if (pkg == null)
+            {
+                // TODO: Logging: Log error
+                return null;
+            }
+
+            var apps = await pkg.GetAppListEntriesAsync();
+            var count = apps.Count;
+            var firstApp = apps.FirstOrDefault();
+            return firstApp;
+        }
+
+        public TestRun RunWaitingForResult { get; private set; }
+        private bool eventSeen = false;
+        private ulong lastEventIndex;
+        private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
     }
 }

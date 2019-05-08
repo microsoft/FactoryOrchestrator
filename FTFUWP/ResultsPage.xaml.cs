@@ -41,8 +41,9 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
             else
             {
-                _test = null; // todo
+                _test = null;
             }
+
             BackButton.IsEnabled = this.Frame.CanGoBack;
             base.OnNavigatedTo(e);
         }
@@ -178,7 +179,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 LogPath.Visibility = Visibility.Visible;
             }
 
-            // TODO: Wire up test cases when we track those for TAEF
+            // TODO: Feature: Wire up test cases when we track those for TAEF
         }
 
         private void UpdateOutput()

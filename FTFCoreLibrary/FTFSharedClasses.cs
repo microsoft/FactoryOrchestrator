@@ -23,8 +23,8 @@ namespace Microsoft.FactoryTestFramework.Core
     {
         ConsoleExe = 0,
         TAEFDll = 1,
-        UWP = 2,
-        External = 3
+        External = 2,
+        UWP = 3
     }
 
     public class TestBaseEqualityComparer : EqualityComparer<TestBase>
@@ -47,7 +47,8 @@ namespace Microsoft.FactoryTestFramework.Core
     [JsonConverter(typeof(TestBaseConverter))]
     public abstract class TestBase
     {
-        // TODO: how do we guarantee accurate state when many things are querying test state?????
+        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
+        // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
         public TestBase(string testPath, TestType type)
         {
             _guid = Guid.NewGuid();
@@ -338,22 +339,62 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
+    /// An ExternalTest is a test run outside of the FTFServer.
+    /// Test results must be returned to the server via SetTestRunStatus().
+    /// </summary>
+    [JsonConverter(typeof(NoConverter))]
+    public class ExternalTest : TestBase
+    {
+        public ExternalTest(String testName) : base(null, TestType.External)
+        {
+            TestName = testName;
+        }
+
+        protected ExternalTest(String testPath, String testName, TestType type) : base(testPath, type)
+        {
+            TestName = testName;
+        }
+
+        public override string ToString()
+        {
+            return TestName;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as ExternalTest;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            if (rhs.TestName != TestName)
+            {
+                return false;
+            }
+
+            return base.Equals(obj as TestBase);
+        }
+
+        public override string TestName { get; }
+    }
+
+    /// <summary>
     /// A UWPTest is a UWP test run by the FTFUWP client. These are used for UI.
     /// Test results must be returned to the server via SetTestRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
-    public class UWPTest : TestBase
+    public class UWPTest : ExternalTest
     {
-        public UWPTest(string packageFamilyName, string testFriendlyName = null) : base(packageFamilyName, TestType.UWP)
+        public UWPTest(string packageFamilyName, string testFriendlyName) : base(packageFamilyName, testFriendlyName, TestType.UWP)
         {
-            if (!String.IsNullOrWhiteSpace(testFriendlyName))
-            {
-                TestName = testFriendlyName;
-            }
-            else
-            {
-                TestName = packageFamilyName;
-            }
+            TestName = testFriendlyName;
+        }
+
+        public UWPTest(string packageFamilyName) : base(packageFamilyName, null, TestType.UWP)
+        {
+            TestName = packageFamilyName;
         }
 
         public override bool Equals(object obj)
@@ -370,7 +411,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            return base.Equals(obj as TestBase);
+            return base.Equals(obj as ExternalTest);
         }
 
         public override string TestName { get; }
@@ -473,6 +514,8 @@ namespace Microsoft.FactoryTestFramework.Core
     /// </summary>
     public class TestRun
     {
+        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
+        // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
         [JsonConstructor]
         protected TestRun()
         {
@@ -644,12 +687,14 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [JsonRequired]
         private Guid _guid;
-        [JsonRequired]
-        private Guid _owningGuid;
 
+        private Guid _owningGuid;
+        [JsonRequired]
         protected string _testPath;
+        [JsonRequired]
         protected string _testName;
         protected string _arguments;
+        [JsonRequired]
         protected TestType _testType;
 
         public int? ExitCode { get; set; }

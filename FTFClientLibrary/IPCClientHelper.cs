@@ -9,15 +9,30 @@ namespace Microsoft.FactoryTestFramework.Client
 {
     public static class IPCClientHelper
     {
-        public static void StartIPCConnection(IPAddress host, int port)
+        static IPCClientHelper()
         {
-            _ipcClient = new IpcServiceClientBuilder<IFTFCommunication>()
-                .UseTcp(host, port)
-                .Build();
+            OnConnected = null;
+            IpcClient = null;
         }
 
-        public static IpcServiceClient<IFTFCommunication> IpcClient { get => _ipcClient; }
+        public static async void StartIPCConnection(IPAddress host, int port)
+        {
+            IsLocalHost = (host == IPAddress.Loopback) ? true : false;
 
-        private static IpcServiceClient<IFTFCommunication> _ipcClient = null;
+            IpcClient = new IpcServiceClientBuilder<IFTFCommunication>()
+                .UseTcp(host, port)
+                .Build();
+
+            // Test a command to make sure connection works
+            await IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+
+            OnConnected?.Invoke();
+        }
+
+        public static IpcServiceClient<IFTFCommunication> IpcClient { get; private set; }
+        public static event IPCClientOnConnected OnConnected;
+        public static bool IsLocalHost { get; private set; }
+
+        public delegate void IPCClientOnConnected();
     }
 }
