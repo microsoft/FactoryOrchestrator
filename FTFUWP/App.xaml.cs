@@ -133,7 +133,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
             else
             {
-                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
+                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEventsByIndex(lastEventIndex));
             }
 
             // Handle events in a queue

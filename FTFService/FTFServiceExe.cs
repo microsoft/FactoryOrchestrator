@@ -205,7 +205,7 @@ namespace Microsoft.FactoryTestFramework.Service
             return FTFService.Instance.ServiceEvents.Values.ToList();
         }
 
-        public List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked)
+        public List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked)
         {
             if (timeLastChecked < FTFService.Instance.LastEventTime)
             {
@@ -217,7 +217,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
         }
 
-        public List<ServiceEvent> GetServiceEvents(ulong lastEventIndex)
+        public List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex)
         {
             if (lastEventIndex < FTFService.Instance.LastEventIndex)
             {
