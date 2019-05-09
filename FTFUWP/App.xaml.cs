@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.ExtendedExecution;
 using Windows.Management.Deployment;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -102,6 +104,13 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void OnIpcConnected()
         {
+            // Prevent the app from suspending
+            // extendedExecutionUnconstrained capability helps with this also
+            // TODO: Performance: Properly handle suspend/resume instead?
+            extendedExecution = new ExtendedExecutionSession();
+            extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
+            extendedExecution.RequestExtensionAsync();
+
             // One thread queues events, another dequeues and handles them
             // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
             Task.Run(async () =>
@@ -166,7 +175,10 @@ namespace Microsoft.FactoryTestFramework.UWP
                             // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FTF
                             // Only allow one external run at a time though
                             var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestRun((Guid)evnt.Guid));
-                            DoExternalAppTestRunAsync(run);
+                            if (!run.TestRunComplete)
+                            {
+                                await DoExternalAppTestRunAsync(run);
+                            }
                         }
                         break;
                     default:
@@ -175,12 +187,13 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
-        private async void DoExternalAppTestRunAsync(TestRun run)
+        private async Task DoExternalAppTestRunAsync(TestRun run)
         {
             RunWaitingForResult = run;
             if (RunWaitingForResult.TestType == TestType.UWP)
             {
                 // Launch UWP for results using the PFN in saved in the testrun
+                RunWaitingForResult.TestOutput.Add($"Preparing to launch {RunWaitingForResult.TestPath} App");
                 var app = await GetAppByPackageFamilyNameAsync(RunWaitingForResult.TestPath);
 
                 if (app != null)
@@ -191,22 +204,28 @@ namespace Microsoft.FactoryTestFramework.UWP
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
+                        RunWaitingForResult.TestOutput.Add($"Attempting to launch {app.ToString()}");
+
                         launched = await app.LaunchAsync();
 
                         if (launched)
                         {
                             // Go to result entry page
+                            RunWaitingForResult.TestOutput.Add($"{app.ToString()} was launched successfully");
                             RunWaitingForResult.TestStatus = TestStatus.TestRunning;
                             ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
                         }
                         else
                         {
                             // Report failure to server
-                            RunWaitingForResult.TimeFinished = DateTime.Now;
-                            RunWaitingForResult.TestStatus = TestStatus.TestFailed;
-                            await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(RunWaitingForResult));
+                            RunWaitingForResult.TestOutput.Add($"Error: {app.ToString()} was unable to launch");
+                            ReportAppLaunchFailure();
                         }
                     });
+                }
+                else
+                {
+                    ReportAppLaunchFailure();
                 }
             }
 
@@ -221,26 +240,47 @@ namespace Microsoft.FactoryTestFramework.UWP
             RunWaitingForResult = null;
         }
 
-        private static async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
+        private async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
         {
+            RunWaitingForResult.TestOutput.Add($"Looking for installed package with Package Family Name {RunWaitingForResult.TestPath}");
+
             var pkgManager = new PackageManager();
             var pkg = pkgManager.FindPackagesForUserWithPackageTypes("", packageFamilyName, PackageTypes.Main).FirstOrDefault();
 
             if (pkg == null)
             {
-                // TODO: Logging: Log error
+                RunWaitingForResult.TestOutput.Add($"Error: Could not find installed package with Package Family Name {RunWaitingForResult.TestPath}");
                 return null;
             }
 
             var apps = await pkg.GetAppListEntriesAsync();
-            var count = apps.Count;
-            var firstApp = apps.FirstOrDefault();
-            return firstApp;
+            var appToLaunch = apps.FirstOrDefault();
+
+            if (appToLaunch != null)
+            {
+                RunWaitingForResult.TestOutput.Add($"Found App entry {appToLaunch.ToString()} for {RunWaitingForResult.TestPath}");
+            }
+            else
+            {
+                RunWaitingForResult.TestOutput.Add($"Error: {RunWaitingForResult.TestPath} had no App entry!");
+            }
+
+            return appToLaunch;
+        }
+
+        private async void ReportAppLaunchFailure()
+        {
+            RunWaitingForResult.TestOutput.Add($"Error: Failed to launch an app for Package Family Name {RunWaitingForResult.TestPath}");
+            RunWaitingForResult.TimeFinished = DateTime.Now;
+            RunWaitingForResult.TestStatus = TestStatus.TestFailed;
+            RunWaitingForResult.ExitCode = -1;
+            await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(RunWaitingForResult));
         }
 
         public TestRun RunWaitingForResult { get; private set; }
         private bool eventSeen = false;
         private ulong lastEventIndex;
         private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
+        private ExtendedExecutionSession extendedExecution = null;
     }
 }
