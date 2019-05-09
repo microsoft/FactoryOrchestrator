@@ -17,7 +17,7 @@ If it does not have it installed, or you want to install a new version of the UW
 3) (This only works if device is in State Separation development mode or this is done offline.) Register app to start on first boot by setting HKLM\Software\Microsoft\CoreShell\FactoryOS\DefaultApp to REG_SZ with value:
 "microsoft.factorytestframeworkuwp.dev_8wekyb3d8bbwe!App" for any locally built UWP
 - OR - 
-"microsoft.factorytestframeworkuwp._8wekyb3d8bbwe!App" for any PackageES built UWP
+"microsoft.factorytestframeworkuwp_8wekyb3d8bbwe!App" for any PackageES built UWP
 
 If it does not have it installed, or you want to install a new version of the Service:
 1) Publish FTFService project for the desired architecture using Visual Studio
