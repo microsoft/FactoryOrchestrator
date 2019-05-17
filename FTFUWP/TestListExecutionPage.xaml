@@ -1,0 +1,54 @@
+﻿<Page
+    x:Class="Microsoft.FactoryTestFramework.UWP.TestListExecutionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Test Lists" Grid.Column="0" Grid.Row="0" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <TextBlock Text="Tests" Style="{StaticResource TitleTextBlockStyle}"/>
+                <Button Margin="25,0,0,0" x:Name="RunButton" Click="RunButton_Click">
+                    <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
+                </Button>
+                <CheckBox x:Name="RunListInParallel" Content="Run List in Parallel?" Margin="25,0,0,0" IsChecked="False"/>
+                <CheckBox x:Name="DisablePolling" Content="DisablePolling" Margin="10,0" IsChecked="False" Checked="DisablePolling_Click"  Unchecked="DisablePolling_Click" Visibility="Collapsed"/>
+            </StackPanel>
+
+            <ListView x:Name="TestListsView" Grid.Column="0" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TestListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListView.Items>
+                </ListView.Items>
+            </ListView>
+            
+            <ScrollViewer x:Name="TestsScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
+                <Grid x:Name="TestsScrollGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ListView x:Name="TestsView" Grid.Column="0" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <ListView.Items>
+                        </ListView.Items>
+                    </ListView>
+                    <ListView x:Name="ResultsView" Grid.Column="1" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TestViewModel.TestData.TestStatus, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
+                        <ListView.Items>
+                        </ListView.Items>
+                    </ListView>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.FactoryTestFramework.Client;
 using System.Net;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -17,7 +18,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             this.InitializeComponent();
         }
 
-        private void ConnectButton_Click(object sender, RoutedEventArgs e)
+        private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
             IPAddress ip = null;
             bool validIp = false;
@@ -34,7 +35,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
             if (validIp)
             {
-                IPCClientHelper.StartIPCConnection(ip, 45684);
+                await IPCClientHelper.StartIPCConnection(ip, 45684);
                 this.Frame.Navigate(typeof(MainPage));
             }
         }

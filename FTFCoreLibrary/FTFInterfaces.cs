@@ -91,23 +91,27 @@ namespace Microsoft.FactoryTestFramework.Core
         List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked);
         List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex);
         string GetServiceVersionString();
+        bool SetDefaultTePath(string teExePath);
+        bool SetDefaultLogFolder(string logFolder);
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
-        List<Guid> LoadTestListsFromXmlFile(string filePath);
+        List<Guid> LoadTestListsFromXmlFile(string filename);
+        bool SaveTestListToXmlFile(Guid guid, string filename);
+        bool SaveAllTestListsToXmlFile(string filename);
         TestList CreateTestListFromTestList(TestList list);
         List<Guid> GetTestListGuids();
         TestList QueryTestList(Guid guid);
-        TestBase QueryTest(Guid guid);
         bool DeleteTestList(Guid listToDelete);
         bool UpdateTestList(TestList testList);
+
+        // Test APIs
+        TestBase QueryTest(Guid guid);
 
         // Test Execution APIs
         bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
         void StopAll();
         void Stop(Guid testListGuid);
-        bool SetDefaultTePath(string teExePath);
-        bool SetDefaultLogFolder(string logFolder);
         TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
         TestRun RunUWPOutsideTestList(string packageFamilyName);
         TestRun RunTestOutsideTestList(Guid testGuid);

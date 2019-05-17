@@ -114,6 +114,35 @@ namespace Microsoft.FactoryTestFramework.Service
         //}
 
         // TODO: Logging: Catch exceptions & log them
+        public List<ServiceEvent> GetAllServiceEvents()
+        {
+            return FTFService.Instance.ServiceEvents.Values.ToList();
+        }
+
+        public List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked)
+        {
+            if (timeLastChecked < FTFService.Instance.LastEventTime)
+            {
+                return FTFService.Instance.ServiceEvents.Values.Where(x => x.EventTime > timeLastChecked).ToList();
+            }
+            else
+            {
+                return new List<ServiceEvent>();
+            }
+        }
+
+        public List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex)
+        {
+            if (lastEventIndex < FTFService.Instance.LastEventIndex)
+            {
+                return FTFService.Instance.ServiceEvents.Where(x => x.Key > lastEventIndex).Select(x => x.Value).ToList();
+            }
+            else
+            {
+                return new List<ServiceEvent>();
+            }
+        }
+
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
             FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromDirectory {path}");
@@ -122,11 +151,12 @@ namespace Microsoft.FactoryTestFramework.Service
             return tl;
         }
 
-        public List<Guid> LoadTestListsFromXmlFile(string filePath)
+        public List<Guid> LoadTestListsFromXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogTrace($"Start: LoadTestListsFromXmlFile {filePath}");
-            throw new NotImplementedException();
-            FTFService.Instance.ServiceLogger.LogTrace($"Finish: LoadTestListsFromXmlFile {filePath}");
+            FTFService.Instance.ServiceLogger.LogTrace($"Start: LoadTestListsFromXmlFile {filename}");
+            var tls = FTFService.Instance.TestExecutionManager.LoadTestListsFromXmlFile(filename);
+            FTFService.Instance.ServiceLogger.LogTrace($"Finish: LoadTestListsFromXmlFile {filename}");
+            return tls;
         }
 
         public TestList CreateTestListFromTestList(TestList list)
@@ -135,6 +165,20 @@ namespace Microsoft.FactoryTestFramework.Service
             var serverList = FTFService.Instance.TestExecutionManager.CreateTestListFromTestList(list);
             FTFService.Instance.ServiceLogger.LogTrace($"Finish: CreateTestListFromTestList {list.Guid}");
             return serverList;
+        }
+
+        public bool SaveTestListToXmlFile(Guid guid, string filename)
+        {
+            FTFService.Instance.ServiceLogger.LogTrace($"Start: SaveTestListToXmlFile {guid} {filename}");
+            return FTFService.Instance.TestExecutionManager.SaveTestListToXmlFile(guid, filename);
+            FTFService.Instance.ServiceLogger.LogTrace($"Finish: SaveTestListToXmlFile {guid} {filename}");
+        }
+
+        public bool SaveAllTestListsToXmlFile(string filename)
+        {
+            FTFService.Instance.ServiceLogger.LogTrace($"Start: SaveAllTestListsToXmlFile {filename}");
+            return FTFService.Instance.TestExecutionManager.SaveAllTestListsToXmlFile(filename);
+            FTFService.Instance.ServiceLogger.LogTrace($"Finish: SaveAllTestListsToXmlFile {filename}");
         }
 
         public List<Guid> GetTestListGuids()
@@ -200,33 +244,9 @@ namespace Microsoft.FactoryTestFramework.Service
             FTFService.Instance.TestExecutionManager.Abort(testListGuid);
         }
 
-        public List<ServiceEvent> GetAllServiceEvents()
+        public string GetServiceVersionString()
         {
-            return FTFService.Instance.ServiceEvents.Values.ToList();
-        }
-
-        public List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked)
-        {
-            if (timeLastChecked < FTFService.Instance.LastEventTime)
-            {
-                return FTFService.Instance.ServiceEvents.Values.Where(x => x.EventTime > timeLastChecked).ToList();
-            }
-            else
-            {
-                return new List<ServiceEvent>();
-            }
-        }
-
-        public List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex)
-        {
-            if (lastEventIndex < FTFService.Instance.LastEventIndex)
-            {
-                return FTFService.Instance.ServiceEvents.Where(x => x.Key > lastEventIndex).Select(x => x.Value).ToList();
-            }
-            else
-            {
-                return new List<ServiceEvent>();
-            }
+            return FTFService.GetServiceVersionString();
         }
 
         public TestRun QueryTestRun(Guid testRunGuid)
@@ -242,12 +262,6 @@ namespace Microsoft.FactoryTestFramework.Service
         public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
         {
             return FTFService.Instance.TestExecutionManager.Run(TestListToRun, allowOtherTestListsToRun, runListInParallel);
-        }
-
-
-        public string GetServiceVersionString()
-        {
-            return FTFService.GetServiceVersionString();
         }
 
         public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)

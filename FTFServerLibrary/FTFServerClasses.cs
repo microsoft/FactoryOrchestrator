@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Microsoft.FactoryTestFramework.Server
 {
@@ -105,6 +107,93 @@ namespace Microsoft.FactoryTestFramework.Server
                 KnownTestLists.Add(tests.Guid, tests);
             }
             return tests;
+        }
+
+        public bool SaveAllTestListsToXmlFile(string filename)
+        {
+            TestListXml xml = new TestListXml();
+
+            lock (KnownTestListLock)
+            {
+                if (KnownTestLists.Count > 0)
+                {
+                    xml.TestLists = KnownTestLists.Values.ToList();
+                }
+                else
+                {
+                    // TODO: Logging
+                    return false;
+                }
+            }
+
+            xml.PreDeserialize();
+
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(TestListXml));
+                serializer.Serialize(writer, xml);
+            }
+
+            return true;
+        }
+
+        public bool SaveTestListToXmlFile(Guid guid, string filename)
+        {
+            TestListXml xml = new TestListXml();
+
+            lock (KnownTestListLock)
+            {
+                if (KnownTestLists.ContainsKey(guid))
+                {
+                    xml.TestLists.Add(KnownTestLists[guid]);
+                }
+                else
+                {
+                    // TODO: Logging
+                    return false;
+                }
+            }
+
+            xml.PreDeserialize();
+
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(TestListXml));
+                serializer.Serialize(writer, xml);
+            }
+
+            return true;
+        }
+        public List<Guid> LoadTestListsFromXmlFile(string filename)
+        {
+            if (!File.Exists(filename))
+            {
+                // TODO: Logging
+                return null;
+            }
+
+            TestListXml xml;
+
+            using (XmlReader reader = XmlReader.Create(filename))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(TestListXml));
+                xml = (TestListXml)serializer.Deserialize(reader);
+            }
+
+            xml.PostDeserialize();
+
+            // Add GUIDs to any TestBase or TestList objects that don't have one
+            lock (KnownTestListLock)
+            {
+                foreach (var list in xml.TestLists)
+                {
+                    KnownTestLists.Add(list.Guid, list);
+                }
+            }
+
+            return xml.TestLists.Select(x => x.Guid).ToList();
         }
 
         public bool DeleteTestList(Guid listToDelete)
@@ -1085,10 +1174,10 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             
             // Set remaining values via method args. They weren't set by base Ctor since the owning test is null.
-            _testPath = testPath;
-            _arguments = arguments;
-            _testName = Path.GetFileName(testPath);
-            _testType = type;
+            TestPath = testPath;
+            Arguments = arguments;
+            TestName = Path.GetFileName(testPath);
+            TestType = type;
         }
 
         private void CtorCommon()

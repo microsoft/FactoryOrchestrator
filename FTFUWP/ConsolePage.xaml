@@ -8,35 +8,29 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid x:Name="CommandStack" VerticalAlignment="Top" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
-            <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="1" Text="Factory Test Framework Console" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
-            <Grid x:Name="CommandStack" Grid.Row="1" Grid.Column="1" Margin="0" VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="CommandConst" Text="Command:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
-                <TextBox x:Name="CommandBox" Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
-                <Button x:Name="RunButton" Click="RunButton_Click" Grid.Column="2">
-                    <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
-                </Button>
-            </Grid>
-            <TextBlock x:Name="OutputConst" Grid.Column="1" Grid.Row="2" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Console Output:"/>
-            <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="3">
-                <StackPanel x:Name="OutputStack" Grid.Column="1" Margin="5" VerticalAlignment="Center" Orientation="Vertical" SizeChanged="OutputStack_SizeChanged"/>
-            </ScrollViewer>
+            <TextBlock x:Name="CommandConst" Text="Command:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
+            <TextBox x:Name="CommandBox" Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
+            <Button x:Name="RunButton" Click="RunButton_Click" Grid.Column="2">
+                <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
+            </Button>
         </Grid>
+        <TextBlock x:Name="OutputConst" Grid.Row="2" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Console Output:"/>
+        <Button x:Name="ClearButton" Click="ClearButton_Click" Grid.Row="2" Content="Clear Output" HorizontalAlignment="Right"/>
+        <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Row="4">
+            <StackPanel x:Name="OutputStack" Margin="5" VerticalAlignment="Top" Orientation="Vertical" SizeChanged="OutputStack_SizeChanged"/>
+        </ScrollViewer>
     </Grid>
 </Page>

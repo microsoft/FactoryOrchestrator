@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.FactoryTestFramework.Client
 {
@@ -15,7 +16,7 @@ namespace Microsoft.FactoryTestFramework.Client
             IpcClient = null;
         }
 
-        public static async void StartIPCConnection(IPAddress host, int port)
+        public static async Task StartIPCConnection(IPAddress host, int port)
         {
             IsLocalHost = (host == IPAddress.Loopback) ? true : false;
 

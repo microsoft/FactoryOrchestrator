@@ -5,7 +5,9 @@ using System.Linq;
 using Newtonsoft.Json;
 using Microsoft.FactoryTestFramework.Core.JSONConverters;
 using System.Threading.Tasks;
-
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace Microsoft.FactoryTestFramework.Core
 {
@@ -45,15 +47,17 @@ namespace Microsoft.FactoryTestFramework.Core
     /// It also surfaces information about the last TestRun for this test, for easy consumption.
     /// </summary>
     [JsonConverter(typeof(TestBaseConverter))]
+    [XmlInclude(typeof(ExecutableTest))]
+    [XmlInclude(typeof(UWPTest))]
+    [XmlInclude(typeof(ExternalTest))]
+    [XmlInclude(typeof(TAEFTest))]
     public abstract class TestBase
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
-        public TestBase(string testPath, TestType type)
+        protected TestBase(TestType type)
         {
-            _guid = Guid.NewGuid();
             TestType = type;
-            TestPath = testPath;
             IsEnabled = true;
             TestLock = new object();
             LatestTestRunStatus = TestStatus.TestNotRun;
@@ -63,12 +67,22 @@ namespace Microsoft.FactoryTestFramework.Core
             TestRunGuids = new List<Guid>();
         }
 
+        public TestBase(string testPath, TestType type) : this(type)
+        {
+            Guid = Guid.NewGuid();
+            TestPath = testPath;
+        }
+
         // TODO: Make only getters and add internal apis to set
-        public TestType TestType { get; }
-        public string TestPath { get; }
+        public TestType TestType { get; set; }
+
+        [XmlAttribute("TestPath")]
+        public string TestPath { get; set; }
         public string LogFolder { get; set; }
         public string Arguments { get; set; }
-        public Guid Guid { get => _guid; }
+
+        [XmlAttribute("Guid")]
+        public Guid Guid { get; set; }
         public DateTime? LatestTestRunTimeStarted { get; set; }
         public DateTime? LatestTestRunTimeFinished { get; set; }
         public TestStatus LatestTestRunStatus { get; set; }
@@ -133,12 +147,14 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
+        [XmlAttribute("Name")]
         public virtual string TestName
         {
             get
             {
                 return TestPath;
             }
+            set {}
         }
 
         public Guid? LastTestRunGuid
@@ -228,10 +244,25 @@ namespace Microsoft.FactoryTestFramework.Core
             return -737073652 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
 
-        [JsonRequired]
-        private Guid _guid;
+        // TODO: Quality: Consider using IXmlSerializable so we can make some properties "read only"
+        //public XmlSchema GetSchema()
+        //{
+        //    return null;
+        //}
+
+        //public void ReadXml(XmlReader reader)
+        //{
+        //    reader.MoveToContent();
+        //    Guid = reader.GetAttribute("Guid")
+        //}
+
+        //public void WriteXml(XmlWriter writer)
+        //{
+
+        //}
 
         [JsonIgnore]
+        [XmlIgnore]
         public object TestLock;
 
         // TestRuns are queried by GUID
@@ -245,6 +276,11 @@ namespace Microsoft.FactoryTestFramework.Core
     [JsonConverter(typeof(NoConverter))]
     public class ExecutableTest : TestBase
     {
+        private ExecutableTest() : base(TestType.ConsoleExe)
+        {
+
+        }
+
         public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
         {
         }
@@ -270,13 +306,27 @@ namespace Microsoft.FactoryTestFramework.Core
             return base.Equals(obj as TestBase);
         }
 
-        public override String TestName
+        [XmlAttribute("Name")]
+        public override string TestName
         {
             get
             {
-                return Path.GetFileName(TestPath);
+                if (_testFriendlyName == null)
+                {
+                    return Path.GetFileName(TestPath);
+                }
+                else
+                {
+                    return _testFriendlyName;
+                }
+            }
+            set
+            {
+                _testFriendlyName = value;
             }
         }
+
+        private string _testFriendlyName;
     }
 
     /// <summary>
@@ -286,6 +336,11 @@ namespace Microsoft.FactoryTestFramework.Core
     [JsonConverter(typeof(NoConverter))]
     public class TAEFTest : ExecutableTest
     {
+        private TAEFTest() : base(null, TestType.TAEFDll)
+        {
+
+        }
+
         public TAEFTest(string testPath) : base(testPath, TestType.TAEFDll)
         {
         }
@@ -302,7 +357,7 @@ namespace Microsoft.FactoryTestFramework.Core
             return base.Equals(obj as ExecutableTest);
         }
 
-        private List<TAEFTestCase> _testCases;
+        public List<TAEFTestCase> TestCases { get; set; }
         private String _wtlFilePath;
     }
 
@@ -345,14 +400,18 @@ namespace Microsoft.FactoryTestFramework.Core
     [JsonConverter(typeof(NoConverter))]
     public class ExternalTest : TestBase
     {
+        private ExternalTest() : base(TestType.External)
+        {
+        }
+
         public ExternalTest(String testName) : base(null, TestType.External)
         {
-            TestName = testName;
+            _testFriendlyName = testName;
         }
 
         protected ExternalTest(String testPath, String testName, TestType type) : base(testPath, type)
         {
-            TestName = testName;
+            _testFriendlyName = testName;
         }
 
         public override string ToString()
@@ -377,7 +436,27 @@ namespace Microsoft.FactoryTestFramework.Core
             return base.Equals(obj as TestBase);
         }
 
-        public override string TestName { get; }
+        [XmlAttribute("Name")]
+        public override string TestName
+        {
+            get
+            {
+                if (_testFriendlyName == null)
+                {
+                    return TestPath;
+                }
+                else
+                {
+                    return _testFriendlyName;
+                }
+            }
+            set
+            {
+                _testFriendlyName = value;
+            }
+        }
+
+        private string _testFriendlyName;
     }
 
     /// <summary>
@@ -387,14 +466,18 @@ namespace Microsoft.FactoryTestFramework.Core
     [JsonConverter(typeof(NoConverter))]
     public class UWPTest : ExternalTest
     {
+        private UWPTest() : base(null, null, TestType.UWP)
+        {
+        }
+
         public UWPTest(string packageFamilyName, string testFriendlyName) : base(packageFamilyName, testFriendlyName, TestType.UWP)
         {
-            TestName = testFriendlyName;
+            _testFriendlyName = testFriendlyName;
         }
 
         public UWPTest(string packageFamilyName) : base(packageFamilyName, null, TestType.UWP)
         {
-            TestName = packageFamilyName;
+            _testFriendlyName = packageFamilyName;
         }
 
         public override bool Equals(object obj)
@@ -414,7 +497,27 @@ namespace Microsoft.FactoryTestFramework.Core
             return base.Equals(obj as ExternalTest);
         }
 
-        public override string TestName { get; }
+        [XmlAttribute("Name")]
+        public override string TestName
+        {
+            get
+            {
+                if (_testFriendlyName == null)
+                {
+                    return TestPath;
+                }
+                else
+                {
+                    return _testFriendlyName;
+                }
+            }
+            set
+            {
+                _testFriendlyName = value;
+            }
+        }
+
+        private string _testFriendlyName;
     }
 
     /// <summary>
@@ -422,28 +525,22 @@ namespace Microsoft.FactoryTestFramework.Core
     /// </summary>
     public class TestList
     {
-        public Dictionary<Guid, TestBase> Tests;
-
-        public Guid Guid { get => _guid; }
-
-        [JsonRequired]
-        private Guid _guid;
-
         [JsonConstructor]
         internal TestList()
         {
             Tests = new Dictionary<Guid, TestBase>();
+            TestsForXml = new List<TestBase>();
         }
 
         public TestList(Guid guid) : this()
         {
             if (guid != null)
             {
-                _guid = guid;
+                Guid = guid;
             }
             else
             {
-                _guid = Guid.NewGuid();
+                Guid = Guid.NewGuid();
             }
         }
 
@@ -506,6 +603,16 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             return -2045414129 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
+
+        [XmlArrayItem("Test")]
+        [XmlArray("Tests")]
+        [JsonIgnore]
+        public List<TestBase> TestsForXml { get; set; }
+
+        [XmlIgnore]
+        public Dictionary<Guid, TestBase> Tests { get; set; }
+
+        public Guid Guid { get; set; }
     }
 
     /// <summary>
@@ -528,7 +635,7 @@ namespace Microsoft.FactoryTestFramework.Core
         /// <param name="owningTest"></param>
         protected TestRun(TestBase owningTest)
         {
-            _guid = Guid.NewGuid();
+            Guid = Guid.NewGuid();
             ConsoleLogFilePath = null;
             TestStatus = TestStatus.TestNotRun;
             TimeFinished = null;
@@ -538,26 +645,27 @@ namespace Microsoft.FactoryTestFramework.Core
 
             if (owningTest != null)
             {
-                _owningGuid = owningTest.Guid;
-                _testPath = owningTest.TestPath;
-                _arguments = owningTest.Arguments;
-                _testName = owningTest.TestName;
-                _testType = owningTest.TestType;
+                OwningTestGuid = owningTest.Guid;
+                TestPath = owningTest.TestPath;
+                Arguments = owningTest.Arguments;
+                TestName = owningTest.TestName;
+                TestType = owningTest.TestType;
             }
         }
 
         public List<string> TestOutput { get; set; }
 
-        public Guid OwningTestGuid { get => _owningGuid; }
-        public string TestName { get => _testName; }
-        public string TestPath { get => _testPath; }
-        public string Arguments { get => _arguments; }
-        public TestType TestType { get => _testType; }
-        public Guid Guid { get => _guid; }
+        public Guid OwningTestGuid { get; set; }
+        public string TestName { get; set; }
+        public string TestPath { get; set; }
+        public string Arguments { get; set; }
+        public TestType TestType { get; set; }
+        public Guid Guid { get; set; }
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeFinished { get; set; }
         public TestStatus TestStatus { get; set; }
         public string ConsoleLogFilePath { get; set; }
+        public int? ExitCode { get; set; }
 
         public bool RunByServer
         {
@@ -684,19 +792,60 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             return -737073652 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
+    }
 
-        [JsonRequired]
-        private Guid _guid;
+    /// <summary>
+    /// This class is only used to save & load TestLists from an XML file.
+    /// </summary>
+    [XmlRootAttribute(ElementName = "TestLists", IsNullable = false)]
+    public partial class TestListXml
+    {
+        public TestListXml()
+        {
+            TestLists = new List<TestList>();
+        }
 
-        private Guid _owningGuid;
-        [JsonRequired]
-        protected string _testPath;
-        [JsonRequired]
-        protected string _testName;
-        protected string _arguments;
-        [JsonRequired]
-        protected TestType _testType;
+        public List<TestList> TestLists { get; set; }
 
-        public int? ExitCode { get; set; }
+        /// <summary>
+        /// Create Guids for any imported test or testlist that is missing one.
+        /// Create Tests dictionary.
+        /// </summary>
+        public void PostDeserialize()
+        {
+            foreach (var list in TestLists)
+            {
+                if (list.Guid == Guid.Empty)
+                {
+                    list.Guid = Guid.NewGuid();
+                }
+
+                foreach (var test in list.TestsForXml)
+                {
+                    if (test.Guid == Guid.Empty)
+                    {
+                        test.Guid = Guid.NewGuid();
+                    }
+
+                    list.Tests.Add(test.Guid, test);
+                }
+
+                // clear old xml list
+                list.TestsForXml = new List<TestBase>();
+            }
+        }
+
+
+        /// <summary>
+        /// Create TestsForXml List.
+        /// </summary>
+        public void PreDeserialize()
+        {
+            foreach (var list in TestLists)
+            {
+                list.TestsForXml = new List<TestBase>();
+                list.TestsForXml.AddRange(list.Tests.Values);
+            }
+        }
     }
 }
