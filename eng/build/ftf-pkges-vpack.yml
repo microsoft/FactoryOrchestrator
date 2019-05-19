@@ -172,11 +172,11 @@ steps:
   enabled: true
 
 - task: CopyFiles@2
-  displayName: 'Copy appxbundle to root of drop'
+  displayName: 'Copy msixbundle to root of drop'
   inputs:
-    SourceFolder: '$(XES_DFSDROP)\release\appxbundle\Multi\FTFUWP'
-    Contents: 'Microsoft.FTFUWP_8wekyb3d8bbwe.appxbundle'
-    TargetFolder: '$(XES_DFSDROP)\AppXBundle'
+    SourceFolder: '$(XES_DFSDROP)\release\msixbundle\Multi\FTFUWP'
+    Contents: 'Microsoft.FTFUWP_8wekyb3d8bbwe.msixbundle'
+    TargetFolder: '$(XES_DFSDROP)\msixbundle'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
@@ -259,16 +259,16 @@ steps:
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack AppXBundle'
+  displayName: 'PkgES Create VPack msixbundle'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\AppXBundle'
-    pushPkgName: '$(Build.Repository.Name).AppXBundle'
-    description: '$(Build.Repository.Name).AppXBundle'
+    sourceDirectory: '$(XES_DFSDROP)\msixbundle'
+    pushPkgName: '$(Build.Repository.Name).msixbundle'
+    description: '$(Build.Repository.Name).msixbundle'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
 - task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop AppXBundle'
+  displayName: 'Copy VPack Manifest to Drop msixbundle'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
@@ -287,7 +287,7 @@ steps:
     configPath: 'eng/build/GitCheckin.json'
     binVersion: Custom
     binVersionOverride: 'Production'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), ne(variables['skipgitsubmit'], 'true'))
   enabled: true
 
 - task: PkgESLateTasks@10

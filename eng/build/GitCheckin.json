@@ -27,7 +27,7 @@
 				"type": "File"
 				},
 				{
-				"source": "FactoryTestFramework.AppXBundle.man",
+				"source": "FactoryTestFramework.msixbundle.man",
 				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/appx/FTFUWP",
 				"type": "File"
 				}
