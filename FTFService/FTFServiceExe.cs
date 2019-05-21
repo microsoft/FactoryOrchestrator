@@ -279,6 +279,27 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             return FTFService.Instance.TestExecutionManager.RunUWPOutsideTestList(packageFamilyName);
         }
+
+        public byte[] GetFile(string sourceFilename)
+        {
+            if (!File.Exists(sourceFilename))
+            {
+                // todo: logging
+                return null;
+            }
+
+            return File.ReadAllBytes(sourceFilename);
+        }
+
+        public bool SendFile(string targetFilename, byte[] fileData)
+        {
+            // Create target folder, if needed.
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
+
+            File.WriteAllBytes(targetFilename, fileData);
+
+            return true;
+        }
     }
 
     public class FTFService : IMicroService

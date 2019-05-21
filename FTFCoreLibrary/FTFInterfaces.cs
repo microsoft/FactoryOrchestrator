@@ -119,5 +119,9 @@ namespace Microsoft.FactoryTestFramework.Core
         // Test Run APIs
         bool SetTestRunStatus(TestRun testRunStatus);
         TestRun QueryTestRun(Guid testRunGuid);
+
+        // File APIs
+        byte[] GetFile(string sourceFilename);
+        bool SendFile(string targetFilename, byte[] fileData);
     }
 }

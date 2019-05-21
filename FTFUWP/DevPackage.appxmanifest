@@ -28,5 +28,6 @@
     <Capability Name="privateNetworkClientServer" />
     <rescap:Capability Name="packageQuery"/>
     <rescap:Capability Name="extendedExecutionUnconstrained"/>
+    <rescap:Capability Name="broadFileSystemAccess"/>
   </Capabilities>
 </Package>

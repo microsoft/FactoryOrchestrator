@@ -110,6 +110,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             ("console", typeof(ConsolePage)),
             ("apps", typeof(AppsPage)),
             ("save", typeof(SaveLoadEditPage)),
+            ("files", typeof(FileTransferPage)),
             ("about", typeof(AboutPage))
         };
     }

@@ -29,6 +29,7 @@
                     </NavigationViewItem>
                     <NavigationViewItem Tag="apps" Content="UWP Apps" Icon="AllApps"/>
                     <NavigationViewItem Tag="save" Content="Manage TestLists" Icon="Edit"/>
+                    <NavigationViewItem Tag="files" Content="Transfer Files" Icon="SyncFolder"/>
                     <NavigationViewItem Tag="about" Content="About Factory Test Framework" Icon="Help"/>
                 </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" IsTabStop="True" Padding="0, 0, 24, 0"/>

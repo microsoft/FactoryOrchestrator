@@ -117,6 +117,10 @@
     <Compile Include="ExternalTestResultPage.xaml.cs">
       <DependentUpon>ExternalTestResultPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FileTransferHelper.cs" />
+    <Compile Include="FileTransferPage.xaml.cs">
+      <DependentUpon>FileTransferPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SaveLoadEditPage.xaml.cs">
       <DependentUpon>SaveLoadEditPage.xaml</DependentUpon>
     </Compile>
@@ -216,6 +220,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ExternalTestResultPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FileTransferPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
