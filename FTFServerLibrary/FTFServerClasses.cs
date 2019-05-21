@@ -1,6 +1,5 @@
 ﻿using Microsoft.FactoryTestFramework.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -111,7 +110,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public bool SaveAllTestListsToXmlFile(string filename)
         {
-            TestListXml xml = new TestListXml();
+            FTFXML xml = new FTFXML();
 
             lock (KnownTestListLock)
             {
@@ -126,21 +125,12 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
             }
 
-            xml.PreDeserialize();
-
-            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
-            using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(TestListXml));
-                serializer.Serialize(writer, xml);
-            }
-
-            return true;
+            return xml.Save(filename);
         }
 
         public bool SaveTestListToXmlFile(Guid guid, string filename)
         {
-            TestListXml xml = new TestListXml();
+            FTFXML xml = new FTFXML();
 
             lock (KnownTestListLock)
             {
@@ -155,34 +145,13 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
             }
 
-            xml.PreDeserialize();
-
-            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
-            using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(TestListXml));
-                serializer.Serialize(writer, xml);
-            }
-
-            return true;
+            return xml.Save(filename);
         }
+
         public List<Guid> LoadTestListsFromXmlFile(string filename)
         {
-            if (!File.Exists(filename))
-            {
-                // TODO: Logging
-                return null;
-            }
-
-            TestListXml xml;
-
-            using (XmlReader reader = XmlReader.Create(filename))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(TestListXml));
-                xml = (TestListXml)serializer.Deserialize(reader);
-            }
-
-            xml.PostDeserialize();
+            FTFXML xml;
+            xml = FTFXML.Load(filename);
 
             // Add GUIDs to any TestBase or TestList objects that don't have one
             lock (KnownTestListLock)

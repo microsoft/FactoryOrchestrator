@@ -12,6 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="FTFXML.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 

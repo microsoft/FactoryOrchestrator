@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using Microsoft.FactoryTestFramework.Core.JSONConverters;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Schema;
+using System.Reflection;
 
 namespace Microsoft.FactoryTestFramework.Core
 {
@@ -74,9 +74,20 @@ namespace Microsoft.FactoryTestFramework.Core
         }
 
         // TODO: Make only getters and add internal apis to set
+        [XmlAttribute("Name")]
+        public virtual string TestName
+        {
+            get
+            {
+                return TestPath;
+            }
+            set { }
+        }
+
+        [XmlIgnore]
         public TestType TestType { get; set; }
 
-        [XmlAttribute("TestPath")]
+        [XmlAttribute("Path")]
         public string TestPath { get; set; }
         public string LogFolder { get; set; }
         public string Arguments { get; set; }
@@ -108,6 +119,10 @@ namespace Microsoft.FactoryTestFramework.Core
         public bool IsEnabled { get; set; }
 
         public int? LatestTestRunExitCode { get; set; }
+
+        // TestRuns are queried by GUID
+        [XmlArrayItem("Guid")]
+        public List<Guid> TestRunGuids { get; set; }
 
         public virtual TimeSpan? LatestTestRunRunTime
         {
@@ -147,16 +162,6 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
-        [XmlAttribute("Name")]
-        public virtual string TestName
-        {
-            get
-            {
-                return TestPath;
-            }
-            set {}
-        }
-
         public Guid? LastTestRunGuid
         {
             get
@@ -170,6 +175,28 @@ namespace Microsoft.FactoryTestFramework.Core
                     return null;
                 }
             }
+        }
+
+        // XmlSerializer calls these to check if these values are set.
+        // If not set, don't serialize.
+        // https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/defining-default-values-with-the-shouldserialize-and-reset-methods
+        public bool ShouldSerializeLatestTestRunTimeStarted()
+        {
+            return LatestTestRunTimeStarted.HasValue;
+        }
+
+        public bool ShouldSerializeLatestTestRunTimeFinished()
+        {
+            return LatestTestRunTimeFinished.HasValue;
+        }
+
+        public bool ShouldSerializeLatestTestRunExitCode()
+        {
+            return LatestTestRunExitCode.HasValue;
+        }
+        public bool ShouldSerializeTestRunGuids()
+        {
+            return TestRunGuids.Count > 0;
         }
 
         public override bool Equals(object obj)
@@ -264,9 +291,6 @@ namespace Microsoft.FactoryTestFramework.Core
         [JsonIgnore]
         [XmlIgnore]
         public object TestLock;
-
-        // TestRuns are queried by GUID
-        public List<Guid> TestRunGuids { get; set; }
     }
 
     /// <summary>
@@ -604,14 +628,21 @@ namespace Microsoft.FactoryTestFramework.Core
             return -2045414129 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
 
+        /// <summary>
+        /// XML serializer can't serialize Dictionaries. Use a list instead for XML.
+        /// </summary>
         [XmlArrayItem("Test")]
         [XmlArray("Tests")]
         [JsonIgnore]
         public List<TestBase> TestsForXml { get; set; }
 
+        /// <summary>
+        /// Tests in the TestList, tracked by test GUID
+        /// </summary>
         [XmlIgnore]
         public Dictionary<Guid, TestBase> Tests { get; set; }
 
+        [XmlAttribute]
         public Guid Guid { get; set; }
     }
 
@@ -795,23 +826,24 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
-    /// This class is only used to save & load TestLists from an XML file.
+    /// This class is used to save & load TestLists from an XML file.
     /// </summary>
-    [XmlRootAttribute(ElementName = "TestLists", IsNullable = false)]
-    public partial class TestListXml
+    [XmlRootAttribute(ElementName = "FTFXML", IsNullable = false)]
+    public partial class FTFXML
     {
-        public TestListXml()
+        public FTFXML()
         {
             TestLists = new List<TestList>();
         }
 
+        [XmlArrayItem("TestList")]
         public List<TestList> TestLists { get; set; }
 
         /// <summary>
         /// Create Guids for any imported test or testlist that is missing one.
         /// Create Tests dictionary.
         /// </summary>
-        public void PostDeserialize()
+        private void PostDeserialize()
         {
             foreach (var list in TestLists)
             {
@@ -839,7 +871,7 @@ namespace Microsoft.FactoryTestFramework.Core
         /// <summary>
         /// Create TestsForXml List.
         /// </summary>
-        public void PreDeserialize()
+        private void PreSerialize()
         {
             foreach (var list in TestLists)
             {
@@ -847,5 +879,134 @@ namespace Microsoft.FactoryTestFramework.Core
                 list.TestsForXml.AddRange(list.Tests.Values);
             }
         }
+
+        public static FTFXML Load(string filename)
+        {
+            FTFXML xml;
+
+            try
+            {
+                lock (XmlSerializeLock)
+                {
+                    XmlIsValid = false;
+                    ValidationErrors = "";
+
+                    if (!File.Exists(filename))
+                    {
+                        throw new FileNotFoundException($"{filename} does not exist!");
+                    }
+
+                    // Validate XSD
+                    var asm = Assembly.GetAssembly(typeof(FTFXML));
+                    using (Stream xsdStream = asm.GetManifestResourceStream(GetResourceName(Assembly.GetAssembly(typeof(FTFXML)), "FTFXML.xsd", false)))
+                    {
+                        XmlReaderSettings settings = new XmlReaderSettings();
+                        settings.XmlResolver = null;
+
+                        using (XmlReader xsdReader = XmlReader.Create(xsdStream, settings))
+                        {
+                            XmlSchema xmlSchema = xmlSchema = XmlSchema.Read(xsdReader, ValidationEventHandler);
+
+                            using (XmlReader reader = XmlReader.Create(filename, settings))
+                            {
+                                XmlDocument document = new XmlDocument();
+                                document.XmlResolver = null;
+                                document.Schemas.Add(xmlSchema);
+
+                                // Remove xsi:type so they are properly validated against the shared "Test" XSD type
+                                document.Load(reader);
+                                var tests = document.SelectNodes("//Test");
+                                foreach (var testNode in tests)
+                                {
+                                    var removed = ((XmlNode)testNode).Attributes.RemoveNamedItem("xsi:type");
+                                    Console.WriteLine(removed.ToString());
+                                }
+                                XmlIsValid = true;
+                                document.Validate(ValidationEventHandler);
+                            }
+
+                            if (!XmlIsValid)
+                            {
+                                // Throw all the errors we found
+                                throw new XmlSchemaValidationException(ValidationErrors);
+                            }
+                        }
+                    }
+                }
+
+                // Deserialize
+                using (XmlReader reader = XmlReader.Create(filename))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(FTFXML));
+                    xml = (FTFXML)serializer.Deserialize(reader);
+                }
+
+                xml.PostDeserialize();
+            }
+            catch (Exception e)
+            {
+                throw new FileLoadException($"Could not load {filename} as FTFXML!", e);
+            }
+
+            return xml;
+        }
+
+        private static void ValidationEventHandler(object sender, ValidationEventArgs e)
+        {
+            if (e.Severity == XmlSeverityType.Error)
+            {
+                // Save the error, instead of throwing now.
+                // This allows valiatation to catch mutiple errors in one pass.
+                XmlIsValid = false;
+
+                if (!String.IsNullOrEmpty(ValidationErrors))
+                {
+                    ValidationErrors += System.Environment.NewLine;
+                }
+
+                ValidationErrors += e.Message;
+            }
+        }
+
+        private static string GetResourceName(Assembly assembly, string resourceIdentifier, bool matchWholeWord = true)
+        {
+            resourceIdentifier = resourceIdentifier.ToLowerInvariant();
+            var ListOfResources = assembly.GetManifestResourceNames();
+
+            foreach (string resource in ListOfResources)
+            {
+                if (matchWholeWord)
+                {
+                    if (resource.ToLowerInvariant().Equals(resourceIdentifier))
+                    {
+                        return resource;
+                    }
+                }
+                else if (resource.ToLowerInvariant().Contains(resourceIdentifier))
+                {
+                    return resource;
+                }
+            }
+
+            throw new FileNotFoundException("Could not find embedded resource", resourceIdentifier);
+        }
+
+        public bool Save(string filename)
+        {
+            PreSerialize();
+
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(FTFXML));
+                serializer.Serialize(writer, this);
+            }
+
+            return true;
+        }
+
+        private static bool XmlIsValid { get; set; }
+        private static object XmlSerializeLock = new object();
+        private static string ValidationErrors;
     }
 }

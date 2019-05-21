@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="FTFXML"
+    elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+  <xs:element name="TestRunGuids">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Guid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  <xs:element name="Test">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="LatestTestRunTimeStarted" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="LatestTestRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="LatestTestRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="LatestTestRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="IsEnabled" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="TestRunGuids" minOccurs="0" maxOccurs="1"/>
+      </xs:all>
+      <xs:attribute type="xs:string" name="Name" use="optional"/>
+      <xs:attribute type="xs:string" name="Path" use="optional"/>
+      <xs:attribute type="xs:string" name="Guid" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+    <xs:element name="Tests">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="Test" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="TestList">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="Tests"/>
+        </xs:sequence>
+        <xs:attribute name="Guid" type="xs:string" use="optional"/>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="TestLists">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="TestList" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="FTFXML">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="TestLists" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  
+</xs:schema>
