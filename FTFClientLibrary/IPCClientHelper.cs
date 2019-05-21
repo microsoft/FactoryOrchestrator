@@ -69,7 +69,7 @@ namespace Microsoft.FactoryTestFramework.Client
 
         public static async void RebootServerDevice(uint secondsUntilReboot = 2)
         {
-            await IpcClient.InvokeAsync(x => x.RunExecutableOutsideTestList("shutdown.exe", "/r /t {secondsUntilReboot}", null));
+            await IpcClient.InvokeAsync(x => x.RunExecutableOutsideTestList("shutdown.exe", $"/r /t {secondsUntilReboot}", null));
         }
 
         public static IpcServiceClient<IFTFCommunication> IpcClient { get; private set; }
