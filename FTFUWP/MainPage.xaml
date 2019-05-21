@@ -10,6 +10,38 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Button x:Name="ExitButton" Padding="5" VerticalAlignment="Top" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
+            </StackPanel>
+            <Button.Flyout>
+                <Flyout x:Name="ExitFlyout">
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Text="Exit Factory Test Framework?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
+                                    <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Exit"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE777;"/>
+                                    <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Reboot"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="ConfirmShutdown" Padding="8" Margin="10,5" Click="ConfirmShutdown_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7E8;"/>
+                                    <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Shutdown"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Flyout>
+            </Button.Flyout>
+        </Button>
         <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

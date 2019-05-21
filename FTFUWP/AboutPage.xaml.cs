@@ -54,7 +54,27 @@ namespace Microsoft.FactoryTestFramework.UWP
                 ServiceVersionText.Text += await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceVersionString());
             }
 
+            if (this.Frame.BackStack.First().SourcePageType == typeof(ConnectionPage))
+            {
+                BackButton.Visibility = Visibility.Visible;
+            }
+
             base.OnNavigatedTo(e);
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            On_BackRequested();
+        }
+
+        private bool On_BackRequested()
+        {
+            if (this.Frame.CanGoBack)
+            {
+                this.Frame.GoBack();
+                return true;
+            }
+            return false;
         }
     }
 }

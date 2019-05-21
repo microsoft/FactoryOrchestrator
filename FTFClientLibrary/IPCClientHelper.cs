@@ -20,6 +20,7 @@ namespace Microsoft.FactoryTestFramework.Client
         public static async Task StartIPCConnection(IPAddress host, int port)
         {
             IsLocalHost = (host == IPAddress.Loopback) ? true : false;
+            IpAddress = host;
 
             IpcClient = new IpcServiceClientBuilder<IFTFCommunication>()
                 .UseTcp(host, port)
@@ -61,9 +62,20 @@ namespace Microsoft.FactoryTestFramework.Client
             return true;
         }
 
+        public static async void ShutdownServerDevice(uint secondsUntilShutdown = 2)
+        {
+            await IpcClient.InvokeAsync(x => x.RunExecutableOutsideTestList("shutdown.exe", $"/s /t {secondsUntilShutdown}", null));
+        }
+
+        public static async void RebootServerDevice(uint secondsUntilReboot = 2)
+        {
+            await IpcClient.InvokeAsync(x => x.RunExecutableOutsideTestList("shutdown.exe", "/r /t {secondsUntilReboot}", null));
+        }
+
         public static IpcServiceClient<IFTFCommunication> IpcClient { get; private set; }
         public static event IPCClientOnConnected OnConnected;
         public static bool IsLocalHost { get; private set; }
+        public static IPAddress IpAddress { get; private set; }
 
         public delegate void IPCClientOnConnected();
     }

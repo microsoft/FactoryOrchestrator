@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
         <TextBlock Text="Action Required: Test result expected by FTFService" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30"/>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <TextBlock x:Name="TestText"  Text="Test: " HorizontalAlignment="Center" FontSize="30"/>

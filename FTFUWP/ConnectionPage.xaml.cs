@@ -69,5 +69,10 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             this.Frame.Navigate(typeof(AboutPage));
         }
+
+        private void ConfirmExit_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).Exit();
+        }
     }
 }

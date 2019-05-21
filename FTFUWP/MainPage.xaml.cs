@@ -21,6 +21,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
+            Header.Text += IPCClientHelper.IsLocalHost ? " (Local Device)" : $" ({IPCClientHelper.IpAddress.ToString()})";
             lastNavTag = null;
         }
 
@@ -69,7 +70,14 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void On_ContentFrameNavigated(object sender, NavigationEventArgs e)
         {
-            if (ContentFrame.SourcePageType != null)
+            //if (ContentFrame.SourcePageType == typeof(SettingsPage))
+            //{
+            //    // SettingsItem is not part of NavView.MenuItems, and doesn't have a Tag.
+            //    NavView.SelectedItem = (NavigationViewItem)NavView.SettingsItem;
+            //    NavView.Header = "Settings";
+            //}
+            //else
+            if(ContentFrame.SourcePageType != null)
             {
                 var item = navViewPages.FirstOrDefault(p => (p.Page == e.SourcePageType));
 
@@ -82,7 +90,11 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItemContainer != null)
+            if (args.IsSettingsInvoked)
+            {
+                NavView_Navigate("settings", args.RecommendedNavigationTransitionInfo);
+            }
+            else if (args.InvokedItemContainer != null)
             {
                 var navItemTag = args.InvokedItemContainer.Tag.ToString();
                 NavView_Navigate(navItemTag, args.RecommendedNavigationTransitionInfo);
@@ -92,7 +104,17 @@ namespace Microsoft.FactoryTestFramework.UWP
         private void NavView_Navigate(string navItemTag, NavigationTransitionInfo recommendedNavigationTransitionInfo)
         {
             lastNavTag = navItemTag;
-            var page = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag)).Page;
+
+            Type page;
+            //if (navItemTag == "settings")
+            //{
+            //    page = typeof(SettingsPage);
+            //}
+            //else
+            {
+                page = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag)).Page;
+            }
+             
             // Get the page type before navigation so you can prevent duplicate entries in the backstack.
             var preNavPageType = ContentFrame.CurrentSourcePageType;
 
@@ -101,6 +123,20 @@ namespace Microsoft.FactoryTestFramework.UWP
             {
                 ContentFrame.Navigate(page, this.Frame, recommendedNavigationTransitionInfo);
             }
+        }
+
+        private void ConfirmExit_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).Exit();
+        }
+        private void ConfirmReboot_Click(object sender, RoutedEventArgs e)
+        {
+            IPCClientHelper.RebootServerDevice();
+        }
+
+        private void ConfirmShutdown_Click(object sender, RoutedEventArgs e)
+        {
+            IPCClientHelper.ShutdownServerDevice();
         }
 
         private string lastNavTag;
