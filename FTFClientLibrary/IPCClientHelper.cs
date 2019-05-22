@@ -32,6 +32,19 @@ namespace Microsoft.FactoryTestFramework.Client
             OnConnected?.Invoke();
         }
 
+        public static async Task<bool> TryStartIPCConnection(IPAddress host, int port)
+        {
+            try
+            {
+                await StartIPCConnection(host, port);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Warning: This helper API only works in .NET executables! It WILL NOT work in UWP apps, including FTFUWP.
         /// FTFUWP has its own file transfer API in FileTransferHelper.cs
