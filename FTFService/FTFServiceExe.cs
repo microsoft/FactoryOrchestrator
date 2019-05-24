@@ -485,7 +485,7 @@ namespace Microsoft.FactoryTestFramework.Service
             List<TestRun_Server> everyBootRuns = new List<TestRun_Server>();
             List<string> firstBootTasks = new List<string>();
             List<TestRun_Server> firstBootRuns = new List<TestRun_Server>();
-
+            // todo:  use testlist?
             foreach (var taskString in firstBootTasks)
             {
                 var command = taskString.Split(" ")[0];
