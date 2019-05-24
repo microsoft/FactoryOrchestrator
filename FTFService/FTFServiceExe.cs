@@ -418,6 +418,9 @@ namespace Microsoft.FactoryTestFramework.Service
             _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
             FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
+            // Execute user defined tasks.
+            Task.Run(ExecuteUserBootTasks);
+
             ServiceLogger.LogTrace("FactoryTestFramework Service Started\n");
         }
 
@@ -464,13 +467,33 @@ namespace Microsoft.FactoryTestFramework.Service
         }
 
         /// <summary>
-        /// Executes tasks that should run on first boot (of FTF) or every boot.
+        /// Executes server required tasks that should run on first boot (of FTF) or every boot.
         /// </summary>
         /// <returns></returns>
         public bool ExecuteServerBootTasks()
         {
             return EnableUWPLocalLoopback();
         }
+
+        /// <summary>
+        /// Executes user defined tasks that should run on first boot (of FTF) or every boot.
+        /// </summary>
+        /// <returns></returns>
+        public void ExecuteUserBootTasks()
+        {
+            List<string> everyBootTasks = new List<string>();
+            List<TestRun_Server> everyBootRuns = new List<TestRun_Server>();
+            List<string> firstBootTasks = new List<string>();
+            List<TestRun_Server> firstBootRuns = new List<TestRun_Server>();
+
+            foreach (var taskString in firstBootTasks)
+            {
+                var command = taskString.Split(" ")[0];
+                var args = taskString.Replace(command, "");
+                firstBootRuns.Add((TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"", Path.Combine(TestExecutionManager.DefaultLogFolder, ));
+            }
+        }
+
 
         /// <summary>
         /// Check if UWP local loopback needs to be enabled. Turn it on if so.
