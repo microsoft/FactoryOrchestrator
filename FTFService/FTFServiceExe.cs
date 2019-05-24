@@ -170,15 +170,17 @@ namespace Microsoft.FactoryTestFramework.Service
         public bool SaveTestListToXmlFile(Guid guid, string filename)
         {
             FTFService.Instance.ServiceLogger.LogTrace($"Start: SaveTestListToXmlFile {guid} {filename}");
-            return FTFService.Instance.TestExecutionManager.SaveTestListToXmlFile(guid, filename);
+            var saved = FTFService.Instance.TestExecutionManager.SaveTestListToXmlFile(guid, filename);
             FTFService.Instance.ServiceLogger.LogTrace($"Finish: SaveTestListToXmlFile {guid} {filename}");
+            return saved;
         }
 
         public bool SaveAllTestListsToXmlFile(string filename)
         {
             FTFService.Instance.ServiceLogger.LogTrace($"Start: SaveAllTestListsToXmlFile {filename}");
-            return FTFService.Instance.TestExecutionManager.SaveAllTestListsToXmlFile(filename);
+            var saved = FTFService.Instance.TestExecutionManager.SaveAllTestListsToXmlFile(filename);
             FTFService.Instance.ServiceLogger.LogTrace($"Finish: SaveAllTestListsToXmlFile {filename}");
+            return saved;
         }
 
         public List<Guid> GetTestListGuids()
@@ -310,7 +312,7 @@ namespace Microsoft.FactoryTestFramework.Service
         private TestManager_Server _testExecutionManager;
         private IMicroServiceController _controller;
         public ILogger<FTFService> ServiceLogger;
-        private System.Threading.CancellationTokenSource _cancellationToken;
+        private System.Threading.CancellationTokenSource _ipcCancellationToken;
         private readonly string _serviceRegPath = @"System\CurrentControlSet\Control\FactoryTestFramework";
         private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
         //private readonly string _firewallValue = @"FirewallConfigured";
@@ -394,13 +396,27 @@ namespace Microsoft.FactoryTestFramework.Service
         /// </summary>
         public void Start()
         {
-            // Start IPC server
-            _cancellationToken = new System.Threading.CancellationTokenSource();
-            _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
-            FTFServiceExe.ipcHost.RunAsync(_cancellationToken.Token);
+            // Try to load known TestLists from the state file
+            if (File.Exists(_testExecutionManager.TestListStateFile))
+            {
+                try
+                {
+                    _testExecutionManager.LoadTestListsFromXmlFile(_testExecutionManager.TestListStateFile);
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogWarning($"FactoryTestFramework Service could not load {_testExecutionManager.TestListStateFile}\n {e.Message}");
+                }
+            }
+
 
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
-            ExecuteBootTasks();
+            ExecuteServerBootTasks();
+
+            // Start IPC server
+            _ipcCancellationToken = new System.Threading.CancellationTokenSource();
+            _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
+            FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
             ServiceLogger.LogTrace("FactoryTestFramework Service Started\n");
         }
@@ -410,7 +426,11 @@ namespace Microsoft.FactoryTestFramework.Service
         /// </summary>
         public void Stop()
         {
-            _cancellationToken.Cancel();
+            _ipcCancellationToken.Cancel();
+
+            // Update state file
+            TestExecutionManager.SaveAllTestListsToXmlFile(TestExecutionManager.TestListStateFile);
+
             ServiceLogger.LogTrace("FactoryTestFramework Service Stopped\n");
         }
 
@@ -447,7 +467,7 @@ namespace Microsoft.FactoryTestFramework.Service
         /// Executes tasks that should run on first boot (of FTF) or every boot.
         /// </summary>
         /// <returns></returns>
-        public bool ExecuteBootTasks()
+        public bool ExecuteServerBootTasks()
         {
             return EnableUWPLocalLoopback();
         }

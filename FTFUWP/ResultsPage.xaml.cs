@@ -128,16 +128,16 @@ namespace Microsoft.FactoryTestFramework.UWP
                 case TestStatus.TestPassed:
                     OverallTestResult.Text = "✔ Passed";
                     break;
-                case TestStatus.TestFailed:
+                case TestStatus.Failed:
                     OverallTestResult.Text = "❌ Failed";
                     break;
-                case TestStatus.TestRunning:
+                case TestStatus.Running:
                     OverallTestResult.Text = "🕒 Running";
                     break;
-                case TestStatus.TestNotRun:
+                case TestStatus.NotRun:
                     OverallTestResult.Text = "❔ Not Run";
                     break;
-                case TestStatus.TestAborted:
+                case TestStatus.Aborted:
                     OverallTestResult.Text = "⛔ Aborted";
                     break;
                 default:
@@ -149,7 +149,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             switch (_selectedRun.TestStatus)
             {
                 case TestStatus.TestPassed:
-                case TestStatus.TestFailed:
+                case TestStatus.Failed:
                     ExitCode.Text = _selectedRun.ExitCode.ToString();
                     ExitCodeConst.Visibility = Visibility.Visible;
                     ExitCode.Visibility = Visibility.Visible;

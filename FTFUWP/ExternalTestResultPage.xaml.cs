@@ -76,12 +76,12 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void AbortButton_Click(object sender, RoutedEventArgs e)
         {
-            ReportTestRunResultAsync(TestStatus.TestAborted);
+            ReportTestRunResultAsync(TestStatus.Aborted);
         }
 
         private void FailButton_Click(object sender, RoutedEventArgs e)
         {
-            ReportTestRunResultAsync(TestStatus.TestFailed);
+            ReportTestRunResultAsync(TestStatus.Failed);
         }
 
         private void PassButton_Click(object sender, RoutedEventArgs e)
@@ -105,7 +105,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 testReportReady = true;
                 testRun.TestStatus = result;
 
-                if (result != TestStatus.TestAborted)
+                if (result != TestStatus.Aborted)
                 {
                     // Don't consider the test "done" until the test passed/failed and that result was chosen by the user.
                     // This is consistent with how FTFServer handles exe & TAEF tests.

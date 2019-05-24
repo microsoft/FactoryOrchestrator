@@ -14,11 +14,12 @@ namespace Microsoft.FactoryTestFramework.Core
     public enum TestStatus
     {
         TestPassed,
-        TestFailed,
-        TestAborted,
-        TestRunning,
-        TestNotRun,
-        TestWaitingForExternalResult
+        Failed,
+        Aborted,
+        Running,
+        NotRun,
+        WaitingForExternalResult,
+        Unknown
     }
 
     public enum TestType
@@ -60,7 +61,7 @@ namespace Microsoft.FactoryTestFramework.Core
             TestType = type;
             IsEnabled = true;
             TestLock = new object();
-            LatestTestRunStatus = TestStatus.TestNotRun;
+            LatestTestRunStatus = TestStatus.NotRun;
             LatestTestRunExitCode = null;
             LatestTestRunTimeFinished = null;
             LatestTestRunTimeStarted = null;
@@ -105,7 +106,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 {
                     return true;
                 }
-                else if (LatestTestRunStatus == TestStatus.TestFailed)
+                else if (LatestTestRunStatus == TestStatus.Failed)
                 {
                     return false;
                 }
@@ -298,7 +299,9 @@ namespace Microsoft.FactoryTestFramework.Core
     /// 0 == PASS, all others == FAIL.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class ExecutableTest : TestBase
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         private ExecutableTest() : base(TestType.ConsoleExe)
         {
@@ -358,7 +361,9 @@ namespace Microsoft.FactoryTestFramework.Core
     /// Pass/Fail is determined by TE.exe.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class TAEFTest : ExecutableTest
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         private TAEFTest() : base(null, TestType.TAEFDll)
         {
@@ -382,7 +387,7 @@ namespace Microsoft.FactoryTestFramework.Core
         }
 
         public List<TAEFTestCase> TestCases { get; set; }
-        private String _wtlFilePath;
+        //private String _wtlFilePath;
     }
 
     /// <summary>
@@ -405,7 +410,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 {
                     return true;
                 }
-                else if (this.TestStatus == TestStatus.TestFailed)
+                else if (this.TestStatus == TestStatus.Failed)
                 {
                     return false;
                 }
@@ -422,7 +427,9 @@ namespace Microsoft.FactoryTestFramework.Core
     /// Test results must be returned to the server via SetTestRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class ExternalTest : TestBase
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         private ExternalTest() : base(TestType.External)
         {
@@ -488,7 +495,9 @@ namespace Microsoft.FactoryTestFramework.Core
     /// Test results must be returned to the server via SetTestRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class UWPTest : ExternalTest
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         private UWPTest() : base(null, null, TestType.UWP)
         {
@@ -576,17 +585,17 @@ namespace Microsoft.FactoryTestFramework.Core
                 {
                     return TestStatus.TestPassed;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.TestRunning))
+                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Running))
                 {
-                    return TestStatus.TestRunning;
+                    return TestStatus.Running;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.TestFailed))
+                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Failed))
                 {
-                    return TestStatus.TestFailed;
+                    return TestStatus.Failed;
                 }
                 else
                 {
-                    return TestStatus.TestNotRun;
+                    return TestStatus.NotRun;
                 }
             }
         }
@@ -668,7 +677,7 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             Guid = Guid.NewGuid();
             ConsoleLogFilePath = null;
-            TestStatus = TestStatus.TestNotRun;
+            TestStatus = TestStatus.NotRun;
             TimeFinished = null;
             TimeStarted = null;
             ExitCode = null;
@@ -720,8 +729,8 @@ namespace Microsoft.FactoryTestFramework.Core
             {
                 switch (TestStatus)
                 {
-                    case TestStatus.TestAborted:
-                    case TestStatus.TestFailed:
+                    case TestStatus.Aborted:
+                    case TestStatus.Failed:
                     case TestStatus.TestPassed:
                         return true;
                     default:
@@ -919,7 +928,6 @@ namespace Microsoft.FactoryTestFramework.Core
                                 foreach (var testNode in tests)
                                 {
                                     var removed = ((XmlNode)testNode).Attributes.RemoveNamedItem("xsi:type");
-                                    Console.WriteLine(removed.ToString());
                                 }
                                 XmlIsValid = true;
                                 document.Validate(ValidationEventHandler);

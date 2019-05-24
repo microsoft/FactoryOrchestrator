@@ -114,7 +114,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
                     TestViewModel.AddOrUpdateTestList(list);
 
-                    if (list.TestListStatus == TestStatus.TestRunning)
+                    if (list.TestListStatus == TestStatus.Running)
                     {
                         RunButtonIcon.Symbol = Symbol.Stop;
                     }

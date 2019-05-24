@@ -29,7 +29,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     testNamesAndResults.Add(test.TestName + " ✔");
                 }
-                else if (test.LatestTestRunStatus == TestStatus.TestFailed)
+                else if (test.LatestTestRunStatus == TestStatus.Failed)
                 {
                     testNamesAndResults.Add(test.TestName + " ❌");
                 }
@@ -57,16 +57,16 @@ namespace Microsoft.FactoryTestFramework.UWP
                     case TestStatus.TestPassed:
                         testResults.Add("✔ Passed");
                         break;
-                    case TestStatus.TestFailed:
+                    case TestStatus.Failed:
                         testResults.Add("❌ Failed");
                         break;
-                    case TestStatus.TestRunning:
+                    case TestStatus.Running:
                         testResults.Add("🕒 Running");
                         break;
-                    case TestStatus.TestNotRun:
+                    case TestStatus.NotRun:
                         testResults.Add("❔ Not Run");
                         break;
-                    case TestStatus.TestAborted:
+                    case TestStatus.Aborted:
                         testResults.Add("⛔ Aborted");
                         break;
                     default:

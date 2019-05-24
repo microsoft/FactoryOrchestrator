@@ -117,7 +117,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             // TODO: Performance: Properly handle suspend/resume instead?
             extendedExecution = new ExtendedExecutionSession();
             extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
-            extendedExecution.RequestExtensionAsync();
+            _ = extendedExecution.RequestExtensionAsync();
 
             // One thread queues events, another dequeues and handles them
             // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
@@ -220,7 +220,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                         {
                             // Go to result entry page
                             RunWaitingForResult.TestOutput.Add($"{app.ToString()} was launched successfully");
-                            RunWaitingForResult.TestStatus = TestStatus.TestRunning;
+                            RunWaitingForResult.TestStatus = TestStatus.Running;
                             ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
                         }
                         else
@@ -280,7 +280,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             RunWaitingForResult.TestOutput.Add($"Error: Failed to launch an app for Package Family Name {RunWaitingForResult.TestPath}");
             RunWaitingForResult.TimeFinished = DateTime.Now;
-            RunWaitingForResult.TestStatus = TestStatus.TestFailed;
+            RunWaitingForResult.TestStatus = TestStatus.Failed;
             RunWaitingForResult.ExitCode = -1;
             await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(RunWaitingForResult));
         }

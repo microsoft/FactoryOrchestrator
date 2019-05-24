@@ -21,7 +21,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 run = new TestRun_Server(test, defaultLogFolder);
                 test.TestRunGuids.Add(run.Guid);
                 test.LatestTestRunExitCode = null;
-                test.LatestTestRunStatus = TestStatus.TestNotRun;
+                test.LatestTestRunStatus = TestStatus.NotRun;
                 test.LatestTestRunTimeFinished = null;
                 test.LatestTestRunTimeStarted = null;
             }
@@ -37,7 +37,7 @@ namespace Microsoft.FactoryTestFramework.Server
         {
             lock (test.TestLock)
             {
-                test.LatestTestRunStatus = TestStatus.TestNotRun;
+                test.LatestTestRunStatus = TestStatus.NotRun;
                 test.LatestTestRunExitCode = null;
                 test.LatestTestRunTimeFinished = null;
                 test.LatestTestRunTimeStarted = null;
@@ -52,24 +52,50 @@ namespace Microsoft.FactoryTestFramework.Server
     {
         public TestManager_Server(string defaultLogFolder)
         {
-            StartTestRunLock = new SemaphoreSlim(1, 1);
+            _startNonParallelTestRunLock = new SemaphoreSlim(1, 1);
             KnownTestLists = new Dictionary<Guid, TestList>();
             RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
             SetDefaultLogFolder(defaultLogFolder);
+            TestListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTestLists.testlists");
         }
 
         public bool SetDefaultLogFolder(string logFolder)
         {
             try
             {
-                _defaultLogFolder = logFolder;
-                Directory.CreateDirectory(logFolder);
+                // Don't allow the folder to move if any test is running or we are actively modifying testlists
+                lock (RunningTestListLock)
+                {
+                    if (IsTestListRunning)
+                    {
+                        throw new TestManagerTestListRunningException();
+                    }
+
+                    // Move all files
+                    lock (KnownTestListLock)
+                    {
+                        if (_defaultLogFolder != null)
+                        {
+                            if (Directory.Exists(_defaultLogFolder))
+                            {
+                                Directory.Move(_defaultLogFolder, logFolder);
+                            }
+                            else
+                            {
+                                Directory.CreateDirectory(_defaultLogFolder);
+                            }
+                        }
+
+                        _defaultLogFolder = logFolder;
+                        TestListStateFile = Path.Combine(_defaultLogFolder, "FTFServiceKnownTestLists.testlists");
+                    }
+                }
+
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // TODO: logging
-                return false;
+                throw new TestManagerException("Could not move log folder!", null, e);
             }
         }
 
@@ -105,6 +131,10 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 KnownTestLists.Add(tests.Guid, tests);
             }
+
+            // Update XML for state tracking (this locks KnownTestListLock)
+            SaveAllTestListsToXmlFile(TestListStateFile);
+
             return tests;
         }
 
@@ -120,29 +150,36 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
-                    // TODO: Logging
-                    return false;
+                    throw new TestManagerException("There are no known TestLists to save!");
+                }
+
+                if (!xml.Save(filename))
+                {
+                    throw new TestManagerException($"Could not save TestLists to {filename}!");
                 }
             }
 
-            return xml.Save(filename);
+            return true;
         }
 
         public bool SaveTestListToXmlFile(Guid guid, string filename)
         {
+            lock (RunningTestListLock)
+            if (IsTestListRunning)
+            {
+                throw new TestManagerTestListRunningException();
+            }
+            
             FTFXML xml = new FTFXML();
 
-            lock (KnownTestListLock)
+            if (KnownTestLists.ContainsKey(guid))
             {
-                if (KnownTestLists.ContainsKey(guid))
-                {
-                    xml.TestLists.Add(KnownTestLists[guid]);
-                }
-                else
-                {
-                    // TODO: Logging
-                    return false;
-                }
+                xml.TestLists.Add(KnownTestLists[guid]);
+            }
+            else
+            {
+                // TODO: Logging
+                return false;
             }
 
             return xml.Save(filename);
@@ -150,6 +187,11 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public List<Guid> LoadTestListsFromXmlFile(string filename)
         {
+            if (IsTestListRunning)
+            {
+                throw new TestManagerTestListRunningException();
+            }
+
             FTFXML xml;
             xml = FTFXML.Load(filename);
 
@@ -158,8 +200,28 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 foreach (var list in xml.TestLists)
                 {
-                    KnownTestLists.Add(list.Guid, list);
+                    // Update "running" tests, as their state is unknown
+                    list.Tests.Values.Where(x => x.LatestTestRunStatus == TestStatus.Running).Select(x => x.LatestTestRunStatus = TestStatus.Unknown);
+                    list.Tests.Values.Where(x => x.LatestTestRunStatus == TestStatus.WaitingForExternalResult).Select(x => x.LatestTestRunStatus = TestStatus.Unknown);
+
+                    if (KnownTestLists.ContainsKey(list.Guid))
+                    {
+                        // Overwrite existing testlist
+                        KnownTestLists[list.Guid] = list;
+
+                        // todo: logging
+                    }
+                    else
+                    {
+                        KnownTestLists.Add(list.Guid, list);
+                    }
                 }
+            }
+
+            // Update XML for state tracking
+            if (filename != TestListStateFile)
+            {
+                SaveAllTestListsToXmlFile(TestListStateFile);
             }
 
             return xml.TestLists.Select(x => x.Guid).ToList();
@@ -167,12 +229,18 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public bool DeleteTestList(Guid listToDelete)
         {
+            bool removed = false;
             lock (KnownTestListLock)
             {
                 // Abort() gracefully returns if the guid is invalid
                 Abort(listToDelete);
-                return KnownTestLists.Remove(listToDelete);   
+                removed = KnownTestLists.Remove(listToDelete);   
             }
+
+            // Update XML for state tracking
+            SaveAllTestListsToXmlFile(TestListStateFile);
+
+            return removed;
         }
 
         public TestBase GetKnownTest(Guid testGuid)
@@ -247,6 +315,9 @@ namespace Microsoft.FactoryTestFramework.Server
                     {
                         test.Reset(preserveLogs);
                     }
+
+                    // Delete state file
+                    File.Delete(TestListStateFile);
 
                     // Create new dictionaries
                     RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
@@ -346,6 +417,9 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
             }
 
+            // Update XML for state tracking
+            SaveAllTestListsToXmlFile(TestListStateFile);
+
             return false;
         }
 
@@ -378,11 +452,15 @@ namespace Microsoft.FactoryTestFramework.Server
                         else
                         {
                             testList.Tests[updatedTest.Guid] = updatedTest;
-                            return true;
                         }
                     }
                 }
             }
+
+            // Update XML for state tracking
+            SaveAllTestListsToXmlFile(TestListStateFile);
+
+            return true;
         }
 
         public bool UpdateTestRunStatus(TestRun latestTestRun)
@@ -420,12 +498,16 @@ namespace Microsoft.FactoryTestFramework.Server
                     testRunGuids.Add(test.CreateTestRun(DefaultLogFolder));
                 }
 
+                // Update XML for state tracking.
+                SaveAllTestListsToXmlFile(TestListStateFile);
+
                 var workItem = new TestListWorkItem(list.Guid, testRunGuids, allowOtherTestListsToRun, runListInParallel);
                 var token = new CancellationTokenSource();
                 RunningTestListTokens.Add(workItem.TestListGuid, token);
                 Task t = new Task((i) => { TestListWorker(i, token.Token); }, workItem, token.Token);
                 t.Start();
             }
+
             return true;
         }
 
@@ -454,7 +536,7 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 try
                 {
-                    StartTestRunLock.Wait(token);
+                    _startNonParallelTestRunLock.Wait(token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -465,21 +547,28 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             else
             {
-                usedSem = StartTestRunLock.Wait(0);
+                usedSem = _startNonParallelTestRunLock.Wait(0);
             }
 
             if (!token.IsCancellationRequested)
             {
                 StartTestRuns(item.TestRunGuids, token, item.RunListInParallel);
 
+                // Tests are done! Update the tokens & locks
                 lock (RunningTestListLock)
                 {
                     RunningTestListTokens.Remove(item.TestListGuid);
                 }
                 if (usedSem)
                 {
-                    StartTestRunLock.Release();
+                    _startNonParallelTestRunLock.Release();
                 }
+            }
+
+            if (token.IsCancellationRequested)
+            {
+                // Update XML for state tracking. This is only needed if a test was aborted.
+                SaveAllTestListsToXmlFile(TestListStateFile);
             }
         }
 
@@ -498,6 +587,9 @@ namespace Microsoft.FactoryTestFramework.Server
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
                     StartTest(testRun, token, testRunEventHandler);
+
+                    // Update saved state
+                    SaveAllTestListsToXmlFile(TestListStateFile);
                 }
             }
             else
@@ -511,6 +603,9 @@ namespace Microsoft.FactoryTestFramework.Server
 
                     var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
                     StartTest(testRun, token, testRunEventHandler);
+
+                    // Update saved state
+                    SaveAllTestListsToXmlFile(TestListStateFile);
                 });
             }
         }
@@ -637,12 +732,39 @@ namespace Microsoft.FactoryTestFramework.Server
         private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
         private readonly object KnownTestListLock = new object();
         private readonly object RunningTestListLock = new object();
-        private readonly SemaphoreSlim StartTestRunLock;
+        private readonly SemaphoreSlim _startNonParallelTestRunLock;
         private string _defaultLogFolder;
 
         public string DefaultLogFolder { get => _defaultLogFolder; }
+        public string TestListStateFile { get; private set; }
+        public bool IsTestListRunning
+        {
+            get
+            {
+                return (RunningTestListTokens.Count > 0);
+            }
+        }
 
         public event TestManagerEventHandler OnTestManagerEvent;
+    }
+
+    public class TestManagerException : Exception
+    {
+        public TestManagerException(string message = null, Guid? guid = null, Exception innerException = null) : base(message, innerException)
+        {
+            Guid = guid;
+        }
+
+        public Guid? Guid { get; }
+    }
+
+    public class TestManagerTestListRunningException : TestManagerException
+    {
+        public TestManagerTestListRunningException() : base("Cannot perform operation because one or more TestLists are actively running!")
+        { }
+
+        public TestManagerTestListRunningException(Guid guid) : base($"Cannot perform operation because TestList {guid} is actively running!", guid)
+        { }
     }
 
     public delegate void TestManagerEventHandler(object source, TestManagerEventArgs e);
@@ -816,7 +938,7 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 IsRunning = true;
                 ActiveTestRun.OwningTestRunner = this;
-                ActiveTestRun.TestStatus = TestStatus.TestRunning;
+                ActiveTestRun.TestStatus = TestStatus.Running;
                 ActiveTestRun.TimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
@@ -825,7 +947,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             else
             {
-                ActiveTestRun.TestStatus = TestStatus.TestFailed;
+                ActiveTestRun.TestStatus = TestStatus.Failed;
                 // TODO: log error
             }
 
@@ -881,12 +1003,12 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 ActiveTestRun.TimeFinished = DateTime.Now;
                 ActiveTestRun.ExitCode = TestProcess.ExitCode;
-                ActiveTestRun.TestStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.TestFailed;
+                ActiveTestRun.TestStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.Failed;
             }
             else
             {
                 ActiveTestRun.ExitCode = -1;
-                ActiveTestRun.TestStatus = TestStatus.TestAborted;
+                ActiveTestRun.TestStatus = TestStatus.Aborted;
             }
             ActiveTestRun.UpdateOwningTestFromTestRun();
 
@@ -1190,7 +1312,7 @@ namespace Microsoft.FactoryTestFramework.Server
         public void StartWaitingForExternalResult()
         {
             TimeStarted = DateTime.Now;
-            TestStatus = TestStatus.TestWaitingForExternalResult;
+            TestStatus = TestStatus.WaitingForExternalResult;
             UpdateOwningTestFromTestRun();
         }
 
