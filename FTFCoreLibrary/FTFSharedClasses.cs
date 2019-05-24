@@ -16,6 +16,7 @@ namespace Microsoft.FactoryTestFramework.Core
         TestPassed,
         Failed,
         Aborted,
+        Timeout,
         Running,
         NotRun,
         WaitingForExternalResult,
@@ -59,13 +60,13 @@ namespace Microsoft.FactoryTestFramework.Core
         protected TestBase(TestType type)
         {
             TestType = type;
-            IsEnabled = true;
             TestLock = new object();
             LatestTestRunStatus = TestStatus.NotRun;
             LatestTestRunExitCode = null;
             LatestTestRunTimeFinished = null;
             LatestTestRunTimeStarted = null;
             TestRunGuids = new List<Guid>();
+            TimeoutSeconds = -1;
         }
 
         public TestBase(string testPath, TestType type) : this(type)
@@ -117,7 +118,7 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
-        public bool IsEnabled { get; set; }
+        public int TimeoutSeconds { get; set; }
 
         public int? LatestTestRunExitCode { get; set; }
 
@@ -215,11 +216,6 @@ namespace Microsoft.FactoryTestFramework.Core
             }
 
             if (this.Arguments != rhs.Arguments)
-            {
-                return false;
-            }
-
-            if (this.IsEnabled != rhs.IsEnabled)
             {
                 return false;
             }
@@ -676,12 +672,14 @@ namespace Microsoft.FactoryTestFramework.Core
         protected TestRun(TestBase owningTest)
         {
             Guid = Guid.NewGuid();
+            OwningTestGuid = null;
             ConsoleLogFilePath = null;
             TestStatus = TestStatus.NotRun;
             TimeFinished = null;
             TimeStarted = null;
             ExitCode = null;
             TestOutput = new List<string>();
+            TimeoutSeconds = -1;
 
             if (owningTest != null)
             {
@@ -690,12 +688,13 @@ namespace Microsoft.FactoryTestFramework.Core
                 Arguments = owningTest.Arguments;
                 TestName = owningTest.TestName;
                 TestType = owningTest.TestType;
+                TimeoutSeconds = owningTest.TimeoutSeconds;
             }
         }
 
         public List<string> TestOutput { get; set; }
 
-        public Guid OwningTestGuid { get; set; }
+        public Guid? OwningTestGuid { get; set; }
         public string TestName { get; set; }
         public string TestPath { get; set; }
         public string Arguments { get; set; }
@@ -706,6 +705,7 @@ namespace Microsoft.FactoryTestFramework.Core
         public TestStatus TestStatus { get; set; }
         public string ConsoleLogFilePath { get; set; }
         public int? ExitCode { get; set; }
+        public int TimeoutSeconds { get; set; }
 
         public bool RunByServer
         {

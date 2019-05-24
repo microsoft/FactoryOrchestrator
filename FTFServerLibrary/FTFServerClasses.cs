@@ -150,7 +150,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
-                    throw new TestManagerException("There are no known TestLists to save!");
+                    return false;
                 }
 
                 if (!xml.Save(filename))
@@ -944,6 +944,21 @@ namespace Microsoft.FactoryTestFramework.Server
                 // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
+
+                // Start timeout timer if needed
+                if (ActiveTestRun.TimeoutSeconds != -1)
+                {
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(new TimeSpan(0, 0, ActiveTestRun.TimeoutSeconds), TimeoutToken.Token);
+
+                        // If we hit the timeout and the test didn't finish, stop it now.
+                        if (!TimeoutToken.IsCancellationRequested)
+                        {
+                            TimeoutTest();
+                        }
+                    });
+                }
             }
             else
             {
@@ -998,6 +1013,9 @@ namespace Microsoft.FactoryTestFramework.Server
 
         private void OnExited(object sender, EventArgs e)
         {
+            // Cancel the test timeout
+            TimeoutToken.Cancel();
+
             // Save the result of the test
             if (!TestAborted)
             {
@@ -1008,7 +1026,7 @@ namespace Microsoft.FactoryTestFramework.Server
             else
             {
                 ActiveTestRun.ExitCode = -1;
-                ActiveTestRun.TestStatus = TestStatus.Aborted;
+                ActiveTestRun.TestStatus = TestTimeout ? TestStatus.Timeout : TestStatus.Aborted;
             }
             ActiveTestRun.UpdateOwningTestFromTestRun();
 
@@ -1018,12 +1036,21 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
                 File.WriteAllLines(LogFilePath,
-                                    new String[] { String.Format("Test: {0}", ActiveTestRun.TestName),
-                                String.Format("Result: {0}", ActiveTestRun.TestStatus),
-                                String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
-                                String.Format("Date/Time run: {0}", ActiveTestRun.TimeStarted),
-                                String.Format("Time to complete: {0}", ActiveTestRun.RunTime),
-                                String.Format("---------Test's console output below--------")});
+                                    new String[] {
+                                        String.Format("Test: {0}", ActiveTestRun.TestName),
+                                        String.Format("Test GUID: {0}", (ActiveTestRun.OwningTestGuid == null) ? "Not a known Test" : ActiveTestRun.OwningTestGuid.ToString()),
+                                        String.Format("TestRun GUID: {0}", ActiveTestRun.Guid),
+                                        String.Format("Test Type: {0}", ActiveTestRun.TestType),
+                                        String.Format("Path: {0}", ActiveTestRun.TestPath),
+                                        String.Format("Arguments: {0}", ActiveTestRun.Arguments),
+                                        String.Format("---------------------------------------------"),
+                                        String.Format("Result: {0}", ActiveTestRun.TestStatus),
+                                        String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
+                                        String.Format("---------------------------------------------"),
+                                        String.Format("Date/Time run: {0}", (ActiveTestRun.TimeStarted == null) ? "Never Started" : ActiveTestRun.TimeStarted.ToString()),
+                                        String.Format("Time to complete: {0}", (ActiveTestRun.RunTime == null) ? "" : ActiveTestRun.RunTime.ToString()),
+                                        String.Format("--------------- Console Output --------------")
+                                    });
                 File.AppendAllLines(LogFilePath, ActiveTestRun.TestOutput, System.Text.Encoding.UTF8);
             }
 
@@ -1031,6 +1058,12 @@ namespace Microsoft.FactoryTestFramework.Server
 
             // Raise event if event handler exists
             OnTestEvent?.Invoke(this, new TestRunnerEventArgs(ActiveTestRun.TestStatus, (int)ActiveTestRun.ExitCode, null));
+        }
+
+        private bool TimeoutTest()
+        {
+            TestTimeout = true;
+            return StopTest();
         }
 
         public bool StopTest()
@@ -1120,7 +1153,9 @@ namespace Microsoft.FactoryTestFramework.Server
 
         private TestRun_Server ActiveTestRun;
         private Process TestProcess;
-        private bool TestAborted;
+        private bool TestAborted = false;
+        private bool TestTimeout = false;
+        private CancellationTokenSource TimeoutToken = new CancellationTokenSource();
 
         /// <summary>
         /// Lock to maintain consistent state of execution status (Run, Abort etc)

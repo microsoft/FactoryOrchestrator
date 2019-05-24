@@ -132,13 +132,16 @@ namespace Microsoft.FactoryTestFramework.UWP
                     OverallTestResult.Text = "❌ Failed";
                     break;
                 case TestStatus.Running:
-                    OverallTestResult.Text = "🕒 Running";
+                    OverallTestResult.Text = "▶ Running";
                     break;
                 case TestStatus.NotRun:
                     OverallTestResult.Text = "❔ Not Run";
                     break;
                 case TestStatus.Aborted:
                     OverallTestResult.Text = "⛔ Aborted";
+                    break;
+                case TestStatus.Timeout:
+                    OverallTestResult.Text = "⏱ Timed-out";
                     break;
                 default:
                     OverallTestResult.Text = "❔ Unknown";

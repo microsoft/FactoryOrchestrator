@@ -61,13 +61,16 @@ namespace Microsoft.FactoryTestFramework.UWP
                         testResults.Add("❌ Failed");
                         break;
                     case TestStatus.Running:
-                        testResults.Add("🕒 Running");
+                        testResults.Add("▶ Running");
                         break;
                     case TestStatus.NotRun:
                         testResults.Add("❔ Not Run");
                         break;
                     case TestStatus.Aborted:
                         testResults.Add("⛔ Aborted");
+                        break;
+                    case TestStatus.Timeout:
+                        testResults.Add("⏱ Timed-out");
                         break;
                     default:
                         testResults.Add("❔ Unknown");
