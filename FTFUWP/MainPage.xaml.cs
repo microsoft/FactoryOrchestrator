@@ -84,7 +84,14 @@ namespace Microsoft.FactoryTestFramework.UWP
                 NavView.SelectedItem = NavView.MenuItems.OfType<NavigationViewItem>().
                                                          First(n => n.Tag.Equals(item.Tag));
 
-                NavView.Header = ((NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
+                if (item.Tag == "console")
+                {
+                    NavView.Header = "Command Prompt";
+                }
+                else
+                {
+                    NavView.Header = ((NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
+                }
             }
         }
 
