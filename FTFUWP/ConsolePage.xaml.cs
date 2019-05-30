@@ -30,6 +30,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             _cmdSem = new SemaphoreSlim(1, 1);
             outputLock = new object();
+            newCmd = false;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -110,6 +111,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             });
 
             // Execute command
+            newCmd = true;
             if (_testRunPoller != null)
             {
                 _testRunPoller.StopPolling();
@@ -138,6 +140,9 @@ namespace Microsoft.FactoryTestFramework.UWP
                     // The command finished, no need to poll more
                     _testRunPoller.StopPolling();
                 }
+
+                var blocks = PrepareOutput();
+
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     if (_activeCmdTestRun.TestRunComplete)
@@ -147,7 +152,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                         RunButtonIcon.Symbol = Symbol.Play;
                         _cmdSem.Release();
                     }
-                    UpdateOutput();
+                    UpdateOutput(blocks);
                 });
             }
         }
@@ -161,34 +166,100 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
+
         /// <summary>
         /// Updates UI with latest console output
         /// </summary>
-        private void UpdateOutput()
+        private List<TextBlock> PrepareOutput()
+        {
+            List <TextBlock> ret = new List<TextBlock>();
+
+            var endCount = _activeCmdTestRun.TestOutput.Count;
+
+            if (newCmd)
+            {
+                lastOutput = 0;
+                newCmd = false;
+            }
+
+            string text = "";
+            bool errorBlock = false;
+            for (int i = lastOutput; i < endCount; i++)
+            {
+                if (_activeCmdTestRun.TestOutput[i] != null)
+                {
+                    if (errorBlock && _activeCmdTestRun.TestOutput[i].StartsWith("ERROR: "))
+                    {
+                        // Append error text
+                        text += _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        errorBlock = true;
+                    }
+                    else if (errorBlock)
+                    {
+                        // Done with error text, write out the error text and start again
+                        var textBlock = new TextBlock()
+                        {
+                            Text = text,
+                            FontWeight = Windows.UI.Text.FontWeights.Bold,
+                            Foreground = new SolidColorBrush(Windows.UI.Colors.Red)
+                        };
+                        ret.Add(textBlock);
+
+                        text = _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        errorBlock = false;
+                    }
+                    else if (!errorBlock && _activeCmdTestRun.TestOutput[i].StartsWith("ERROR: "))
+                    {
+                        // Done with normal text, write out the normal text and start again
+                        var textBlock = new TextBlock()
+                        {
+                            Text = text
+                        };
+                        ret.Add(textBlock);
+
+                        text = _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        errorBlock = true;
+                    }
+                    else
+                    {
+                        // Append normal text
+                        text += _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        errorBlock = false;
+                    }
+                }
+            }
+
+            lastOutput = endCount;
+
+            if (!String.IsNullOrEmpty(text))
+            {
+                var textBlock = new TextBlock()
+                {
+                    Text = text
+                };
+
+                if (errorBlock)
+                {
+                    textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
+                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
+                }
+
+                ret.Add(textBlock);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Updates UI with latest console output
+        /// </summary>
+        private void UpdateOutput(List<TextBlock> blocks)
         {
             lock (outputLock)
             {
-                var startCount = OutputStack.Children.Count;
-                for (int i = startCount; i < _activeCmdTestRun.TestOutput.Count + startCount; i++)
+                foreach (var block in blocks)
                 {
-                    var line = (i + 1).ToString();
-
-                    if (_activeCmdTestRun.TestOutput[i - startCount] != null)
-                    {
-                        var textBlock = new TextBlock()
-                        {
-                            Text = _activeCmdTestRun.TestOutput[i - startCount],
-                            Name = "OuptutForLineNo" + line
-                        };
-
-                        if (line.StartsWith("ERROR: "))
-                        {
-                            textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
-                            textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
-                        }
-
-                        OutputStack.Children.Add(textBlock);
-                    }
+                    OutputStack.Children.Append(block);
                 }
             }
         }
@@ -202,6 +273,8 @@ namespace Microsoft.FactoryTestFramework.UWP
         }
 
         private TestRun _activeCmdTestRun;
+        private bool newCmd;
+        private int lastOutput;
         private FTFPoller _testRunPoller;
         private SemaphoreSlim _cmdSem;
         private object outputLock;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.FactoryTestFramework.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -681,7 +682,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
                     if (testRun.BackgroundTask)
                     {
-                        RunningBackgroundTasks[testListGuid].Add(testRun.OwningTestRunner);
+                        RunningBackgroundTasks[testListGuid].Add(testRun.GetOwningTestRunner());
                     }
 
                     // Update saved state
@@ -701,7 +702,7 @@ namespace Microsoft.FactoryTestFramework.Server
                     StartTest(testRun, token, testRunEventHandler);
                     if (testRun.BackgroundTask)
                     {
-                        RunningBackgroundTasks[testListGuid].Add(testRun.OwningTestRunner);
+                        RunningBackgroundTasks[testListGuid].Add(testRun.GetOwningTestRunner());
                     }
 
                     // Update saved state
@@ -847,9 +848,9 @@ namespace Microsoft.FactoryTestFramework.Server
                 {
                     foreach (var list in RunningBackgroundTasks.Values)
                     {
-                        if (list.Select(x => x.ActiveTestRun.Guid).Contains(testRunToCancel))
+                        if (list.Select(x => x.ActiveTestRunGuid).Contains(testRunToCancel))
                         {
-                            var runner = list.First(x => x.ActiveTestRun.Guid == testRunToCancel);
+                            var runner = list.First(x => x.ActiveTestRunGuid == testRunToCancel);
                             runner.StopTest();
                             list.Remove(runner);
                         }
@@ -872,7 +873,7 @@ namespace Microsoft.FactoryTestFramework.Server
             var token = new CancellationTokenSource();
             StartTest(run, token.Token);
 
-            RunningBackgroundTasks.Add(run.Guid, new List<TestRunner>(1) { run.OwningTestRunner });
+            RunningBackgroundTasks.Add(run.Guid, new List<TestRunner>(1) { run.GetOwningTestRunner() });
 
             return run;
         }
@@ -894,7 +895,7 @@ namespace Microsoft.FactoryTestFramework.Server
             if (run.BackgroundTask)
             {
                 StartTest(run, token.Token);
-                RunningBackgroundTasks.Add(run.Guid, new List<TestRunner>(1) { run.OwningTestRunner });
+                RunningBackgroundTasks.Add(run.Guid, new List<TestRunner>(1) { run.GetOwningTestRunner() });
             }
             else
             {
@@ -1054,11 +1055,29 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
+        static TestRunner()
+        {
+            _testRunnerMap = new Dictionary<Guid, TestRunner>();
+        }
+
+        public static TestRunner GetTestRunnerForTestRun(Guid testRunGuid)
+        {
+            if (_testRunnerMap.ContainsKey(testRunGuid))
+            {
+                return _testRunnerMap[testRunGuid];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public TestRunner(TestRun_Server testRun)
         {
             IsRunning = false;
             ActiveTestRun = testRun;
             BackgroundTask = testRun.BackgroundTask;
+            _testRunnerMap.Add(testRun.Guid, this);
         }
 
         public bool RunTest()
@@ -1147,7 +1166,6 @@ namespace Microsoft.FactoryTestFramework.Server
             if (TestProcess.Start())
             {
                 IsRunning = true;
-                ActiveTestRun.OwningTestRunner = this;
                 ActiveTestRun.TestStatus = TestStatus.Running;
                 ActiveTestRun.TimeStarted = DateTime.Now;
 
@@ -1173,6 +1191,7 @@ namespace Microsoft.FactoryTestFramework.Server
             else
             {
                 ActiveTestRun.TestStatus = TestStatus.Failed;
+                _testRunnerMap.Remove(ActiveTestRunGuid);
                 // TODO: log error
             }
 
@@ -1315,6 +1334,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
 
             IsRunning = false;
+            _testRunnerMap.Remove(ActiveTestRunGuid);
 
             // Raise event if event handler exists
             OnTestEvent?.Invoke(this, new TestRunnerEventArgs(ActiveTestRun.TestStatus, (int)ActiveTestRun.ExitCode, null));
@@ -1407,8 +1427,17 @@ namespace Microsoft.FactoryTestFramework.Server
         }
 
         public bool IsRunning { get; set; }
-        public TestRun_Server ActiveTestRun { get; set; }
 
+        [JsonIgnore]
+        public Guid ActiveTestRunGuid {
+            get
+            {
+                return ActiveTestRun.Guid;
+            }
+        }
+
+        private TestRun_Server ActiveTestRun;
+        
         //public ExecutableTest Test { get; }
 
         public event TestRunnerEventHandler OnTestEvent;
@@ -1429,6 +1458,8 @@ namespace Microsoft.FactoryTestFramework.Server
         /// Lock to maintain serial ordering of test stdout & stderr
         /// </summary>
         private object outputLock = new object();
+
+        private static Dictionary<Guid, TestRunner> _testRunnerMap;
     }
 
     /// <summary>
@@ -1572,8 +1603,6 @@ namespace Microsoft.FactoryTestFramework.Server
 
         private void CtorCommon()
         {
-            OwningTestRunner = null;
-
             // Add to GUID -> TestRun map
             lock (_testMapLock)
             {
@@ -1621,8 +1650,14 @@ namespace Microsoft.FactoryTestFramework.Server
             UpdateOwningTestFromTestRun();
         }
 
+        [JsonIgnore]
         public TestBase OwningTest { get; }
-        public TestRunner OwningTestRunner { get; set; }
+
+        public TestRunner GetOwningTestRunner()
+        {
+            return TestRunner.GetTestRunnerForTestRun(this.Guid);
+        }
+
         /// <summary>
         /// Tracks all the test runs that have ever occured, mapped by the test run GUID
         /// </summary>

@@ -688,7 +688,7 @@ namespace Microsoft.FactoryTestFramework.Core
         }
 
         /// <summary>
-        /// Test Run shared constructor. TestRuns 
+        /// Test Run shared constructor. 
         /// </summary>
         /// <param name="owningTest"></param>
         protected TestRun(TestBase owningTest)
@@ -717,6 +717,30 @@ namespace Microsoft.FactoryTestFramework.Core
                     BackgroundTask = ((ExecutableTest)owningTest).BackgroundTask;
                 }
             }
+        }
+
+        public TestRun DeepCopy()
+        {
+            TestRun copy = (TestRun)this.MemberwiseClone();
+            copy.TestOutput = new List<string>(this.TestOutput.Count);
+            copy.TestOutput.AddRange(this.TestOutput.GetRange(0, copy.TestOutput.Capacity));
+
+            var stringProps = typeof(TestRun).GetProperties().Where(x => x.PropertyType == typeof(string));
+            foreach (var prop in stringProps)
+            {
+                var value = prop.GetValue(this);
+                if (value != null)
+                {
+                    var copyStr = String.Copy(value as string);
+                    prop.SetValue(copy, copyStr);
+                }
+                else
+                {
+                    prop.SetValue(copy, null);
+                }
+            }
+
+            return copy;
         }
 
         public List<string> TestOutput { get; set; }

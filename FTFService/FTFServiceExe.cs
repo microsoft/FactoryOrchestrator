@@ -260,7 +260,7 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public TestRun QueryTestRun(Guid testRunGuid)
         {
-            return TestRun_Server.GetTestRunByGuid(testRunGuid);
+            return TestRun_Server.GetTestRunByGuid(testRunGuid).DeepCopy();
         }
 
         public bool SetTestRunStatus(TestRun testRunStatus)
@@ -757,10 +757,10 @@ namespace Microsoft.FactoryTestFramework.Service
                 }
 
                 // Wait 5 seconds for both process to exit
-                if ((!runDev.OwningTestRunner.WaitForExit(5000)) || (!runOfficial.OwningTestRunner.WaitForExit(5000)))
+                if ((!runDev.GetOwningTestRunner().WaitForExit(5000)) || (!runOfficial.GetOwningTestRunner().WaitForExit(5000)))
                 {
-                    runDev.OwningTestRunner.StopTest();
-                    runOfficial.OwningTestRunner.StopTest();
+                    runDev.GetOwningTestRunner().StopTest();
+                    runOfficial.GetOwningTestRunner().StopTest();
                     throw new Exception("checknetisolation did not exit after 5 seconds!");
                 }
 
