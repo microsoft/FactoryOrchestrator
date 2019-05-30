@@ -238,12 +238,12 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public void StopAll()
         {
-            FTFService.Instance.TestExecutionManager.Abort();
+            FTFService.Instance.TestExecutionManager.AbortAllTestLists();
         }
 
         public void Stop(Guid testListGuid)
         {
-            FTFService.Instance.TestExecutionManager.Abort(testListGuid);
+            FTFService.Instance.TestExecutionManager.AbortTestList(testListGuid);
         }
 
         public string GetServiceVersionString()
@@ -458,10 +458,16 @@ namespace Microsoft.FactoryTestFramework.Service
             switch (e.Event)
             {
                 case TestManagerEventType.WaitingForExternalTestRunResult:
-                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForTestRunByClient, e.Guid, $"TestRun {e.Guid} is waiting on an external result.");
+                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTestRun, e.Guid, $"TestRun {e.Guid} is waiting on an external result.");
                     break;
                 case TestManagerEventType.ExternalTestRunFinished:
-                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForTestRunByClient, e.Guid, $"TestRun {e.Guid} received an external result and is finished.");
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTestRun, e.Guid, $"External TestRun {e.Guid} received a result and is finished.");
+                    break;
+                case TestManagerEventType.ExternalTestRunAborted:
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTestRun, e.Guid, $"External TestRun {e.Guid} was aborted by the user.");
+                    break;
+                case TestManagerEventType.ExternalTestRunTimeout:
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTestRun, e.Guid, $"External TestRun {e.Guid} timed-out and is failed.");
                     break;
                 default:
                     break;
@@ -562,9 +568,15 @@ namespace Microsoft.FactoryTestFramework.Service
             }
 
             // Wait for all first boot tasks to complete
+            int sleepCount = 0;
             while (_testExecutionManager.IsTestListRunning)
             {
                 System.Threading.Thread.Sleep(1000);
+                sleepCount++;
+                if (sleepCount % 15 == 0)
+                {
+                    ServiceLogger.LogInformation("Waiting for first boot TestLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
+                }
             }
 
             // Every boot tasks
@@ -617,9 +629,15 @@ namespace Microsoft.FactoryTestFramework.Service
             }
 
             // Wait for all tasks to complete
+            sleepCount = 0;
             while (_testExecutionManager.IsTestListRunning)
             {
                 System.Threading.Thread.Sleep(1000);
+                sleepCount++;
+                if (sleepCount % 15 == 0)
+                {
+                    ServiceLogger.LogInformation("Waiting for every boot TestLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
+                }
             }
 
             if (!firstBootTasksFailed)
@@ -648,9 +666,9 @@ namespace Microsoft.FactoryTestFramework.Service
                 nonMutableKey.Close();
             }
 
-            // Reset server state, clearing the first boot and first run testlists.
+            // Reset server state, clearing the first boot and first run testlists, but keep the logs and tasks running.
             _testExecutionManager.SetDefaultLogFolder(logFolder, false);
-            _testExecutionManager.Reset();
+            _testExecutionManager.Reset(true, false);
         }
 
         /// <summary>

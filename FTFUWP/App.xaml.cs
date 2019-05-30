@@ -174,7 +174,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             {
                 switch(evnt.ServiceEventType)
                 {
-                    case ServiceEventType.WaitingForTestRunByClient:
+                    case ServiceEventType.WaitingForExternalTestRun:
                         // Check if we are localhost, if so we are the DUT and need to run the UWP test for the server.
                         // If not, do nothing, as we are not the DUT.
                         if (IPCClientHelper.IsLocalHost)

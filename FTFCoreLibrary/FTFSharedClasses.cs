@@ -88,14 +88,11 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [XmlIgnore]
         public TestType TestType { get; set; }
-
         [XmlAttribute("Path")]
         public string TestPath { get; set; }
         public string LogFolder { get; set; }
-
         [XmlAttribute]
         public string Arguments { get; set; }
-
         [XmlAttribute]
         public Guid Guid { get; set; }
         public DateTime? LatestTestRunTimeStarted { get; set; }
@@ -120,6 +117,7 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
+        [XmlAttribute("Timeout")]
         public int TimeoutSeconds { get; set; }
 
         public int? LatestTestRunExitCode { get; set; }
@@ -303,15 +301,17 @@ namespace Microsoft.FactoryTestFramework.Core
     {
         private ExecutableTest() : base(TestType.ConsoleExe)
         {
-
+            BackgroundTask = false;
         }
 
         public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
         {
+            BackgroundTask = false;
         }
 
         protected ExecutableTest(String testPath, TestType type) : base(testPath, type)
         {
+            BackgroundTask = false;
         }
 
         public override string ToString()
@@ -350,6 +350,9 @@ namespace Microsoft.FactoryTestFramework.Core
                 _testFriendlyName = value;
             }
         }
+
+        [XmlAttribute]
+        public bool BackgroundTask { get; set; }
 
         private string _testFriendlyName;
     }
@@ -563,6 +566,7 @@ namespace Microsoft.FactoryTestFramework.Core
             TestsForXml = new List<TestBase>();
             RunInParallel = false;
             AllowOtherTestListsToRun = false;
+            TerminateBackgroundTasksOnCompletion = true;
         }
 
         public TestList(Guid guid) : this()
@@ -664,6 +668,9 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [XmlAttribute]
         public bool AllowOtherTestListsToRun { get; set; }
+
+        [XmlAttribute]
+        public bool TerminateBackgroundTasksOnCompletion { get; set; }
     }
 
     /// <summary>
@@ -695,6 +702,7 @@ namespace Microsoft.FactoryTestFramework.Core
             ExitCode = null;
             TestOutput = new List<string>();
             TimeoutSeconds = -1;
+            BackgroundTask = false;
 
             if (owningTest != null)
             {
@@ -704,6 +712,10 @@ namespace Microsoft.FactoryTestFramework.Core
                 TestName = owningTest.TestName;
                 TestType = owningTest.TestType;
                 TimeoutSeconds = owningTest.TimeoutSeconds;
+                if (TestType == TestType.ConsoleExe)
+                {
+                    BackgroundTask = ((ExecutableTest)owningTest).BackgroundTask;
+                }
             }
         }
 
@@ -713,6 +725,7 @@ namespace Microsoft.FactoryTestFramework.Core
         public string TestName { get; set; }
         public string TestPath { get; set; }
         public string Arguments { get; set; }
+        public bool BackgroundTask { get; set; }
         public TestType TestType { get; set; }
         public Guid Guid { get; set; }
         public DateTime? TimeStarted { get; set; }
@@ -747,6 +760,7 @@ namespace Microsoft.FactoryTestFramework.Core
                     case TestStatus.Aborted:
                     case TestStatus.Failed:
                     case TestStatus.TestPassed:
+                    case TestStatus.Timeout:
                         return true;
                     default:
                         return false;
