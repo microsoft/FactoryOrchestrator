@@ -266,9 +266,9 @@ namespace Microsoft.FactoryTestFramework.Service
             return FTFService.Instance.TestExecutionManager.RunTestList(TestListToRun);
         }
 
-        public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        public TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
         {
-            return FTFService.Instance.TestExecutionManager.RunExecutableOutsideTestList(exeFilePath, arguments, consoleLogFilePath);
+            return FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, consoleLogFilePath);
         }
 
 
@@ -720,8 +720,8 @@ namespace Microsoft.FactoryTestFramework.Service
                 volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
 
                 // Run localloopback command for both "official" and "DEV" apps
-                var runDev = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe\"");
-                var runOfficial = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
+                var runDev = (TestRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe\"");
+                var runOfficial = (TestRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
 
                 // Wait 2 seconds for both processes to start
                 int waitCount = 0;

@@ -114,7 +114,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             {
                 _testRunPoller.StopPolling();
             }
-            _activeCmdTestRun = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", $"/C \"{command}\"", null));
+            _activeCmdTestRun = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{command}\"", null));
 
             // Watch for new output
             _testRunPoller = new FTFPoller((Guid)_activeCmdTestRun.Guid, typeof(TestRun), IPCClientHelper.IpcClient, 1000);

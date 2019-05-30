@@ -374,7 +374,7 @@ namespace Microsoft.FactoryTestFramework.Server
                         token.Cancel();
                     }
 
-                    // Cancel any other random testruns
+                    // Cancel any started testruns
                     foreach (var token in RunningTestTestRunTokens.Values)
                     {
                         token.Cancel();
@@ -821,6 +821,7 @@ namespace Microsoft.FactoryTestFramework.Server
                         if (RunningTestTestRunTokens.TryGetValue(guid, out token))
                         {
                             token.Cancel();
+                            RunningTestTestRunTokens.Remove(guid);
                         }
                     }
                 }
@@ -858,7 +859,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        public TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(exeFilePath);
             if (!File.Exists(expandedPath))
