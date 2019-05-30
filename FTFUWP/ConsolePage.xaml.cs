@@ -58,7 +58,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 _testRunPoller.StopPolling();
                 _cmdSem.Release();
                 _testRunPoller = null;
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTestRun(_activeCmdTestRun));
+                await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTestRun(_activeCmdTestRun.Guid));
                 CommandBox.IsEnabled = true;
                 RunButtonIcon.Symbol = Symbol.Play;
             }
