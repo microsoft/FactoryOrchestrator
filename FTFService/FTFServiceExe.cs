@@ -204,7 +204,10 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public void ResetService(bool preserveLogs = true)
         {
-            FTFService.Instance.TestExecutionManager.Reset(preserveLogs);
+            // Kill all processes including bg tasks, delete all state except registry configuration, re-run boot tasks
+            FTFService.Instance.TestExecutionManager.Reset(preserveLogs, true);
+            // Pause a bit to allow the IPC call to return before we kill it off
+            Task.Run(() => { System.Threading.Thread.Sleep(100); FTFService.Instance.Stop(); FTFService.Instance.Start(true); });
         }
 
         public bool UpdateTest(TestBase updatedTest)
@@ -236,14 +239,18 @@ namespace Microsoft.FactoryTestFramework.Service
             return FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
         }
 
-        public void StopAll()
+        public void AbortAllTestLists()
         {
             FTFService.Instance.TestExecutionManager.AbortAllTestLists();
         }
 
-        public void Stop(Guid testListGuid)
+        public void AbortTestList(Guid testListGuid)
         {
             FTFService.Instance.TestExecutionManager.AbortTestList(testListGuid);
+        }
+        public void AbortTestRun(Guid testRunGuid)
+        {
+            FTFService.Instance.TestExecutionManager.AbortTestRun(testRunGuid);
         }
 
         public string GetServiceVersionString()
@@ -270,7 +277,6 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             return FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, consoleLogFilePath);
         }
-
 
         public TestRun RunTestOutsideTestList(Guid testGuid)
         {
@@ -411,11 +417,19 @@ namespace Microsoft.FactoryTestFramework.Service
         /// </summary>
         public void Start()
         {
+            Start(false);
+        }
+
+        /// <summary>
+        /// Service start.
+        /// </summary>
+        public void Start(bool forceUserTaskRerun)
+        {
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks();
 
             // Execute user defined tasks.
-            ExecuteUserBootTasks();
+            ExecuteUserBootTasks(forceUserTaskRerun);
 
             // Try to load known TestLists from the state file
             if (File.Exists(_testExecutionManager.TestListStateFile))
@@ -445,6 +459,9 @@ namespace Microsoft.FactoryTestFramework.Service
         {
             // Disable IPC interface
             _ipcCancellationToken.Cancel();
+
+            // Abort everything that's running, except persisted background tasks
+            TestExecutionManager.AbortAllTestLists();
 
             // Update state file
             TestExecutionManager.SaveAllTestListsToXmlFile(TestExecutionManager.TestListStateFile);
@@ -501,7 +518,7 @@ namespace Microsoft.FactoryTestFramework.Service
         /// Executes user defined tasks that should run on first boot (of FTF) or every boot.
         /// </summary>
         /// <returns></returns>
-        public void ExecuteUserBootTasks()
+        public void ExecuteUserBootTasks(bool force)
         {
             RegistryKey mutableKey = null;
             RegistryKey nonMutableKey = null;
@@ -528,7 +545,7 @@ namespace Microsoft.FactoryTestFramework.Service
                 // Check if first boot tasks were already completed
                 bool? firstBootTasksCompleted = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue) as bool?;
 
-                if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == false))
+                if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == false) || (force == true))
                 {
                     ServiceLogger.LogInformation("Checking for first boot TestLists XML...");
                     // Find the TestLists XML path.
@@ -587,7 +604,7 @@ namespace Microsoft.FactoryTestFramework.Service
                     // Check if every boot tasks were already completed
                     var everyBootTasksCompleted = volatileKey.GetValue(_everyBootCompleteValue) as bool?;
 
-                    if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == false))
+                    if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == false) || (force == true))
                     {
                         ServiceLogger.LogInformation($"Checking for every boot TestLists XML...");
                         // Find the TestLists XML path.

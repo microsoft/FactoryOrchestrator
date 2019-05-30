@@ -110,8 +110,9 @@ namespace Microsoft.FactoryTestFramework.Core
 
         // Test Execution APIs
         bool RunTestList(Guid TestListToRun);
-        void StopAll();
-        void Stop(Guid testListGuid);
+        void AbortAllTestLists();
+        void AbortTestList(Guid testListGuid);
+        void AbortTestRun(Guid testRunGuid);
         TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null);
         TestRun RunUWPOutsideTestList(string packageFamilyName);
         TestRun RunTestOutsideTestList(Guid testGuid);

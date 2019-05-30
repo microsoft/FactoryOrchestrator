@@ -228,7 +228,6 @@ namespace Microsoft.FactoryTestFramework.Server
 
         public bool SaveTestListToXmlFile(Guid guid, string filename)
         {
-            lock (RunningTestListLock)
             if (IsTestListRunning)
             {
                 throw new TestManagerTestListRunningException();

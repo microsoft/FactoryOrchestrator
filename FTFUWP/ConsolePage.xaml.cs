@@ -55,10 +55,10 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             if (RunButtonIcon.Symbol == Symbol.Stop)
             {
-                // todo: bug: actually kill the process/testrun
                 _testRunPoller.StopPolling();
                 _cmdSem.Release();
                 _testRunPoller = null;
+                await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTestRun(_activeCmdTestRun));
                 CommandBox.IsEnabled = true;
                 RunButtonIcon.Symbol = Symbol.Play;
             }

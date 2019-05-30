@@ -70,7 +70,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 else if (RunButtonIcon.Symbol == Symbol.Stop)
                 {
                     // call Stop Test API
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.StopAll());
+                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortAllTestLists());
                     RunButtonIcon.Symbol = Symbol.Play;
                 }
             }
