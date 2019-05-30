@@ -92,9 +92,11 @@ namespace Microsoft.FactoryTestFramework.Core
         [XmlAttribute("Path")]
         public string TestPath { get; set; }
         public string LogFolder { get; set; }
+
+        [XmlAttribute]
         public string Arguments { get; set; }
 
-        [XmlAttribute("Guid")]
+        [XmlAttribute]
         public Guid Guid { get; set; }
         public DateTime? LatestTestRunTimeStarted { get; set; }
         public DateTime? LatestTestRunTimeFinished { get; set; }
@@ -559,6 +561,8 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             Tests = new Dictionary<Guid, TestBase>();
             TestsForXml = new List<TestBase>();
+            RunInParallel = false;
+            AllowOtherTestListsToRun = false;
         }
 
         public TestList(Guid guid) : this()
@@ -581,13 +585,17 @@ namespace Microsoft.FactoryTestFramework.Core
                 {
                     return TestStatus.TestPassed;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Running))
+                else if (Tests.Values.Any(x => (x.LatestTestRunStatus == TestStatus.Running) || (x.LatestTestRunStatus == TestStatus.WaitingForExternalResult)))
                 {
                     return TestStatus.Running;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Failed))
+                else if (Tests.Values.Any(x => (x.LatestTestRunStatus == TestStatus.Failed) || (x.LatestTestRunStatus == TestStatus.Timeout)))
                 {
                     return TestStatus.Failed;
+                }
+                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Unknown))
+                {
+                    return TestStatus.Unknown;
                 }
                 else
                 {
@@ -649,6 +657,13 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [XmlAttribute]
         public Guid Guid { get; set; }
+
+
+        [XmlAttribute]
+        public bool RunInParallel { get; set; }
+
+        [XmlAttribute]
+        public bool AllowOtherTestListsToRun { get; set; }
     }
 
     /// <summary>

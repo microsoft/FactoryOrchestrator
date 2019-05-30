@@ -65,7 +65,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     RunButtonIcon.Symbol = Symbol.Stop;
                     Guid testListGuid = (Guid)TestListsView.SelectedItem;
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.Run(testListGuid, false, (bool)RunListInParallel.IsChecked));
+                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTestList(testListGuid));
                 }
                 else if (RunButtonIcon.Symbol == Symbol.Stop)
                 {

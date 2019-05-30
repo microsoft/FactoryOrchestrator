@@ -231,9 +231,9 @@ namespace Microsoft.FactoryTestFramework.Service
             return true;
         }
 
-        public bool SetDefaultLogFolder(string logFolder)
+        public bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs)
         {
-            return FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder);
+            return FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
         }
 
         public void StopAll()
@@ -261,9 +261,9 @@ namespace Microsoft.FactoryTestFramework.Service
             return FTFService.Instance.TestExecutionManager.UpdateTestRunStatus(testRunStatus);
         }
 
-        public bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        public bool RunTestList(Guid TestListToRun)
         {
-            return FTFService.Instance.TestExecutionManager.Run(TestListToRun, allowOtherTestListsToRun, runListInParallel);
+            return FTFService.Instance.TestExecutionManager.RunTestList(TestListToRun);
         }
 
         public TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null)
@@ -306,6 +306,13 @@ namespace Microsoft.FactoryTestFramework.Service
 
     public class FTFService : IMicroService
     {
+        enum RegKeyType
+        {
+            NonMutable,
+            Mutable,
+            Volatile
+        }
+
         private static FTFService _singleton = null;
         private static readonly object _constructorLock = new object();
 
@@ -313,10 +320,18 @@ namespace Microsoft.FactoryTestFramework.Service
         private IMicroServiceController _controller;
         public ILogger<FTFService> ServiceLogger;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
-        private readonly string _serviceRegPath = @"System\CurrentControlSet\Control\FactoryTestFramework";
+        private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryTestFramework";
+        private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryTestFramework";
+        private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryTestFramework\EveryBootTaskStatus";
+        private readonly string _firstBootCompleteValue = @"FirstBootTestListsComplete";
+        private readonly string _everyBootCompleteValue = @"EveryBootTestListsComplete";
         private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
+        private readonly string _firstBootTasksPathValue = @"FirstBootTestListsXML";
+        private readonly string _everyBootTasksPathValue = @"EveryBootTestListsXML";
+
         //private readonly string _firewallValue = @"FirewallConfigured";
-        private RegistryKey _ftfKey = null;
+        //private RegistryKey _ftfPersistentKey = null;
+        //private RegistryKey _ftfVolatileKey = null;
 
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
@@ -396,6 +411,12 @@ namespace Microsoft.FactoryTestFramework.Service
         /// </summary>
         public void Start()
         {
+            // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
+            ExecuteServerBootTasks();
+
+            // Execute user defined tasks.
+            ExecuteUserBootTasks();
+
             // Try to load known TestLists from the state file
             if (File.Exists(_testExecutionManager.TestListStateFile))
             {
@@ -409,17 +430,10 @@ namespace Microsoft.FactoryTestFramework.Service
                 }
             }
 
-
-            // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
-            ExecuteServerBootTasks();
-
-            // Start IPC server
+            // Start IPC server. Only start after all boot tasks are complete.
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
             FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
-
-            // Execute user defined tasks.
-            Task.Run(ExecuteUserBootTasks);
 
             ServiceLogger.LogTrace("FactoryTestFramework Service Started\n");
         }
@@ -429,6 +443,7 @@ namespace Microsoft.FactoryTestFramework.Service
         /// </summary>
         public void Stop()
         {
+            // Disable IPC interface
             _ipcCancellationToken.Cancel();
 
             // Update state file
@@ -472,6 +487,7 @@ namespace Microsoft.FactoryTestFramework.Service
         /// <returns></returns>
         public bool ExecuteServerBootTasks()
         {
+            // Enable local loopback every boot.
             return EnableUWPLocalLoopback();
         }
 
@@ -481,19 +497,197 @@ namespace Microsoft.FactoryTestFramework.Service
         /// <returns></returns>
         public void ExecuteUserBootTasks()
         {
-            List<string> everyBootTasks = new List<string>();
-            List<TestRun_Server> everyBootRuns = new List<TestRun_Server>();
-            List<string> firstBootTasks = new List<string>();
-            List<TestRun_Server> firstBootRuns = new List<TestRun_Server>();
-            // todo:  use testlist?
-            foreach (var taskString in firstBootTasks)
+            RegistryKey mutableKey = null;
+            RegistryKey nonMutableKey = null;
+            RegistryKey volatileKey = null;
+            bool firstBootTasksFailed = false;
+            bool everyBootTasksFailed = false;
+            var logFolder = _testExecutionManager.DefaultLogFolder;
+
+            try
             {
-                var command = taskString.Split(" ")[0];
-                var args = taskString.Replace(command, "");
-                firstBootRuns.Add((TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"", Path.Combine(TestExecutionManager.DefaultLogFolder, ));
+                // OSDATA wont exist on Desktop, so try to open it on it's own
+                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
             }
+            catch (Exception)
+            { }
+
+            // First Boot tasks
+            try
+            {
+                // Open remaining reg keys
+                nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+                volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
+
+                // Check if first boot tasks were already completed
+                bool? firstBootTasksCompleted = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue) as bool?;
+
+                if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == false))
+                {
+                    ServiceLogger.LogInformation("Checking for first boot TestLists XML...");
+                    // Find the TestLists XML path.
+                    string firstBootTestListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootTasksPathValue) as string;
+
+                    if (firstBootTestListPath != null)
+                    {
+                        ServiceLogger.LogInformation($"First boot TestLists XML found, attempting to load {firstBootTestListPath}...");
+                        // Create a new directory for the first boot logs
+                        _testExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "FirstBootTestLists"), false);
+
+                        // Load the TestLists file specified in registry
+                        var firstBootTestListGuids = _testExecutionManager.LoadTestListsFromXmlFile(firstBootTestListPath);
+
+                        foreach (var listGuid in firstBootTestListGuids)
+                        {
+                            if (!_testExecutionManager.RunTestList(listGuid))
+                            {
+                                ServiceLogger.LogError($"Unable to run first boot TestList {listGuid}!");
+                            }
+                            else
+                            {
+                                ServiceLogger.LogInformation($"Running first boot TestList {listGuid}...");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ServiceLogger.LogInformation("First boot TestLists already complete.");
+                }
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Unable to complete first boot TestLists! ({e.Message})");
+                firstBootTasksFailed = true;
+            }
+
+            // Wait for all first boot tasks to complete
+            while (_testExecutionManager.IsTestListRunning)
+            {
+                System.Threading.Thread.Sleep(1000);
+            }
+
+            // Every boot tasks
+            if ((nonMutableKey != null) && (volatileKey != null))
+            {
+                try
+                {
+                    // Check if every boot tasks were already completed
+                    var everyBootTasksCompleted = volatileKey.GetValue(_everyBootCompleteValue) as bool?;
+
+                    if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == false))
+                    {
+                        ServiceLogger.LogInformation($"Checking for every boot TestLists XML...");
+                        // Find the TestLists XML path.
+                        var everyBootTestListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _everyBootTasksPathValue) as string;
+
+                        if (everyBootTestListPath != null)
+                        {
+                            ServiceLogger.LogInformation($"Every boot TestLists XML found, attempting to load {everyBootTestListPath}...");
+
+                            // Create a new directory for the first boot logs
+                            _testExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "EveryBootTestLists"), false);
+
+                            // Load the TestLists file specified in registry
+                            var everyBootTestListGuids = _testExecutionManager.LoadTestListsFromXmlFile(everyBootTestListPath);
+
+                            foreach (var listGuid in everyBootTestListGuids)
+                            {
+                                if (!_testExecutionManager.RunTestList(listGuid))
+                                {
+                                    ServiceLogger.LogError($"Unable to run every boot TestList {listGuid}!");
+                                }
+                                else
+                                {
+                                    ServiceLogger.LogInformation($"Running every boot TestList {listGuid}...");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ServiceLogger.LogInformation("Every boot TestLists already complete.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogError($"Unable to complete every boot TestLists! ({e.Message})");
+                    everyBootTasksFailed = true;
+                }
+            }
+
+            // Wait for all tasks to complete
+            while (_testExecutionManager.IsTestListRunning)
+            {
+                System.Threading.Thread.Sleep(1000);
+            }
+
+            if (!firstBootTasksFailed)
+            {
+                // Mark first boot tasks as complete
+                ServiceLogger.LogInformation("First boot TestLists complete or not found.");
+                SetValueInRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue, 1, RegistryValueKind.DWord);
+            }
+            if (!everyBootTasksFailed)
+            {
+                // Mark every boot tasks as complete. Mark in volatile registry location so it is reset after reboot.
+                ServiceLogger.LogInformation("Every boot TestLists complete or not found.");
+                volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
+            }
+
+            if (volatileKey != null)
+            {
+                volatileKey.Close();
+            }
+            if (mutableKey != null)
+            {
+                mutableKey.Close();
+            }
+            if (nonMutableKey != null)
+            {
+                nonMutableKey.Close();
+            }
+
+            // Reset server state, clearing the first boot and first run testlists.
+            _testExecutionManager.SetDefaultLogFolder(logFolder, false);
+            _testExecutionManager.Reset();
         }
 
+        /// <summary>
+        /// Checks the given mutable and non-mutable registry keys for a given value. Mutable is always checked first.
+        /// </summary>
+        /// <returns>The value if it exists.</returns>
+        private object GetValueFromRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName)
+        {
+            object ret = null;
+
+            if (mutableKey != null)
+            {
+                ret = mutableKey.GetValue(valueName);
+            }
+            
+            if ((ret == null) && (nonMutableKey != null))
+            {
+                ret = nonMutableKey.GetValue(valueName);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Sets a given value in the registry. The mutable location is used if it exists.
+        /// </summary>
+        private void SetValueInRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object value, RegistryValueKind valueKind)
+        {
+            if (mutableKey != null)
+            {
+                mutableKey.SetValue(valueName, value, valueKind);
+            }
+            else if (nonMutableKey != null)
+            {
+                nonMutableKey.SetValue(valueName, value, valueKind);
+            }
+        }
 
         /// <summary>
         /// Check if UWP local loopback needs to be enabled. Turn it on if so.
@@ -501,69 +695,84 @@ namespace Microsoft.FactoryTestFramework.Service
         /// <returns></returns>
         private bool EnableUWPLocalLoopback()
         {
+            bool success = false;
+            RegistryKey volatileKey = null;
             try
             {
-                if (_ftfKey == null)
+                volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
+
+                // Run localloopback command for both "official" and "DEV" apps
+                var runDev = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe\"");
+                var runOfficial = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
+
+                // Wait 2 seconds for both processes to start
+                int waitCount = 0;
+                const int waitMS = 100;
+                const int maxWaits = waitMS * 20; // 2 seconds
+
+                while (((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null)) && (waitCount < maxWaits))
                 {
-                    OpenOrCreateRegKey();
+                    waitCount++;
+                    System.Threading.Thread.Sleep(100);
                 }
 
-                // Check if this was successfully run once
-                var value = (int)_ftfKey.GetValue(_loopbackValue, 0);
-
-                if (value != 1)
+                if ((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null))
                 {
-                    // Run localloopback command for both "official" and "DEV" apps
-                    var runDev = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe\"");
-                    var runOfficial = (TestRun_Server)TestExecutionManager.RunExecutableOutsideTestList(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
+                    throw new Exception($"checknetisolation never started");
+                }
 
-                    // Wait 2 seconds for both processes to start
-                    int waitCount = 0;
-                    const int waitMS = 100;
-                    const int maxWaits = waitMS * 20; // 2 seconds
+                // Wait 5 seconds for both process to exit
+                if ((!runDev.OwningTestRunner.WaitForExit(5000)) || (!runOfficial.OwningTestRunner.WaitForExit(5000)))
+                {
+                    runDev.OwningTestRunner.StopTest();
+                    runOfficial.OwningTestRunner.StopTest();
+                    throw new Exception("checknetisolation did not exit after 5 seconds!");
+                }
 
-                    while (((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null)) && (waitCount < maxWaits))
-                    {
-                        waitCount++;
-                        System.Threading.Thread.Sleep(100);
-                    }
-
-                    if ((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null))
-                    {
-                        throw new Exception($"checknetisolation never started");
-                    }
-
-                    // Wait 5 seconds for both process to exit
-                    if ((!runDev.OwningTestRunner.WaitForExit(5000)) || (!runOfficial.OwningTestRunner.WaitForExit(5000)))
-                    {
-                        runDev.OwningTestRunner.StopTest();
-                        runOfficial.OwningTestRunner.StopTest();
-                        throw new Exception("checknetisolation did not exit after 5 seconds!");
-                    }
-
-                    if ((runDev.TestStatus == TestStatus.TestPassed) && (runOfficial.TestStatus == TestStatus.TestPassed))
-                    {
-                        // Success! Set regkey so this isn't run again.
-                        _ftfKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
-                        return true;
-                    }
-                    else
-                    {
-                        throw new Exception($"checknetisolation exited with {runDev.ExitCode} and {runOfficial.ExitCode}");
-                    }
+                if ((runDev.TestStatus == TestStatus.TestPassed) && (runOfficial.TestStatus == TestStatus.TestPassed))
+                {
+                    success = true;
+                    volatileKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
+                }
+                else
+                {
+                    throw new Exception($"checknetisolation exited with {runDev.ExitCode} and {runOfficial.ExitCode}");
                 }
             }
             catch (Exception e)
             {
                 ServiceLogger.LogError($"Unable to enable UWP local loopback! You may not be able to use the FTF UWP app locally ({e.Message})");
             }
+            finally
+            {
+                if (volatileKey != null)
+                {
+                    volatileKey.Close();
+                }
+            }
 
-            return false;
+            return success;
         }
 
-        private void OpenOrCreateRegKey()
+        private RegistryKey OpenOrCreateRegKey(RegKeyType type)
         {
-            _ftfKey = Registry.LocalMachine.CreateSubKey(_serviceRegPath, true);
+            RegistryKey key = null;
+            switch (type)
+            {
+                case RegKeyType.Mutable:
+                    key = Registry.LocalMachine.CreateSubKey(_mutableServiceRegKey, true);
+                    break;
+                case RegKeyType.NonMutable:
+                    key = Registry.LocalMachine.CreateSubKey(_nonMutableServiceRegKey, true);
+                    break;
+                case RegKeyType.Volatile:
+                    key = Registry.LocalMachine.CreateSubKey(_volatileServiceRegKey, true, RegistryOptions.Volatile);
+                    break;
+                default:
+                    break;
+            }
+
+            return key;
         }
 
         // Firewall is configured in FTFServiceTemplate.wm.xml Windows Manifest file

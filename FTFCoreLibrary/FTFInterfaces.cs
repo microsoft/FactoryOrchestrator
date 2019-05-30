@@ -92,7 +92,7 @@ namespace Microsoft.FactoryTestFramework.Core
         List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex);
         string GetServiceVersionString();
         bool SetDefaultTePath(string teExePath);
-        bool SetDefaultLogFolder(string logFolder);
+        bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
@@ -109,7 +109,7 @@ namespace Microsoft.FactoryTestFramework.Core
         TestBase QueryTest(Guid guid);
 
         // Test Execution APIs
-        bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
+        bool RunTestList(Guid TestListToRun);
         void StopAll();
         void Stop(Guid testListGuid);
         TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);

@@ -55,12 +55,17 @@ namespace Microsoft.FactoryTestFramework.Server
             _startNonParallelTestRunLock = new SemaphoreSlim(1, 1);
             KnownTestLists = new Dictionary<Guid, TestList>();
             RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
-            SetDefaultLogFolder(defaultLogFolder);
             TestListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTestLists.testlists");
+            SetDefaultLogFolder(defaultLogFolder, false);
         }
 
-        public bool SetDefaultLogFolder(string logFolder)
+        public bool SetDefaultLogFolder(string newLogFolder, bool moveFiles)
         {
+            if (newLogFolder == _defaultLogFolder)
+            {
+                return true;
+            }
+
             try
             {
                 // Don't allow the folder to move if any test is running or we are actively modifying testlists
@@ -71,23 +76,42 @@ namespace Microsoft.FactoryTestFramework.Server
                         throw new TestManagerTestListRunningException();
                     }
 
-                    // Move all files
                     lock (KnownTestListLock)
                     {
-                        if (_defaultLogFolder != null)
+                        if (moveFiles && (_defaultLogFolder != null) && (Directory.Exists(_defaultLogFolder)))
                         {
-                            if (Directory.Exists(_defaultLogFolder))
+                            // Move existing folder to temp folder
+                            var tempDir = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FTFTemp");
+                            CopyDirectory(_defaultLogFolder, tempDir, true);
+
+                            // Delete old folder
+                            Directory.Delete(_defaultLogFolder, true);
+
+                            // Move temp folder to new folder
+                            CopyDirectory(tempDir, newLogFolder, true);
+
+                            // Delete temp folder
+                            Directory.Delete(tempDir, true);
+                        }
+                        else
+                        {
+                            Directory.CreateDirectory(newLogFolder);
+                        }
+
+                        var newStateFilePath = Path.Combine(newLogFolder, "FTFServiceKnownTestLists.testlists");
+
+                        if (!moveFiles)
+                        {
+                            // Move state file if needed
+                            if (File.Exists(TestListStateFile))
                             {
-                                Directory.Move(_defaultLogFolder, logFolder);
-                            }
-                            else
-                            {
-                                Directory.CreateDirectory(_defaultLogFolder);
+                                File.Move(TestListStateFile, newStateFilePath);
                             }
                         }
 
-                        _defaultLogFolder = logFolder;
-                        TestListStateFile = Path.Combine(_defaultLogFolder, "FTFServiceKnownTestLists.testlists");
+                        // Update paths
+                        _defaultLogFolder = newLogFolder;
+                        TestListStateFile = newStateFilePath;
                     }
                 }
 
@@ -96,6 +120,44 @@ namespace Microsoft.FactoryTestFramework.Server
             catch (Exception e)
             {
                 throw new TestManagerException("Could not move log folder!", null, e);
+            }
+        }
+
+        private static void CopyDirectory(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string temppath = Path.Combine(destDirName, subdir.Name);
+                    CopyDirectory(subdir.FullName, temppath, copySubDirs);
+                }
             }
         }
 
@@ -304,7 +366,7 @@ namespace Microsoft.FactoryTestFramework.Server
             {
                 lock (KnownTestListLock)
                 {
-                    // Cancel all running tests
+                    // Cancel all running TestLists
                     foreach (var token in RunningTestListTokens.Values)
                     {
                         token.Cancel();
@@ -473,7 +535,7 @@ namespace Microsoft.FactoryTestFramework.Server
             return TestRun_Server.UpdateTestRun(latestTestRun);
         }
 
-        public bool Run(Guid TestListGuidToRun, bool allowOtherTestListsToRun, bool runListInParallel)
+        public bool RunTestList(Guid TestListGuidToRun)
         {
             TestList list = null;
 
@@ -501,7 +563,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 // Update XML for state tracking.
                 SaveAllTestListsToXmlFile(TestListStateFile);
 
-                var workItem = new TestListWorkItem(list.Guid, testRunGuids, allowOtherTestListsToRun, runListInParallel);
+                var workItem = new TestListWorkItem(list.Guid, testRunGuids, list.AllowOtherTestListsToRun, list.RunInParallel);
                 var token = new CancellationTokenSource();
                 RunningTestListTokens.Add(workItem.TestListGuid, token);
                 Task t = new Task((i) => { TestListWorker(i, token.Token); }, workItem, token.Token);
@@ -742,6 +804,22 @@ namespace Microsoft.FactoryTestFramework.Server
             get
             {
                 return (RunningTestListTokens.Count > 0);
+            }
+        }
+
+        public bool CanStartNewTestListRun
+        {
+            get
+            {
+                if (RunningTestListTokens.Count == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    // Check if a running TestList doesn't allow a other TestLists to run
+                    return !KnownTestLists.Values.Any(x => (x.TestListStatus == TestStatus.Running) && (x.AllowOtherTestListsToRun == false));
+                }
             }
         }
 

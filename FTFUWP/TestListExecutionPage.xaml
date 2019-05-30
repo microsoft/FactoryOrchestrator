@@ -23,7 +23,6 @@
             <Button Margin="25,0,0,0" x:Name="RunButton" Click="RunButton_Click">
                 <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
             </Button>
-            <CheckBox x:Name="RunListInParallel" Content="Run List in Parallel?" Margin="25,0,0,0" IsChecked="False"/>
             <CheckBox x:Name="DisablePolling" Content="DisablePolling" Margin="10,0" IsChecked="False" Checked="DisablePolling_Click"  Unchecked="DisablePolling_Click" Visibility="Collapsed"/>
         </StackPanel>
 
