@@ -70,15 +70,21 @@ namespace Microsoft.FactoryTestFramework.Client
                             // Adaptive detects if the invoke method is taking too long. If it is, it increases the poll time by 10% of initial value.
                             // Adaptive also throws away an invoke if it can't get the semaphore. 
                             // Max change is maxAdaptiveModifier initial interval (5x default)
+                            int newInterval;
                             if (_invokeSem.Wait(0))
                             {
                                 OnUpdatedObject?.Invoke(this, new FTFPollEventArgs(_latestObject));
                                 _invokeSem.Release();
-                                _pollingInterval = Math.Min(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
+                                newInterval = Math.Max(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
                             }
                             else
                             {
-                                _pollingInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+                                newInterval = Math.Max(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+                            }
+
+                            if (newInterval != _pollingInterval)
+                            {
+                                _pollingInterval = newInterval;
                                 _timer.Change(_pollingInterval, _pollingInterval);
                             }
                         }
