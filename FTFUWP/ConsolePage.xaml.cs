@@ -105,7 +105,8 @@ namespace Microsoft.FactoryTestFramework.UWP
                 var textBlock = new TextBlock()
                 {
                     Text = $"{Environment.NewLine}>{command}{Environment.NewLine}",
-                    FontWeight = Windows.UI.Text.FontWeights.Bold
+                    FontWeight = Windows.UI.Text.FontWeights.Bold,
+                    IsTextSelectionEnabled = true
                 };
                 OutputStack.Children.Add(textBlock);
             });
@@ -257,7 +258,8 @@ namespace Microsoft.FactoryTestFramework.UWP
             {
                 var textBlock = new TextBlock()
                 {
-                    Text = block.text
+                    Text = block.text,
+                    IsTextSelectionEnabled = true
                 };
 
                 if (block.isError)
