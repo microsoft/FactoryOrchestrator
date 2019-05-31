@@ -200,6 +200,10 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             return TestRunGuids.Count > 0;
         }
+        public bool ShouldSerializeTimeoutSeconds()
+        {
+            return TimeoutSeconds != -1;
+        }
 
         public override bool Equals(object obj)
         {
@@ -349,6 +353,10 @@ namespace Microsoft.FactoryTestFramework.Core
             {
                 _testFriendlyName = value;
             }
+        }
+        public bool ShouldSerializeBackgroundTask()
+        {
+            return BackgroundTask == true;
         }
 
         [XmlAttribute]
@@ -643,6 +651,11 @@ namespace Microsoft.FactoryTestFramework.Core
         public override int GetHashCode()
         {
             return -2045414129 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
+        }
+
+        public bool ShouldSerializeTerminateBackgroundTasksOnCompletion()
+        {
+            return TerminateBackgroundTasksOnCompletion == false;
         }
 
         /// <summary>
