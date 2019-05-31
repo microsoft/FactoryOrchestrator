@@ -12,14 +12,18 @@ namespace Microsoft.FactoryTestFramework.Client
     /// </summary>
     public class FTFPoller
     {
-        public FTFPoller(Guid? guidToPoll, Type guidType, IpcServiceClient<IFTFCommunication> ipcServiceClient, int pollingIntervalMs = 1000)
+        public FTFPoller(Guid? guidToPoll, Type guidType, IpcServiceClient<IFTFCommunication> ipcServiceClient, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 5)
         {
             _guidToPoll = guidToPoll;
             _client = ipcServiceClient;
             _pollingInterval = pollingIntervalMs;
+            _initialPollingInterval = pollingIntervalMs;
+            _pollingIntervalStep = pollingIntervalMs / 10;
             _latestObject = null;
+            _adaptiveInterval = adaptiveInterval;
+            _adaptiveModifier = maxAdaptiveModifier;
             _timer = new Timer(GetUpdatedObjectAsync, null, Timeout.Infinite, pollingIntervalMs);
-            _stoplock = new object();
+            _invokeSem = new SemaphoreSlim(1, 1);
             _stopped = true;
             OnUpdatedObject = null;
 
@@ -59,11 +63,30 @@ namespace Microsoft.FactoryTestFramework.Client
                 if (!newObj.Equals(_latestObject))
                 {
                     _latestObject = newObj;
-                    lock (_stoplock)
+                    if (!_stopped)
                     {
-                        if (!_stopped)
+                        if (_adaptiveInterval)
                         {
+                            // Adaptive detects if the invoke method is taking too long. If it is, it increases the poll time by 10% of initial value.
+                            // Adaptive also throws away an invoke if it can't get the semaphore. 
+                            // Max change is maxAdaptiveModifier initial interval (5x default)
+                            if (_invokeSem.Wait(0))
+                            {
+                                OnUpdatedObject?.Invoke(this, new FTFPollEventArgs(_latestObject));
+                                _invokeSem.Release();
+                                _pollingInterval = Math.Min(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
+                            }
+                            else
+                            {
+                                _pollingInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+                                _timer.Change(_pollingInterval, _pollingInterval);
+                            }
+                        }
+                        else
+                        {
+                            _invokeSem.Wait();
                             OnUpdatedObject?.Invoke(this, new FTFPollEventArgs(_latestObject));
+                            _invokeSem.Release();
                         }
                     }
                 }
@@ -86,14 +109,11 @@ namespace Microsoft.FactoryTestFramework.Client
 
         public void StopPolling()
         {
-            lock (_stoplock)
+            _stopped = true;
+            if (_timer != null)
             {
-                _stopped = true;
-                if (_timer != null)
-                {
-                    _timer.Dispose();
-                    _timer = null;
-                }
+                _timer.Dispose();
+                _timer = null;
             }
         }
 
@@ -124,10 +144,14 @@ namespace Microsoft.FactoryTestFramework.Client
         private IpcServiceClient<IFTFCommunication> _client;
         private object _latestObject;
         private int _pollingInterval;
+        private int _initialPollingInterval;
+        private int _pollingIntervalStep;
         private Timer _timer;
-        private object _stoplock;
+        private SemaphoreSlim _invokeSem;
         private Type _guidType;
         private bool _stopped;
+        private bool _adaptiveInterval;
+        private int _adaptiveModifier;
         public event FTFPollerEventHandler OnUpdatedObject;
     }
 

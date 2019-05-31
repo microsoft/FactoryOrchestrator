@@ -29,7 +29,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             _cmdSem = new SemaphoreSlim(1, 1);
-            outputLock = new object();
+            _outSem = new SemaphoreSlim(1, 1);
             newCmd = false;
         }
 
@@ -141,7 +141,16 @@ namespace Microsoft.FactoryTestFramework.UWP
                     _testRunPoller.StopPolling();
                 }
 
-                var blocks = PrepareOutput();
+                _outSem.Wait();
+                while (lastOutput != _activeCmdTestRun.TestOutput.Count)
+                {
+                    var blocks = PrepareOutput();
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        UpdateOutput(blocks);
+                    });
+                }
+                _outSem.Release();
 
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
@@ -152,7 +161,6 @@ namespace Microsoft.FactoryTestFramework.UWP
                         RunButtonIcon.Symbol = Symbol.Play;
                         _cmdSem.Release();
                     }
-                    UpdateOutput(blocks);
                 });
             }
         }
@@ -160,21 +168,18 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
-            lock (outputLock)
-            {
-                OutputStack.Children.Clear();
-            }
+            _outSem.Wait();
+            OutputStack.Children.Clear();
+            _outSem.Release();
         }
 
 
         /// <summary>
         /// Updates UI with latest console output
         /// </summary>
-        private List<TextBlock> PrepareOutput()
+        private List<(string text, bool isError)> PrepareOutput()
         {
-            List <TextBlock> ret = new List<TextBlock>();
-
-            var endCount = _activeCmdTestRun.TestOutput.Count;
+            List <(string text, bool isError)> ret = new List<(string text, bool isError)>();
 
             if (newCmd)
             {
@@ -182,8 +187,11 @@ namespace Microsoft.FactoryTestFramework.UWP
                 newCmd = false;
             }
 
+
+            var endCount = Math.Min(_activeCmdTestRun.TestOutput.Count, lastOutput + 500);
             string text = "";
             bool errorBlock = false;
+
             for (int i = lastOutput; i < endCount; i++)
             {
                 if (_activeCmdTestRun.TestOutput[i] != null)
@@ -197,13 +205,8 @@ namespace Microsoft.FactoryTestFramework.UWP
                     else if (errorBlock)
                     {
                         // Done with error text, write out the error text and start again
-                        var textBlock = new TextBlock()
-                        {
-                            Text = text,
-                            FontWeight = Windows.UI.Text.FontWeights.Bold,
-                            Foreground = new SolidColorBrush(Windows.UI.Colors.Red)
-                        };
-                        ret.Add(textBlock);
+                        var tupl = (text, true);
+                        ret.Add(tupl);
 
                         text = _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
                         errorBlock = false;
@@ -211,11 +214,8 @@ namespace Microsoft.FactoryTestFramework.UWP
                     else if (!errorBlock && _activeCmdTestRun.TestOutput[i].StartsWith("ERROR: "))
                     {
                         // Done with normal text, write out the normal text and start again
-                        var textBlock = new TextBlock()
-                        {
-                            Text = text
-                        };
-                        ret.Add(textBlock);
+                        var tupl = (text, false);
+                        ret.Add(tupl);
 
                         text = _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
                         errorBlock = true;
@@ -233,18 +233,16 @@ namespace Microsoft.FactoryTestFramework.UWP
 
             if (!String.IsNullOrEmpty(text))
             {
-                var textBlock = new TextBlock()
-                {
-                    Text = text
-                };
-
                 if (errorBlock)
                 {
-                    textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
-                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
+                    var tupl = (text, true);
+                    ret.Add(tupl);
                 }
-
-                ret.Add(textBlock);
+                else
+                {
+                    var tupl = (text, false);
+                    ret.Add(tupl);
+                }
             }
 
             return ret;
@@ -253,14 +251,26 @@ namespace Microsoft.FactoryTestFramework.UWP
         /// <summary>
         /// Updates UI with latest console output
         /// </summary>
-        private void UpdateOutput(List<TextBlock> blocks)
+        private void UpdateOutput(List<(string text, bool isError)> blocks)
         {
-            lock (outputLock)
+            foreach (var block in blocks)
             {
-                foreach (var block in blocks)
+                var textBlock = new TextBlock()
                 {
-                    OutputStack.Children.Append(block);
+                    Text = block.text
+                };
+
+                if (block.isError)
+                {
+                    textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
+                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
                 }
+
+                if (OutputStack.Children.Count >= maxBlocks)
+                {
+                    OutputStack.Children.RemoveAt(0);
+                }
+                OutputStack.Children.Add(textBlock);
             }
         }
 
@@ -275,8 +285,9 @@ namespace Microsoft.FactoryTestFramework.UWP
         private TestRun _activeCmdTestRun;
         private bool newCmd;
         private int lastOutput;
+        private int maxBlocks = 400;
         private FTFPoller _testRunPoller;
         private SemaphoreSlim _cmdSem;
-        private object outputLock;
+        private SemaphoreSlim _outSem;
     }
 }
