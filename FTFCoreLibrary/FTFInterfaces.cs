@@ -12,8 +12,8 @@ namespace Microsoft.FactoryTestFramework.Core
         DeletedTestList = 2,
         TestListRunStarted = 3,
         TestListRunEnded = 4,
-        TestStatusUpdatedByClient = 5,
-        WaitingForTestRunByClient = 6,
+        DoneWaitingForExternalTestRun = 5,
+        WaitingForExternalTestRun = 6,
         ServiceReset = 7,
         ServiceError = 8,
         ServiceStarted = 9,
@@ -92,7 +92,7 @@ namespace Microsoft.FactoryTestFramework.Core
         List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex);
         string GetServiceVersionString();
         bool SetDefaultTePath(string teExePath);
-        bool SetDefaultLogFolder(string logFolder);
+        bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
@@ -109,10 +109,11 @@ namespace Microsoft.FactoryTestFramework.Core
         TestBase QueryTest(Guid guid);
 
         // Test Execution APIs
-        bool Run(Guid TestListToRun, bool allowOtherTestListsToRun, bool runListInParallel);
-        void StopAll();
-        void Stop(Guid testListGuid);
-        TestRun RunExecutableOutsideTestList(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        bool RunTestList(Guid TestListToRun);
+        void AbortAllTestLists();
+        void AbortTestList(Guid testListGuid);
+        void AbortTestRun(Guid testRunGuid);
+        TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null);
         TestRun RunUWPOutsideTestList(string packageFamilyName);
         TestRun RunTestOutsideTestList(Guid testGuid);
 

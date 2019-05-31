@@ -33,23 +33,23 @@
         </Grid>
         <StackPanel x:Name="TestResultSummaryStack" Grid.Row="2" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
             <TextBlock x:Name="OverallTestResultConst" Text="Status:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="OverallTestResult" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="OverallTestResult" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="ExitCodeConst" Text="Exit Code:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="ExitCode" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="ExitCode" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="TaefPassedCasesConst" Text="Passed Test Cases:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
-            <TextBlock x:Name="TaefPassedCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBlock x:Name="TaefPassedCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="TaefFailedCasesConst" Text="Failed Test Cases:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
-            <TextBlock x:Name="TaefFailedCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBlock x:Name="TaefFailedCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="TaefWarningCasesConst" Text="Test Cases with Warnings:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
-            <TextBlock x:Name="TaefWarningCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBlock x:Name="TaefWarningCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="LastTimeRunConst" Text="Started at:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
-            <TextBlock x:Name="LastTimeRun" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBlock x:Name="LastTimeRun" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="RunTimeConst" Text="Test Run Time:" FontWeight="Bold" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Left"  Visibility="Collapsed"/>
-            <TextBlock x:Name="RunTime" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed"/>
+            <TextBlock x:Name="RunTime" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
         </StackPanel>
         <StackPanel x:Name="TestResultSummaryStack2" Grid.Row="3" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
             <TextBlock x:Name="LogPathConst" Text="Log:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Column="1" Grid.Row="4" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Console Output:"/>
         <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5">

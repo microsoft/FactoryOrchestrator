@@ -88,13 +88,12 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [XmlIgnore]
         public TestType TestType { get; set; }
-
         [XmlAttribute("Path")]
         public string TestPath { get; set; }
         public string LogFolder { get; set; }
+        [XmlAttribute]
         public string Arguments { get; set; }
-
-        [XmlAttribute("Guid")]
+        [XmlAttribute]
         public Guid Guid { get; set; }
         public DateTime? LatestTestRunTimeStarted { get; set; }
         public DateTime? LatestTestRunTimeFinished { get; set; }
@@ -118,6 +117,7 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
+        [XmlAttribute("Timeout")]
         public int TimeoutSeconds { get; set; }
 
         public int? LatestTestRunExitCode { get; set; }
@@ -199,6 +199,10 @@ namespace Microsoft.FactoryTestFramework.Core
         public bool ShouldSerializeTestRunGuids()
         {
             return TestRunGuids.Count > 0;
+        }
+        public bool ShouldSerializeTimeoutSeconds()
+        {
+            return TimeoutSeconds != -1;
         }
 
         public override bool Equals(object obj)
@@ -301,15 +305,17 @@ namespace Microsoft.FactoryTestFramework.Core
     {
         private ExecutableTest() : base(TestType.ConsoleExe)
         {
-
+            BackgroundTask = false;
         }
 
         public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
         {
+            BackgroundTask = false;
         }
 
         protected ExecutableTest(String testPath, TestType type) : base(testPath, type)
         {
+            BackgroundTask = false;
         }
 
         public override string ToString()
@@ -348,6 +354,13 @@ namespace Microsoft.FactoryTestFramework.Core
                 _testFriendlyName = value;
             }
         }
+        public bool ShouldSerializeBackgroundTask()
+        {
+            return BackgroundTask == true;
+        }
+
+        [XmlAttribute]
+        public bool BackgroundTask { get; set; }
 
         private string _testFriendlyName;
     }
@@ -559,6 +572,9 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             Tests = new Dictionary<Guid, TestBase>();
             TestsForXml = new List<TestBase>();
+            RunInParallel = false;
+            AllowOtherTestListsToRun = false;
+            TerminateBackgroundTasksOnCompletion = true;
         }
 
         public TestList(Guid guid) : this()
@@ -581,13 +597,17 @@ namespace Microsoft.FactoryTestFramework.Core
                 {
                     return TestStatus.TestPassed;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Running))
+                else if (Tests.Values.Any(x => (x.LatestTestRunStatus == TestStatus.Running) || (x.LatestTestRunStatus == TestStatus.WaitingForExternalResult)))
                 {
                     return TestStatus.Running;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Failed))
+                else if (Tests.Values.Any(x => (x.LatestTestRunStatus == TestStatus.Failed) || (x.LatestTestRunStatus == TestStatus.Timeout)))
                 {
                     return TestStatus.Failed;
+                }
+                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Unknown))
+                {
+                    return TestStatus.Unknown;
                 }
                 else
                 {
@@ -633,6 +653,11 @@ namespace Microsoft.FactoryTestFramework.Core
             return -2045414129 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
 
+        public bool ShouldSerializeTerminateBackgroundTasksOnCompletion()
+        {
+            return TerminateBackgroundTasksOnCompletion == false;
+        }
+
         /// <summary>
         /// XML serializer can't serialize Dictionaries. Use a list instead for XML.
         /// </summary>
@@ -649,6 +674,16 @@ namespace Microsoft.FactoryTestFramework.Core
 
         [XmlAttribute]
         public Guid Guid { get; set; }
+
+
+        [XmlAttribute]
+        public bool RunInParallel { get; set; }
+
+        [XmlAttribute]
+        public bool AllowOtherTestListsToRun { get; set; }
+
+        [XmlAttribute]
+        public bool TerminateBackgroundTasksOnCompletion { get; set; }
     }
 
     /// <summary>
@@ -666,7 +701,7 @@ namespace Microsoft.FactoryTestFramework.Core
         }
 
         /// <summary>
-        /// Test Run shared constructor. TestRuns 
+        /// Test Run shared constructor. 
         /// </summary>
         /// <param name="owningTest"></param>
         protected TestRun(TestBase owningTest)
@@ -680,6 +715,7 @@ namespace Microsoft.FactoryTestFramework.Core
             ExitCode = null;
             TestOutput = new List<string>();
             TimeoutSeconds = -1;
+            BackgroundTask = false;
 
             if (owningTest != null)
             {
@@ -689,7 +725,35 @@ namespace Microsoft.FactoryTestFramework.Core
                 TestName = owningTest.TestName;
                 TestType = owningTest.TestType;
                 TimeoutSeconds = owningTest.TimeoutSeconds;
+                if (TestType == TestType.ConsoleExe)
+                {
+                    BackgroundTask = ((ExecutableTest)owningTest).BackgroundTask;
+                }
             }
+        }
+
+        public TestRun DeepCopy()
+        {
+            TestRun copy = (TestRun)this.MemberwiseClone();
+            copy.TestOutput = new List<string>(this.TestOutput.Count);
+            copy.TestOutput.AddRange(this.TestOutput.GetRange(0, copy.TestOutput.Capacity));
+
+            var stringProps = typeof(TestRun).GetProperties().Where(x => x.PropertyType == typeof(string));
+            foreach (var prop in stringProps)
+            {
+                var value = prop.GetValue(this);
+                if (value != null)
+                {
+                    var copyStr = String.Copy(value as string);
+                    prop.SetValue(copy, copyStr);
+                }
+                else
+                {
+                    prop.SetValue(copy, null);
+                }
+            }
+
+            return copy;
         }
 
         public List<string> TestOutput { get; set; }
@@ -698,6 +762,7 @@ namespace Microsoft.FactoryTestFramework.Core
         public string TestName { get; set; }
         public string TestPath { get; set; }
         public string Arguments { get; set; }
+        public bool BackgroundTask { get; set; }
         public TestType TestType { get; set; }
         public Guid Guid { get; set; }
         public DateTime? TimeStarted { get; set; }
@@ -732,6 +797,7 @@ namespace Microsoft.FactoryTestFramework.Core
                     case TestStatus.Aborted:
                     case TestStatus.Failed:
                     case TestStatus.TestPassed:
+                    case TestStatus.Timeout:
                         return true;
                     default:
                         return false;
