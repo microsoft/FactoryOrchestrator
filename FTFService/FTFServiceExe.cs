@@ -449,7 +449,7 @@ namespace Microsoft.FactoryTestFramework.Service
             _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
             FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
-            ServiceLogger.LogTrace("FactoryTestFramework Service Started\n");
+            ServiceLogger.LogInformation("FactoryTestFramework Service is ready to communicate with client(s)\n");
         }
 
         /// <summary>
@@ -543,9 +543,9 @@ namespace Microsoft.FactoryTestFramework.Service
                 volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
 
                 // Check if first boot tasks were already completed
-                bool? firstBootTasksCompleted = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue) as bool?;
+                var firstBootTasksCompleted = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue) as int?;
 
-                if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == false) || (force == true))
+                if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
                 {
                     ServiceLogger.LogInformation("Checking for first boot TestLists XML...");
                     // Find the TestLists XML path.
@@ -602,9 +602,9 @@ namespace Microsoft.FactoryTestFramework.Service
                 try
                 {
                     // Check if every boot tasks were already completed
-                    var everyBootTasksCompleted = volatileKey.GetValue(_everyBootCompleteValue) as bool?;
+                    var everyBootTasksCompleted = volatileKey.GetValue(_everyBootCompleteValue) as int?;
 
-                    if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == false) || (force == true))
+                    if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
                     {
                         ServiceLogger.LogInformation($"Checking for every boot TestLists XML...");
                         // Find the TestLists XML path.
@@ -757,10 +757,12 @@ namespace Microsoft.FactoryTestFramework.Service
                 }
 
                 // Wait 5 seconds for both process to exit
-                if ((!runDev.GetOwningTestRunner().WaitForExit(5000)) || (!runOfficial.GetOwningTestRunner().WaitForExit(5000)))
+                var runnerDev = runDev.GetOwningTestRunner();
+                var runnerOfficial = runOfficial.GetOwningTestRunner();
+                if (((runnerDev != null) && (!runnerDev.WaitForExit(5000))) || ((runnerOfficial != null) && (!runnerOfficial.WaitForExit(5000))))
                 {
-                    runDev.GetOwningTestRunner().StopTest();
-                    runOfficial.GetOwningTestRunner().StopTest();
+                    TestExecutionManager.AbortTestRun(runDev.Guid);
+                    TestExecutionManager.AbortTestRun(runOfficial.Guid);
                     throw new Exception("checknetisolation did not exit after 5 seconds!");
                 }
 

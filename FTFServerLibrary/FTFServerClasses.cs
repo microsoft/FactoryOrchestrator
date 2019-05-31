@@ -1244,7 +1244,7 @@ namespace Microsoft.FactoryTestFramework.Server
         {
             lock (outputLock)
             {
-                File.WriteAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count));
+                File.AppendAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count - (lastLineSavedToFile + 1)));
                 lastLineSavedToFile = ActiveTestRun.TestOutput.Count - 1;
             }
         }
@@ -1321,9 +1321,9 @@ namespace Microsoft.FactoryTestFramework.Server
                 if (LogFilePath != null)
                 {
 
-                    File.WriteAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count));
+                    File.AppendAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count - (lastLineSavedToFile + 1)));
                     lastLineSavedToFile = ActiveTestRun.TestOutput.Count - 1;
-                    File.WriteAllLines(LogFilePath,
+                    File.AppendAllLines(LogFilePath,
                                         new String[] {
                                         "---------------------------------------------",
                                         String.Format("Result: {0}", ActiveTestRun.TestStatus),
