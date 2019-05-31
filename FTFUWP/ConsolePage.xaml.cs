@@ -200,7 +200,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                     if (errorBlock && _activeCmdTestRun.TestOutput[i].StartsWith("ERROR: "))
                     {
                         // Append error text
-                        text += _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        text += _activeCmdTestRun.TestOutput[i];
                         errorBlock = true;
                     }
                     else if (errorBlock)
@@ -209,7 +209,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                         var tupl = (text, true);
                         ret.Add(tupl);
 
-                        text = _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        text = _activeCmdTestRun.TestOutput[i];
                         errorBlock = false;
                     }
                     else if (!errorBlock && _activeCmdTestRun.TestOutput[i].StartsWith("ERROR: "))
@@ -218,15 +218,20 @@ namespace Microsoft.FactoryTestFramework.UWP
                         var tupl = (text, false);
                         ret.Add(tupl);
 
-                        text = _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        text = _activeCmdTestRun.TestOutput[i];
                         errorBlock = true;
                     }
                     else
                     {
                         // Append normal text
-                        text += _activeCmdTestRun.TestOutput[i] + System.Environment.NewLine;
+                        text += _activeCmdTestRun.TestOutput[i];
                         errorBlock = false;
                     }
+                }
+
+                if (i != (endCount - 1))
+                {
+                    text += System.Environment.NewLine;
                 }
             }
 

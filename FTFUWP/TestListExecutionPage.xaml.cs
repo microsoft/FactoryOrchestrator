@@ -101,6 +101,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
                 // Navigate from the MainPage frame so this is a "full screen" page
                 mainPage.Navigate(typeof(ResultsPage), test);
+                this.OnNavigatedFrom(null);
             }
         }
 

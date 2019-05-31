@@ -33,6 +33,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            MainPageLastNavTag = null;
         }
 
         /// <summary>
@@ -286,6 +287,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         }
 
         public TestRun RunWaitingForResult { get; private set; }
+        public string MainPageLastNavTag { get; set; }
         private bool eventSeen = false;
         private ulong lastEventIndex;
         private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
