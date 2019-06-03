@@ -196,7 +196,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                     _listUpdateSem.Wait();
                     foreach (var guid in TestViewModel.TestData.TestListGuids)
                     {
-                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.Stop(guid));
+                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTestList(guid));
                         await IPCClientHelper.IpcClient.InvokeAsync(x => x.DeleteTestList(guid));
                     }
                     _listUpdateSem.Release();

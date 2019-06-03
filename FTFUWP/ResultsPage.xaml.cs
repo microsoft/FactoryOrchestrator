@@ -1,6 +1,7 @@
 ﻿using Microsoft.FactoryTestFramework.Client;
 using Microsoft.FactoryTestFramework.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -25,6 +26,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            lastOutput = 0;
             if (e.Parameter != null)
             {
                 _test = (TestBase)e.Parameter;
@@ -88,8 +90,17 @@ namespace Microsoft.FactoryTestFramework.UWP
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     UpdateResultsSummary();
-                    UpdateOutput();
                 });
+
+
+                while (lastOutput != _selectedRun.TestOutput.Count)
+                {
+                    var blocks = PrepareOutput();
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        UpdateOutput(blocks);
+                    });
+                }
             }
         }
 
@@ -185,34 +196,98 @@ namespace Microsoft.FactoryTestFramework.UWP
             // TODO: Feature: Wire up test cases when we track those for TAEF
         }
 
-        private void UpdateOutput()
+        /// <summary>
+        /// Updates UI with latest console output
+        /// </summary>
+        private List<(string text, bool isError)> PrepareOutput()
         {
-            for (int i = OutputStack.Children.Count; i < _selectedRun.TestOutput.Count; i++)
-            {
-                var line = (i + 1).ToString();
+            List<(string text, bool isError)> ret = new List<(string text, bool isError)>();
 
+            var endCount = Math.Min(_selectedRun.TestOutput.Count, lastOutput + 500);
+            string text = "";
+            bool errorBlock = false;
+
+            for (int i = lastOutput; i < endCount; i++)
+            {
                 if (_selectedRun.TestOutput[i] != null)
                 {
-                    var textBlock = new TextBlock()
+                    if (errorBlock && _selectedRun.TestOutput[i].StartsWith("ERROR: "))
                     {
-                        Text = _selectedRun.TestOutput[i],
-                        Name = "OuptutForLineNo" + line
-                    };
+                        // Append error text
+                        text += _selectedRun.TestOutput[i];
+                        errorBlock = true;
+                    }
+                    else if (errorBlock)
+                    {
+                        // Done with error text, write out the error text and start again
+                        var tupl = (text, true);
+                        ret.Add(tupl);
 
-                    if (line.StartsWith("ERROR: "))
+                        text = _selectedRun.TestOutput[i];
+                        errorBlock = false;
+                    }
+                    else if (!errorBlock && _selectedRun.TestOutput[i].StartsWith("ERROR: "))
                     {
-                        textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
-                        textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
+                        // Done with normal text, write out the normal text and start again
+                        var tupl = (text, false);
+                        ret.Add(tupl);
+
+                        text = _selectedRun.TestOutput[i];
+                        errorBlock = true;
+                    }
+                    else
+                    {
+                        // Append normal text
+                        text += _selectedRun.TestOutput[i];
+                        errorBlock = false;
                     }
 
-                    OutputStack.Children.Add(textBlock);
-
-                    LineNoStack.Children.Add(new TextBlock()
+                    if (i != (endCount - 1))
                     {
-                        Text = line,
-                        Name = "LineNo" + line
-                    });
+                        text += System.Environment.NewLine;
+                    }
                 }
+            }
+
+            lastOutput = endCount;
+
+            if (!String.IsNullOrEmpty(text))
+            {
+                if (errorBlock)
+                {
+                    var tupl = (text, true);
+                    ret.Add(tupl);
+                }
+                else
+                {
+                    var tupl = (text, false);
+                    ret.Add(tupl);
+                }
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Updates UI with latest console output
+        /// </summary>
+        private void UpdateOutput(List<(string text, bool isError)> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                var textBlock = new TextBlock()
+                {
+                    Text = block.text,
+                    IsTextSelectionEnabled = true
+                };
+
+                if (block.isError)
+                {
+                    textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
+                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
+                }
+
+                OutputStack.Children.Add(textBlock);
             }
         }
 
@@ -270,5 +345,6 @@ namespace Microsoft.FactoryTestFramework.UWP
         private FTFPoller _testRunPoller;
         private FTFPoller _testPoller;
         private object _testRunPollLock = new object();
+        private int lastOutput;
     }
 }

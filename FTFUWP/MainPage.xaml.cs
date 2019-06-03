@@ -20,23 +20,23 @@ namespace Microsoft.FactoryTestFramework.UWP
         public MainPage()
         {
             this.InitializeComponent();
-            this.NavigationCacheMode = NavigationCacheMode.Enabled;
+            this.NavigationCacheMode = NavigationCacheMode.Disabled;
             Header.Text += IPCClientHelper.IsLocalHost ? " (Local Device)" : $" ({IPCClientHelper.IpAddress.ToString()})";
-            lastNavTag = null;
+            lastNavTag = ((App)Application.Current).MainPageLastNavTag;
+            // Add handler for ContentFrame navigation.
+            ContentFrame.Navigated += On_ContentFrameNavigated;
         }
 
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            // Add handler for ContentFrame navigation.
-            ContentFrame.Navigated += On_ContentFrameNavigated;
-            this.Frame.CacheSize = 4;
+            //this.Frame.CacheSize = 4;
 
             // NavView doesn't load any page by default, so load home page.
             if (lastNavTag == null)
             {
                 NavView.SelectedItem = NavView.MenuItems[0];
-                lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
+                ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private void NavView_Navigate(string navItemTag, NavigationTransitionInfo recommendedNavigationTransitionInfo)
         {
-            lastNavTag = navItemTag;
+            ((App)Application.Current).MainPageLastNavTag = lastNavTag = navItemTag;
 
             Type page;
             //if (navItemTag == "settings")
