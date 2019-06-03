@@ -109,10 +109,17 @@ namespace Microsoft.FactoryTestFramework.Server
             //Parallel.ForEach<string>(dlls, (dll) =>
             foreach (var dll in dlls)
             {
-                var maybeTAEF = CheckForTAEFTest(dll);
-                if (maybeTAEF != null)
+                try
                 {
-                    tests.Tests.Add(maybeTAEF.Guid, maybeTAEF);
+                    var maybeTAEF = CheckForTAEFTest(dll);
+                    if (maybeTAEF != null)
+                    {
+                        tests.Tests.Add(maybeTAEF.Guid, maybeTAEF);
+                    }
+                }
+                catch (Exception)
+                {
+                    // TODO: Logging
                 }
             }
             //);
@@ -326,7 +333,6 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-
         /// <summary>
         /// Checks if a DLL is a TAEF test. Returns an initialized TAEFTest instance if it is.
         /// </summary>
@@ -352,16 +358,13 @@ namespace Microsoft.FactoryTestFramework.Server
                     throw new Exception(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
                 }
 
-                testRun = TestRun_Server.GetTestRunByGuid(maybeTAEF.TestRunGuids[0]);
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
-                // todo: Feature: but not always???
                 // https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/exit-codes-for-taef
                 if ((testRun.ExitCode == 117440512) || (testRun.ExitCode == 0))
                 {
                     // Check if it was able to enumerate the test cases.
                     if (!testRun.TestOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !testRun.TestOutput.Any(x => x.Contains("Failed to load")))
                     {
-                        // TODO: Feature: We need a better mechanism here
                         isTaef = true;
                     }
                 }
@@ -370,11 +373,10 @@ namespace Microsoft.FactoryTestFramework.Server
                     throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.LatestTestRunExitCode, dllToTest));
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 maybeTAEF.Reset(false);
-                // TODO: Logging: undo this
-                //throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
+                throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
             }
 
             // Cleanup test run
@@ -882,7 +884,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 TestProcess = CreateTestProcess();
 
                 // Override args to check if this is a valid TAEF test, not try to run it
-                TestProcess.StartInfo.Arguments = ActiveTestRun.TestPath + " /list";
+                TestProcess.StartInfo.Arguments = "\"" + ActiveTestRun.TestPath + "\"" + " /list";
 
                 // Start the process
                 return StartTestProcess();
@@ -897,11 +899,11 @@ namespace Microsoft.FactoryTestFramework.Server
             if (ActiveTestRun.TestType == TestType.TAEFDll)
             {
                 startInfo.FileName = GlobalTeExePath;
-                startInfo.Arguments += ActiveTestRun.TestPath + GlobalTeArgs;
+                startInfo.Arguments += "\"" + ActiveTestRun.TestPath + "\"" + GlobalTeArgs;
             }
             else
             {
-                startInfo.FileName = ActiveTestRun.TestPath;
+                startInfo.FileName = "\"" + ActiveTestRun.TestPath + "\"";
             }
 
             startInfo.Arguments += ActiveTestRun.Arguments;
@@ -944,7 +946,6 @@ namespace Microsoft.FactoryTestFramework.Server
                 // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
-
                 // Start timeout timer if needed
                 if (ActiveTestRun.TimeoutSeconds != -1)
                 {
@@ -969,6 +970,19 @@ namespace Microsoft.FactoryTestFramework.Server
             ActiveTestRun.UpdateOwningTestFromTestRun();
 
             return IsRunning;
+        }
+
+        private void OnOutputTimer(object state)
+        {
+            var logFilePath = ActiveTestRun.ConsoleLogFilePath;
+            if (logFilePath != null)
+            {
+                if (lastLineSavedToFile + 1 != ActiveTestRun.TestOutput.Count)
+                {
+                    File.WriteAllLines(logFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count));
+                    lastLineSavedToFile = ActiveTestRun.TestOutput.Count - 1;
+                }
+            }
         }
 
         private void OnErrorData(object sender, DataReceivedEventArgs e)
@@ -1031,27 +1045,26 @@ namespace Microsoft.FactoryTestFramework.Server
             ActiveTestRun.UpdateOwningTestFromTestRun();
 
             // Save test output to file
-            var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
-            if (LogFilePath != null)
+            // Delay a sec to ensure all test output events fired
+            Thread.Sleep(100);
+            lock (outputLock)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
-                File.WriteAllLines(LogFilePath,
-                                    new String[] {
-                                        String.Format("Test: {0}", ActiveTestRun.TestName),
-                                        String.Format("Test GUID: {0}", (ActiveTestRun.OwningTestGuid == null) ? "Not a known Test" : ActiveTestRun.OwningTestGuid.ToString()),
-                                        String.Format("TestRun GUID: {0}", ActiveTestRun.Guid),
-                                        String.Format("Test Type: {0}", ActiveTestRun.TestType),
-                                        String.Format("Path: {0}", ActiveTestRun.TestPath),
-                                        String.Format("Arguments: {0}", ActiveTestRun.Arguments),
-                                        String.Format("---------------------------------------------"),
-                                        String.Format("Result: {0}", ActiveTestRun.TestStatus),
-                                        String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
-                                        String.Format("---------------------------------------------"),
-                                        String.Format("Date/Time run: {0}", (ActiveTestRun.TimeStarted == null) ? "Never Started" : ActiveTestRun.TimeStarted.ToString()),
-                                        String.Format("Time to complete: {0}", (ActiveTestRun.RunTime == null) ? "" : ActiveTestRun.RunTime.ToString()),
-                                        String.Format("--------------- Console Output --------------")
-                                    });
-                File.AppendAllLines(LogFilePath, ActiveTestRun.TestOutput, System.Text.Encoding.UTF8);
+                var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
+                if (LogFilePath != null)
+                {
+                    if (lastLineSavedToFile + 1 != ActiveTestRun.TestOutput.Count)
+                    {
+                        File.WriteAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count));
+                        lastLineSavedToFile = ActiveTestRun.TestOutput.Count - 1;
+                    }
+                    File.WriteAllLines(LogFilePath,
+                                        new String[] {
+                                    "---------------------------------------------",
+                                    String.Format("Result: {0}", ActiveTestRun.TestStatus),
+                                    String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
+                                    String.Format("Time to complete: {0}", (ActiveTestRun.RunTime == null) ? "" : ActiveTestRun.RunTime.ToString())
+                                        });
+                }
             }
 
             IsRunning = false;

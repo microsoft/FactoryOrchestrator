@@ -95,7 +95,12 @@ namespace Microsoft.FactoryTestFramework.UWP
                 }
                 else
                 {
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(LoadFlyoutUserPath.Text, false));
+                    try
+                    {
+                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(LoadFlyoutUserPath.Text, false));
+                    }
+                    catch (Exception)
+                    { }
                 }
             }
 
