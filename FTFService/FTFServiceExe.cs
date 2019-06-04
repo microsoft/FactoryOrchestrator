@@ -332,6 +332,10 @@ namespace Microsoft.FactoryTestFramework.Service
         private readonly string _firstBootCompleteValue = @"FirstBootTestListsComplete";
         private readonly string _everyBootCompleteValue = @"EveryBootTestListsComplete";
         private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
+        private readonly string _userCreatedValue = @"LocalUserCreated";
+        private readonly string _userLoggedInValue = @"LocalUserLoggedIn";
+        private readonly string _userNameValue = @"LocalUserName";
+        private readonly string _userPasswordValue = @"LocalUserPassword";
         private readonly string _firstBootTasksPathValue = @"FirstBootTestListsXML";
         private readonly string _everyBootTasksPathValue = @"EveryBootTestListsXML";
 
@@ -511,7 +515,7 @@ namespace Microsoft.FactoryTestFramework.Service
         public bool ExecuteServerBootTasks()
         {
             // Enable local loopback every boot.
-            return EnableUWPLocalLoopback();
+            return (EnableUWPLocalLoopback() && CreateAndLoginLocalUser());
         }
 
         /// <summary>
@@ -730,18 +734,32 @@ namespace Microsoft.FactoryTestFramework.Service
         /// Checks the given mutable and non-mutable registry keys for a given value. Mutable is always checked first.
         /// </summary>
         /// <returns>The value if it exists.</returns>
-        private object GetValueFromRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName)
+        private object GetValueFromRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object defaultValue = null)
         {
             object ret = null;
 
             if (mutableKey != null)
             {
-                ret = mutableKey.GetValue(valueName);
+                if (defaultValue != null)
+                {
+                    ret = mutableKey.GetValue(valueName, defaultValue);
+                }
+                else
+                {
+                    ret = mutableKey.GetValue(valueName);
+                }
             }
             
             if ((ret == null) && (nonMutableKey != null))
             {
-                ret = nonMutableKey.GetValue(valueName);
+                if (defaultValue != null)
+                {
+                    ret = nonMutableKey.GetValue(valueName, defaultValue);
+                }
+                else
+                {
+                    ret = nonMutableKey.GetValue(valueName);
+                }
             }
 
             return ret;
@@ -768,51 +786,26 @@ namespace Microsoft.FactoryTestFramework.Service
         /// <returns></returns>
         private bool EnableUWPLocalLoopback()
         {
+
             bool success = false;
             RegistryKey volatileKey = null;
             try
             {
                 volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
 
-                // Run localloopback command for both "official" and "DEV" apps
-                var runDev = (TestRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe\"");
-                var runOfficial = (TestRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", "/C \"checknetisolation loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe\"");
+                var loopbackEnabled = (int)volatileKey.GetValue(_loopbackValue, 0);
 
-                // Wait 2 seconds for both processes to start
-                int waitCount = 0;
-                const int waitMS = 100;
-                const int maxWaits = waitMS * 20; // 2 seconds
-
-                while (((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null)) && (waitCount < maxWaits))
+                if (loopbackEnabled == 0)
                 {
-                    waitCount++;
-                    System.Threading.Thread.Sleep(100);
+                    ServiceLogger.LogInformation($"Enabling UWP local loopback...");
+
+                    // Run localloopback command for both "official" and "DEV" apps
+                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe", 5000);
+                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe", 5000);
                 }
 
-                if ((runDev.TimeStarted == null) || (runOfficial.TimeStarted == null))
-                {
-                    throw new Exception($"checknetisolation never started");
-                }
-
-                // Wait 5 seconds for both process to exit
-                var runnerDev = runDev.GetOwningTestRunner();
-                var runnerOfficial = runOfficial.GetOwningTestRunner();
-                if (((runnerDev != null) && (!runnerDev.WaitForExit(5000))) || ((runnerOfficial != null) && (!runnerOfficial.WaitForExit(5000))))
-                {
-                    TestExecutionManager.AbortTestRun(runDev.Guid);
-                    TestExecutionManager.AbortTestRun(runOfficial.Guid);
-                    throw new Exception("checknetisolation did not exit after 5 seconds!");
-                }
-
-                if ((runDev.TestStatus == TestStatus.TestPassed) && (runOfficial.TestStatus == TestStatus.TestPassed))
-                {
-                    success = true;
-                    volatileKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
-                }
-                else
-                {
-                    throw new Exception($"checknetisolation exited with {runDev.ExitCode} and {runOfficial.ExitCode}");
-                }
+                success = true;
+                volatileKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
             }
             catch (Exception e)
             {
@@ -827,6 +820,152 @@ namespace Microsoft.FactoryTestFramework.Service
             }
 
             return success;
+        }
+
+        private bool CreateAndLoginLocalUser()
+        {
+            bool success = false;
+            RegistryKey nonMutableKey = null;
+            RegistryKey mutableKey = null;
+            RegistryKey volatileKey = null;
+
+            try
+            {
+                // OSDATA wont exist on Desktop, so try to open it on it's own
+                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+                volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
+
+                int userLoggedIn = (int)volatileKey.GetValue(_userLoggedInValue, 0);
+
+                if (userLoggedIn == 0)
+                {
+                    int userCreated = (int)GetValueFromRegistry(mutableKey, nonMutableKey, _userCreatedValue, 0);
+                    string userName;
+
+                    if (userCreated == 0)
+                    {
+                        ServiceLogger.LogInformation($"Creating a local user...");
+
+                        var createRun = RunProcessViaCmd("usersim", "g", 5000);
+                        var exitCodeLineCreate = createRun.TestOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
+                        if (!String.IsNullOrWhiteSpace(exitCodeLineCreate))
+                        {
+                            var exitCodeString = exitCodeLineCreate.Substring(18, exitCodeLineCreate.Length - 18 - 2);
+                            if (exitCodeString != "0x00000000")
+                            {
+                                throw new Exception($"Usersim exited with {exitCodeString}");
+                            }
+                        }
+
+                        var userLine = createRun.TestOutput.Where(x => x.Contains("Generated account")).DefaultIfEmpty("").First();
+                        if (String.IsNullOrWhiteSpace(userLine))
+                        {
+                            throw new Exception("Could not create a local user!");
+                        }
+
+                        userName = userLine.Split('\'')[1];
+                        if (String.IsNullOrWhiteSpace(userName))
+                        {
+                            throw new Exception("Could not create a local user!");
+                        }
+                        SetValueInRegistry(mutableKey, nonMutableKey, _userCreatedValue, 1, RegistryValueKind.DWord);
+                        SetValueInRegistry(mutableKey, nonMutableKey, _userNameValue, userName, RegistryValueKind.String);
+
+                        ServiceLogger.LogInformation($"Local user {userName} created.");
+                    }
+                    else
+                    {
+                        userName = (string)GetValueFromRegistry(mutableKey, nonMutableKey, _userNameValue, "");
+                        if (String.IsNullOrWhiteSpace(userName))
+                        {
+                            throw new Exception("Could not load local user registry value!");
+                        }
+                    }
+
+                    ServiceLogger.LogInformation($"Signing in local user {userName}...");
+                    var loginRun = RunProcessViaCmd("usersim", $"i {userName} empty", 5000);
+                    var exitCodeLine = loginRun.TestOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
+                    if (!String.IsNullOrWhiteSpace(exitCodeLine))
+                    {
+                        var exitCodeString = exitCodeLine.Substring(18, exitCodeLine.Length - 18 - 2);
+                        if (exitCodeString != "0x00000000")
+                        {
+                            throw new Exception($"Usersim exited with {exitCodeString}");
+                        }
+                    }
+                    volatileKey.SetValue(_userLoggedInValue, 1, RegistryValueKind.DWord);
+
+                    success = true;
+                }
+                else
+                {
+                    success = true;
+                }
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Unable to create and sign-in a local user! ({e.Message})");
+            }
+            finally
+            {
+
+                if (volatileKey != null)
+                {
+                    volatileKey.Close();
+                }
+                if (mutableKey != null)
+                {
+                    mutableKey.Close();
+                }
+                if (nonMutableKey != null)
+                {
+                    nonMutableKey.Close();
+                }
+            }
+
+            return success;
+        }
+
+        private TestRun_Server RunProcessViaCmd(string process, string args, int timeoutMS)
+        {
+            var run = (TestRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
+
+            // Wait 2 seconds for process to start
+            int waitCount = 0;
+            const int waitMS = 100;
+            const int maxWaits = waitMS * 20; // 2 seconds
+
+            while ((run.TimeStarted == null) && (waitCount < maxWaits))
+            {
+                waitCount++;
+                System.Threading.Thread.Sleep(100);
+            }
+
+            if (run.TimeStarted == null)
+            {
+                throw new Exception($"{process} never started");
+            }
+
+            var runner = run.GetOwningTestRunner();
+            if ((runner != null) && (!runner.WaitForExit(5000)))
+            {
+                TestExecutionManager.AbortTestRun(run.Guid);
+                throw new Exception($"{process} did not exit after 5 seconds!");
+            }
+
+            if (run.TestStatus != TestStatus.TestPassed)
+            {
+                throw new Exception($"{process} exited with {run.ExitCode}");
+            }
+
+            return run;
         }
 
         private RegistryKey OpenOrCreateRegKey(RegKeyType type)
