@@ -89,22 +89,36 @@ namespace Microsoft.FactoryTestFramework.UWP
         {
             if (!string.IsNullOrWhiteSpace(LoadFlyoutUserPath.Text))
             {
-                if (_isFileLoad)
+                var path = String.Copy(LoadFlyoutUserPath.Text);
+                LoadProgressBar.Width = LoadFlyoutUserPath.ActualWidth - CancelLoad.ActualWidth - ConfirmLoad.ActualWidth - 30; // 30 == combined margin size
+                LoadProgressBar.Visibility = Visibility.Visible;
+                try
                 {
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.LoadTestListsFromXmlFile(LoadFlyoutUserPath.Text));
-                }
-                else
-                {
-                    try
+                    if (_isFileLoad)
                     {
-                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(LoadFlyoutUserPath.Text, false));
+                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.LoadTestListsFromXmlFile(path));
                     }
-                    catch (Exception)
-                    { }
-                }
-            }
+                    else
+                    {
+                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(path, false));
+                    }
 
-            LoadFlyout.Hide();
+                }
+                catch (Exception)
+                {
+                    ContentDialog failedLoadDialog = new ContentDialog
+                    {
+                        Title = "Failed to load " + (_isFileLoad ? "TestLists XML file" : "folder"),
+                        Content = path + Environment.NewLine + Environment.NewLine + "Check the path and try again.",
+                        CloseButtonText = "Ok"
+                    };
+
+                    ContentDialogResult result = await failedLoadDialog.ShowAsync();
+                }
+
+                LoadProgressBar.Visibility = Visibility.Collapsed;
+                LoadFlyout.Hide();
+            }
         }
 
         /// <summary>
@@ -160,17 +174,38 @@ namespace Microsoft.FactoryTestFramework.UWP
             if (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text))
             {
                 var savePath = SaveFlyoutUserPath.Text + ".testlists";
-                if (SaveAllButton.Flyout.IsOpen)
-                {
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.SaveAllTestListsToXmlFile(savePath));
-                }
-                else
-                {
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.SaveTestListToXmlFile(_activeGuid, savePath));
-                }
-            }
+                SaveProgressBar.Width = SaveFlyoutUserPath.ActualWidth - CancelSave.ActualWidth - ConfirmSave.ActualWidth - 30; // 30 == combined margin size
+                SaveProgressBar.Visibility = Visibility.Visible;
+                bool saved = true;
 
-            SaveFlyout.Hide();
+                try
+                {
+                    if (SaveAllButton.Flyout.IsOpen)
+                    {
+                        saved = await IPCClientHelper.IpcClient.InvokeAsync(x => x.SaveAllTestListsToXmlFile(savePath));
+                    }
+                    else
+                    {
+                        saved = await IPCClientHelper.IpcClient.InvokeAsync(x => x.SaveTestListToXmlFile(_activeGuid, savePath));
+                    }
+                }
+                catch (Exception)
+                {}
+                finally
+                {
+                    ContentDialog failedSaveDialog = new ContentDialog
+                    {
+                        Title = "Failed to save TestLists XML file",
+                        Content = saved ? (savePath + Environment.NewLine + Environment.NewLine + "Check the path and try again.") : "No test list(s) found!",
+                        CloseButtonText = "Ok"
+                    };
+
+                    ContentDialogResult result = await failedSaveDialog.ShowAsync();
+                }
+
+                SaveProgressBar.Visibility = Visibility.Collapsed;
+                SaveFlyout.Hide();
+            }
         }
 
         /// <summary>

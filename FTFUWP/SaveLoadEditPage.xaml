@@ -21,6 +21,7 @@
                     <Button x:Name="ConfirmSave" Padding="5" Margin="5" Click="ConfirmSave_Click">
                         <SymbolIcon Symbol="Save"/>
                     </Button>
+                    <ProgressBar x:Name="SaveProgressBar" Margin="5" IsIndeterminate="True" Visibility="Collapsed" />
                 </StackPanel>
             </StackPanel>
         </Flyout>
@@ -35,6 +36,7 @@
                     <Button x:Name="ConfirmLoad" Padding="5" Margin="5" Click="ConfirmLoad_Click">
                         <SymbolIcon Symbol="Save"/>
                     </Button>
+                    <ProgressBar x:Name="LoadProgressBar" Margin="5" IsIndeterminate="True" Visibility="Collapsed" />
                 </StackPanel>
             </StackPanel>
         </Flyout>
@@ -69,7 +71,7 @@
             <SymbolIcon Symbol="OpenFile"/>
         </Button>
 
-        <TextBlock Text="Existing TestLists:" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock Text="Existing TestLists:" Grid.Row="4" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <!--TODO: Quality: It is likely better to add the buttons programmatically in the 3rd Column once they become names-->
         <!--<ListView x:Name="TestListsView"  Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
         <!--SelectionChanged="TestListsView_SelectionChanged"-->

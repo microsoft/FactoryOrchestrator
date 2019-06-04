@@ -1132,7 +1132,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             else
             {
-                startInfo.FileName = "\"" + ActiveTestRun.TestPath + "\"";
+                startInfo.FileName = ActiveTestRun.TestPath; 
             }
 
             startInfo.Arguments += ActiveTestRun.Arguments;
