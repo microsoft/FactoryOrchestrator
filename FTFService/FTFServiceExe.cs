@@ -525,8 +525,11 @@ namespace Microsoft.FactoryTestFramework.Service
             RegistryKey volatileKey = null;
             bool firstBootTasksFailed = false;
             bool everyBootTasksFailed = false;
+            bool firstBootTasksExecuted = false;
+            bool everyBootTasksExecuted = false;
+            bool stateFileBackedup = false;
             var logFolder = _testExecutionManager.DefaultLogFolder;
-
+            var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FTFTempTestListStateFile");
             try
             {
                 // OSDATA wont exist on Desktop, so try to open it on it's own
@@ -542,6 +545,13 @@ namespace Microsoft.FactoryTestFramework.Service
                 nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
                 volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
 
+                // Backup State File
+                if (File.Exists(_testExecutionManager.TestListStateFile))
+                {
+                    File.Copy(_testExecutionManager.TestListStateFile, stateFileBackupPath, true);
+                }
+                stateFileBackedup = true;
+
                 // Check if first boot tasks were already completed
                 var firstBootTasksCompleted = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue) as int?;
 
@@ -553,6 +563,8 @@ namespace Microsoft.FactoryTestFramework.Service
 
                     if (firstBootTestListPath != null)
                     {
+                        firstBootTasksExecuted = true;
+
                         ServiceLogger.LogInformation($"First boot TestLists XML found, attempting to load {firstBootTestListPath}...");
                         // Create a new directory for the first boot logs
                         _testExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "FirstBootTestLists"), false);
@@ -597,7 +609,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
 
             // Every boot tasks
-            if ((nonMutableKey != null) && (volatileKey != null))
+            if ((stateFileBackedup) && (nonMutableKey != null) && (volatileKey != null))
             {
                 try
                 {
@@ -612,6 +624,7 @@ namespace Microsoft.FactoryTestFramework.Service
 
                         if (everyBootTestListPath != null)
                         {
+                            everyBootTasksExecuted = true;
                             ServiceLogger.LogInformation($"Every boot TestLists XML found, attempting to load {everyBootTestListPath}...");
 
                             // Create a new directory for the first boot logs
@@ -660,13 +673,29 @@ namespace Microsoft.FactoryTestFramework.Service
             if (!firstBootTasksFailed)
             {
                 // Mark first boot tasks as complete
-                ServiceLogger.LogInformation("First boot TestLists complete or not found.");
+                if (firstBootTasksExecuted)
+                {
+                    ServiceLogger.LogInformation("First boot TestLists complete.");
+                }
+                else
+                {
+                    ServiceLogger.LogInformation("No first boot TestLists found.");
+                }
+                
                 SetValueInRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue, 1, RegistryValueKind.DWord);
             }
             if (!everyBootTasksFailed)
             {
                 // Mark every boot tasks as complete. Mark in volatile registry location so it is reset after reboot.
-                ServiceLogger.LogInformation("Every boot TestLists complete or not found.");
+                if (everyBootTasksExecuted)
+                {
+                    ServiceLogger.LogInformation("Every boot TestLists complete.");
+                }
+                else
+                {
+                    ServiceLogger.LogInformation("No every boot TestLists found.");
+                }
+
                 volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
             }
 
@@ -683,9 +712,18 @@ namespace Microsoft.FactoryTestFramework.Service
                 nonMutableKey.Close();
             }
 
-            // Reset server state, clearing the first boot and first run testlists, but keep the logs and tasks running.
-            _testExecutionManager.SetDefaultLogFolder(logFolder, false);
-            _testExecutionManager.Reset(true, false);
+            if (firstBootTasksExecuted || everyBootTasksExecuted)
+            {
+                // Reset server state, clearing the first boot and first run testlists, but keep the logs and tasks running.
+                _testExecutionManager.SetDefaultLogFolder(logFolder, false);
+                _testExecutionManager.Reset(true, false);
+
+                // Restore state file, if it existed
+                if (File.Exists(stateFileBackupPath))
+                {
+                    File.Copy(stateFileBackupPath, _testExecutionManager.TestListStateFile, true);
+                }
+            }
         }
 
         /// <summary>
