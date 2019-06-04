@@ -394,41 +394,6 @@ namespace Microsoft.FactoryTestFramework.Core
 
             return base.Equals(obj as ExecutableTest);
         }
-
-        public List<TAEFTestCase> TestCases { get; set; }
-        //private String _wtlFilePath;
-    }
-
-    /// <summary>
-    /// A test case in a TAEF Test. Currently, not executable alone.
-    /// </summary>
-    public class TAEFTestCase
-    {
-        public TAEFTestCase()
-        {
-        }
-
-        public String Name;
-        public TestStatus TestStatus { get; set; }
-        public bool? TestPassed
-        {
-            get
-            {
-                // TODO: Fix me up
-                if (this.TestStatus == TestStatus.TestPassed)
-                {
-                    return true;
-                }
-                else if (this.TestStatus == TestStatus.Failed)
-                {
-                    return false;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
     }
 
     /// <summary>

@@ -91,7 +91,14 @@ namespace Microsoft.FactoryTestFramework.Service
 
                     serviceConfig.OnError(e =>
                     {
-                        _logger.LogError(e, string.Format("Service {0} errored with exception", name));
+                        if (FTFService.Instance != null)
+                        {
+                            _logger.LogError(e, string.Format("Service {0} errored with exception", name));
+                        }
+                        else
+                        {
+                            FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Service {name} errored with exception {e.Message}"));
+                        }
                     });
                 });
             });
@@ -142,11 +149,25 @@ namespace Microsoft.FactoryTestFramework.Service
                 return new List<ServiceEvent>();
             }
         }
+        public ServiceEvent GetLastServiceError()
+        {
+            return FTFService.Instance.ServiceEvents.Values.Where(x => x.ServiceEventType == ServiceEventType.ServiceError).DefaultIfEmpty(null).LastOrDefault();
+        }
 
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
             FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromDirectory {path}");
-            var tl = FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
+            TestList tl = null;
+
+            try
+            {
+                FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
+            }
+            catch (Exception e)
+            {
+                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
+            }
+
             FTFService.Instance.ServiceLogger.LogTrace($"Finish: CreateTestListFromDirectory {path}");
             return tl;
         }
@@ -154,9 +175,19 @@ namespace Microsoft.FactoryTestFramework.Service
         public List<Guid> LoadTestListsFromXmlFile(string filename)
         {
             FTFService.Instance.ServiceLogger.LogTrace($"Start: LoadTestListsFromXmlFile {filename}");
-            var tls = FTFService.Instance.TestExecutionManager.LoadTestListsFromXmlFile(filename);
+            List<Guid> testLists = null;
+
+            try
+            {
+                testLists = FTFService.Instance.TestExecutionManager.LoadTestListsFromXmlFile(filename);
+            }
+            catch (Exception e)
+            {
+                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
+            }
+
             FTFService.Instance.ServiceLogger.LogTrace($"Finish: LoadTestListsFromXmlFile {filename}");
-            return tls;
+            return testLists;
         }
 
         public TestList CreateTestListFromTestList(TestList list)
@@ -505,7 +536,15 @@ namespace Microsoft.FactoryTestFramework.Service
             ServiceEvents.Add(serviceEvent.EventIndex, serviceEvent);
             LastEventIndex = serviceEvent.EventIndex;
             LastEventTime = serviceEvent.EventTime;
-            ServiceLogger.LogInformation($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Message}");
+            switch (serviceEvent.ServiceEventType)
+            {
+                case ServiceEventType.ServiceError:
+                    ServiceLogger.LogError($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Message}");
+                    break;
+                default:
+                    ServiceLogger.LogInformation($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Message}");
+                    break;
+            }
         }
 
         /// <summary>
@@ -580,13 +619,17 @@ namespace Microsoft.FactoryTestFramework.Service
                         {
                             if (!_testExecutionManager.RunTestList(listGuid))
                             {
-                                ServiceLogger.LogError($"Unable to run first boot TestList {listGuid}!");
+                                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run first boot TestList {listGuid}"));
                             }
                             else
                             {
                                 ServiceLogger.LogInformation($"Running first boot TestList {listGuid}...");
                             }
                         }
+                    }
+                    else
+                    {
+                        ServiceLogger.LogInformation("No first boot TestLists found.");
                     }
                 }
                 else
@@ -596,7 +639,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Unable to complete first boot TestLists! ({e.Message})");
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete first boot TestLists! ({e.Message})"));
                 firstBootTasksFailed = true;
             }
 
@@ -641,13 +684,17 @@ namespace Microsoft.FactoryTestFramework.Service
                             {
                                 if (!_testExecutionManager.RunTestList(listGuid))
                                 {
-                                    ServiceLogger.LogError($"Unable to run every boot TestList {listGuid}!");
+                                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run every boot TestList {listGuid}"));
                                 }
                                 else
                                 {
                                     ServiceLogger.LogInformation($"Running every boot TestList {listGuid}...");
                                 }
                             }
+                        }
+                        else
+                        {
+                            ServiceLogger.LogInformation("No every boot TestLists found.");
                         }
                     }
                     else
@@ -657,7 +704,7 @@ namespace Microsoft.FactoryTestFramework.Service
                 }
                 catch (Exception e)
                 {
-                    ServiceLogger.LogError($"Unable to complete every boot TestLists! ({e.Message})");
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete every boot TestLists! ({e.Message})"));
                     everyBootTasksFailed = true;
                 }
             }
@@ -681,10 +728,6 @@ namespace Microsoft.FactoryTestFramework.Service
                 {
                     ServiceLogger.LogInformation("First boot TestLists complete.");
                 }
-                else
-                {
-                    ServiceLogger.LogInformation("No first boot TestLists found.");
-                }
                 
                 SetValueInRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue, 1, RegistryValueKind.DWord);
             }
@@ -694,10 +737,6 @@ namespace Microsoft.FactoryTestFramework.Service
                 if (everyBootTasksExecuted)
                 {
                     ServiceLogger.LogInformation("Every boot TestLists complete.");
-                }
-                else
-                {
-                    ServiceLogger.LogInformation("No every boot TestLists found.");
                 }
 
                 volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
@@ -809,7 +848,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Unable to enable UWP local loopback! You may not be able to use the FTF UWP app locally ({e.Message})");
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback! You may not be able to use the FTF UWP app locally ({e.Message})"));
             }
             finally
             {
@@ -860,7 +899,7 @@ namespace Microsoft.FactoryTestFramework.Service
                             var exitCodeString = exitCodeLineCreate.Substring(18, exitCodeLineCreate.Length - 18 - 2);
                             if (exitCodeString != "0x00000000")
                             {
-                                throw new Exception($"Usersim exited with {exitCodeString}");
+                                throw new Exception($"Failed with hr={exitCodeString}");
                             }
                         }
 
@@ -897,7 +936,7 @@ namespace Microsoft.FactoryTestFramework.Service
                         var exitCodeString = exitCodeLine.Substring(18, exitCodeLine.Length - 18 - 2);
                         if (exitCodeString != "0x00000000")
                         {
-                            throw new Exception($"Usersim exited with {exitCodeString}");
+                            throw new Exception($"Failed with hr={exitCodeString}");
                         }
                     }
                     volatileKey.SetValue(_userLoggedInValue, 1, RegistryValueKind.DWord);
@@ -911,7 +950,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Unable to create and sign-in a local user! ({e.Message})");
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to create and sign-in a local user! ({e.Message})"));
             }
             finally
             {

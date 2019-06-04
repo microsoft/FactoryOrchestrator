@@ -452,7 +452,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 else
                 {
-                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", maybeTAEF.LatestTestRunExitCode, dllToTest));
+                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", testRun.ExitCode, dllToTest));
                 }
             }
             catch (Exception e)

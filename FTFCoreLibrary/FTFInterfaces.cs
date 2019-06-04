@@ -61,7 +61,6 @@ namespace Microsoft.FactoryTestFramework.Core
         [JsonRequired]
         private string _message;
 
-        [JsonRequired]
         private Guid? _guid;
 
         private static ulong _indexCount = 0;
@@ -90,6 +89,7 @@ namespace Microsoft.FactoryTestFramework.Core
         List<ServiceEvent> GetAllServiceEvents();
         List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked);
         List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex);
+        ServiceEvent GetLastServiceError();
         string GetServiceVersionString();
         bool SetDefaultTePath(string teExePath);
         bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);

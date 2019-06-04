@@ -96,29 +96,54 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     if (_isFileLoad)
                     {
-                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.LoadTestListsFromXmlFile(path));
+                        var lists = await IPCClientHelper.IpcClient.InvokeAsync(x => x.LoadTestListsFromXmlFile(path));
+                        if (lists == null)
+                        {
+                            var error = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetLastServiceError());
+                            ShowLoadFailure(_isFileLoad, path, error);
+                        }
                     }
                     else
                     {
-                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(path, false));
+                        var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTestListFromDirectory(path, false));
+                        if (list == null)
+                        {
+                            var error = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetLastServiceError());
+                            ShowLoadFailure(_isFileLoad, path, error);
+                        }
                     }
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    ContentDialog failedLoadDialog = new ContentDialog
-                    {
-                        Title = "Failed to load " + (_isFileLoad ? "TestLists XML file" : "folder"),
-                        Content = path + Environment.NewLine + Environment.NewLine + "Check the path and try again.",
-                        CloseButtonText = "Ok"
-                    };
-
-                    ContentDialogResult result = await failedLoadDialog.ShowAsync();
+                    ShowLoadFailure(_isFileLoad, path, new ServiceEvent(ServiceEventType.ServiceError, null, "Check that FTFService is running on DUT" + Environment.NewLine + ex.Message));
                 }
 
                 LoadProgressBar.Visibility = Visibility.Collapsed;
                 LoadFlyout.Hide();
             }
+        }
+
+        ///
+        private async void ShowLoadFailure(bool isFileLoad, string path, ServiceEvent lastError = null)
+        {
+            ContentDialog failedLoadDialog = new ContentDialog
+            {
+                Title = "Failed to load " + (isFileLoad ? "TestLists XML file" : "folder"),
+                Content = path + Environment.NewLine + Environment.NewLine,
+                CloseButtonText = "Ok"
+            };
+
+            if (lastError != null)
+            {
+                failedLoadDialog.Content += lastError.Message;
+            }
+            else
+            {
+                failedLoadDialog.Content += "Check the path and try again.";
+            }
+
+            ContentDialogResult result = await failedLoadDialog.ShowAsync();
         }
 
         /// <summary>
