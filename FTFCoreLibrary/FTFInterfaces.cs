@@ -117,6 +117,7 @@ namespace Microsoft.FactoryTestFramework.Core
         string GetServiceVersionString();
         bool SetDefaultTePath(string teExePath);
         bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);
+        List<Tuple<string, string>> GetIpAddressesAndNicNames();
 
         // Test List APIs
         TestList CreateTestListFromDirectory(string path, bool onlyTAEF);

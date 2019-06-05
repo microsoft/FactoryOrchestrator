@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
@@ -27,11 +27,8 @@ namespace Microsoft.FactoryTestFramework.UWP
             ContentFrame.Navigated += On_ContentFrameNavigated;
         }
 
-
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            //this.Frame.CacheSize = 4;
-
             // NavView doesn't load any page by default, so load home page.
             if (lastNavTag == null)
             {
@@ -46,27 +43,6 @@ namespace Microsoft.FactoryTestFramework.UWP
 
             base.OnNavigatedTo(e);
         }
-
-        //private void Back_Click(object sender, RoutedEventArgs e)
-        //{
-        //    On_BackRequested();
-        //}
-
-        //private bool On_BackRequested()
-        //{
-        //    if (this.Frame.CanGoBack)
-        //    {
-        //        this.Frame.GoBack();
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        //private void BackInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-        //{
-        //    On_BackRequested();
-        //    args.Handled = true;
-        //}
 
         private void On_ContentFrameNavigated(object sender, NavigationEventArgs e)
         {
@@ -144,6 +120,24 @@ namespace Microsoft.FactoryTestFramework.UWP
         private void ConfirmShutdown_Click(object sender, RoutedEventArgs e)
         {
             IPCClientHelper.ShutdownServerDevice();
+        }
+        private async void NetworkFlyout_Opening(object sender, object e)
+        {
+            var tuples = await GetIpAddresses();
+            NetworkStackPanel.Children.Clear();
+            foreach (var ipAndNic in tuples)
+            {
+                NetworkStackPanel.Children.Add(new TextBlock()
+                {
+                    Text = $"{ipAndNic.Item2} : {ipAndNic.Item1}",
+                    IsTextSelectionEnabled = true
+                });
+            }
+        }
+
+        private async Task<List<Tuple<string, string>>> GetIpAddresses()
+        {
+            return await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetIpAddressesAndNicNames());
         }
 
         private string lastNavTag;

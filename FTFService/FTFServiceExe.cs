@@ -16,6 +16,8 @@ using Microsoft.Win32;
 using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using Windows.Management.Deployment;
+using System.Net.Sockets;
+using System.Net.NetworkInformation;
 
 namespace Microsoft.FactoryTestFramework.Service
 {
@@ -432,6 +434,35 @@ namespace Microsoft.FactoryTestFramework.Service
             var pfns = packages.Select(x => x.Id.FamilyName).ToList();
             FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
             return pfns;
+        }
+
+        public List<Tuple<string, string>> GetIpAddressesAndNicNames()
+        {
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetIpAddressesAndNicNames");
+            List<Tuple<string, string>> ipAndNic = new List<Tuple<string, string>>();
+
+            try
+            {
+                var interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback);
+                foreach (var iface in interfaces)
+                {
+                    var props = iface.GetIPProperties();
+                    foreach (var addr in props.UnicastAddresses)
+                    {
+                        if (addr.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            ipAndNic.Add(new Tuple<string, string>(addr.Address.ToString(), iface.Name));
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"GetIpAddressesAndNicNames() failed! {e.Message} {e.HResult}"));
+            }
+
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
+            return ipAndNic;
         }
     }
 
