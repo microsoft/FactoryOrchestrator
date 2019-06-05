@@ -26,7 +26,7 @@ namespace Microsoft.FactoryTestFramework.Service
                 {
                     try
                     {
-                        _logStream = new StreamWriter(_logPath);
+                        _logStream = new StreamWriter(_logPath, true);
                     }
                     catch (System.IO.IOException)
                     {
@@ -36,7 +36,7 @@ namespace Microsoft.FactoryTestFramework.Service
                             // Try again, saving to the DATA partition
                             _logPath = Path.Combine(@"U:\FTFLogs", _logName);
                             Directory.CreateDirectory(@"U:\FTFLogs");
-                            _logStream = new StreamWriter(_logPath);
+                            _logStream = new StreamWriter(_logPath, true);
                         }
                     }
                 }

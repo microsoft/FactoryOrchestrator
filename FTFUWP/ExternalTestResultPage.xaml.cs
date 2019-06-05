@@ -51,6 +51,7 @@ namespace Microsoft.FactoryTestFramework.UWP
                 testRunPoller.StopPolling();
                 testRunPoller = null;
             }
+            base.OnNavigatedFrom(e);
         }
 
         /// <summary>

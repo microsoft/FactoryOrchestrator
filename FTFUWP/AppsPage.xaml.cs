@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Management.Deployment;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
@@ -17,16 +18,14 @@ namespace Microsoft.FactoryTestFramework.UWP
         public AppsPage()
         {
             this.InitializeComponent();
-            packages = new List<Windows.ApplicationModel.Package>();
             packageStrings = new List<string>();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             // Get installed UWPs
             var pkgManager = new PackageManager();
-            packages = pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main).ToList();
-            packageStrings = packages.Select(x => x.Id.FamilyName).ToList();
+            packageStrings = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
 
             // todo: quality: bind properly with template
             PackageList.ItemsSource = packageStrings;
@@ -36,10 +35,9 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         private async void PackageList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunUWPOutsideTestList((string)e.ClickedItem));
+            ((App)Application.Current).uwpRunGuidFromAppsPage = (await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunUWPOutsideTestList((string)e.ClickedItem))).Guid;
         }
 
-        private List<Windows.ApplicationModel.Package> packages;
         private List<string> packageStrings;
     }
 }

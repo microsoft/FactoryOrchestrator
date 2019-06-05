@@ -17,7 +17,8 @@ namespace Microsoft.FactoryTestFramework.Core
         ServiceReset = 7,
         ServiceError = 8,
         ServiceStarted = 9,
-        ServiceStopped = 10
+        ServiceStopped = 10,
+        Unknown = 11
     }
 
     public class ServiceEvent
@@ -25,7 +26,8 @@ namespace Microsoft.FactoryTestFramework.Core
         [JsonConstructor]
         public ServiceEvent()
         {
-
+            _guidStr = "";
+            _eventType = ServiceEventType.Unknown;
         }
 
         public ServiceEvent(ServiceEventType type, Guid? guid, String message)
@@ -33,7 +35,15 @@ namespace Microsoft.FactoryTestFramework.Core
             _eventIndex = _indexCount++;
             _eventTime = DateTime.Now;
             _eventType = type;
-            _guid = guid;
+            if (guid != null)
+            {
+                _guidStr = guid.ToString();
+            }
+            else
+            {
+                _guidStr = "";
+            }
+
             _message = message;
         }
 
@@ -45,7 +55,20 @@ namespace Microsoft.FactoryTestFramework.Core
 
         public ServiceEventType ServiceEventType { get => _eventType; }
 
-        public Guid? Guid { get => _guid; }
+        public Guid? Guid
+        {
+            get
+            {
+                if (!String.IsNullOrWhiteSpace(_guidStr))
+                {
+                    return new Guid(_guidStr);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
 
         public String Message { get => _message; }
 
@@ -61,7 +84,8 @@ namespace Microsoft.FactoryTestFramework.Core
         [JsonRequired]
         private string _message;
 
-        private Guid? _guid;
+        [JsonRequired]
+        private string _guidStr;
 
         private static ulong _indexCount = 0;
     }
@@ -107,6 +131,8 @@ namespace Microsoft.FactoryTestFramework.Core
 
         // Test APIs
         TestBase QueryTest(Guid guid);
+
+        List<string> GetInstalledApps();
 
         // Test Execution APIs
         bool RunTestList(Guid TestListToRun);

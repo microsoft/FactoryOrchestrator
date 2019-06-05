@@ -34,6 +34,8 @@ namespace Microsoft.FactoryTestFramework.UWP
             this.InitializeComponent();
             this.Suspending += OnSuspending;
             MainPageLastNavTag = null;
+            uwpRunGuidFromAppsPage = Guid.Empty;
+            RunWaitingForResult = null;
         }
 
         /// <summary>
@@ -122,26 +124,26 @@ namespace Microsoft.FactoryTestFramework.UWP
 
             // One thread queues events, another dequeues and handles them
             // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 while (true)
                 {
-                    await CheckForServiceEvents();
+                    CheckForServiceEvents();
                     System.Threading.Thread.Sleep(1000);
                 }
             });
 
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 while (true)
                 {
-                    await HandleServiceEvents();
+                    HandleServiceEvents();
                     System.Threading.Thread.Sleep(1000);
                 }
             });
         }
 
-        private async Task CheckForServiceEvents()
+        private async void CheckForServiceEvents()
         {
             List<ServiceEvent> newEvents;
 
@@ -167,7 +169,7 @@ namespace Microsoft.FactoryTestFramework.UWP
             }
         }
 
-        private async Task HandleServiceEvents()
+        private async void HandleServiceEvents()
         {
             // Handle one event at a time, oldest first
             ServiceEvent evnt;
@@ -219,10 +221,21 @@ namespace Microsoft.FactoryTestFramework.UWP
 
                         if (launched)
                         {
-                            // Go to result entry page
                             RunWaitingForResult.TestOutput.Add($"{app.ToString()} was launched successfully");
                             RunWaitingForResult.TestStatus = TestStatus.Running;
-                            ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+
+                            if (RunWaitingForResult.Guid != uwpRunGuidFromAppsPage)
+                            {
+                                // Go to result entry page if this was a test, not an invocation from AppsPage
+                                ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+                            }
+                            else
+                            {
+                                // Just report it as passed, dont show external result UI
+                                RunWaitingForResult.TestStatus = TestStatus.TestPassed;
+                                await IPCClientHelper.IpcClient.InvokeAsync(x => x.SetTestRunStatus(RunWaitingForResult));
+                                uwpRunGuidFromAppsPage = Guid.Empty;
+                            }
                         }
                         else
                         {
@@ -236,6 +249,10 @@ namespace Microsoft.FactoryTestFramework.UWP
                 {
                     ReportAppLaunchFailure();
                 }
+            }
+            else // Not a UWP test, just an external test, launch the result page
+            {
+                ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
             }
 
             // TODO: Performance: Use signaling
@@ -287,6 +304,7 @@ namespace Microsoft.FactoryTestFramework.UWP
         }
 
         public TestRun RunWaitingForResult { get; private set; }
+        public Guid uwpRunGuidFromAppsPage { get; set; }
         public string MainPageLastNavTag { get; set; }
         private bool eventSeen = false;
         private ulong lastEventIndex;

@@ -15,6 +15,7 @@ using System.Linq;
 using Microsoft.Win32;
 using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
+using Windows.Management.Deployment;
 
 namespace Microsoft.FactoryTestFramework.Service
 {
@@ -30,41 +31,56 @@ namespace Microsoft.FactoryTestFramework.Service
     var _logLevel = LogLevel.Information;
 #endif
             // Create service collection
+            var servicesIpc = new ServiceCollection();
             var services = new ServiceCollection();
 
 
             // Configure IPC service framework server
-            services = (ServiceCollection)services.AddIpc(builder =>
+            servicesIpc = (ServiceCollection)servicesIpc.AddIpc(builder =>
             {
                 builder
                     .AddTcp()
                     .AddService<IFTFCommunication, FTFCommunicationHandler>();
             });
 
-            // Configure service provider for logger creation and managment
-            ServiceProvider svcProvider = services
+            // Configure service providers for logger creation and managment
+            ServiceProvider ipcSvcProvider = servicesIpc
                 .AddLogging(builder =>
                 {
+                    // Only log IPC framework errors
                     builder
-                    .SetMinimumLevel(_logLevel);
+                    .SetMinimumLevel(LogLevel.Error).AddConsole().AddProvider(new LogFileProvider());
 
                 })
                 .AddOptions()
                 .AddSingleton(new LoggerFactory())
                 .BuildServiceProvider();
 
+            ServiceProvider ftfSvcProvider = services
+                .AddLogging(builder =>
+                {
+                    // Log FTF level based on DEBUG ifdef
+                    builder
+                    .SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
+
+                })
+                .AddOptions()
+                .AddSingleton(new LoggerFactory())
+                .BuildServiceProvider();
+
+
             // Enable both console logging and file logging
-            svcProvider.GetService<ILoggerFactory>().AddConsole();
-            svcProvider.GetRequiredService<ILoggerFactory>().AddProvider(new LogFileProvider());
+            // svcProvider.GetRequiredService<ILoggerFactory>().AddConsole();
+            // svcProvider.GetRequiredService<ILoggerFactory>().AddProvider();
 
             // Allow any client on the network to connect to the FTFService, including loopback (other processes on this device)
             // For network clients to work, we need to createa firewall entry:
             // netsh advfirewall firewall add rule name=ftfservice_tcp_in program=<Path to FTFService.exe> protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
             // netsh advfirewall firewall add rule name=ftfservice_tcp_out program=<Path to FTFService.exe> protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
-            ipcHost = new IpcServiceHostBuilder(svcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Any, 45684)
+            ipcHost = new IpcServiceHostBuilder(ipcSvcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Any, 45684)
                                                             .Build();
 
-            var _logger = svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFServiceExe>();
+            var _logger = ftfSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFServiceExe>();
 
             // FTFService handler
             ServiceRunner<FTFService>.Run(config =>
@@ -74,7 +90,7 @@ namespace Microsoft.FactoryTestFramework.Service
                 {
                     serviceConfig.ServiceFactory((extraArguments, controller) =>
                     {
-                        return new FTFService(controller, svcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFService>());
+                        return new FTFService(controller, ftfSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFService>());
                     });
 
                     serviceConfig.OnStart((service, extraParams) =>
@@ -104,22 +120,14 @@ namespace Microsoft.FactoryTestFramework.Service
             });
 
             // Dispose of loggers, this needs to be done manually
-            svcProvider.GetService<ILoggerFactory>().Dispose();
+            ipcSvcProvider.GetService<ILoggerFactory>().Dispose();
+            ftfSvcProvider.GetService<ILoggerFactory>().Dispose();
         }
     }
 
     // Find the FTFService singleton -> pass call to it
     public class FTFCommunicationHandler : IFTFCommunication
     {
-        //[MethodImpl(MethodImplOptions.NoInlining)]
-        //public static string GetCurrentMethod()
-        //{
-        //    var st = new StackTrace();
-        //    var sf = st.GetFrame(1);
-
-        //    return sf.GetMethod().Name;
-        //}
-
         // TODO: Logging: Catch exceptions & log them
         public List<ServiceEvent> GetAllServiceEvents()
         {
@@ -156,7 +164,7 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
         {
-            FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromDirectory {path}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTestListFromDirectory {path}");
             TestList tl = null;
 
             try
@@ -168,13 +176,13 @@ namespace Microsoft.FactoryTestFramework.Service
                 FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
             }
 
-            FTFService.Instance.ServiceLogger.LogTrace($"Finish: CreateTestListFromDirectory {path}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTestListFromDirectory {path}");
             return tl;
         }
 
         public List<Guid> LoadTestListsFromXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogTrace($"Start: LoadTestListsFromXmlFile {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: LoadTestListsFromXmlFile {filename}");
             List<Guid> testLists = null;
 
             try
@@ -186,51 +194,63 @@ namespace Microsoft.FactoryTestFramework.Service
                 FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
             }
 
-            FTFService.Instance.ServiceLogger.LogTrace($"Finish: LoadTestListsFromXmlFile {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: LoadTestListsFromXmlFile {filename}");
             return testLists;
         }
 
         public TestList CreateTestListFromTestList(TestList list)
         {
-            FTFService.Instance.ServiceLogger.LogTrace($"Start: CreateTestListFromTestList {list.Guid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTestListFromTestList {list.Guid}");
             var serverList = FTFService.Instance.TestExecutionManager.CreateTestListFromTestList(list);
-            FTFService.Instance.ServiceLogger.LogTrace($"Finish: CreateTestListFromTestList {list.Guid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTestListFromTestList {list.Guid}");
             return serverList;
         }
 
         public bool SaveTestListToXmlFile(Guid guid, string filename)
         {
-            FTFService.Instance.ServiceLogger.LogTrace($"Start: SaveTestListToXmlFile {guid} {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveTestListToXmlFile {guid} {filename}");
             var saved = FTFService.Instance.TestExecutionManager.SaveTestListToXmlFile(guid, filename);
-            FTFService.Instance.ServiceLogger.LogTrace($"Finish: SaveTestListToXmlFile {guid} {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveTestListToXmlFile {guid} {filename}");
             return saved;
         }
 
         public bool SaveAllTestListsToXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogTrace($"Start: SaveAllTestListsToXmlFile {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTestListsToXmlFile {filename}");
             var saved = FTFService.Instance.TestExecutionManager.SaveAllTestListsToXmlFile(filename);
-            FTFService.Instance.ServiceLogger.LogTrace($"Finish: SaveAllTestListsToXmlFile {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTestListsToXmlFile {filename}");
             return saved;
         }
 
         public List<Guid> GetTestListGuids()
         {
-            return FTFService.Instance.TestExecutionManager.GetKnownTestListGuids();
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetTestListGuids");
+            var guids = FTFService.Instance.TestExecutionManager.GetKnownTestListGuids();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetTestListGuids");
+            return guids;
         }
 
         public TestList QueryTestList(Guid testListGuid)
         {
-            return FTFService.Instance.TestExecutionManager.GetKnownTestList(testListGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTestList {testListGuid}");
+            var list = FTFService.Instance.TestExecutionManager.GetKnownTestList(testListGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTestList {testListGuid}");
+            return list;
         }
         public TestBase QueryTest(Guid testGuid)
         {
-            return FTFService.Instance.TestExecutionManager.GetKnownTest(testGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTest {testGuid}");
+            var test = FTFService.Instance.TestExecutionManager.GetKnownTest(testGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTest {testGuid}");
+            return test;
         }
 
         public bool DeleteTestList(Guid listToDelete)
         {
-            return FTFService.Instance.TestExecutionManager.DeleteTestList(listToDelete);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: DeleteTestList {listToDelete}");
+            var deleted = FTFService.Instance.TestExecutionManager.DeleteTestList(listToDelete);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTestList {listToDelete}");
+            return deleted;
         }
 
         public void ResetService(bool preserveLogs = true)
@@ -243,101 +263,175 @@ namespace Microsoft.FactoryTestFramework.Service
 
         public bool UpdateTest(TestBase updatedTest)
         {
-            return FTFService.Instance.TestExecutionManager.UpdateTest(updatedTest);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTest {updatedTest.TestName} {updatedTest.Guid}");
+            var updated = FTFService.Instance.TestExecutionManager.UpdateTest(updatedTest);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTest {updatedTest.TestName} {updatedTest.Guid}");
+            return updated;
         }
 
         public bool UpdateTestList(TestList testList)
         {
-            return FTFService.Instance.TestExecutionManager.UpdateTestList(testList);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTestList {testList.Guid}");
+            var updated = FTFService.Instance.TestExecutionManager.UpdateTestList(testList);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTestList {testList.Guid}");
+            return updated;
         }
 
         public bool SetDefaultTePath(string teExePath)
         {
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
+            bool success = false;
             try
             {
                 TestRunner.GlobalTeExePath = teExePath;
+                success = true;
             }
             catch (Exception)
-            {
-                return false;
-            }
+            {}
 
-            return true;
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
+
+            return success;
         }
 
         public bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs)
         {
-            return FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+            var updated = FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+            return updated;
         }
 
         public void AbortAllTestLists()
         {
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTestLists");
             FTFService.Instance.TestExecutionManager.AbortAllTestLists();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTestLists");
         }
 
         public void AbortTestList(Guid testListGuid)
         {
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTestList {testListGuid}");
             FTFService.Instance.TestExecutionManager.AbortTestList(testListGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTestList {testListGuid}");
         }
         public void AbortTestRun(Guid testRunGuid)
         {
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTestRun {testRunGuid}");
             FTFService.Instance.TestExecutionManager.AbortTestRun(testRunGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTestRun {testRunGuid}");
         }
 
         public string GetServiceVersionString()
         {
-            return FTFService.GetServiceVersionString();
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
+            var version = FTFService.GetServiceVersionString();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
+            return version;
         }
 
         public TestRun QueryTestRun(Guid testRunGuid)
         {
-            return TestRun_Server.GetTestRunByGuid(testRunGuid).DeepCopy();
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTestRun {testRunGuid}");
+            var run = TestRun_Server.GetTestRunByGuid(testRunGuid).DeepCopy();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTestRun {testRunGuid}");
+            return run;
         }
 
         public bool SetTestRunStatus(TestRun testRunStatus)
         {
-            return FTFService.Instance.TestExecutionManager.UpdateTestRunStatus(testRunStatus);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SetTestRunStatus {testRunStatus.Guid}");
+            var updated = FTFService.Instance.TestExecutionManager.UpdateTestRunStatus(testRunStatus);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SetTestRunStatus {testRunStatus.Guid}");
+            return updated;
         }
 
         public bool RunTestList(Guid TestListToRun)
         {
-            return FTFService.Instance.TestExecutionManager.RunTestList(TestListToRun);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTestList {TestListToRun}");
+            var ran = FTFService.Instance.TestExecutionManager.RunTestList(TestListToRun);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTestList {TestListToRun}");
+            return ran;
         }
 
         public TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
         {
-            return FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, consoleLogFilePath);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
+            var run = FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, consoleLogFilePath);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
+            return run;
         }
 
         public TestRun RunTestOutsideTestList(Guid testGuid)
         {
-            return FTFService.Instance.TestExecutionManager.RunTestOutsideTestList(testGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTestOutsideTestList {testGuid}");
+            var run = FTFService.Instance.TestExecutionManager.RunTestOutsideTestList(testGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTestOutsideTestList {testGuid}");
+            return run;
         }
 
         public TestRun RunUWPOutsideTestList(string packageFamilyName)
         {
-            return FTFService.Instance.TestExecutionManager.RunUWPOutsideTestList(packageFamilyName);
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunUWPOutsideTestList {packageFamilyName}");
+            var run = FTFService.Instance.TestExecutionManager.RunUWPOutsideTestList(packageFamilyName);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunUWPOutsideTestList {packageFamilyName}");
+            return run;
         }
 
         public byte[] GetFile(string sourceFilename)
         {
+            byte[] bytes = null;
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
+
             if (!File.Exists(sourceFilename))
             {
-                // todo: logging
-                return null;
+                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile does not exist!"));
             }
 
-            return File.ReadAllBytes(sourceFilename);
+            try
+            {
+                bytes = File.ReadAllBytes(sourceFilename);
+            }
+            catch (Exception e)
+            {
+                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile could not be read! {e.Message} {e.HResult}"));
+            }
+
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
+
+            return bytes;
         }
 
         public bool SendFile(string targetFilename, byte[] fileData)
         {
-            // Create target folder, if needed.
-            Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
 
-            File.WriteAllBytes(targetFilename, fileData);
+            var result = false;
+            try
+            {
+                // Create target folder, if needed.
+                Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
+                File.WriteAllBytes(targetFilename, fileData);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {targetFilename} for SendFile could not be saved! {e.Message} {e.HResult}"));
+            }
 
-            return true;
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
+
+            return result;
+        }
+
+        public List<string> GetInstalledApps()
+        {
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
+            var pkgManager = new PackageManager();
+            var packages = pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main).ToList();
+            var pfns = packages.Select(x => x.Id.FamilyName).ToList();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
+            return pfns;
         }
     }
 
@@ -501,7 +595,7 @@ namespace Microsoft.FactoryTestFramework.Service
             // Update state file
             TestExecutionManager.SaveAllTestListsToXmlFile(TestExecutionManager.TestListStateFile);
 
-            ServiceLogger.LogTrace("FactoryTestFramework Service Stopped\n");
+            ServiceLogger.LogDebug("FactoryTestFramework Service Stopped\n");
         }
 
         private void HandleTestManagerEvent(object source, TestManagerEventArgs e)
@@ -536,13 +630,14 @@ namespace Microsoft.FactoryTestFramework.Service
             ServiceEvents.Add(serviceEvent.EventIndex, serviceEvent);
             LastEventIndex = serviceEvent.EventIndex;
             LastEventTime = serviceEvent.EventTime;
+
             switch (serviceEvent.ServiceEventType)
             {
                 case ServiceEventType.ServiceError:
-                    ServiceLogger.LogError($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Message}");
+                    ServiceLogger.LogError($"{serviceEvent.Message}");
                     break;
                 default:
-                    ServiceLogger.LogInformation($"{serviceEvent.EventTime}: {serviceEvent.ServiceEventType} - {serviceEvent.Message}");
+                    ServiceLogger.LogInformation($"{serviceEvent.ServiceEventType} - {serviceEvent.Message}");
                     break;
             }
         }
