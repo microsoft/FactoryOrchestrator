@@ -493,6 +493,8 @@ namespace Microsoft.FactoryTestFramework.Service
         private readonly string _userNameValue = @"LocalUserName";
         private readonly string _userPasswordValue = @"LocalUserPassword";
         private readonly string _firstBootTasksPathValue = @"FirstBootTestListsXML";
+        private readonly string _firstBootStatePathValue = @"FirstBootStateTestListsXML";
+        private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
         private readonly string _everyBootTasksPathValue = @"EveryBootTestListsXML";
 
         //private readonly string _firewallValue = @"FirewallConfigured";
@@ -591,8 +593,8 @@ namespace Microsoft.FactoryTestFramework.Service
             // Execute user defined tasks.
             ExecuteUserBootTasks(forceUserTaskRerun);
 
-            // Try to load known TestLists from the state file
-            if (File.Exists(_testExecutionManager.TestListStateFile))
+            // Load first boot state file, or try to load known TestLists from the existing state file
+            if (!LoadFirstBootStateFile() && File.Exists(_testExecutionManager.TestListStateFile))
             {
                 try
                 {
@@ -610,6 +612,59 @@ namespace Microsoft.FactoryTestFramework.Service
             FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
             ServiceLogger.LogInformation("FactoryTestFramework Service is ready to communicate with client(s)\n");
+        }
+
+        private bool LoadFirstBootStateFile()
+        {
+            RegistryKey mutableKey = null;
+            RegistryKey nonMutableKey = null;
+            bool loaded = false;
+
+            try
+            {
+                // OSDATA wont exist on Desktop, so try to open it on it's own
+                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                // Open non mutable reg key
+                nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+
+                var firstBootStateLoaded = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStateLoadedValue) as int?;
+
+                if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0))
+                {
+                    ServiceLogger.LogInformation("Checking for first boot state TestLists XML...");
+                    // Find the TestLists XML path.
+                    string firstBootStateTestListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStatePathValue) as string;
+
+                    if (firstBootStateTestListPath != null)
+                    {
+                        ServiceLogger.LogInformation($"First boot state TestLists XML found, attempting to load {firstBootStateTestListPath}...");
+
+                        // Load the TestLists file specified in registry
+                        var firstBootTestListGuids = _testExecutionManager.LoadTestListsFromXmlFile(firstBootStateTestListPath);
+
+                        ServiceLogger.LogInformation($"Successfully loaded first boot state TestLists XML {firstBootStateTestListPath}...");
+                    }
+                    else
+                    {
+                        ServiceLogger.LogInformation("No first boot state TestLists XML found.");
+                    }
+
+                    loaded = true;
+                    SetValueInRegistry(mutableKey, nonMutableKey, _firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
+                }
+            }
+            catch (Exception e)
+            {
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to load first boot state TestLists XML! ({e.Message})"));
+            }
+
+            return loaded;
         }
 
         /// <summary>
