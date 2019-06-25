@@ -35,6 +35,8 @@ namespace Microsoft.FactoryTestFramework.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            mainPage = (Frame)e.Parameter;
+
             if (_testListGuidPoller == null)
             {
                 _testListGuidPoller = new FTFPoller(null, typeof(TestList), IPCClientHelper.IpcClient, 2000);
@@ -47,6 +49,12 @@ namespace Microsoft.FactoryTestFramework.UWP
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             _testListGuidPoller.StopPolling();
+        }
+
+        private void NewListButton_Click(object sender, RoutedEventArgs e)
+        {
+            mainPage.Navigate(typeof(EditPage), null);
+            this.OnNavigatedFrom(null);
         }
 
         private void LoadFolderButton_Click(object sender, RoutedEventArgs e)
@@ -169,10 +177,12 @@ namespace Microsoft.FactoryTestFramework.UWP
         /// <summary>
         /// Edit the selected testlist
         /// </summary>
-        private void EditListButton_Click(object sender, RoutedEventArgs e)
+        private async void EditListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTestListGuidFromButton(sender as Button);
-            // TODO: Navigate to edit page
+            var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTestList(guid));
+            mainPage.Navigate(typeof(EditPage), list);
+            this.OnNavigatedFrom(null);
         }
 
         /// <summary>
@@ -335,5 +345,6 @@ namespace Microsoft.FactoryTestFramework.UWP
         private SemaphoreSlim _listUpdateSem;
         private Guid _activeGuid;
         private bool _isFileLoad;
+        private Frame mainPage;
     }
 }

@@ -53,6 +53,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="20" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -71,7 +73,12 @@
             <SymbolIcon Symbol="OpenFile"/>
         </Button>
 
-        <TextBlock Text="Existing TestLists:" Grid.Row="4" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock Text="Create new TestList: " Grid.Row="4" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Button x:Name="NewListButton" Grid.Row="4" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="NewListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+            <SymbolIcon Symbol="Add"/>
+        </Button>
+        
+        <TextBlock Text="Existing TestLists:" Grid.Row="6" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <!--TODO: Quality: It is likely better to add the buttons programmatically in the 3rd Column once they become names-->
         <!--<ListView x:Name="TestListsView"  Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{x:Bind TestViewModel.TestData.TestListGuids, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
         <!--SelectionChanged="TestListsView_SelectionChanged"-->
@@ -79,7 +86,7 @@
             <ListView.Items>
             </ListView.Items>
         </ListView>-->
-        <ListView x:Name="TestListsView" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled">
+        <ListView x:Name="TestListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
@@ -114,7 +121,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal">
+        <StackPanel Grid.Row="10" Grid.Column="0" Orientation="Horizontal">
             <Button x:Name="SaveAllButton" Margin="5,0" Flyout="{StaticResource SaveFlyout}">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA35;"/>

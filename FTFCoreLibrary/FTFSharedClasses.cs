@@ -67,6 +67,7 @@ namespace Microsoft.FactoryTestFramework.Core
             LatestTestRunTimeStarted = null;
             TestRunGuids = new List<Guid>();
             TimeoutSeconds = -1;
+            Arguments = "";
         }
 
         public TestBase(string testPath, TestType type) : this(type)
