@@ -255,7 +255,6 @@ steps:
     TargetFolder: '$(XES_DFSDROP)'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
-
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
@@ -277,7 +276,47 @@ steps:
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
-  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-prefast.SDLNativeRules@2
+  displayName: 'Run the PREfast SDL Native Rules for MSBuild'
+  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: CopyFiles@1
+  displayName: 'Copy PREfast xml files to SDLNativeRulesDir'
+  inputs:
+    SourceFolder: '$(Agent.BuildDirectory)\i'
+    Contents: |
+     **\*.nativecodeanalysis.xml
+    TargetFolder: '$(Agent.BuildDirectory)\_sdt\logs\SDLNativeRules'
+  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+  displayName: 'Run PoliCheck'
+  inputs:
+    targetType: F
+  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+  displayName: 'Run CredScan'
+  inputs:
+    debugMode: false
+  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
+  displayName: 'Publish Security Analysis Logs'
+  inputs:
+    ArtifactName: 'ES_task_logs'
+  condition: always()
+
+- task: PkgESSecComp@10
+  displayName: 'Security and Compliance tasks'
+  inputs:
+    areaPath: 'OS\Core\SiGMa\Device Platform\OC - OneCore\Manufacturing'
+    iterationPath: 'OS'
+    bugTags: 'FTF'
+    scanAll: false
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESFCIBGit@10
   env:
