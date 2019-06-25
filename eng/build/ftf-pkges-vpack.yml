@@ -301,6 +301,7 @@ steps:
   displayName: 'Run CredScan'
   inputs:
     debugMode: false
+    suppressionsFile: 'eng/build/CredScanSuppressions.json'
   condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
