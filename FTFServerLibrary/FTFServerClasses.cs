@@ -1234,7 +1234,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 }
                 File.WriteAllLines(LogFilePath, header);
 
-                lastLineSavedToFile = -1;
+                nextIndexToSave = 0;
                 outputTimer = new Timer(OnOutputTimer, null, 5000, 5000);
             }
 
@@ -1246,10 +1246,10 @@ namespace Microsoft.FactoryTestFramework.Server
             var logFilePath = ActiveTestRun.ConsoleLogFilePath;
             if (logFilePath != null)
             {
-                if (lastLineSavedToFile + 1 != ActiveTestRun.TestOutput.Count)
+                if (nextIndexToSave != ActiveTestRun.TestOutput.Count)
                 {
-                    File.WriteAllLines(logFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count));
-                    lastLineSavedToFile = ActiveTestRun.TestOutput.Count - 1;
+                    File.AppendAllLines(logFilePath, ActiveTestRun.TestOutput.GetRange(nextIndexToSave, ActiveTestRun.TestOutput.Count - nextIndexToSave));
+                    nextIndexToSave = ActiveTestRun.TestOutput.Count;
                 }
             }
         }
@@ -1327,12 +1327,12 @@ namespace Microsoft.FactoryTestFramework.Server
                 var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
                 if (LogFilePath != null)
                 {
-                    if (lastLineSavedToFile + 1 != ActiveTestRun.TestOutput.Count)
+                    if (nextIndexToSave != ActiveTestRun.TestOutput.Count)
                     {
-                        File.WriteAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(lastLineSavedToFile + 1, ActiveTestRun.TestOutput.Count));
-                        lastLineSavedToFile = ActiveTestRun.TestOutput.Count - 1;
+                        File.AppendAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(nextIndexToSave, ActiveTestRun.TestOutput.Count - nextIndexToSave));
+                        nextIndexToSave = ActiveTestRun.TestOutput.Count;
                     }
-                    File.WriteAllLines(LogFilePath,
+                    File.AppendAllLines(LogFilePath,
                                         new String[] {
                                     "---------------------------------------------",
                                     String.Format("Result: {0}", ActiveTestRun.TestStatus),
@@ -1457,7 +1457,7 @@ namespace Microsoft.FactoryTestFramework.Server
         private bool BackgroundTask;
         private CancellationTokenSource TimeoutToken = new CancellationTokenSource();
         private Timer outputTimer = null;
-        private int lastLineSavedToFile = -1;
+        private int nextIndexToSave = 0;
 
         /// <summary>
         /// Lock to maintain consistent state of execution status (Run, Abort etc)
