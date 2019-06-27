@@ -862,7 +862,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(exeFilePath);
             if (!File.Exists(expandedPath))
@@ -871,7 +871,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 return null;
             }
 
-            var run = TaskRun_Server.CreateTaskRunWithoutTest(expandedPath, arguments, consoleLogFilePath, TaskType.ConsoleExe);
+            var run = TaskRun_Server.CreateTaskRunWithoutTest(expandedPath, arguments, logFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
             var token = new CancellationTokenSource();
             StartTest(run, token.Token);
@@ -1330,7 +1330,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
                     {
-                        File.AppendAllLines(ActiveTaskRun.ConsoleLogFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
+                        File.AppendAllLines(ActiveTaskRun.LogFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
                         nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
                     }
                     File.AppendAllLines(LogFilePath,

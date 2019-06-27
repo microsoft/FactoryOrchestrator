@@ -357,10 +357,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             return ran;
         }
 
-        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
         {
             FTFService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
-            var run = FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, consoleLogFilePath);
+            var run = FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
             FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
             return run;
         }

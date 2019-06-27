@@ -127,7 +127,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         void AbortAllTaskLists();
         void AbortTaskList(Guid taskListGuid);
         void AbortTaskRun(Guid taskRunGuid);
-        TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null);
         TaskRun RunApp(string packageFamilyName);
         TaskRun RunTask(Guid taskGuid);
 
