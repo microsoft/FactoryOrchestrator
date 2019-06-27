@@ -3,17 +3,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Microsoft.FactoryTestFramework.Core
+namespace Microsoft.FactoryOrchestrator.Core
 {
     public enum ServiceEventType
     {
-        NewTestList = 0,
-        UpdatedTestList = 1,
-        DeletedTestList = 2,
-        TestListRunStarted = 3,
-        TestListRunEnded = 4,
-        DoneWaitingForExternalTestRun = 5,
-        WaitingForExternalTestRun = 6,
+        NewTaskList = 0,
+        UpdatedTaskList = 1,
+        DeletedTaskList = 2,
+        TaskListStarted = 3,
+        TaskListFinished = 4,
+        DoneWaitingForExternalTaskRun = 5,
+        WaitingForExternalTaskRun = 6,
         ServiceReset = 7,
         ServiceError = 8,
         ServiceStarted = 9,
@@ -90,24 +90,11 @@ namespace Microsoft.FactoryTestFramework.Core
         private static ulong _indexCount = 0;
     }
 
-    // TODO: FeatureWork: Build out client-side lib for diffs, update polling state machine etc
     /// <summary>
     /// IFTFCommunication defines the client <> server communication model. 
     /// </summary>
     public interface IFTFCommunication
     {
-        // create test list from list
-        // create test list from folder
-        // query taef test
-        // run test list
-        // update test list
-        // run test or test case
-        // get status / check for updates
-        // Send UWP test results
-        // get failed tests
-        // get test output
-        // query for all test lists
-
         // Service APIs
         void ResetService(bool preserveLogs = true);
         List<ServiceEvent> GetAllServiceEvents();
@@ -119,34 +106,34 @@ namespace Microsoft.FactoryTestFramework.Core
         bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);
         List<Tuple<string, string>> GetIpAddressesAndNicNames();
 
-        // Test List APIs
-        TestList CreateTestListFromDirectory(string path, bool onlyTAEF);
-        List<Guid> LoadTestListsFromXmlFile(string filename);
-        bool SaveTestListToXmlFile(Guid guid, string filename);
-        bool SaveAllTestListsToXmlFile(string filename);
-        TestList CreateTestListFromTestList(TestList list);
-        List<Guid> GetTestListGuids();
-        TestList QueryTestList(Guid guid);
-        bool DeleteTestList(Guid listToDelete);
-        bool UpdateTestList(TestList testList);
+        // TaskList APIs
+        TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF);
+        List<Guid> LoadTaskListsFromXmlFile(string filename);
+        bool SaveTaskListToXmlFile(Guid guid, string filename);
+        bool SaveAllTaskListsToXmlFile(string filename);
+        TaskList CreateTaskListFromTaskList(TaskList list);
+        List<Guid> GetTaskListGuids();
+        TaskList QueryTaskList(Guid taskListGuid);
+        bool DeleteTaskList(Guid listToDelete);
+        bool UpdateTaskList(TaskList taskList);
 
-        // Test APIs
-        TestBase QueryTest(Guid guid);
+        // Task APIs
+        TaskBase QueryTask(Guid guid);
 
         List<string> GetInstalledApps();
 
-        // Test Execution APIs
-        bool RunTestList(Guid TestListToRun);
-        void AbortAllTestLists();
-        void AbortTestList(Guid testListGuid);
-        void AbortTestRun(Guid testRunGuid);
-        TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null);
-        TestRun RunUWPOutsideTestList(string packageFamilyName);
-        TestRun RunTestOutsideTestList(Guid testGuid);
+        // Task Execution APIs
+        bool RunTaskList(Guid taskListGuid);
+        void AbortAllTaskLists();
+        void AbortTaskList(Guid taskListGuid);
+        void AbortTaskRun(Guid taskRunGuid);
+        TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null);
+        TaskRun RunApp(string packageFamilyName);
+        TaskRun RunTask(Guid taskGuid);
 
-        // Test Run APIs
-        bool SetTestRunStatus(TestRun testRunStatus);
-        TestRun QueryTestRun(Guid testRunGuid);
+        // TaskRun APIs
+        bool UpdateTaskRun(TaskRun taskRun);
+        TaskRun QueryTaskRun(Guid taskRunGuid);
 
         // File APIs
         byte[] GetFile(string sourceFilename);

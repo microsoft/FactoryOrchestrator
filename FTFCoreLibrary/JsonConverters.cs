@@ -4,33 +4,33 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.FactoryTestFramework.Core.JSONConverters
+namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
 {
     /// <summary>
-    /// TestBaseConverter serializes "instances" of the abstract class TestBase.
+    /// TaskBaseConverter serializes "instances" of the abstract class TaskBase.
     /// </summary>
-    public class TestBaseConverter : JsonConverter
+    public class TaskBaseConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            return (objectType == typeof(TestBase));
+            return (objectType == typeof(TaskBase));
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
-            switch ((TestType)(jo["TestType"].Value<int>()))
+            switch ((TaskType)(jo["Type"].Value<int>()))
             {
-                case TestType.ConsoleExe:
-                    return JsonConvert.DeserializeObject<ExecutableTest>(jo.ToString());
-                case TestType.TAEFDll:
+                case TaskType.ConsoleExe:
+                    return JsonConvert.DeserializeObject<ExecutableTask>(jo.ToString());
+                case TaskType.TAEFDll:
                     return JsonConvert.DeserializeObject<TAEFTest>(jo.ToString());
-                case TestType.External:
-                    return JsonConvert.DeserializeObject<ExternalTest>(jo.ToString());
-                case TestType.UWP:
-                    return JsonConvert.DeserializeObject<UWPTest>(jo.ToString());
+                case TaskType.External:
+                    return JsonConvert.DeserializeObject<ExternalTask>(jo.ToString());
+                case TaskType.UWP:
+                    return JsonConvert.DeserializeObject<UWPTask>(jo.ToString());
                 default:
-                    throw new Exception("Trying to deserialize an unknown test type!");
+                    throw new Exception("Trying to deserialize an unknown task type!");
             }
         }
 
@@ -41,30 +41,30 @@ namespace Microsoft.FactoryTestFramework.Core.JSONConverters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var test = (TestBase)value;
-            switch (test.TestType)
+            var task = (TaskBase)value;
+            switch (task.Type)
             {
-                case TestType.ConsoleExe:
-                    serializer.Serialize(writer, value, typeof(ExecutableTest));
+                case TaskType.ConsoleExe:
+                    serializer.Serialize(writer, value, typeof(ExecutableTask));
                     break;
-                case TestType.TAEFDll:
+                case TaskType.TAEFDll:
                     serializer.Serialize(writer, value, typeof(TAEFTest));
                     break;
-                case TestType.External:
-                    serializer.Serialize(writer, value, typeof(ExternalTest));
+                case TaskType.External:
+                    serializer.Serialize(writer, value, typeof(ExternalTask));
                     break;
-                case TestType.UWP:
-                    serializer.Serialize(writer, value, typeof(UWPTest));
+                case TaskType.UWP:
+                    serializer.Serialize(writer, value, typeof(UWPTask));
                     break;
                 default:
-                    throw new Exception("Trying to serialize an unknown test type!");
+                    throw new Exception("Trying to serialize an unknown task type!");
             }
         }
     }
 
     /// <summary>
-    /// NoConverter class is used children of abstract classes (ex: ExecutableTest), to prevent infinite loop.
-    /// All serialization is done by the Abstract class converter (TestBaseConverter)
+    /// NoConverter class is used children of abstract classes (ex: ExecutableTask), to prevent infinite loop.
+    /// All serialization is done by the Abstract class converter (TaskBaseConverter)
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
     public class NoConverter : JsonConverter

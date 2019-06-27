@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Microsoft.FactoryTestFramework.Service
+namespace Microsoft.FactoryOrchestrator.Service
 {
     public class LogFileProvider : ILoggerProvider
     {
         // Log to file next to the service binary
-        private static readonly String _logName = "FTFService.log";
+        private static readonly String _logName = "FactoryOrchestratorService.log";
         private static String _logPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, _logName);
         private static StreamWriter _logStream = null;
         private static uint _logCount = 0;
@@ -34,8 +34,8 @@ namespace Microsoft.FactoryTestFramework.Service
                         if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
                         {
                             // Try again, saving to the DATA partition
-                            _logPath = Path.Combine(@"U:\FTFLogs", _logName);
-                            Directory.CreateDirectory(@"U:\FTFLogs");
+                            _logPath = Path.Combine(@"U:\FactoryOrchestratorLogs", _logName);
+                            Directory.CreateDirectory(@"U:\FactoryOrchestratorLogs");
                             _logStream = new StreamWriter(_logPath, true);
                         }
                     }

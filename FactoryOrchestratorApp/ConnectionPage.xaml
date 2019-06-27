@@ -1,0 +1,73 @@
+﻿<Page
+    x:Class="Microsoft.FactoryOrchestrator.UWP.ConnectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Microsoft.FactoryOrchestrator.UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
+        <Button x:Name="ExitButton" VerticalAlignment="Top" HorizontalAlignment="Right">
+            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
+            <Button.Flyout>
+                <Flyout x:Name="ExitFlyout">
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Text="Exit Factory Orchestrator?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="ConfirmExit" Padding="5" Margin="5" Click="ConfirmExit_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
+                                    <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Exit"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Flyout>
+            </Button.Flyout>
+        </Button>
+        <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto"  Margin="50,50,50,50">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" Text="Welcome to Factory Orchestrator!" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="99" Text="Please enter the IPv4 address of the device you wish to connect to:" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{StaticResource SubheaderTextBlockStyle}"/>
+            <Grid Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="IP Address:"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="IpTextBox_TextChanged" InputScope="Number"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="OR" Margin="10"/>
+                <CheckBox Grid.Row="0" Grid.Column="3"  x:Name="LocalDeviceCheckBox" Content="Local Device" VerticalAlignment="Center" Margin="0,0,5,0" Unchecked="LocalDeviceCheckBox_Click" Checked="LocalDeviceCheckBox_Click" IsChecked="False"/>
+                <Button Grid.Row="0" Grid.Column="4" x:Name="ConnectButton" Margin="1" VerticalAlignment="Center" Content="Connect" Click="ConnectButton_Click" IsEnabled="False"/>
+            </Grid>
+            <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center">
+                <TextBlock  VerticalAlignment="Center" Text="(Optional) Employee ID:"/>
+                <TextBox x:Name="EmployeeIdBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Right">
+                <Button x:Name="AboutButton"  Content="About Factory Orchestrator" Margin="5" Click="AboutButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,7 +1,7 @@
 # Introduction 
-Factory Test Framework (FTF)
+Factory Orchestrator
 
-Factory Test Framework consists of the following projects:
+Factory Orchestrator consists of the following projects:
 1) FTFCoreLibrary - A .NET Standard library containing the core FTF classes. Required in all projects.
 2) FTFServerLibrary - A .NET Standard library containing the server-side FTF classes. Required on all FTF server projects.
 3) FTFClientLibrary - A .NET Standard library containing the client-side FTF classes. Has helper classes which are optional for all FTF client projects.
@@ -30,7 +30,7 @@ netsh advfirewall firewall add rule name=ftfservice_tcp_out program=<Path to FTF
 6) Run "sc start FTFService"
 
 # Build and Test
-When building FTFUWP locally, DevPackage.appxmanifest is used instead of Package.appxmanifest. This causes the app to have a different PFN (Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe) and display name (Factory Test Framework (DEV)).
+When building FTFUWP locally, DevPackage.appxmanifest is used instead of Package.appxmanifest. This causes the app to have a different PFN (Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe) and display name (Factory Orchestrator (DEV)).
 This is done since you cannot replace the PackageES-built inbox FTFUWP application, as it is installed to the read-only preinstalled partition.
 
 # Contribute
@@ -45,7 +45,7 @@ If you want to learn more about creating good readme files then refer the follow
 
 Troubleshooting:
 1.	Restart the apps (WDP -> apps manager, kill FTFUWP then relaunch) and service (cmdd sc stop/start ftfservice) or reboot
-2.	Make sure UWP local loopback is enabled on the device (only needed for on-device communication) with TSHELL or SSH via CheckNetIsolation.exe LoopbackExempt -s. If it isn't set, delete HKLM\System\CurrentControlSet\Control\FactoryTestFramework\UWPLocalLoopbackEnabled and restart FTFService.
+2.	Make sure UWP local loopback is enabled on the device (only needed for on-device communication) with TSHELL or SSH via CheckNetIsolation.exe LoopbackExempt -s. If it isn't set, delete HKLM\System\CurrentControlSet\Control\FactoryOrchestrator\UWPLocalLoopbackEnabled and restart FTFService.
 3.  Make sure the firewall rules are configured (see Usage)
 
 

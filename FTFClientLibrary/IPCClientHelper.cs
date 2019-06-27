@@ -1,13 +1,14 @@
 ﻿using JKang.IpcServiceFramework;
-using Microsoft.FactoryTestFramework.Core;
+using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
-namespace Microsoft.FactoryTestFramework.Client
+namespace Microsoft.FactoryOrchestrator.Client
 {
     public static class IPCClientHelper
     {

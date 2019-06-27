@@ -2,9 +2,10 @@
 using System;
 using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.FactoryTestFramework.Core;
+using Microsoft.FactoryOrchestrator.Core;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
-namespace Microsoft.FactoryTestFramework.Client
+namespace Microsoft.FactoryOrchestrator.Client
 {
     /// <summary>
     /// FTFPoller is used to create a polling thread for a given FTF GUID. It can optionally raise a FTFPollerEvent event via OnUpdatedObject.
@@ -27,7 +28,7 @@ namespace Microsoft.FactoryTestFramework.Client
             _stopped = true;
             OnUpdatedObject = null;
 
-            if ((guidType != typeof(TestBase)) && (guidType != typeof(ExecutableTest)) && (guidType != typeof(UWPTest)) && (guidType != typeof(TAEFTest)) && (guidType != typeof(TestList)) && (guidType != typeof(TestRun)))
+            if ((guidType != typeof(TaskBase)) && (guidType != typeof(ExecutableTask)) && (guidType != typeof(UWPTask)) && (guidType != typeof(TAEFTest)) && (guidType != typeof(TaskList)) && (guidType != typeof(TaskRun)))
             {
                 throw new Exception("Unsupported guid type to poll!");
             }
@@ -40,24 +41,24 @@ namespace Microsoft.FactoryTestFramework.Client
             try
             {
                 // TODO: Logging: check for failure
-                if ((_guidType == typeof(TestBase)) || (_guidType == typeof(ExecutableTest)) || (_guidType == typeof(UWPTest)) || (_guidType == typeof(TAEFTest)))
+                if ((_guidType == typeof(TaskBase)) || (_guidType == typeof(ExecutableTask)) || (_guidType == typeof(UWPTask)) || (_guidType == typeof(TAEFTest)))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTest((Guid)_guidToPoll));
+                    newObj = await _client.InvokeAsync(x => x.QueryTask((Guid)_guidToPoll));
                 }
-                else if (_guidType == typeof(TestList))
+                else if (_guidType == typeof(TaskList))
                 {
                     if (_guidToPoll != null)
                     {
-                        newObj = await _client.InvokeAsync(x => x.QueryTestList((Guid)_guidToPoll));
+                        newObj = await _client.InvokeAsync(x => x.QueryTaskList((Guid)_guidToPoll));
                     }
                     else
                     {
-                        newObj = await _client.InvokeAsync(x => x.GetTestListGuids());
+                        newObj = await _client.InvokeAsync(x => x.GetTaskListGuids());
                     }
                 }
-                else //if (_guidType == typeof(TestRun))
+                else //if (_guidType == typeof(TaskRun))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTestRun((Guid)_guidToPoll));
+                    newObj = await _client.InvokeAsync(x => x.QueryTaskRun((Guid)_guidToPoll));
                 }
 
                 if (!newObj.Equals(_latestObject))

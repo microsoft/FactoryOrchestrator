@@ -8,8 +8,8 @@ using JKang.IpcServiceFramework.Services;
 using System.Collections.Generic;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System;
-using Microsoft.FactoryTestFramework.Core;
-using Microsoft.FactoryTestFramework.Server;
+using Microsoft.FactoryOrchestrator.Core;
+using Microsoft.FactoryOrchestrator.Server;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Win32;
@@ -18,8 +18,9 @@ using System.IO;
 using Windows.Management.Deployment;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
-namespace Microsoft.FactoryTestFramework.Service
+namespace Microsoft.FactoryOrchestrator.Service
 {
     class FTFServiceExe
     {
@@ -164,94 +165,94 @@ namespace Microsoft.FactoryTestFramework.Service
             return FTFService.Instance.ServiceEvents.Values.Where(x => x.ServiceEventType == ServiceEventType.ServiceError).DefaultIfEmpty(null).LastOrDefault();
         }
 
-        public TestList CreateTestListFromDirectory(string path, bool onlyTAEF)
+        public TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTestListFromDirectory {path}");
-            TestList tl = null;
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path}");
+            TaskList tl = null;
 
             try
             {
-                FTFService.Instance.TestExecutionManager.CreateTestListFromDirectory(path, onlyTAEF);
+                FTFService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, onlyTAEF);
             }
             catch (Exception e)
             {
                 FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTestListFromDirectory {path}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path}");
             return tl;
         }
 
-        public List<Guid> LoadTestListsFromXmlFile(string filename)
+        public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: LoadTestListsFromXmlFile {filename}");
-            List<Guid> testLists = null;
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
+            List<Guid> taskLists = null;
 
             try
             {
-                testLists = FTFService.Instance.TestExecutionManager.LoadTestListsFromXmlFile(filename);
+                taskLists = FTFService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
             }
             catch (Exception e)
             {
                 FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: LoadTestListsFromXmlFile {filename}");
-            return testLists;
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
+            return taskLists;
         }
 
-        public TestList CreateTestListFromTestList(TestList list)
+        public TaskList CreateTaskListFromTaskList(TaskList list)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTestListFromTestList {list.Guid}");
-            var serverList = FTFService.Instance.TestExecutionManager.CreateTestListFromTestList(list);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTestListFromTestList {list.Guid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromTaskList {list.Guid}");
+            var serverList = FTFService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromTaskList {list.Guid}");
             return serverList;
         }
 
-        public bool SaveTestListToXmlFile(Guid guid, string filename)
+        public bool SaveTaskListToXmlFile(Guid guid, string filename)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveTestListToXmlFile {guid} {filename}");
-            var saved = FTFService.Instance.TestExecutionManager.SaveTestListToXmlFile(guid, filename);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveTestListToXmlFile {guid} {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
+            var saved = FTFService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
             return saved;
         }
 
-        public bool SaveAllTestListsToXmlFile(string filename)
+        public bool SaveAllTaskListsToXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTestListsToXmlFile {filename}");
-            var saved = FTFService.Instance.TestExecutionManager.SaveAllTestListsToXmlFile(filename);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTestListsToXmlFile {filename}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
+            var saved = FTFService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
             return saved;
         }
 
-        public List<Guid> GetTestListGuids()
+        public List<Guid> GetTaskListGuids()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetTestListGuids");
-            var guids = FTFService.Instance.TestExecutionManager.GetKnownTestListGuids();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetTestListGuids");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuids");
+            var guids = FTFService.Instance.TestExecutionManager.GetTaskListGuids();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListGuids");
             return guids;
         }
 
-        public TestList QueryTestList(Guid testListGuid)
+        public TaskList QueryTaskList(Guid taskListGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTestList {testListGuid}");
-            var list = FTFService.Instance.TestExecutionManager.GetKnownTestList(testListGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTestList {testListGuid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
+            var list = FTFService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskList {taskListGuid}");
             return list;
         }
-        public TestBase QueryTest(Guid testGuid)
+        public TaskBase QueryTask(Guid taskGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTest {testGuid}");
-            var test = FTFService.Instance.TestExecutionManager.GetKnownTest(testGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTest {testGuid}");
-            return test;
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
+            var task = FTFService.Instance.TestExecutionManager.GetTask(taskGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
+            return task;
         }
 
-        public bool DeleteTestList(Guid listToDelete)
+        public bool DeleteTaskList(Guid listToDelete)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: DeleteTestList {listToDelete}");
-            var deleted = FTFService.Instance.TestExecutionManager.DeleteTestList(listToDelete);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTestList {listToDelete}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: DeleteTaskList {listToDelete}");
+            var deleted = FTFService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTaskList {listToDelete}");
             return deleted;
         }
 
@@ -263,19 +264,19 @@ namespace Microsoft.FactoryTestFramework.Service
             Task.Run(() => { System.Threading.Thread.Sleep(100); FTFService.Instance.Stop(); FTFService.Instance.Start(true); });
         }
 
-        public bool UpdateTest(TestBase updatedTest)
+        public bool UpdateTask(TaskBase updatedTask)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTest {updatedTest.TestName} {updatedTest.Guid}");
-            var updated = FTFService.Instance.TestExecutionManager.UpdateTest(updatedTest);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTest {updatedTest.TestName} {updatedTest.Guid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
+            var updated = FTFService.Instance.TestExecutionManager.UpdateTask(updatedTask);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
             return updated;
         }
 
-        public bool UpdateTestList(TestList testList)
+        public bool UpdateTaskList(TaskList taskList)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTestList {testList.Guid}");
-            var updated = FTFService.Instance.TestExecutionManager.UpdateTestList(testList);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTestList {testList.Guid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskList {taskList.Guid}");
+            var updated = FTFService.Instance.TestExecutionManager.UpdateTaskList(taskList);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskList {taskList.Guid}");
             return updated;
         }
 
@@ -285,7 +286,7 @@ namespace Microsoft.FactoryTestFramework.Service
             bool success = false;
             try
             {
-                TestRunner.GlobalTeExePath = teExePath;
+                TaskRunner.GlobalTeExePath = teExePath;
                 success = true;
             }
             catch (Exception)
@@ -304,24 +305,24 @@ namespace Microsoft.FactoryTestFramework.Service
             return updated;
         }
 
-        public void AbortAllTestLists()
+        public void AbortAllTaskLists()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTestLists");
-            FTFService.Instance.TestExecutionManager.AbortAllTestLists();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTestLists");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
+            FTFService.Instance.TestExecutionManager.AbortAllTaskLists();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
         }
 
-        public void AbortTestList(Guid testListGuid)
+        public void AbortTaskList(Guid taskListGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTestList {testListGuid}");
-            FTFService.Instance.TestExecutionManager.AbortTestList(testListGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTestList {testListGuid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskList {taskListGuid}");
+            FTFService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskList {taskListGuid}");
         }
-        public void AbortTestRun(Guid testRunGuid)
+        public void AbortTaskRun(Guid taskRunGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTestRun {testRunGuid}");
-            FTFService.Instance.TestExecutionManager.AbortTestRun(testRunGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTestRun {testRunGuid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskRun {taskRunGuid}");
+            FTFService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskRun {taskRunGuid}");
         }
 
         public string GetServiceVersionString()
@@ -332,31 +333,31 @@ namespace Microsoft.FactoryTestFramework.Service
             return version;
         }
 
-        public TestRun QueryTestRun(Guid testRunGuid)
+        public TaskRun QueryTaskRun(Guid taskRunGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTestRun {testRunGuid}");
-            var run = TestRun_Server.GetTestRunByGuid(testRunGuid).DeepCopy();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTestRun {testRunGuid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
+            var run = TaskRun_Server.GetTaskRunByGuid(taskRunGuid).DeepCopy();
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
             return run;
         }
 
-        public bool SetTestRunStatus(TestRun testRunStatus)
+        public bool UpdateTaskRun(TaskRun taskRun)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SetTestRunStatus {testRunStatus.Guid}");
-            var updated = FTFService.Instance.TestExecutionManager.UpdateTestRunStatus(testRunStatus);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SetTestRunStatus {testRunStatus.Guid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskRun {taskRun.Guid}");
+            var updated = FTFService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
             return updated;
         }
 
-        public bool RunTestList(Guid TestListToRun)
+        public bool RunTaskList(Guid taskListToRun)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTestList {TestListToRun}");
-            var ran = FTFService.Instance.TestExecutionManager.RunTestList(TestListToRun);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTestList {TestListToRun}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}");
+            var ran = FTFService.Instance.TestExecutionManager.RunTaskList(taskListToRun);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}");
             return ran;
         }
 
-        public TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
         {
             FTFService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
             var run = FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, consoleLogFilePath);
@@ -364,19 +365,19 @@ namespace Microsoft.FactoryTestFramework.Service
             return run;
         }
 
-        public TestRun RunTestOutsideTestList(Guid testGuid)
+        public TaskRun RunTask(Guid testGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTestOutsideTestList {testGuid}");
-            var run = FTFService.Instance.TestExecutionManager.RunTestOutsideTestList(testGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTestOutsideTestList {testGuid}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTask {testGuid}");
+            var run = FTFService.Instance.TestExecutionManager.RunTask(testGuid);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {testGuid}");
             return run;
         }
 
-        public TestRun RunUWPOutsideTestList(string packageFamilyName)
+        public TaskRun RunApp(string packageFamilyName)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunUWPOutsideTestList {packageFamilyName}");
-            var run = FTFService.Instance.TestExecutionManager.RunUWPOutsideTestList(packageFamilyName);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunUWPOutsideTestList {packageFamilyName}");
+            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
+            var run = FTFService.Instance.TestExecutionManager.RunApp(packageFamilyName);
+            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
             return run;
         }
 
@@ -478,24 +479,24 @@ namespace Microsoft.FactoryTestFramework.Service
         private static FTFService _singleton = null;
         private static readonly object _constructorLock = new object();
 
-        private TestManager_Server _testExecutionManager;
+        private TaskManager_Server _taskExecutionManager;
         private IMicroServiceController _controller;
         public ILogger<FTFService> ServiceLogger;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
-        private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryTestFramework";
-        private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryTestFramework";
-        private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryTestFramework\EveryBootTaskStatus";
-        private readonly string _firstBootCompleteValue = @"FirstBootTestListsComplete";
-        private readonly string _everyBootCompleteValue = @"EveryBootTestListsComplete";
+        private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
+        private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
+        private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator\EveryBootTaskStatus";
+        private readonly string _firstBootCompleteValue = @"FirstBootTaskListsComplete";
+        private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
         private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
         private readonly string _userCreatedValue = @"LocalUserCreated";
         private readonly string _userLoggedInValue = @"LocalUserLoggedIn";
         private readonly string _userNameValue = @"LocalUserName";
         private readonly string _userPasswordValue = @"LocalUserPassword";
-        private readonly string _firstBootTasksPathValue = @"FirstBootTestListsXML";
-        private readonly string _firstBootStatePathValue = @"FirstBootStateTestListsXML";
+        private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
+        private readonly string _firstBootStatePathValue = @"FirstBootStateTaskListsXML";
         private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
-        private readonly string _everyBootTasksPathValue = @"EveryBootTestListsXML";
+        private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
 
         //private readonly string _firewallValue = @"FirewallConfigured";
         //private RegistryKey _ftfPersistentKey = null;
@@ -557,12 +558,12 @@ namespace Microsoft.FactoryTestFramework.Service
                     if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
                     {
                         // Save logs to DATA if on a WCOS system
-                        _testExecutionManager = new TestManager_Server(@"U:\FTFLogs");
+                        _taskExecutionManager = new TaskManager_Server(@"U:\FTFLogs");
                     }
                     else
                     {
                         // Otherwise save them next to the FTFService.exe
-                        _testExecutionManager = new TestManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFLogs")); ;
+                        _taskExecutionManager = new TaskManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFLogs")); ;
                     }
                 }
                 else
@@ -572,7 +573,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
         }
 
-        public TestManager_Server TestExecutionManager { get => _testExecutionManager; }
+        public TaskManager_Server TestExecutionManager { get => _taskExecutionManager; }
         
         /// <summary>
         /// Service start.
@@ -593,25 +594,25 @@ namespace Microsoft.FactoryTestFramework.Service
             // Execute user defined tasks.
             ExecuteUserBootTasks(forceUserTaskRerun);
 
-            // Load first boot state file, or try to load known TestLists from the existing state file
-            if (!LoadFirstBootStateFile() && File.Exists(_testExecutionManager.TestListStateFile))
+            // Load first boot state file, or try to load known TaskLists from the existing state file
+            if (!LoadFirstBootStateFile() && File.Exists(_taskExecutionManager.TaskListStateFile))
             {
                 try
                 {
-                    _testExecutionManager.LoadTestListsFromXmlFile(_testExecutionManager.TestListStateFile);
+                    _taskExecutionManager.LoadTaskListsFromXmlFile(_taskExecutionManager.TaskListStateFile);
                 }
                 catch (Exception e)
                 {
-                    ServiceLogger.LogWarning($"FactoryTestFramework Service could not load {_testExecutionManager.TestListStateFile}\n {e.Message}");
+                    ServiceLogger.LogWarning($"Factory Orchestrator Service could not load {_taskExecutionManager.TaskListStateFile}\n {e.Message}");
                 }
             }
 
             // Start IPC server. Only start after all boot tasks are complete.
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
-            _testExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
+            _taskExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
             FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
-            ServiceLogger.LogInformation("FactoryTestFramework Service is ready to communicate with client(s)\n");
+            ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
         }
 
         private bool LoadFirstBootStateFile()
@@ -637,22 +638,22 @@ namespace Microsoft.FactoryTestFramework.Service
 
                 if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0))
                 {
-                    ServiceLogger.LogInformation("Checking for first boot state TestLists XML...");
-                    // Find the TestLists XML path.
-                    string firstBootStateTestListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStatePathValue) as string;
+                    ServiceLogger.LogInformation("Checking for first boot state TaskLists XML...");
+                    // Find the TaskLists XML path.
+                    string firstBootStateTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStatePathValue) as string;
 
-                    if (firstBootStateTestListPath != null)
+                    if (firstBootStateTaskListPath != null)
                     {
-                        ServiceLogger.LogInformation($"First boot state TestLists XML found, attempting to load {firstBootStateTestListPath}...");
+                        ServiceLogger.LogInformation($"First boot state TaskLists XML found, attempting to load {firstBootStateTaskListPath}...");
 
-                        // Load the TestLists file specified in registry
-                        var firstBootTestListGuids = _testExecutionManager.LoadTestListsFromXmlFile(firstBootStateTestListPath);
+                        // Load the TaskLists file specified in registry
+                        var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootStateTaskListPath);
 
-                        ServiceLogger.LogInformation($"Successfully loaded first boot state TestLists XML {firstBootStateTestListPath}...");
+                        ServiceLogger.LogInformation($"Successfully loaded first boot state TaskLists XML {firstBootStateTaskListPath}...");
                     }
                     else
                     {
-                        ServiceLogger.LogInformation("No first boot state TestLists XML found.");
+                        ServiceLogger.LogInformation("No first boot state TaskLists XML found.");
                     }
 
                     loaded = true;
@@ -661,7 +662,7 @@ namespace Microsoft.FactoryTestFramework.Service
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to load first boot state TestLists XML! ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to load first boot state TaskLists XML! ({e.Message})"));
             }
 
             return loaded;
@@ -676,12 +677,12 @@ namespace Microsoft.FactoryTestFramework.Service
             _ipcCancellationToken.Cancel();
 
             // Abort everything that's running, except persisted background tasks
-            TestExecutionManager.AbortAllTestLists();
+            TestExecutionManager.AbortAllTaskLists();
 
             // Update state file
-            TestExecutionManager.SaveAllTestListsToXmlFile(TestExecutionManager.TestListStateFile);
+            TestExecutionManager.SaveAllTaskListsToXmlFile(TestExecutionManager.TaskListStateFile);
 
-            ServiceLogger.LogDebug("FactoryTestFramework Service Stopped\n");
+            ServiceLogger.LogDebug("Factory Orchestrator Service Stopped\n");
         }
 
         private void HandleTestManagerEvent(object source, TestManagerEventArgs e)
@@ -689,17 +690,17 @@ namespace Microsoft.FactoryTestFramework.Service
             ServiceEvent serviceEvent = null;
             switch (e.Event)
             {
-                case TestManagerEventType.WaitingForExternalTestRunResult:
-                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTestRun, e.Guid, $"TestRun {e.Guid} is waiting on an external result.");
+                case TestManagerEventType.WaitingForExternalTaskRunResult:
+                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on an external result.");
                     break;
-                case TestManagerEventType.ExternalTestRunFinished:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTestRun, e.Guid, $"External TestRun {e.Guid} received a result and is finished.");
+                case TestManagerEventType.ExternalTaskRunFinished:
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} received a result and is finished.");
                     break;
-                case TestManagerEventType.ExternalTestRunAborted:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTestRun, e.Guid, $"External TestRun {e.Guid} was aborted by the user.");
+                case TestManagerEventType.ExternalTaskRunAborted:
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} was aborted by the user.");
                     break;
-                case TestManagerEventType.ExternalTestRunTimeout:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTestRun, e.Guid, $"External TestRun {e.Guid} timed-out and is failed.");
+                case TestManagerEventType.ExternalTaskRunTimeout:
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} timed-out and is failed.");
                     break;
                 default:
                     break;
@@ -752,8 +753,8 @@ namespace Microsoft.FactoryTestFramework.Service
             bool firstBootTasksExecuted = false;
             bool everyBootTasksExecuted = false;
             bool stateFileBackedup = false;
-            var logFolder = _testExecutionManager.DefaultLogFolder;
-            var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FTFTempTestListStateFile");
+            var logFolder = _taskExecutionManager.DefaultLogFolder;
+            var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FTFTempTaskListStateFile");
             try
             {
                 // OSDATA wont exist on Desktop, so try to open it on it's own
@@ -770,9 +771,9 @@ namespace Microsoft.FactoryTestFramework.Service
                 volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
 
                 // Backup State File
-                if (File.Exists(_testExecutionManager.TestListStateFile))
+                if (File.Exists(_taskExecutionManager.TaskListStateFile))
                 {
-                    File.Copy(_testExecutionManager.TestListStateFile, stateFileBackupPath, true);
+                    File.Copy(_taskExecutionManager.TaskListStateFile, stateFileBackupPath, true);
                 }
                 stateFileBackedup = true;
 
@@ -781,58 +782,58 @@ namespace Microsoft.FactoryTestFramework.Service
 
                 if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
                 {
-                    ServiceLogger.LogInformation("Checking for first boot TestLists XML...");
-                    // Find the TestLists XML path.
-                    string firstBootTestListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootTasksPathValue) as string;
+                    ServiceLogger.LogInformation("Checking for first boot TaskLists XML...");
+                    // Find the TaskLists XML path.
+                    string firstBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootTasksPathValue) as string;
 
-                    if (firstBootTestListPath != null)
+                    if (firstBootTaskListPath != null)
                     {
                         firstBootTasksExecuted = true;
 
-                        ServiceLogger.LogInformation($"First boot TestLists XML found, attempting to load {firstBootTestListPath}...");
+                        ServiceLogger.LogInformation($"First boot TaskLists XML found, attempting to load {firstBootTaskListPath}...");
                         // Create a new directory for the first boot logs
-                        _testExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "FirstBootTestLists"), false);
+                        _taskExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "FirstBootTaskLists"), false);
 
-                        // Load the TestLists file specified in registry
-                        var firstBootTestListGuids = _testExecutionManager.LoadTestListsFromXmlFile(firstBootTestListPath);
+                        // Load the TaskLists file specified in registry
+                        var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootTaskListPath);
 
-                        foreach (var listGuid in firstBootTestListGuids)
+                        foreach (var listGuid in firstBootTaskListGuids)
                         {
-                            if (!_testExecutionManager.RunTestList(listGuid))
+                            if (!_taskExecutionManager.RunTaskList(listGuid))
                             {
-                                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run first boot TestList {listGuid}"));
+                                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run first boot TaskList {listGuid}"));
                             }
                             else
                             {
-                                ServiceLogger.LogInformation($"Running first boot TestList {listGuid}...");
+                                ServiceLogger.LogInformation($"Running first boot TaskList {listGuid}...");
                             }
                         }
                     }
                     else
                     {
-                        ServiceLogger.LogInformation("No first boot TestLists found.");
+                        ServiceLogger.LogInformation("No first boot TaskLists found.");
                     }
                 }
                 else
                 {
-                    ServiceLogger.LogInformation("First boot TestLists already complete.");
+                    ServiceLogger.LogInformation("First boot TaskLists already complete.");
                 }
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete first boot TestLists! ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete first boot TaskLists! ({e.Message})"));
                 firstBootTasksFailed = true;
             }
 
             // Wait for all first boot tasks to complete
             int sleepCount = 0;
-            while (_testExecutionManager.IsTestListRunning)
+            while (_taskExecutionManager.IsTaskListRunning)
             {
                 System.Threading.Thread.Sleep(1000);
                 sleepCount++;
                 if (sleepCount % 15 == 0)
                 {
-                    ServiceLogger.LogInformation("Waiting for first boot TestLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
+                    ServiceLogger.LogInformation("Waiting for first boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
                 }
             }
 
@@ -846,59 +847,59 @@ namespace Microsoft.FactoryTestFramework.Service
 
                     if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
                     {
-                        ServiceLogger.LogInformation($"Checking for every boot TestLists XML...");
-                        // Find the TestLists XML path.
-                        var everyBootTestListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _everyBootTasksPathValue) as string;
+                        ServiceLogger.LogInformation($"Checking for every boot TaskLists XML...");
+                        // Find the TaskLists XML path.
+                        var everyBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _everyBootTasksPathValue) as string;
 
-                        if (everyBootTestListPath != null)
+                        if (everyBootTaskListPath != null)
                         {
                             everyBootTasksExecuted = true;
-                            ServiceLogger.LogInformation($"Every boot TestLists XML found, attempting to load {everyBootTestListPath}...");
+                            ServiceLogger.LogInformation($"Every boot TaskLists XML found, attempting to load {everyBootTaskListPath}...");
 
                             // Create a new directory for the first boot logs
-                            _testExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "EveryBootTestLists"), false);
+                            _taskExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "EveryBootTaskLists"), false);
 
-                            // Load the TestLists file specified in registry
-                            var everyBootTestListGuids = _testExecutionManager.LoadTestListsFromXmlFile(everyBootTestListPath);
+                            // Load the TaskLists file specified in registry
+                            var everyBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(everyBootTaskListPath);
 
-                            foreach (var listGuid in everyBootTestListGuids)
+                            foreach (var listGuid in everyBootTaskListGuids)
                             {
-                                if (!_testExecutionManager.RunTestList(listGuid))
+                                if (!_taskExecutionManager.RunTaskList(listGuid))
                                 {
-                                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run every boot TestList {listGuid}"));
+                                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run every boot TaskList {listGuid}"));
                                 }
                                 else
                                 {
-                                    ServiceLogger.LogInformation($"Running every boot TestList {listGuid}...");
+                                    ServiceLogger.LogInformation($"Running every boot TaskList {listGuid}...");
                                 }
                             }
                         }
                         else
                         {
-                            ServiceLogger.LogInformation("No every boot TestLists found.");
+                            ServiceLogger.LogInformation("No every boot TaskLists found.");
                         }
                     }
                     else
                     {
-                        ServiceLogger.LogInformation("Every boot TestLists already complete.");
+                        ServiceLogger.LogInformation("Every boot TaskLists already complete.");
                     }
                 }
                 catch (Exception e)
                 {
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete every boot TestLists! ({e.Message})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete every boot TaskLists! ({e.Message})"));
                     everyBootTasksFailed = true;
                 }
             }
 
             // Wait for all tasks to complete
             sleepCount = 0;
-            while (_testExecutionManager.IsTestListRunning)
+            while (_taskExecutionManager.IsTaskListRunning)
             {
                 System.Threading.Thread.Sleep(1000);
                 sleepCount++;
                 if (sleepCount % 15 == 0)
                 {
-                    ServiceLogger.LogInformation("Waiting for every boot TestLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
+                    ServiceLogger.LogInformation("Waiting for every boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
                 }
             }
 
@@ -907,7 +908,7 @@ namespace Microsoft.FactoryTestFramework.Service
                 // Mark first boot tasks as complete
                 if (firstBootTasksExecuted)
                 {
-                    ServiceLogger.LogInformation("First boot TestLists complete.");
+                    ServiceLogger.LogInformation("First boot TaskLists complete.");
                 }
                 
                 SetValueInRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue, 1, RegistryValueKind.DWord);
@@ -917,7 +918,7 @@ namespace Microsoft.FactoryTestFramework.Service
                 // Mark every boot tasks as complete. Mark in volatile registry location so it is reset after reboot.
                 if (everyBootTasksExecuted)
                 {
-                    ServiceLogger.LogInformation("Every boot TestLists complete.");
+                    ServiceLogger.LogInformation("Every boot TaskLists complete.");
                 }
 
                 volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
@@ -938,14 +939,14 @@ namespace Microsoft.FactoryTestFramework.Service
 
             if (firstBootTasksExecuted || everyBootTasksExecuted)
             {
-                // Reset server state, clearing the first boot and first run testlists, but keep the logs and tasks running.
-                _testExecutionManager.SetDefaultLogFolder(logFolder, false);
-                _testExecutionManager.Reset(true, false);
+                // Reset server state, clearing the first boot and first run tasklists, but keep the logs and tasks running.
+                _taskExecutionManager.SetDefaultLogFolder(logFolder, false);
+                _taskExecutionManager.Reset(true, false);
 
                 // Restore state file, if it existed
                 if (File.Exists(stateFileBackupPath))
                 {
-                    File.Copy(stateFileBackupPath, _testExecutionManager.TestListStateFile, true);
+                    File.Copy(stateFileBackupPath, _taskExecutionManager.TaskListStateFile, true);
                 }
             }
         }
@@ -1074,7 +1075,7 @@ namespace Microsoft.FactoryTestFramework.Service
                         ServiceLogger.LogInformation($"Creating a local user...");
 
                         var createRun = RunProcessViaCmd("usersim", "g", 5000);
-                        var exitCodeLineCreate = createRun.TestOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
+                        var exitCodeLineCreate = createRun.TaskOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
                         if (!String.IsNullOrWhiteSpace(exitCodeLineCreate))
                         {
                             var exitCodeString = exitCodeLineCreate.Substring(18, exitCodeLineCreate.Length - 18 - 2);
@@ -1084,7 +1085,7 @@ namespace Microsoft.FactoryTestFramework.Service
                             }
                         }
 
-                        var userLine = createRun.TestOutput.Where(x => x.Contains("Generated account")).DefaultIfEmpty("").First();
+                        var userLine = createRun.TaskOutput.Where(x => x.Contains("Generated account")).DefaultIfEmpty("").First();
                         if (String.IsNullOrWhiteSpace(userLine))
                         {
                             throw new Exception("Could not create a local user!");
@@ -1111,7 +1112,7 @@ namespace Microsoft.FactoryTestFramework.Service
 
                     ServiceLogger.LogInformation($"Signing in local user {userName}...");
                     var loginRun = RunProcessViaCmd("usersim", $"i {userName} empty", 5000);
-                    var exitCodeLine = loginRun.TestOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
+                    var exitCodeLine = loginRun.TaskOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
                     if (!String.IsNullOrWhiteSpace(exitCodeLine))
                     {
                         var exitCodeString = exitCodeLine.Substring(18, exitCodeLine.Length - 18 - 2);
@@ -1153,9 +1154,9 @@ namespace Microsoft.FactoryTestFramework.Service
             return success;
         }
 
-        private TestRun_Server RunProcessViaCmd(string process, string args, int timeoutMS)
+        private TaskRun_Server RunProcessViaCmd(string process, string args, int timeoutMS)
         {
-            var run = (TestRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
+            var run = (TaskRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
 
             // Wait 2 seconds for process to start
             int waitCount = 0;
@@ -1173,14 +1174,14 @@ namespace Microsoft.FactoryTestFramework.Service
                 throw new Exception($"{process} never started");
             }
 
-            var runner = run.GetOwningTestRunner();
+            var runner = run.GetOwningTaskRunner();
             if ((runner != null) && (!runner.WaitForExit(5000)))
             {
-                TestExecutionManager.AbortTestRun(run.Guid);
+                TestExecutionManager.AbortTaskRun(run.Guid);
                 throw new Exception($"{process} did not exit after 5 seconds!");
             }
 
-            if (run.TestStatus != TestStatus.TestPassed)
+            if (run.TaskStatus != TaskStatus.Passed)
             {
                 throw new Exception($"{process} exited with {run.ExitCode}");
             }

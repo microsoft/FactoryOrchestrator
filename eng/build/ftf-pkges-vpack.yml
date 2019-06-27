@@ -30,7 +30,7 @@ steps:
 - task: PkgESSetupBuild@10
   displayName: 'PkgES Setup Build '
   inputs:
-    productName: 'FactoryTestFramework'
+    productName: 'FactoryOrchestrator'
     disableOutputRedirect: true
 
 # Fully qualified name for the NugetCommand@2 task
@@ -91,7 +91,7 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: $(TFS_BUILDNUMBER)'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)\FTFUWP\AppPackages'
+    PathtoPublish: '$(Build.SourcesDirectory)\FactoryOrchestratorApp\AppPackages'
     ArtifactName: '$(TFS_BUILDNUMBER)_$(BuildConfiguration)'
   condition: ne(variables['prototype'], 'true')
 
@@ -174,7 +174,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy msixbundle to root of drop'
   inputs:
-    SourceFolder: '$(XES_DFSDROP)\release\msixbundle\Multi\FTFUWP'
+    SourceFolder: '$(XES_DFSDROP)\release\msixbundle\Multi\FactoryOrchestratorApp'
     Contents: 'Microsoft.FTFUWP_8wekyb3d8bbwe.msixbundle'
     TargetFolder: '$(XES_DFSDROP)\msixbundle'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))

@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using Microsoft.FactoryTestFramework.Core.JSONConverters;
+using Microsoft.FactoryOrchestrator.Core.JSONConverters;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Reflection;
 
-namespace Microsoft.FactoryTestFramework.Core
+namespace Microsoft.FactoryOrchestrator.Core
 {
-    public enum TestStatus
+    public enum TaskStatus
     {
-        TestPassed,
+        Passed,
         Failed,
         Aborted,
         Timeout,
@@ -23,7 +23,7 @@ namespace Microsoft.FactoryTestFramework.Core
         Unknown
     }
 
-    public enum TestType
+    public enum TaskType
     {
         ConsoleExe = 0,
         TAEFDll = 1,
@@ -31,49 +31,49 @@ namespace Microsoft.FactoryTestFramework.Core
         UWP = 3
     }
 
-    public class TestBaseEqualityComparer : EqualityComparer<TestBase>
+    public class TaskBaseEqualityComparer : EqualityComparer<TaskBase>
     {
-        public override bool Equals(TestBase x, TestBase y)
+        public override bool Equals(TaskBase x, TaskBase y)
         {
             return x.Equals(y);
         }
 
-        public override int GetHashCode(TestBase obj)
+        public override int GetHashCode(TaskBase obj)
         {
             return obj.GetHashCode();
         }
     }
 
     /// <summary>
-    /// TestBase is an abstract class representing a generic FTF test. It contains all the details needed to run the test.
-    /// It also surfaces information about the last TestRun for this test, for easy consumption.
+    /// TaskBase is an abstract class representing a generic task. It contains all the details needed to run the task.
+    /// It also surfaces information about the last TaskRun for this task, for easy consumption.
     /// </summary>
-    [JsonConverter(typeof(TestBaseConverter))]
-    [XmlInclude(typeof(ExecutableTest))]
-    [XmlInclude(typeof(UWPTest))]
-    [XmlInclude(typeof(ExternalTest))]
+    [JsonConverter(typeof(TaskBaseConverter))]
+    [XmlInclude(typeof(ExecutableTask))]
+    [XmlInclude(typeof(UWPTask))]
+    [XmlInclude(typeof(ExternalTask))]
     [XmlInclude(typeof(TAEFTest))]
-    public abstract class TestBase
+    public abstract class TaskBase
     {
-        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
+        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
-        protected TestBase(TestType type)
+        protected TaskBase(TaskType type)
         {
-            TestType = type;
+            Type = type;
             TestLock = new object();
-            LatestTestRunStatus = TestStatus.NotRun;
-            LatestTestRunExitCode = null;
-            LatestTestRunTimeFinished = null;
-            LatestTestRunTimeStarted = null;
-            TestRunGuids = new List<Guid>();
+            LatestTaskRunStatus = TaskStatus.NotRun;
+            LatestTaskRunExitCode = null;
+            LatestTaskRunTimeFinished = null;
+            LatestTaskRunTimeStarted = null;
+            TaskRunGuids = new List<Guid>();
             TimeoutSeconds = -1;
             Arguments = "";
         }
 
-        public TestBase(string testPath, TestType type) : this(type)
+        public TaskBase(string taskPath, TaskType type) : this(type)
         {
             Guid = Guid.NewGuid();
-            TestPath = testPath;
+            Path = taskPath;
         }
 
         // TODO: Make only getters and add internal apis to set
@@ -82,32 +82,32 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             get
             {
-                return TestPath;
+                return Path;
             }
             set { }
         }
 
         [XmlIgnore]
-        public TestType TestType { get; set; }
+        public TaskType Type { get; set; }
         [XmlAttribute("Path")]
-        public string TestPath { get; set; }
+        public string Path { get; set; }
         public string LogFolder { get; set; }
         [XmlAttribute]
         public string Arguments { get; set; }
         [XmlAttribute]
         public Guid Guid { get; set; }
-        public DateTime? LatestTestRunTimeStarted { get; set; }
-        public DateTime? LatestTestRunTimeFinished { get; set; }
-        public TestStatus LatestTestRunStatus { get; set; }
-        public bool? LatestTestRunPassed
+        public DateTime? LatestTaskRunTimeStarted { get; set; }
+        public DateTime? LatestTaskRunTimeFinished { get; set; }
+        public TaskStatus LatestTaskRunStatus { get; set; }
+        public bool? LatestTaskRunPassed
         {
             get
             {
-                if (LatestTestRunStatus == TestStatus.TestPassed)
+                if (LatestTaskRunStatus == TaskStatus.Passed)
                 {
                     return true;
                 }
-                else if (LatestTestRunStatus == TestStatus.Failed)
+                else if (LatestTaskRunStatus == TaskStatus.Failed)
                 {
                     return false;
                 }
@@ -121,25 +121,25 @@ namespace Microsoft.FactoryTestFramework.Core
         [XmlAttribute("Timeout")]
         public int TimeoutSeconds { get; set; }
 
-        public int? LatestTestRunExitCode { get; set; }
+        public int? LatestTaskRunExitCode { get; set; }
 
-        // TestRuns are queried by GUID
+        // TaskRuns are queried by GUID
         [XmlArrayItem("Guid")]
-        public List<Guid> TestRunGuids { get; set; }
+        public List<Guid> TaskRunGuids { get; set; }
 
-        public virtual TimeSpan? LatestTestRunRunTime
+        public virtual TimeSpan? LatestTaskRunRunTime
         {
             get
             {
-                if (LatestTestRunTimeStarted != null)
+                if (LatestTaskRunTimeStarted != null)
                 {
-                    if (LatestTestRunTimeFinished != null)
+                    if (LatestTaskRunTimeFinished != null)
                     {
-                        return LatestTestRunTimeFinished - LatestTestRunTimeStarted;
+                        return LatestTaskRunTimeFinished - LatestTaskRunTimeStarted;
                     }
                     else
                     {
-                        return DateTime.Now - LatestTestRunTimeStarted;
+                        return DateTime.Now - LatestTaskRunTimeStarted;
                     }
                 }
                 else
@@ -153,7 +153,7 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             get
             {
-                return ((TestType == TestType.TAEFDll) || (TestType == TestType.ConsoleExe));
+                return ((Type == TaskType.TAEFDll) || (Type == TaskType.ConsoleExe));
             }
         }
 
@@ -165,13 +165,13 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
-        public Guid? LastTestRunGuid
+        public Guid? LastTaskRunGuid
         {
             get
             {
-                if ((TestRunGuids != null) && (TestRunGuids.Count >= 1))
+                if ((TaskRunGuids != null) && (TaskRunGuids.Count >= 1))
                 {
-                    return TestRunGuids.Last();
+                    return TaskRunGuids.Last();
                 }
                 else
                 {
@@ -183,23 +183,23 @@ namespace Microsoft.FactoryTestFramework.Core
         // XmlSerializer calls these to check if these values are set.
         // If not set, don't serialize.
         // https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/defining-default-values-with-the-shouldserialize-and-reset-methods
-        public bool ShouldSerializeLatestTestRunTimeStarted()
+        public bool ShouldSerializeLatestTaskRunTimeStarted()
         {
-            return LatestTestRunTimeStarted.HasValue;
+            return LatestTaskRunTimeStarted.HasValue;
         }
 
-        public bool ShouldSerializeLatestTestRunTimeFinished()
+        public bool ShouldSerializeLatestTaskRunTimeFinished()
         {
-            return LatestTestRunTimeFinished.HasValue;
+            return LatestTaskRunTimeFinished.HasValue;
         }
 
-        public bool ShouldSerializeLatestTestRunExitCode()
+        public bool ShouldSerializeLatestTaskRunExitCode()
         {
-            return LatestTestRunExitCode.HasValue;
+            return LatestTaskRunExitCode.HasValue;
         }
-        public bool ShouldSerializeTestRunGuids()
+        public bool ShouldSerializeTaskRunGuids()
         {
-            return TestRunGuids.Count > 0;
+            return TaskRunGuids.Count > 0;
         }
         public bool ShouldSerializeTimeoutSeconds()
         {
@@ -208,7 +208,7 @@ namespace Microsoft.FactoryTestFramework.Core
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as TestBase;
+            var rhs = obj as TaskBase;
 
             if (rhs == null)
             {
@@ -225,27 +225,27 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.LatestTestRunExitCode != rhs.LatestTestRunExitCode)
+            if (this.LatestTaskRunExitCode != rhs.LatestTaskRunExitCode)
             {
                 return false;
             }
 
-            if (this.LatestTestRunStatus != rhs.LatestTestRunStatus)
+            if (this.LatestTaskRunStatus != rhs.LatestTaskRunStatus)
             {
                 return false;
             }
 
-            if (this.LastTestRunGuid != rhs.LastTestRunGuid)
+            if (this.LastTaskRunGuid != rhs.LastTaskRunGuid)
             {
                 return false;
             }
 
-            if (this.LatestTestRunTimeFinished != rhs.LatestTestRunTimeFinished)
+            if (this.LatestTaskRunTimeFinished != rhs.LatestTaskRunTimeFinished)
             {
                 return false;
             }
 
-            if (this.LatestTestRunTimeStarted != rhs.LatestTestRunTimeStarted)
+            if (this.LatestTaskRunTimeStarted != rhs.LatestTaskRunTimeStarted)
             {
                 return false;
             }
@@ -255,12 +255,12 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.TestType != rhs.TestType)
+            if (this.Type != rhs.Type)
             {
                 return false;
             }
 
-            if (!this.TestRunGuids.SequenceEqual(rhs.TestRunGuids))
+            if (!this.TaskRunGuids.SequenceEqual(rhs.TaskRunGuids))
             {
                 return false;
             }
@@ -296,25 +296,25 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
-    /// An ExecutableTest is an .exe binary that is run by the FTFServer. The exit code of the process determines if the test passed or failed.
+    /// An ExecutableTask is an .exe binary that is run by the FTFServer. The exit code of the process determines if the task passed or failed.
     /// 0 == PASS, all others == FAIL.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class ExecutableTest : TestBase
+    public class ExecutableTask : TaskBase
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
-        private ExecutableTest() : base(TestType.ConsoleExe)
+        private ExecutableTask() : base(TaskType.ConsoleExe)
         {
             BackgroundTask = false;
         }
 
-        public ExecutableTest(String testPath) : base(testPath, TestType.ConsoleExe)
+        public ExecutableTask(String taskPath) : base(taskPath, TaskType.ConsoleExe)
         {
             BackgroundTask = false;
         }
 
-        protected ExecutableTest(String testPath, TestType type) : base(testPath, type)
+        protected ExecutableTask(String taskPath, TaskType type) : base(taskPath, type)
         {
             BackgroundTask = false;
         }
@@ -326,14 +326,14 @@ namespace Microsoft.FactoryTestFramework.Core
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as ExecutableTest;
+            var rhs = obj as ExecutableTask;
 
             if (rhs == null)
             {
                 return false;
             }
 
-            return base.Equals(obj as TestBase);
+            return base.Equals(obj as TaskBase);
         }
 
         [XmlAttribute("Name")]
@@ -343,7 +343,7 @@ namespace Microsoft.FactoryTestFramework.Core
             {
                 if (_testFriendlyName == null)
                 {
-                    return Path.GetFileName(TestPath);
+                    return System.IO.Path.GetFileName(Path);
                 }
                 else
                 {
@@ -367,55 +367,55 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
-    /// A TAEFTest is a type of ExecutableTest, which is always run by TE.exe. TAEF tests are comprised of one or more sub-tests (TAEFTestCase).
+    /// A TAEFTest is a type of ExecutableTask, which is always run by TE.exe. TAEF tests are comprised of one or more sub-tests (TAEFTestCase).
     /// Pass/Fail is determined by TE.exe.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class TAEFTest : ExecutableTest
+    public class TAEFTest : ExecutableTask
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
-        private TAEFTest() : base(null, TestType.TAEFDll)
+        private TAEFTest() : base(null, TaskType.TAEFDll)
         {
 
         }
 
-        public TAEFTest(string testPath) : base(testPath, TestType.TAEFDll)
+        public TAEFTest(string taskPath) : base(taskPath, TaskType.TAEFDll)
         {
         }
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as TestBase;
+            var rhs = obj as TaskBase;
 
             if (rhs == null)
             {
                 return false;
             }
 
-            return base.Equals(obj as ExecutableTest);
+            return base.Equals(obj as ExecutableTask);
         }
     }
 
     /// <summary>
-    /// An ExternalTest is a test run outside of the FTFServer.
-    /// Test results must be returned to the server via SetTestRunStatus().
+    /// An ExternalTest is a task run outside of the FTFServer.
+    /// task results must be returned to the server via SetTaskRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class ExternalTest : TestBase
+    public class ExternalTask : TaskBase
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
-        private ExternalTest() : base(TestType.External)
+        private ExternalTask() : base(TaskType.External)
         {
         }
 
-        public ExternalTest(String testName) : base(null, TestType.External)
+        public ExternalTask(String testName) : base(null, TaskType.External)
         {
             _testFriendlyName = testName;
         }
 
-        protected ExternalTest(String testPath, String testName, TestType type) : base(testPath, type)
+        protected ExternalTask(String taskPath, String testName, TaskType type) : base(taskPath, type)
         {
             _testFriendlyName = testName;
         }
@@ -427,7 +427,7 @@ namespace Microsoft.FactoryTestFramework.Core
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as ExternalTest;
+            var rhs = obj as ExternalTask;
 
             if (rhs == null)
             {
@@ -439,7 +439,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            return base.Equals(obj as TestBase);
+            return base.Equals(obj as TaskBase);
         }
 
         [XmlAttribute("Name")]
@@ -449,7 +449,7 @@ namespace Microsoft.FactoryTestFramework.Core
             {
                 if (_testFriendlyName == null)
                 {
-                    return TestPath;
+                    return Path;
                 }
                 else
                 {
@@ -466,31 +466,31 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
-    /// A UWPTest is a UWP test run by the FTFUWP client. These are used for UI.
-    /// Test results must be returned to the server via SetTestRunStatus().
+    /// A UWPTest is a UWP task run by the FTFUWP client. These are used for UI.
+    /// task results must be returned to the server via SetTaskRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class UWPTest : ExternalTest
+    public class UWPTask : ExternalTask
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
-        private UWPTest() : base(null, null, TestType.UWP)
+        private UWPTask() : base(null, null, TaskType.UWP)
         {
         }
 
-        public UWPTest(string packageFamilyName, string testFriendlyName) : base(packageFamilyName, testFriendlyName, TestType.UWP)
+        public UWPTask(string packageFamilyName, string testFriendlyName) : base(packageFamilyName, testFriendlyName, TaskType.UWP)
         {
             _testFriendlyName = testFriendlyName;
         }
 
-        public UWPTest(string packageFamilyName) : base(packageFamilyName, null, TestType.UWP)
+        public UWPTask(string packageFamilyName) : base(packageFamilyName, null, TaskType.UWP)
         {
             _testFriendlyName = packageFamilyName;
         }
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as UWPTest;
+            var rhs = obj as UWPTask;
 
             if (rhs == null)
             {
@@ -502,7 +502,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            return base.Equals(obj as ExternalTest);
+            return base.Equals(obj as ExternalTask);
         }
 
         [XmlAttribute("Name")]
@@ -512,7 +512,7 @@ namespace Microsoft.FactoryTestFramework.Core
             {
                 if (_testFriendlyName == null)
                 {
-                    return TestPath;
+                    return Path;
                 }
                 else
                 {
@@ -529,21 +529,21 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
-    /// A TestList is a grouping of FTF tests. TestLists are the only object FTF can "Run".
+    /// A TaskList is a grouping of FTF tests. TaskLists are the only object FTF can "Run".
     /// </summary>
-    public class TestList
+    public class TaskList
     {
         [JsonConstructor]
-        internal TestList()
+        internal TaskList()
         {
-            Tests = new Dictionary<Guid, TestBase>();
-            TestsForXml = new List<TestBase>();
+            Tasks = new Dictionary<Guid, TaskBase>();
+            TasksForXml = new List<TaskBase>();
             RunInParallel = false;
-            AllowOtherTestListsToRun = false;
+            AllowOtherTaskListsToRun = false;
             TerminateBackgroundTasksOnCompletion = true;
         }
 
-        public TestList(Guid guid) : this()
+        public TaskList(Guid guid) : this()
         {
             if (guid != null)
             {
@@ -555,36 +555,36 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
-        public TestStatus TestListStatus
+        public TaskStatus TaskListStatus
         {
             get
             {
-                if (Tests.Values.All(x => x.LatestTestRunPassed == true))
+                if (Tasks.Values.All(x => x.LatestTaskRunPassed == true))
                 {
-                    return TestStatus.TestPassed;
+                    return TaskStatus.Passed;
                 }
-                else if (Tests.Values.Any(x => (x.LatestTestRunStatus == TestStatus.Running) || (x.LatestTestRunStatus == TestStatus.WaitingForExternalResult)))
+                else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
                 {
-                    return TestStatus.Running;
+                    return TaskStatus.Running;
                 }
-                else if (Tests.Values.Any(x => (x.LatestTestRunStatus == TestStatus.Failed) || (x.LatestTestRunStatus == TestStatus.Timeout)))
+                else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Failed) || (x.LatestTaskRunStatus == TaskStatus.Timeout)))
                 {
-                    return TestStatus.Failed;
+                    return TaskStatus.Failed;
                 }
-                else if (Tests.Values.Any(x => x.LatestTestRunStatus == TestStatus.Unknown))
+                else if (Tasks.Values.Any(x => x.LatestTaskRunStatus == TaskStatus.Unknown))
                 {
-                    return TestStatus.Unknown;
+                    return TaskStatus.Unknown;
                 }
                 else
                 {
-                    return TestStatus.NotRun;
+                    return TaskStatus.NotRun;
                 }
             }
         }
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as TestList;
+            var rhs = obj as TaskList;
 
             if (rhs == null)
             {
@@ -606,7 +606,7 @@ namespace Microsoft.FactoryTestFramework.Core
             //    return false;
             //}
 
-            if (!this.Tests.SequenceEqual(rhs.Tests))
+            if (!this.Tasks.SequenceEqual(rhs.Tasks))
             {
                 return false;
             }
@@ -627,16 +627,16 @@ namespace Microsoft.FactoryTestFramework.Core
         /// <summary>
         /// XML serializer can't serialize Dictionaries. Use a list instead for XML.
         /// </summary>
-        [XmlArrayItem("Test")]
-        [XmlArray("Tests")]
+        [XmlArrayItem("Task")]
+        [XmlArray("Tasks")]
         [JsonIgnore]
-        public List<TestBase> TestsForXml { get; set; }
+        public List<TaskBase> TasksForXml { get; set; }
 
         /// <summary>
-        /// Tests in the TestList, tracked by test GUID
+        /// Tests in the TaskList, tracked by task GUID
         /// </summary>
         [XmlIgnore]
-        public Dictionary<Guid, TestBase> Tests { get; set; }
+        public Dictionary<Guid, TaskBase> Tasks { get; set; }
 
         [XmlAttribute]
         public Guid Guid { get; set; }
@@ -646,65 +646,65 @@ namespace Microsoft.FactoryTestFramework.Core
         public bool RunInParallel { get; set; }
 
         [XmlAttribute]
-        public bool AllowOtherTestListsToRun { get; set; }
+        public bool AllowOtherTaskListsToRun { get; set; }
 
         [XmlAttribute]
         public bool TerminateBackgroundTasksOnCompletion { get; set; }
     }
 
     /// <summary>
-    /// Shared client and server TestRun class. A TestRun represents one instance of executing any single FTF Test.
-    /// TestRuns should only be created by the server, hence no public CTOR.
+    /// Shared client and server TaskRun class. A TaskRun represents one instance of executing any single FTF task.
+    /// TaskRuns should only be created by the server, hence no public CTOR.
     /// </summary>
-    public class TestRun
+    public class TaskRun
     {
-        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting test state
+        // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
         [JsonConstructor]
-        protected TestRun()
+        protected TaskRun()
         {
 
         }
 
         /// <summary>
-        /// Test Run shared constructor. 
+        /// task Run shared constructor. 
         /// </summary>
-        /// <param name="owningTest"></param>
-        protected TestRun(TestBase owningTest)
+        /// <param name="owningTask"></param>
+        protected TaskRun(TaskBase owningTask)
         {
             Guid = Guid.NewGuid();
-            OwningTestGuid = null;
-            ConsoleLogFilePath = null;
-            TestStatus = TestStatus.NotRun;
+            OwningTaskGuid = null;
+            LogFilePath = null;
+            TaskStatus = TaskStatus.NotRun;
             TimeFinished = null;
             TimeStarted = null;
             ExitCode = null;
-            TestOutput = new List<string>();
+            TaskOutput = new List<string>();
             TimeoutSeconds = -1;
             BackgroundTask = false;
 
-            if (owningTest != null)
+            if (owningTask != null)
             {
-                OwningTestGuid = owningTest.Guid;
-                TestPath = owningTest.TestPath;
-                Arguments = owningTest.Arguments;
-                TestName = owningTest.TestName;
-                TestType = owningTest.TestType;
-                TimeoutSeconds = owningTest.TimeoutSeconds;
-                if (TestType == TestType.ConsoleExe)
+                OwningTaskGuid = owningTask.Guid;
+                TaskPath = owningTask.Path;
+                Arguments = owningTask.Arguments;
+                TaskName = owningTask.TestName;
+                TaskType = owningTask.Type;
+                TimeoutSeconds = owningTask.TimeoutSeconds;
+                if (TaskType == TaskType.ConsoleExe)
                 {
-                    BackgroundTask = ((ExecutableTest)owningTest).BackgroundTask;
+                    BackgroundTask = ((ExecutableTask)owningTask).BackgroundTask;
                 }
             }
         }
 
-        public TestRun DeepCopy()
+        public TaskRun DeepCopy()
         {
-            TestRun copy = (TestRun)this.MemberwiseClone();
-            copy.TestOutput = new List<string>(this.TestOutput.Count);
-            copy.TestOutput.AddRange(this.TestOutput.GetRange(0, copy.TestOutput.Capacity));
+            TaskRun copy = (TaskRun)this.MemberwiseClone();
+            copy.TaskOutput = new List<string>(this.TaskOutput.Count);
+            copy.TaskOutput.AddRange(this.TaskOutput.GetRange(0, copy.TaskOutput.Capacity));
 
-            var stringProps = typeof(TestRun).GetProperties().Where(x => x.PropertyType == typeof(string));
+            var stringProps = typeof(TaskRun).GetProperties().Where(x => x.PropertyType == typeof(string));
             foreach (var prop in stringProps)
             {
                 var value = prop.GetValue(this);
@@ -722,19 +722,19 @@ namespace Microsoft.FactoryTestFramework.Core
             return copy;
         }
 
-        public List<string> TestOutput { get; set; }
+        public List<string> TaskOutput { get; set; }
 
-        public Guid? OwningTestGuid { get; set; }
-        public string TestName { get; set; }
-        public string TestPath { get; set; }
+        public Guid? OwningTaskGuid { get; set; }
+        public string TaskName { get; set; }
+        public string TaskPath { get; set; }
         public string Arguments { get; set; }
         public bool BackgroundTask { get; set; }
-        public TestType TestType { get; set; }
+        public TaskType TaskType { get; set; }
         public Guid Guid { get; set; }
         public DateTime? TimeStarted { get; set; }
         public DateTime? TimeFinished { get; set; }
-        public TestStatus TestStatus { get; set; }
-        public string ConsoleLogFilePath { get; set; }
+        public TaskStatus TaskStatus { get; set; }
+        public string LogFilePath { get; set; }
         public int? ExitCode { get; set; }
         public int TimeoutSeconds { get; set; }
 
@@ -742,7 +742,7 @@ namespace Microsoft.FactoryTestFramework.Core
         {
             get
             {
-                return ((TestType == TestType.TAEFDll) || (TestType == TestType.ConsoleExe));
+                return ((TaskType == TaskType.TAEFDll) || (TaskType == TaskType.ConsoleExe));
             }
         }
 
@@ -754,16 +754,16 @@ namespace Microsoft.FactoryTestFramework.Core
             }
         }
 
-        public bool TestRunComplete
+        public bool TaskRunComplete
         {
             get
             {
-                switch (TestStatus)
+                switch (TaskStatus)
                 {
-                    case TestStatus.Aborted:
-                    case TestStatus.Failed:
-                    case TestStatus.TestPassed:
-                    case TestStatus.Timeout:
+                    case TaskStatus.Aborted:
+                    case TaskStatus.Failed:
+                    case TaskStatus.Passed:
+                    case TaskStatus.Timeout:
                         return true;
                     default:
                         return false;
@@ -795,7 +795,7 @@ namespace Microsoft.FactoryTestFramework.Core
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as TestRun;
+            var rhs = obj as TaskRun;
 
             if (rhs == null)
             {
@@ -807,17 +807,17 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.OwningTestGuid != rhs.OwningTestGuid)
+            if (this.OwningTaskGuid != rhs.OwningTaskGuid)
             {
                 return false;
             }
 
-            if (this.TestType != rhs.TestType)
+            if (this.TaskType != rhs.TaskType)
             {
                 return false;
             }
 
-            if (this.TestName != rhs.TestName)
+            if (this.TaskName != rhs.TaskName)
             {
                 return false;
             }
@@ -832,7 +832,7 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.TestStatus != rhs.TestStatus)
+            if (this.TaskStatus != rhs.TaskStatus)
             {
                 return false;
             }
@@ -847,12 +847,12 @@ namespace Microsoft.FactoryTestFramework.Core
                 return false;
             }
 
-            if (this.ConsoleLogFilePath != rhs.ConsoleLogFilePath)
+            if (this.LogFilePath != rhs.LogFilePath)
             {
                 return false;
             }
 
-            if (!this.TestOutput.SequenceEqual(rhs.TestOutput))
+            if (!this.TaskOutput.SequenceEqual(rhs.TaskOutput))
             {
                 return false;
             }
@@ -867,44 +867,44 @@ namespace Microsoft.FactoryTestFramework.Core
     }
 
     /// <summary>
-    /// This class is used to save & load TestLists from an XML file.
+    /// This class is used to save & load TaskLists from an XML file.
     /// </summary>
-    [XmlRootAttribute(ElementName = "FTFXML", IsNullable = false)]
-    public partial class FTFXML
+    [XmlRootAttribute(ElementName = "FactoryOchestratorXML", IsNullable = false)]
+    public partial class FactoryOrchestratorXML
     {
-        public FTFXML()
+        public FactoryOrchestratorXML()
         {
-            TestLists = new List<TestList>();
+            TaskLists = new List<TaskList>();
         }
 
-        [XmlArrayItem("TestList")]
-        public List<TestList> TestLists { get; set; }
+        [XmlArrayItem("TaskList")]
+        public List<TaskList> TaskLists { get; set; }
 
         /// <summary>
-        /// Create Guids for any imported test or testlist that is missing one.
+        /// Create Guids for any imported task or tasklist that is missing one.
         /// Create Tests dictionary.
         /// </summary>
         private void PostDeserialize()
         {
-            foreach (var list in TestLists)
+            foreach (var list in TaskLists)
             {
                 if (list.Guid == Guid.Empty)
                 {
                     list.Guid = Guid.NewGuid();
                 }
 
-                foreach (var test in list.TestsForXml)
+                foreach (var task in list.TasksForXml)
                 {
-                    if (test.Guid == Guid.Empty)
+                    if (task.Guid == Guid.Empty)
                     {
-                        test.Guid = Guid.NewGuid();
+                        task.Guid = Guid.NewGuid();
                     }
 
-                    list.Tests.Add(test.Guid, test);
+                    list.Tasks.Add(task.Guid, task);
                 }
 
                 // clear old xml list
-                list.TestsForXml = new List<TestBase>();
+                list.TasksForXml = new List<TaskBase>();
             }
         }
 
@@ -914,16 +914,16 @@ namespace Microsoft.FactoryTestFramework.Core
         /// </summary>
         private void PreSerialize()
         {
-            foreach (var list in TestLists)
+            foreach (var list in TaskLists)
             {
-                list.TestsForXml = new List<TestBase>();
-                list.TestsForXml.AddRange(list.Tests.Values);
+                list.TasksForXml = new List<TaskBase>();
+                list.TasksForXml.AddRange(list.Tasks.Values);
             }
         }
 
-        public static FTFXML Load(string filename)
+        public static FactoryOrchestratorXML Load(string filename)
         {
-            FTFXML xml;
+            FactoryOrchestratorXML xml;
 
             try
             {
@@ -938,8 +938,8 @@ namespace Microsoft.FactoryTestFramework.Core
                     }
 
                     // Validate XSD
-                    var asm = Assembly.GetAssembly(typeof(FTFXML));
-                    using (Stream xsdStream = asm.GetManifestResourceStream(GetResourceName(Assembly.GetAssembly(typeof(FTFXML)), "FTFXML.xsd", false)))
+                    var asm = Assembly.GetAssembly(typeof(FactoryOrchestratorXML));
+                    using (Stream xsdStream = asm.GetManifestResourceStream(GetResourceName(Assembly.GetAssembly(typeof(FactoryOrchestratorXML)), "FactoryOrchestratorXML.xsd", false)))
                     {
                         XmlReaderSettings settings = new XmlReaderSettings();
                         settings.XmlResolver = null;
@@ -954,9 +954,9 @@ namespace Microsoft.FactoryTestFramework.Core
                                 document.XmlResolver = null;
                                 document.Schemas.Add(xmlSchema);
 
-                                // Remove xsi:type so they are properly validated against the shared "Test" XSD type
+                                // Remove xsi:type so they are properly validated against the shared "task" XSD type
                                 document.Load(reader);
-                                var tests = document.SelectNodes("//Test");
+                                var tests = document.SelectNodes("//task");
                                 foreach (var testNode in tests)
                                 {
                                     var removed = ((XmlNode)testNode).Attributes.RemoveNamedItem("xsi:type");
@@ -977,15 +977,15 @@ namespace Microsoft.FactoryTestFramework.Core
                 // Deserialize
                 using (XmlReader reader = XmlReader.Create(filename))
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(FTFXML));
-                    xml = (FTFXML)serializer.Deserialize(reader);
+                    XmlSerializer serializer = new XmlSerializer(typeof(FactoryOrchestratorXML));
+                    xml = (FactoryOrchestratorXML)serializer.Deserialize(reader);
                 }
 
                 xml.PostDeserialize();
             }
             catch (Exception e)
             {
-                throw new FileLoadException($"Could not load {filename} as FTFXML!", e);
+                throw new FileLoadException($"Could not load {filename} as FactoryOrchestratorXML!", e);
             }
 
             return xml;
@@ -1038,7 +1038,7 @@ namespace Microsoft.FactoryTestFramework.Core
             var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
             using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(FTFXML));
+                XmlSerializer serializer = new XmlSerializer(typeof(FactoryOrchestratorXML));
                 serializer.Serialize(writer, this);
             }
 

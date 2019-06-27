@@ -1,0 +1,87 @@
+﻿<Page
+    x:Class="Microsoft.FactoryOrchestrator.UWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Microsoft.FactoryOrchestrator.UWP"
+    xmlns:pkg="using:Windows.ApplicationModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
+            <Button x:Name="NetworkButton" Visibility="Visible" Padding="5" Margin="10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button.Flyout>
+                    <Flyout x:Name="NetworkFlyout" Opening="NetworkFlyout_Opening">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" Text="System Ip Addresses" HorizontalAlignment="Center"/>
+                            <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center">
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+            <Button x:Name="ExitButton" Padding="5" Margin="10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button.Flyout>
+                    <Flyout x:Name="ExitFlyout">
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap" Text="Exit Factory Orchestrator?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
+                                        <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Exit"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE777;"/>
+                                        <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Reboot"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="ConfirmShutdown" Padding="8" Margin="10,5" Click="ConfirmShutdown_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7E8;"/>
+                                        <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Shutdown"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+
+        </StackPanel>
+        <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="Header" Grid.Row="0" Text="Factory Orchestrator" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
+            <NavigationView x:Name="NavView" Grid.Row="2" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" ItemInvoked="NavView_ItemInvoked">
+                <NavigationView.MenuItems>
+                    <NavigationViewItem Tag="run" Content="Run TaskLists" Icon="Play"/>
+                    <NavigationViewItem Tag="console">
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;"/>
+                            <TextBlock Text="Command Prompt" Margin="10, 9"/>
+                        </StackPanel>
+                    </NavigationViewItem>
+                    <NavigationViewItem Tag="apps" Content="UWP Apps" Icon="AllApps"/>
+                    <NavigationViewItem Tag="save" Content="Manage TaskLists" Icon="Edit"/>
+                    <NavigationViewItem Tag="files" Content="Transfer Files" Icon="SyncFolder"/>
+                    <NavigationViewItem Tag="about" Content="About Factory Orchestrator" Icon="Help"/>
+                </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame" IsTabStop="True" Padding="0, 0, 24, 0"/>
+            </NavigationView>
+        </Grid>
+    </Grid>
+</Page>

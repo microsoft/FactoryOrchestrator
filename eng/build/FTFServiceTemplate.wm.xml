@@ -5,11 +5,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     >
   <service
-      description="Factory Test Framework Service"
-      displayName="Factory Test Framework Service"
+      description="Factory Orchestrator Service"
+      displayName="Factory Orchestrator Service"
       errorControl="normal"
       imagePath="%systemroot%\system32\manufacturing\FTFService\FTFService.exe action:run"
-      name="FTFService"
+      name="FactoryOrchestratorService"
       objectName="LocalSystem"
       start="auto"
       type="win32OwnProcess"

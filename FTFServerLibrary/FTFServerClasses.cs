@@ -1,4 +1,4 @@
-﻿using Microsoft.FactoryTestFramework.Core;
+﻿using Microsoft.FactoryOrchestrator.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,56 +9,57 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
-namespace Microsoft.FactoryTestFramework.Server
+namespace Microsoft.FactoryOrchestrator.Server
 {
-    public static class TestBase_ServerExtensions
+    public static class TaskBase_ServerExtensions
     {
-        public static Guid CreateTestRun(this TestBase test, string defaultLogFolder)
+        public static Guid CreateTaskRun(this TaskBase task, string defaultLogFolder)
         {
-            TestRun_Server run;
-            lock (test.TestLock)
+            TaskRun_Server run;
+            lock (task.TestLock)
             {
-                run = new TestRun_Server(test, defaultLogFolder);
-                test.TestRunGuids.Add(run.Guid);
-                test.LatestTestRunExitCode = null;
-                test.LatestTestRunStatus = TestStatus.NotRun;
-                test.LatestTestRunTimeFinished = null;
-                test.LatestTestRunTimeStarted = null;
+                run = new TaskRun_Server(task, defaultLogFolder);
+                task.TaskRunGuids.Add(run.Guid);
+                task.LatestTaskRunExitCode = null;
+                task.LatestTaskRunStatus = TaskStatus.NotRun;
+                task.LatestTaskRunTimeFinished = null;
+                task.LatestTaskRunTimeStarted = null;
             }
             return run.Guid;
         }
 
-        public static void GetLatestTestRun(this TestBase test)
+        public static void GetLatestTaskRun(this TaskBase task)
         {
-            TestRun_Server.GetTestRunByGuid(test.TestRunGuids.Last());
+            TaskRun_Server.GetTaskRunByGuid(task.TaskRunGuids.Last());
         }
 
-        public static void Reset(this TestBase test, bool preserveLogs = true)
+        public static void Reset(this TaskBase task, bool preserveLogs = true)
         {
-            lock (test.TestLock)
+            lock (task.TestLock)
             {
-                test.LatestTestRunStatus = TestStatus.NotRun;
-                test.LatestTestRunExitCode = null;
-                test.LatestTestRunTimeFinished = null;
-                test.LatestTestRunTimeStarted = null;
-                test.TestRunGuids = new List<Guid>();
+                task.LatestTaskRunStatus = TaskStatus.NotRun;
+                task.LatestTaskRunExitCode = null;
+                task.LatestTaskRunTimeFinished = null;
+                task.LatestTaskRunTimeStarted = null;
+                task.TaskRunGuids = new List<Guid>();
             }
 
-            TestRun_Server.RemoveTestRunsForTest(test.Guid, preserveLogs);
+            TaskRun_Server.RemoveTaskRunsForTest(task.Guid, preserveLogs);
         }
     }
 
-    public class TestManager_Server
+    public class TaskManager_Server
     {
-        public TestManager_Server(string defaultLogFolder)
+        public TaskManager_Server(string defaultLogFolder)
         {
-            _startNonParallelTestRunLock = new SemaphoreSlim(1, 1);
-            KnownTestLists = new Dictionary<Guid, TestList>();
-            RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
-            RunningBackgroundTasks = new Dictionary<Guid, List<TestRunner>>();
-            RunningTestTestRunTokens = new Dictionary<Guid, CancellationTokenSource>();
-            TestListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTestLists.testlists");
+            _startNonParallelTaskRunLock = new SemaphoreSlim(1, 1);
+            KnownTaskLists = new Dictionary<Guid, TaskList>();
+            RunningTaskListTokens = new Dictionary<Guid, CancellationTokenSource>();
+            RunningBackgroundTasks = new Dictionary<Guid, List<TaskRunner>>();
+            RunningTestTaskRunTokens = new Dictionary<Guid, CancellationTokenSource>();
+            TaskListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTaskLists.tasklists");
             SetDefaultLogFolder(defaultLogFolder, false);
         }
 
@@ -71,15 +72,15 @@ namespace Microsoft.FactoryTestFramework.Server
 
             try
             {
-                // Don't allow the folder to move if any test is running or we are actively modifying testlists
-                lock (RunningTestListLock)
+                // Don't allow the folder to move if any task is running or we are actively modifying tasklists
+                lock (RunningTaskListLock)
                 {
-                    if (IsTestListRunning)
+                    if (IsTaskListRunning)
                     {
-                        throw new TestManagerTestListRunningException();
+                        throw new TestManagerTaskListRunningException();
                     }
 
-                    lock (KnownTestListLock)
+                    lock (KnownTaskListLock)
                     {
                         if (moveFiles && (_defaultLogFolder != null) && (Directory.Exists(_defaultLogFolder)))
                         {
@@ -101,20 +102,20 @@ namespace Microsoft.FactoryTestFramework.Server
                             Directory.CreateDirectory(newLogFolder);
                         }
 
-                        var newStateFilePath = Path.Combine(newLogFolder, "FTFServiceKnownTestLists.testlists");
+                        var newStateFilePath = Path.Combine(newLogFolder, "FTFServiceKnownTaskLists.tasklists");
 
                         if (!moveFiles)
                         {
                             // Move state file if needed
-                            if (File.Exists(TestListStateFile))
+                            if (File.Exists(TaskListStateFile))
                             {
-                                File.Move(TestListStateFile, newStateFilePath);
+                                File.Move(TaskListStateFile, newStateFilePath);
                             }
                         }
 
                         // Update paths
                         _defaultLogFolder = newLogFolder;
-                        TestListStateFile = newStateFilePath;
+                        TaskListStateFile = newStateFilePath;
                     }
                 }
 
@@ -164,12 +165,12 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public TestList CreateTestListFromDirectory(String path, bool onlyTAEF)
+        public TaskList CreateTaskListFromDirectory(String path, bool onlyTAEF)
         {
             // Recursive search for all exe and dll files
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
             var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
-            TestList tests = new TestList(Guid.NewGuid());
+            TaskList tests = new TaskList(Guid.NewGuid());
             // TODO: Performance: Parallel
             //Parallel.ForEach<string>(dlls, (dll) =>
             foreach (var dll in dlls)
@@ -179,7 +180,7 @@ namespace Microsoft.FactoryTestFramework.Server
                     var maybeTAEF = CheckForTAEFTest(dll);
                     if (maybeTAEF != null)
                     {
-                        tests.Tests.Add(maybeTAEF.Guid, maybeTAEF);
+                        tests.Tasks.Add(maybeTAEF.Guid, maybeTAEF);
                     }
                 }
                 catch (Exception)
@@ -189,36 +190,36 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             //);
 
-            // Assume every .exe is a valid console test
+            // Assume every .exe is a valid console task
             if (!onlyTAEF)
             {
                 foreach (var exe in exes)
                 {
-                    var test = new ExecutableTest(exe);
-                    tests.Tests.Add(test.Guid, test);
+                    var task = new ExecutableTask(exe);
+                    tests.Tasks.Add(task.Guid, task);
                 }
             }
 
-            lock (KnownTestListLock)
+            lock (KnownTaskListLock)
             {
-                KnownTestLists.Add(tests.Guid, tests);
+                KnownTaskLists.Add(tests.Guid, tests);
             }
 
-            // Update XML for state tracking (this locks KnownTestListLock)
-            SaveAllTestListsToXmlFile(TestListStateFile);
+            // Update XML for state tracking (this locks KnownTaskListLock)
+            SaveAllTaskListsToXmlFile(TaskListStateFile);
 
             return tests;
         }
 
-        public bool SaveAllTestListsToXmlFile(string filename)
+        public bool SaveAllTaskListsToXmlFile(string filename)
         {
-            FTFXML xml = new FTFXML();
+            FactoryOrchestratorXML xml = new FactoryOrchestratorXML();
 
-            lock (KnownTestListLock)
+            lock (KnownTaskListLock)
             {
-                if (KnownTestLists.Count > 0)
+                if (KnownTaskLists.Count > 0)
                 {
-                    xml.TestLists = KnownTestLists.Values.ToList();
+                    xml.TaskLists = KnownTaskLists.Values.ToList();
                 }
                 else
                 {
@@ -227,25 +228,25 @@ namespace Microsoft.FactoryTestFramework.Server
 
                 if (!xml.Save(filename))
                 {
-                    throw new TestManagerException($"Could not save TestLists to {filename}!");
+                    throw new TestManagerException($"Could not save TaskLists to {filename}!");
                 }
             }
 
             return true;
         }
 
-        public bool SaveTestListToXmlFile(Guid guid, string filename)
+        public bool SaveTaskListToXmlFile(Guid guid, string filename)
         {
-            if (IsTestListRunning)
+            if (IsTaskListRunning)
             {
-                throw new TestManagerTestListRunningException();
+                throw new TestManagerTaskListRunningException();
             }
             
-            FTFXML xml = new FTFXML();
+            FactoryOrchestratorXML xml = new FactoryOrchestratorXML();
 
-            if (KnownTestLists.ContainsKey(guid))
+            if (KnownTaskLists.ContainsKey(guid))
             {
-                xml.TestLists.Add(KnownTestLists[guid]);
+                xml.TaskLists.Add(KnownTaskLists[guid]);
             }
             else
             {
@@ -256,76 +257,76 @@ namespace Microsoft.FactoryTestFramework.Server
             return xml.Save(filename);
         }
 
-        public List<Guid> LoadTestListsFromXmlFile(string filename)
+        public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
-            if (IsTestListRunning)
+            if (IsTaskListRunning)
             {
-                throw new TestManagerTestListRunningException();
+                throw new TestManagerTaskListRunningException();
             }
 
-            FTFXML xml;
-            xml = FTFXML.Load(filename);
+            FactoryOrchestratorXML xml;
+            xml = FactoryOrchestratorXML.Load(filename);
 
-            // Add GUIDs to any TestBase or TestList objects that don't have one
-            lock (KnownTestListLock)
+            // Add GUIDs to any TaskBase or TaskList objects that don't have one
+            lock (KnownTaskListLock)
             {
-                foreach (var list in xml.TestLists)
+                foreach (var list in xml.TaskLists)
                 {
                     // Update "running" tests, as their state is unknown
-                    list.Tests.Values.Where(x => x.LatestTestRunStatus == TestStatus.Running).Select(x => x.LatestTestRunStatus = TestStatus.Unknown);
-                    list.Tests.Values.Where(x => x.LatestTestRunStatus == TestStatus.WaitingForExternalResult).Select(x => x.LatestTestRunStatus = TestStatus.Unknown);
+                    list.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.Running).Select(x => x.LatestTaskRunStatus = TaskStatus.Unknown);
+                    list.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult).Select(x => x.LatestTaskRunStatus = TaskStatus.Unknown);
 
-                    if (KnownTestLists.ContainsKey(list.Guid))
+                    if (KnownTaskLists.ContainsKey(list.Guid))
                     {
-                        // Overwrite existing testlist
-                        KnownTestLists[list.Guid] = list;
+                        // Overwrite existing tasklist
+                        KnownTaskLists[list.Guid] = list;
 
                         // todo: logging
                     }
                     else
                     {
-                        KnownTestLists.Add(list.Guid, list);
+                        KnownTaskLists.Add(list.Guid, list);
                     }
                 }
             }
 
             // Update XML for state tracking
-            if (filename != TestListStateFile)
+            if (filename != TaskListStateFile)
             {
-                SaveAllTestListsToXmlFile(TestListStateFile);
+                SaveAllTaskListsToXmlFile(TaskListStateFile);
             }
 
-            return xml.TestLists.Select(x => x.Guid).ToList();
+            return xml.TaskLists.Select(x => x.Guid).ToList();
         }
 
-        public bool DeleteTestList(Guid listToDelete)
+        public bool DeleteTaskList(Guid listToDelete)
         {
             bool removed = false;
-            lock (KnownTestListLock)
+            lock (KnownTaskListLock)
             {
                 // Abort() gracefully returns if the guid is invalid
-                AbortTestList(listToDelete);
-                removed = KnownTestLists.Remove(listToDelete);   
+                AbortTaskList(listToDelete);
+                removed = KnownTaskLists.Remove(listToDelete);   
             }
 
             // Update XML for state tracking
-            SaveAllTestListsToXmlFile(TestListStateFile);
+            SaveAllTaskListsToXmlFile(TaskListStateFile);
 
             return removed;
         }
 
-        public TestBase GetKnownTest(Guid testGuid)
+        public TaskBase GetTask(Guid testGuid)
         {
-            var list = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(testGuid)).First();
+            var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(testGuid)).First();
             if (list == null)
             {
                 return null;
             }
 
-            TestBase test;
-            if (list.Tests.TryGetValue(testGuid, out test))
+            TaskBase task;
+            if (list.Tasks.TryGetValue(testGuid, out task))
             {
-                return test;
+                return task;
             }
             else
             {
@@ -333,10 +334,10 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public TestList GetKnownTestList(Guid guid)
+        public TaskList GetTaskList(Guid guid)
         {
-            TestList list = null;
-            if (KnownTestLists.TryGetValue(guid, out list))
+            TaskList list = null;
+            if (KnownTaskLists.TryGetValue(guid, out list))
             {
                 return list;
             }
@@ -346,43 +347,43 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public List<Guid> GetKnownTestListGuids()
+        public List<Guid> GetTaskListGuids()
         {
-            return KnownTestLists.Keys.ToList();
+            return KnownTaskLists.Keys.ToList();
         }
 
-        public TestList CreateTestListFromTestList(TestList testList)
+        public TaskList CreateTaskListFromTaskList(TaskList taskList)
         {
-            lock (KnownTestListLock)
+            lock (KnownTaskListLock)
             {
                 try
                 {
-                    KnownTestLists.Add(testList.Guid, testList);
+                    KnownTaskLists.Add(taskList.Guid, taskList);
                 }
                 catch (ArgumentException)
                 {
                     // list already exists
-                    return KnownTestLists[testList.Guid];
+                    return KnownTaskLists[taskList.Guid];
                 }
             }
 
-            return testList;
+            return taskList;
         }
 
         public void Reset(bool preserveLogs = true, bool terminateBackgroundTasks = true)
         {
-            lock (RunningTestListLock)
+            lock (RunningTaskListLock)
             {
-                lock (KnownTestListLock)
+                lock (KnownTaskListLock)
                 {
-                    // Cancel all running TestLists
-                    foreach (var token in RunningTestListTokens.Values)
+                    // Cancel all running TaskLists
+                    foreach (var token in RunningTaskListTokens.Values)
                     {
                         token.Cancel();
                     }
 
                     // Cancel any started testruns
-                    foreach (var token in RunningTestTestRunTokens.Values)
+                    foreach (var token in RunningTestTaskRunTokens.Values)
                     {
                         token.Cancel();
                     }
@@ -395,22 +396,22 @@ namespace Microsoft.FactoryTestFramework.Server
                             bgRunner.StopTest();
                         });
 
-                        RunningBackgroundTasks = new Dictionary<Guid, List<TestRunner>>();
+                        RunningBackgroundTasks = new Dictionary<Guid, List<TaskRunner>>();
                     }
 
                     // Reset all tests
-                    foreach (var test in KnownTestLists.Values.SelectMany(x => x.Tests.Values))
+                    foreach (var task in KnownTaskLists.Values.SelectMany(x => x.Tasks.Values))
                     {
-                        test.Reset(preserveLogs);
+                        task.Reset(preserveLogs);
                     }
 
                     // Delete state file
-                    File.Delete(TestListStateFile);
+                    File.Delete(TaskListStateFile);
 
                     // Create new dictionaries
-                    RunningTestListTokens = new Dictionary<Guid, CancellationTokenSource>();
-                    RunningTestTestRunTokens = new Dictionary<Guid, CancellationTokenSource>();
-                    KnownTestLists = new Dictionary<Guid, TestList>();
+                    RunningTaskListTokens = new Dictionary<Guid, CancellationTokenSource>();
+                    RunningTestTaskRunTokens = new Dictionary<Guid, CancellationTokenSource>();
+                    KnownTaskLists = new Dictionary<Guid, TaskList>();
                 }
             }
         }
@@ -424,8 +425,8 @@ namespace Microsoft.FactoryTestFramework.Server
         {
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
-            TestRun_Server testRun = new TestRun_Server(maybeTAEF, DefaultLogFolder);
-            TestRunner runner = new TestRunner(testRun);
+            TaskRun_Server taskRun = new TaskRun_Server(maybeTAEF, DefaultLogFolder);
+            TaskRunner runner = new TaskRunner(taskRun);
             bool isTaef = false;
             try
             {
@@ -442,17 +443,17 @@ namespace Microsoft.FactoryTestFramework.Server
 
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
                 // https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/exit-codes-for-taef
-                if ((testRun.ExitCode == 117440512) || (testRun.ExitCode == 0))
+                if ((taskRun.ExitCode == 117440512) || (taskRun.ExitCode == 0))
                 {
                     // Check if it was able to enumerate the test cases.
-                    if (!testRun.TestOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !testRun.TestOutput.Any(x => x.Contains("Failed to load")))
+                    if (!taskRun.TaskOutput.Any(x => x.Contains("Summary of Errors Outside of Tests")) && !taskRun.TaskOutput.Any(x => x.Contains("Failed to load")))
                     {
                         isTaef = true;
                     }
                 }
                 else
                 {
-                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", testRun.ExitCode, dllToTest));
+                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", taskRun.ExitCode, dllToTest));
                 }
             }
             catch (Exception e)
@@ -461,7 +462,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
             }
 
-            // Cleanup test run
+            // Cleanup task run
             maybeTAEF.Reset(false);
 
             if (isTaef)
@@ -474,27 +475,27 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public bool UpdateTestList(TestList testList)
+        public bool UpdateTaskList(TaskList taskList)
         {
-            if (testList == null)
+            if (taskList == null)
             {
                 return false;
             }
 
-            lock (KnownTestListLock)
+            lock (KnownTaskListLock)
             {
-                if (KnownTestLists.ContainsKey(testList.Guid))
+                if (KnownTaskLists.ContainsKey(taskList.Guid))
                 {
-                    lock (RunningTestListLock)
+                    lock (RunningTaskListLock)
                     {
-                        // if it is running don't update the testlist
-                        if (RunningTestListTokens.Keys.Contains(testList.Guid))
+                        // if it is running don't update the tasklist
+                        if (RunningTaskListTokens.Keys.Contains(taskList.Guid))
                         {
                             return false;
                         }
                         else
                         {
-                            KnownTestLists[testList.Guid] = testList;
+                            KnownTaskLists[taskList.Guid] = taskList;
                             return true;
                         }
                     }
@@ -502,128 +503,128 @@ namespace Microsoft.FactoryTestFramework.Server
             }
 
             // Update XML for state tracking
-            SaveAllTestListsToXmlFile(TestListStateFile);
+            SaveAllTaskListsToXmlFile(TaskListStateFile);
 
             return false;
         }
 
-        public bool UpdateTest(TestBase updatedTest)
+        public bool UpdateTask(TaskBase updatedTest)
         {
             if (updatedTest == null)
             {
                 return false;
             }
 
-            // Changing state, lock the test lists
-            lock (KnownTestListLock)
+            // Changing state, lock the task lists
+            lock (KnownTaskListLock)
             {
-                // Find list this test in it
-                var testList = KnownTestLists.Values.Where(x => x.Tests.ContainsKey(updatedTest.Guid)).DefaultIfEmpty(null).First();
+                // Find list this task in it
+                var taskList = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(updatedTest.Guid)).DefaultIfEmpty(null).First();
 
-                if (testList == null)
+                if (taskList == null)
                 {
                     return false;
                 }
                 else
                 {
-                    lock (RunningTestListLock)
+                    lock (RunningTaskListLock)
                     {
-                        // if it is running don't update the test
-                        if (RunningTestListTokens.Keys.Contains(testList.Guid))
+                        // if it is running don't update the task
+                        if (RunningTaskListTokens.Keys.Contains(taskList.Guid))
                         {
                             return false;
                         }
                         else
                         {
-                            testList.Tests[updatedTest.Guid] = updatedTest;
+                            taskList.Tasks[updatedTest.Guid] = updatedTest;
                         }
                     }
                 }
             }
 
             // Update XML for state tracking
-            SaveAllTestListsToXmlFile(TestListStateFile);
+            SaveAllTaskListsToXmlFile(TaskListStateFile);
 
             return true;
         }
 
-        public bool UpdateTestRunStatus(TestRun latestTestRun)
+        public bool UpdateTaskRun(TaskRun latestTaskRun)
         {
-            if (latestTestRun == null)
+            if (latestTaskRun == null)
             {
                 return false;
             }
 
-            return TestRun_Server.UpdateTestRun(latestTestRun);
+            return TaskRun_Server.UpdateTaskRun(latestTaskRun);
         }
 
-        public bool RunTestList(Guid TestListGuidToRun)
+        public bool RunTaskList(Guid TaskListGuidToRun)
         {
-            TestList list = null;
+            TaskList list = null;
 
-            // Check if test list is valid
-            if (!KnownTestLists.TryGetValue(TestListGuidToRun, out list))
+            // Check if task list is valid
+            if (!KnownTaskLists.TryGetValue(TaskListGuidToRun, out list))
             {
                 return false;
             }
 
-            // Check if test list is already running or set to be run
-            lock (RunningTestListLock)
+            // Check if task list is already running or set to be run
+            lock (RunningTaskListLock)
             {
-                if (RunningTestListTokens.ContainsKey(TestListGuidToRun))
+                if (RunningTaskListTokens.ContainsKey(TaskListGuidToRun))
                 {
                     return false;
                 }
 
                 // Create testrun for all tests in the list
-                List<Guid> testRunGuids = new List<Guid>();
-                foreach (var test in list.Tests.Values)
+                List<Guid> taskRunGuids = new List<Guid>();
+                foreach (var task in list.Tasks.Values)
                 {
-                    testRunGuids.Add(test.CreateTestRun(DefaultLogFolder));
+                    taskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder));
                 }
 
                 // Update XML for state tracking.
-                SaveAllTestListsToXmlFile(TestListStateFile);
+                SaveAllTaskListsToXmlFile(TaskListStateFile);
 
-                var workItem = new TestListWorkItem(list.Guid, testRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTestListsToRun, list.RunInParallel);
+                var workItem = new TaskListWorkItem(list.Guid, taskRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
                 var token = new CancellationTokenSource();
-                RunningTestListTokens.Add(workItem.TestListGuid, token);
-                RunningBackgroundTasks.Add(workItem.TestListGuid, new List<TestRunner>());
-                Task t = new Task((i) => { TestListWorker(i, token.Token); }, workItem, token.Token);
+                RunningTaskListTokens.Add(workItem.TaskListGuid, token);
+                RunningBackgroundTasks.Add(workItem.TaskListGuid, new List<TaskRunner>());
+                Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem, token.Token);
                 t.Start();
             }
 
             return true;
         }
 
-        public class TestListWorkItem
+        public class TaskListWorkItem
         {
-            public TestListWorkItem(Guid testListGuid, List<Guid> testRunGuids, bool terminateBackgroundTasksOnCompletion, bool allowOtherTestListsToRun, bool runListInParallel)
+            public TaskListWorkItem(Guid taskListGuid, List<Guid> taskRunGuids, bool terminateBackgroundTasksOnCompletion, bool allowOtherTaskListsToRun, bool runListInParallel)
             {
-                TestListGuid = testListGuid;
-                AllowOtherTestListsToRun = allowOtherTestListsToRun;
+                TaskListGuid = taskListGuid;
+                AllowOtherTaskListsToRun = allowOtherTaskListsToRun;
                 RunListInParallel = runListInParallel;
                 TerminateBackgroundTasksOnCompletion = terminateBackgroundTasksOnCompletion;
-                TestRunGuids = testRunGuids;
+                TaskRunGuids = taskRunGuids;
             }
 
-            public Guid TestListGuid;
-            public bool AllowOtherTestListsToRun;
+            public Guid TaskListGuid;
+            public bool AllowOtherTaskListsToRun;
             public bool RunListInParallel;
             public bool TerminateBackgroundTasksOnCompletion;
-            public List<Guid> TestRunGuids;
+            public List<Guid> TaskRunGuids;
         }
 
-        private void TestListWorker(object i, CancellationToken token)
+        private void TaskListWorker(object i, CancellationToken token)
         {
-            var item = (TestListWorkItem)i;
+            var item = (TaskListWorkItem)i;
             bool usedSem = false;
 
-            if (!item.AllowOtherTestListsToRun)
+            if (!item.AllowOtherTaskListsToRun)
             {
                 try
                 {
-                    _startNonParallelTestRunLock.Wait(token);
+                    _startNonParallelTaskRunLock.Wait(token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -634,37 +635,37 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             else
             {
-                usedSem = _startNonParallelTestRunLock.Wait(0);
+                usedSem = _startNonParallelTaskRunLock.Wait(0);
             }
 
             if (!token.IsCancellationRequested)
             {
-                StartTestRuns(item.TestListGuid, item.TestRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
+                StartTaskRuns(item.TaskListGuid, item.TaskRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
 
                 // Tests are done! Update the tokens & locks
-                lock (RunningTestListLock)
+                lock (RunningTaskListLock)
                 {
-                    RunningTestListTokens.Remove(item.TestListGuid);
+                    RunningTaskListTokens.Remove(item.TaskListGuid);
                 }
                 if (usedSem)
                 {
-                    _startNonParallelTestRunLock.Release();
+                    _startNonParallelTaskRunLock.Release();
                 }
             }
 
             if (token.IsCancellationRequested)
             {
-                // Update XML for state tracking. This is only needed if a test was aborted.
-                SaveAllTestListsToXmlFile(TestListStateFile);
+                // Update XML for state tracking. This is only needed if a task was aborted.
+                SaveAllTaskListsToXmlFile(TaskListStateFile);
             }
         }
 
-        private void StartTestRuns(Guid testListGuid, List<Guid> testRunGuids, CancellationToken token, bool terminateBackgroundTasksOnCompletion = true, bool runInParallel = false, TestRunnerEventHandler testRunEventHandler = null)
+        private void StartTaskRuns(Guid taskListGuid, List<Guid> taskRunGuids, CancellationToken token, bool terminateBackgroundTasksOnCompletion = true, bool runInParallel = false, TaskRunnerEventHandler taskRunEventHandler = null)
         {
             // Run all enabled tests in the list
             if (!runInParallel)
             {
-                foreach (var runGuid in testRunGuids)
+                foreach (var runGuid in taskRunGuids)
                 {
                     // find testrun, run it
                     if (token.IsCancellationRequested)
@@ -672,88 +673,88 @@ namespace Microsoft.FactoryTestFramework.Server
                         break;
                     }
 
-                    var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
+                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
                     var testToken = new CancellationTokenSource();
 
-                    if (!testRun.BackgroundTask)
+                    if (!taskRun.BackgroundTask)
                     {
-                        RunningTestTestRunTokens.Add(testRun.Guid, testToken);
+                        RunningTestTaskRunTokens.Add(taskRun.Guid, testToken);
                     }
 
-                    StartTest(testRun, testToken.Token, testRunEventHandler);
+                    StartTest(taskRun, testToken.Token, taskRunEventHandler);
 
-                    if (testRun.BackgroundTask)
+                    if (taskRun.BackgroundTask)
                     {
-                        RunningBackgroundTasks[testListGuid].Add(testRun.GetOwningTestRunner());
+                        RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
                     }
 
                     // Update saved state
-                    SaveAllTestListsToXmlFile(TestListStateFile);
+                    SaveAllTaskListsToXmlFile(TaskListStateFile);
                 }
             }
             else
             {
-                Parallel.ForEach(testRunGuids, (runGuid, state) =>
+                Parallel.ForEach(taskRunGuids, (runGuid, state) =>
                 {
                     if (token.IsCancellationRequested)
                     {
                         state.Stop();
                     }
 
-                    var testRun = TestRun_Server.GetTestRunByGuid(runGuid);
-                    StartTest(testRun, token, testRunEventHandler);
-                    if (testRun.BackgroundTask)
+                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
+                    StartTest(taskRun, token, taskRunEventHandler);
+                    if (taskRun.BackgroundTask)
                     {
-                        RunningBackgroundTasks[testListGuid].Add(testRun.GetOwningTestRunner());
+                        RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
                     }
 
                     // Update saved state
-                    SaveAllTestListsToXmlFile(TestListStateFile);
+                    SaveAllTaskListsToXmlFile(TaskListStateFile);
                 });
             }
 
             // Kill all background tasks
             if (terminateBackgroundTasksOnCompletion)
             {
-                Parallel.ForEach(RunningBackgroundTasks[testListGuid], (bgRunner) =>
+                Parallel.ForEach(RunningBackgroundTasks[taskListGuid], (bgRunner) =>
                 {
                     bgRunner.StopTest();
                 });
-                RunningBackgroundTasks.Remove(testListGuid);
+                RunningBackgroundTasks.Remove(taskListGuid);
             }
         }
 
-        private void StartTest(TestRun_Server testRun, CancellationToken token, TestRunnerEventHandler testRunEventHandler = null)
+        private void StartTest(TaskRun_Server taskRun, CancellationToken token, TaskRunnerEventHandler taskRunEventHandler = null)
         {
             if (!token.IsCancellationRequested)
             {
-                TestRunner runner = null;
+                TaskRunner runner = null;
 
-                if (testRun.RunByServer)
+                if (taskRun.RunByServer)
                 {
-                    runner = new TestRunner(testRun);
+                    runner = new TaskRunner(taskRun);
 
-                    if (testRunEventHandler != null)
+                    if (taskRunEventHandler != null)
                     {
-                        runner.OnTestEvent += testRunEventHandler;
+                        runner.OnTestEvent += taskRunEventHandler;
                     }
 
                     if (!runner.RunTest())
                     {
-                        throw new Exception(String.Format("Unable to start TestRun {0} for test {1}", testRun.Guid, testRun.TestName));
+                        throw new Exception(String.Format("Unable to start TaskRun {0} for task {1}", taskRun.Guid, taskRun.TaskName));
                     }
                 }
                 else
                 {
                     // TODO: Logging : Log External tests to file
-                    testRun.StartWaitingForExternalResult();
-                    OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTestRunResult, testRun.Guid));
+                    taskRun.StartWaitingForExternalResult();
+                    OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTaskRunResult, taskRun.Guid));
                 }
 
-                // Wait for test to finish, timeout, or be aborted
-                if (!testRun.BackgroundTask)
+                // Wait for task to finish, timeout, or be aborted
+                if (!taskRun.BackgroundTask)
                 {
-                    while (!token.IsCancellationRequested && !testRun.TestRunComplete)
+                    while (!token.IsCancellationRequested && !taskRun.TaskRunComplete)
                     {
                         // TODO: Performance: replace with a signal mechanism
                         // TODO: Feature, Performance: Just sleep for the timeout value if possible
@@ -763,96 +764,96 @@ namespace Microsoft.FactoryTestFramework.Server
 
                 if (token.IsCancellationRequested)
                 {
-                    if (testRun.RunByServer)
+                    if (taskRun.RunByServer)
                     {
                         runner.StopTest();
                     }
                     else
                     {
-                        testRun.TestStatus = TestStatus.Aborted;
-                        testRun.ExitCode = -1;
+                        taskRun.TaskStatus = TaskStatus.Aborted;
+                        taskRun.ExitCode = -1;
                     }
                 }
 
-                if (testRun.RunByClient)
+                if (taskRun.RunByClient)
                 {
-                    testRun.EndWaitingForExternalResult();
+                    taskRun.EndWaitingForExternalResult();
                     if (token.IsCancellationRequested)
                     {
-                        OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTestRunAborted, testRun.Guid));
+                        OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTaskRunAborted, taskRun.Guid));
                     }
                     else
                     {
-                        OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTestRunFinished, testRun.Guid));
+                        OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTaskRunFinished, taskRun.Guid));
                     }
                 }
             }
         }
 
-        public void AbortAllTestLists()
+        public void AbortAllTaskLists()
         {
-            lock (RunningTestListLock)
+            lock (RunningTaskListLock)
             {
-                foreach (var token in RunningTestListTokens.Values)
+                foreach (var token in RunningTaskListTokens.Values)
                 {
                     token.Cancel();
                 }
-                foreach (var token in RunningTestTestRunTokens.Values)
+                foreach (var token in RunningTestTaskRunTokens.Values)
                 {
                     token.Cancel();
                 }
 
-                RunningTestListTokens.Clear();
-                RunningTestTestRunTokens.Clear();
+                RunningTaskListTokens.Clear();
+                RunningTestTaskRunTokens.Clear();
             }
         }
 
-        public void AbortTestList(Guid testListToCancel)
+        public void AbortTaskList(Guid taskListToCancel)
         {
-            lock (RunningTestListLock)
+            lock (RunningTaskListLock)
             {
                 CancellationTokenSource token;
-                if (RunningTestListTokens.TryGetValue(testListToCancel, out token))
+                if (RunningTaskListTokens.TryGetValue(taskListToCancel, out token))
                 {
                     token.Cancel();
-                    RunningTestListTokens.Remove(testListToCancel);
+                    RunningTaskListTokens.Remove(taskListToCancel);
 
-                    var testRunGuids = KnownTestLists[testListToCancel].Tests.Values.Select(x => x.Guid);
-                    foreach (var guid in testRunGuids)
+                    var taskRunGuids = KnownTaskLists[taskListToCancel].Tasks.Values.Select(x => x.Guid);
+                    foreach (var guid in taskRunGuids)
                     {
-                        if (RunningTestTestRunTokens.TryGetValue(guid, out token))
+                        if (RunningTestTaskRunTokens.TryGetValue(guid, out token))
                         {
                             token.Cancel();
-                            RunningTestTestRunTokens.Remove(guid);
+                            RunningTestTaskRunTokens.Remove(guid);
                         }
                     }
                 }
             }
         }
 
-        public void AbortTestRun(Guid testRunToCancel)
+        public void AbortTaskRun(Guid taskRunToCancel)
         {
-            lock (RunningTestListLock)
+            lock (RunningTaskListLock)
             {
                 CancellationTokenSource token;
-                List<TestRunner> backgroundTasks;
-                if (RunningTestTestRunTokens.TryGetValue(testRunToCancel, out token))
+                List<TaskRunner> backgroundTasks;
+                if (RunningTestTaskRunTokens.TryGetValue(taskRunToCancel, out token))
                 {
                     token.Cancel();
-                    RunningTestTestRunTokens.Remove(testRunToCancel);
+                    RunningTestTaskRunTokens.Remove(taskRunToCancel);
                 }
-                else if (RunningBackgroundTasks.TryGetValue(testRunToCancel, out backgroundTasks))
+                else if (RunningBackgroundTasks.TryGetValue(taskRunToCancel, out backgroundTasks))
                 {
                     backgroundTasks[0].StopTest();
-                    RunningBackgroundTasks.Remove(testRunToCancel);
+                    RunningBackgroundTasks.Remove(taskRunToCancel);
                 }
                 else 
                 {
                     foreach (var list in RunningBackgroundTasks.Values)
                     {
-                        if (list.Select(x => x.ActiveTestRunGuid).Contains(testRunToCancel))
+                        if (list.Select(x => x.ActiveTaskRunGuid).Contains(taskRunToCancel))
                         {
-                            var runner = list.First(x => x.ActiveTestRunGuid == testRunToCancel);
+                            var runner = list.First(x => x.ActiveTaskRunGuid == taskRunToCancel);
                             runner.StopTest();
                             list.Remove(runner);
                         }
@@ -861,7 +862,7 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public TestRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
+        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string consoleLogFilePath = null)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(exeFilePath);
             if (!File.Exists(expandedPath))
@@ -870,38 +871,38 @@ namespace Microsoft.FactoryTestFramework.Server
                 return null;
             }
 
-            var run = TestRun_Server.CreateTestRunWithoutTest(expandedPath, arguments, consoleLogFilePath, TestType.ConsoleExe);
+            var run = TaskRun_Server.CreateTaskRunWithoutTest(expandedPath, arguments, consoleLogFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
             var token = new CancellationTokenSource();
             StartTest(run, token.Token);
 
-            RunningBackgroundTasks.Add(run.Guid, new List<TestRunner>(1) { run.GetOwningTestRunner() });
+            RunningBackgroundTasks.Add(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
 
             return run;
         }
 
-        public TestRun RunTestOutsideTestList(Guid executableTestGuid)
+        public TaskRun RunTask(Guid taskGuid)
         {
-            var test = KnownTestLists.SelectMany(x => x.Value.Tests.Values).Where(y => y.Guid.Equals(executableTestGuid)).DefaultIfEmpty(null).First();
+            var task = KnownTaskLists.SelectMany(x => x.Value.Tasks.Values).Where(y => y.Guid.Equals(taskGuid)).DefaultIfEmpty(null).First();
 
-            if (test == null)
+            if (task == null)
             {
                 // TODO: Logging: log error
                 return null;
             }
 
-            var runGuid = test.CreateTestRun(DefaultLogFolder);
-            var run = TestRun_Server.GetTestRunByGuid(runGuid);
+            var runGuid = task.CreateTaskRun(DefaultLogFolder);
+            var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
             var token = new CancellationTokenSource();
 
             if (run.BackgroundTask)
             {
                 StartTest(run, token.Token);
-                RunningBackgroundTasks.Add(run.Guid, new List<TestRunner>(1) { run.GetOwningTestRunner() });
+                RunningBackgroundTasks.Add(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
             }
             else
             {
-                RunningTestTestRunTokens.Add(run.Guid, token);
+                RunningTestTaskRunTokens.Add(run.Guid, token);
                 Task t = new Task(() => { StartTest(run, token.Token); });
                 t.Start();
             }
@@ -909,48 +910,48 @@ namespace Microsoft.FactoryTestFramework.Server
             return run;
         }
 
-        public TestRun RunUWPOutsideTestList(string packageFamilyName)
+        public TaskRun RunApp(string packageFamilyName)
         {
-            var run = TestRun_Server.CreateTestRunWithoutTest(packageFamilyName, null, null, TestType.UWP);
+            var run = TaskRun_Server.CreateTaskRunWithoutTest(packageFamilyName, null, null, TaskType.UWP);
             var token = new CancellationTokenSource();
-            RunningTestTestRunTokens.Add(run.Guid, token);
+            RunningTestTaskRunTokens.Add(run.Guid, token);
             Task t = new Task(() => { StartTest(run, token.Token); });
             t.Start();
 
             return run;
         }
 
-        private Dictionary<Guid, TestList> KnownTestLists;
-        private Dictionary<Guid, CancellationTokenSource> RunningTestListTokens;
-        private Dictionary<Guid, CancellationTokenSource> RunningTestTestRunTokens;
-        private Dictionary<Guid, List<TestRunner>> RunningBackgroundTasks;
-        private readonly object KnownTestListLock = new object();
-        private readonly object RunningTestListLock = new object();
-        private readonly SemaphoreSlim _startNonParallelTestRunLock;
+        private Dictionary<Guid, TaskList> KnownTaskLists;
+        private Dictionary<Guid, CancellationTokenSource> RunningTaskListTokens;
+        private Dictionary<Guid, CancellationTokenSource> RunningTestTaskRunTokens;
+        private Dictionary<Guid, List<TaskRunner>> RunningBackgroundTasks;
+        private readonly object KnownTaskListLock = new object();
+        private readonly object RunningTaskListLock = new object();
+        private readonly SemaphoreSlim _startNonParallelTaskRunLock;
         private string _defaultLogFolder;
 
         public string DefaultLogFolder { get => _defaultLogFolder; }
-        public string TestListStateFile { get; private set; }
-        public bool IsTestListRunning
+        public string TaskListStateFile { get; private set; }
+        public bool IsTaskListRunning
         {
             get
             {
-                return (RunningTestListTokens.Count > 0);
+                return (RunningTaskListTokens.Count > 0);
             }
         }
 
-        public bool CanStartNewTestListRun
+        public bool CanStartNewTaskListRun
         {
             get
             {
-                if (RunningTestListTokens.Count == 0)
+                if (RunningTaskListTokens.Count == 0)
                 {
                     return true;
                 }
                 else
                 {
-                    // Check if a running TestList doesn't allow a other TestLists to run
-                    return !KnownTestLists.Values.Any(x => (x.TestListStatus == TestStatus.Running) && (x.AllowOtherTestListsToRun == false));
+                    // Check if a running TaskList doesn't allow a other TaskLists to run
+                    return !KnownTaskLists.Values.Any(x => (x.TaskListStatus == TaskStatus.Running) && (x.AllowOtherTaskListsToRun == false));
                 }
             }
         }
@@ -968,12 +969,12 @@ namespace Microsoft.FactoryTestFramework.Server
         public Guid? Guid { get; }
     }
 
-    public class TestManagerTestListRunningException : TestManagerException
+    public class TestManagerTaskListRunningException : TestManagerException
     {
-        public TestManagerTestListRunningException() : base("Cannot perform operation because one or more TestLists are actively running!")
+        public TestManagerTaskListRunningException() : base("Cannot perform operation because one or more TaskLists are actively running!")
         { }
 
-        public TestManagerTestListRunningException(Guid guid) : base($"Cannot perform operation because TestList {guid} is actively running!", guid)
+        public TestManagerTaskListRunningException(Guid guid) : base($"Cannot perform operation because TaskList {guid} is actively running!", guid)
         { }
     }
 
@@ -981,15 +982,15 @@ namespace Microsoft.FactoryTestFramework.Server
 
     public enum TestManagerEventType
     {
-        NewTestList,
-        UpdatedTestList,
-        DeletedTestList,
-        TestListRunStarted,
-        TestListRunEnded,
-        WaitingForExternalTestRunResult,
-        ExternalTestRunFinished,
-        ExternalTestRunAborted,
-        ExternalTestRunTimeout,
+        NewTaskList,
+        UpdatedTaskList,
+        DeletedTaskList,
+        TaskListRunStarted,
+        TaskListRunEnded,
+        WaitingForExternalTaskRunResult,
+        ExternalTaskRunFinished,
+        ExternalTaskRunAborted,
+        ExternalTaskRunTimeout,
         StandaloneTestStarted,
         StandaloneTestFinished
     }
@@ -1006,25 +1007,25 @@ namespace Microsoft.FactoryTestFramework.Server
         public Guid? Guid { get; }
     }
 
-    public delegate void TestRunnerEventHandler(object source, TestRunnerEventArgs e);
+    public delegate void TaskRunnerEventHandler(object source, TaskRunnerEventArgs e);
 
-    public class TestRunnerEventArgs : EventArgs
+    public class TaskRunnerEventArgs : EventArgs
     {
-        public TestRunnerEventArgs(TestStatus testStatus, int eventStatusCode, String eventMessage)
+        public TaskRunnerEventArgs(TaskStatus testStatus, int eventStatusCode, String eventMessage)
         {
             TestStatus = testStatus;
             EventStatusCode = eventStatusCode;
             EventMessage = eventMessage;
         }
 
-        public TestStatus TestStatus { get; }
+        public TaskStatus TestStatus { get; }
         public int EventStatusCode { get; }
         public String EventMessage { get; }
     }
 
-    public class TestRunExceptionEvent : TestRunnerEventArgs
+    public class TaskRunExceptionEvent : TaskRunnerEventArgs
     {
-        public TestRunExceptionEvent(TestStatus eventType, int eventStatusCode, Exception eventException) :
+        public TaskRunExceptionEvent(TaskStatus eventType, int eventStatusCode, Exception eventException) :
             base(eventType, eventStatusCode, (eventException != null) ? eventException.ToString() : null)
         {
             EventException = eventException;
@@ -1033,7 +1034,7 @@ namespace Microsoft.FactoryTestFramework.Server
         public Exception EventException { get; }
     }
 
-    public class TestRunner
+    public class TaskRunner
     {
         private static string _globalTeExePath = "c:\\taef\\te.exe";
         private readonly static string GlobalTeArgs = "";
@@ -1057,16 +1058,16 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        static TestRunner()
+        static TaskRunner()
         {
-            _testRunnerMap = new Dictionary<Guid, TestRunner>();
+            _taskRunnerMap = new Dictionary<Guid, TaskRunner>();
         }
 
-        public static TestRunner GetTestRunnerForTestRun(Guid testRunGuid)
+        public static TaskRunner GetTaskRunnerForTaskRun(Guid taskRunGuid)
         {
-            if (_testRunnerMap.ContainsKey(testRunGuid))
+            if (_taskRunnerMap.ContainsKey(taskRunGuid))
             {
-                return _testRunnerMap[testRunGuid];
+                return _taskRunnerMap[taskRunGuid];
             }
             else
             {
@@ -1074,12 +1075,12 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public TestRunner(TestRun_Server testRun)
+        public TaskRunner(TaskRun_Server taskRun)
         {
             IsRunning = false;
-            ActiveTestRun = testRun;
-            BackgroundTask = testRun.BackgroundTask;
-            _testRunnerMap.Add(testRun.Guid, this);
+            ActiveTaskRun = taskRun;
+            BackgroundTask = taskRun.BackgroundTask;
+            _taskRunnerMap.Add(taskRun.Guid, this);
         }
 
         public bool RunTest()
@@ -1101,7 +1102,7 @@ namespace Microsoft.FactoryTestFramework.Server
 
         internal bool CheckIfTaefTest()
         {
-            ActiveTestRun.ConsoleLogFilePath = null;
+            ActiveTaskRun.LogFilePath = null;
             lock (runnerStateLock)
             {
                 if (IsRunning == true)
@@ -1113,7 +1114,7 @@ namespace Microsoft.FactoryTestFramework.Server
                 TestProcess = CreateTestProcess();
 
                 // Override args to check if this is a valid TAEF test, not try to run it
-                TestProcess.StartInfo.Arguments = "\"" + ActiveTestRun.TestPath + "\"" + " /list";
+                TestProcess.StartInfo.Arguments = "\"" + ActiveTaskRun.TaskPath + "\"" + " /list";
 
                 // Start the process
                 return StartTestProcess();
@@ -1125,17 +1126,17 @@ namespace Microsoft.FactoryTestFramework.Server
             TestProcess = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
 
-            if (ActiveTestRun.TestType == TestType.TAEFDll)
+            if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
             {
                 startInfo.FileName = GlobalTeExePath;
-                startInfo.Arguments += "\"" + ActiveTestRun.TestPath + "\"" + GlobalTeArgs;
+                startInfo.Arguments += "\"" + ActiveTaskRun.TaskPath + "\"" + GlobalTeArgs;
             }
             else
             {
-                startInfo.FileName = ActiveTestRun.TestPath; 
+                startInfo.FileName = ActiveTaskRun.TaskPath; 
             }
 
-            startInfo.Arguments += ActiveTestRun.Arguments;
+            startInfo.Arguments += ActiveTaskRun.Arguments;
 
             // Configure IO redirection
             startInfo.UseShellExecute = false;
@@ -1143,14 +1144,14 @@ namespace Microsoft.FactoryTestFramework.Server
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
-            if (ActiveTestRun.TestType == TestType.TAEFDll)
+            if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
             {
-                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(ActiveTestRun.TestPath);
+                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
                 startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
             }
             else
             {
-                startInfo.WorkingDirectory = Path.GetDirectoryName(ActiveTestRun.TestPath);
+                startInfo.WorkingDirectory = Path.GetDirectoryName(ActiveTaskRun.TaskPath);
             }
 
             // Configure event handling
@@ -1168,20 +1169,20 @@ namespace Microsoft.FactoryTestFramework.Server
             if (TestProcess.Start())
             {
                 IsRunning = true;
-                ActiveTestRun.TestStatus = TestStatus.Running;
-                ActiveTestRun.TimeStarted = DateTime.Now;
+                ActiveTaskRun.TaskStatus = TaskStatus.Running;
+                ActiveTaskRun.TimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
                 // Start timeout timer if needed
-                if (ActiveTestRun.TimeoutSeconds != -1)
+                if (ActiveTaskRun.TimeoutSeconds != -1)
                 {
                     Task.Run(async () =>
                     {
-                        await Task.Delay(new TimeSpan(0, 0, ActiveTestRun.TimeoutSeconds), TimeoutToken.Token);
+                        await Task.Delay(new TimeSpan(0, 0, ActiveTaskRun.TimeoutSeconds), TimeoutToken.Token);
 
-                        // If we hit the timeout and the test didn't finish, stop it now.
+                        // If we hit the timeout and the task didn't finish, stop it now.
                         if (!TimeoutToken.IsCancellationRequested)
                         {
                             TimeoutTest();
@@ -1191,15 +1192,15 @@ namespace Microsoft.FactoryTestFramework.Server
             }
             else
             {
-                ActiveTestRun.TestStatus = TestStatus.Failed;
-                _testRunnerMap.Remove(ActiveTestRunGuid);
+                ActiveTaskRun.TaskStatus = TaskStatus.Failed;
+                _taskRunnerMap.Remove(ActiveTaskRunGuid);
                 // TODO: log error
             }
 
-            ActiveTestRun.UpdateOwningTestFromTestRun();
+            ActiveTaskRun.UpdateOwningTestFromTaskRun();
 
             // Write header to file
-            var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
+            var LogFilePath = ActiveTaskRun.LogFilePath;
             if (LogFilePath != null)
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
@@ -1207,19 +1208,19 @@ namespace Microsoft.FactoryTestFramework.Server
 
                 if (!BackgroundTask)
                 {
-                    header.Add(String.Format("Test: {0}", ActiveTestRun.TestName));
+                    header.Add(String.Format("Task: {0}", ActiveTaskRun.TaskName));
                 }
                 else
                 {
-                    header.Add(String.Format("Background Task: {0}", ActiveTestRun.TestName));
+                    header.Add(String.Format("Background Task: {0}", ActiveTaskRun.TaskName));
                 }
 
-                header.Add(String.Format("GUID: {0}", (ActiveTestRun.OwningTestGuid == null) ? "Not a known Test" : ActiveTestRun.OwningTestGuid.ToString()));
-                header.Add(String.Format("TestRun GUID: {0}", ActiveTestRun.Guid));
-                header.Add(String.Format("Type: {0}", ActiveTestRun.TestType));
-                header.Add(String.Format("Path: {0}", ActiveTestRun.TestPath));
-                header.Add(String.Format("Arguments: {0}", ActiveTestRun.Arguments));
-                header.Add(String.Format("Date/Time run: {0}", (ActiveTestRun.TimeStarted == null) ? "Never Started" : ActiveTestRun.TimeStarted.ToString()));
+                header.Add(String.Format("GUID: {0}", (ActiveTaskRun.OwningTaskGuid == null) ? "Not a known Task" : ActiveTaskRun.OwningTaskGuid.ToString()));
+                header.Add(String.Format("TaskRun GUID: {0}", ActiveTaskRun.Guid));
+                header.Add(String.Format("Type: {0}", ActiveTaskRun.TaskType));
+                header.Add(String.Format("Path: {0}", ActiveTaskRun.TaskPath));
+                header.Add(String.Format("Arguments: {0}", ActiveTaskRun.Arguments));
+                header.Add(String.Format("Date/Time run: {0}", (ActiveTaskRun.TimeStarted == null) ? "Never Started" : ActiveTaskRun.TimeStarted.ToString()));
                 if (IsRunning)
                 {
                     header.Add(String.Format("--------------- Console Output --------------"));
@@ -1229,8 +1230,8 @@ namespace Microsoft.FactoryTestFramework.Server
                     header.Add("---------------------------------------------");
                     header.Add("Process failed to start!");
                     header.Add("---------------------------------------------");
-                    header.Add(String.Format("Result: {0}", ActiveTestRun.TestStatus));
-                    header.Add(String.Format("Exit code: {0}", ActiveTestRun.ExitCode));
+                    header.Add(String.Format("Result: {0}", ActiveTaskRun.TaskStatus));
+                    header.Add(String.Format("Exit code: {0}", ActiveTaskRun.ExitCode));
                 }
                 File.WriteAllLines(LogFilePath, header);
 
@@ -1243,13 +1244,13 @@ namespace Microsoft.FactoryTestFramework.Server
 
         private void OnOutputTimer(object state)
         {
-            var logFilePath = ActiveTestRun.ConsoleLogFilePath;
+            var logFilePath = ActiveTaskRun.LogFilePath;
             if (logFilePath != null)
             {
-                if (nextIndexToSave != ActiveTestRun.TestOutput.Count)
+                if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
                 {
-                    File.AppendAllLines(logFilePath, ActiveTestRun.TestOutput.GetRange(nextIndexToSave, ActiveTestRun.TestOutput.Count - nextIndexToSave));
-                    nextIndexToSave = ActiveTestRun.TestOutput.Count;
+                    File.AppendAllLines(logFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
+                    nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
                 }
             }
         }
@@ -1280,9 +1281,9 @@ namespace Microsoft.FactoryTestFramework.Server
                 {
                     line = "ERROR: " + line;
                 }
-                ActiveTestRun.TestOutput.Add(line);
+                ActiveTaskRun.TaskOutput.Add(line);
 
-                if (ActiveTestRun.TestType == TestType.TAEFDll)
+                if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
                 {
                     ParseTeOutput(line);
                 }
@@ -1302,51 +1303,51 @@ namespace Microsoft.FactoryTestFramework.Server
                 outputTimer.Dispose();
             }
 
-            // Cancel the test timeout
+            // Cancel the task timeout
             TimeoutToken.Cancel();
 
-            // Save the result of the test
+            // Save the result of the task
             if (!TestAborted)
             {
-                ActiveTestRun.TimeFinished = DateTime.Now;
-                ActiveTestRun.ExitCode = TestProcess.ExitCode;
-                ActiveTestRun.TestStatus = (ActiveTestRun.ExitCode == 0) ? TestStatus.TestPassed : TestStatus.Failed;
+                ActiveTaskRun.TimeFinished = DateTime.Now;
+                ActiveTaskRun.ExitCode = TestProcess.ExitCode;
+                ActiveTaskRun.TaskStatus = (ActiveTaskRun.ExitCode == 0) ? TaskStatus.Passed : TaskStatus.Failed;
             }
             else
             {
-                ActiveTestRun.ExitCode = -1;
-                ActiveTestRun.TestStatus = TestTimeout ? TestStatus.Timeout : TestStatus.Aborted;
+                ActiveTaskRun.ExitCode = -1;
+                ActiveTaskRun.TaskStatus = TestTimeout ? TaskStatus.Timeout : TaskStatus.Aborted;
             }
-            ActiveTestRun.UpdateOwningTestFromTestRun();
+            ActiveTaskRun.UpdateOwningTestFromTaskRun();
 
-            // Save test output to file
-            // Delay a sec to ensure all test output events fired
+            // Save task output to file
+            // Delay a sec to ensure all task output events fired
             Thread.Sleep(100);
             lock (outputLock)
             {
-                var LogFilePath = ActiveTestRun.ConsoleLogFilePath;
+                var LogFilePath = ActiveTaskRun.LogFilePath;
                 if (LogFilePath != null)
                 {
-                    if (nextIndexToSave != ActiveTestRun.TestOutput.Count)
+                    if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
                     {
-                        File.AppendAllLines(ActiveTestRun.ConsoleLogFilePath, ActiveTestRun.TestOutput.GetRange(nextIndexToSave, ActiveTestRun.TestOutput.Count - nextIndexToSave));
-                        nextIndexToSave = ActiveTestRun.TestOutput.Count;
+                        File.AppendAllLines(ActiveTaskRun.ConsoleLogFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
+                        nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
                     }
                     File.AppendAllLines(LogFilePath,
                                         new String[] {
                                     "---------------------------------------------",
-                                    String.Format("Result: {0}", ActiveTestRun.TestStatus),
-                                    String.Format("Exit code: {0}", ActiveTestRun.ExitCode),
-                                    String.Format("Time to complete: {0}", (ActiveTestRun.RunTime == null) ? "" : ActiveTestRun.RunTime.ToString())
+                                    String.Format("Result: {0}", ActiveTaskRun.TaskStatus),
+                                    String.Format("Exit code: {0}", ActiveTaskRun.ExitCode),
+                                    String.Format("Time to complete: {0}", (ActiveTaskRun.RunTime == null) ? "" : ActiveTaskRun.RunTime.ToString())
                                         });
                 }
             }
 
             IsRunning = false;
-            _testRunnerMap.Remove(ActiveTestRunGuid);
+            _taskRunnerMap.Remove(ActiveTaskRunGuid);
 
             // Raise event if event handler exists
-            OnTestEvent?.Invoke(this, new TestRunnerEventArgs(ActiveTestRun.TestStatus, (int)ActiveTestRun.ExitCode, null));
+            OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, (int)ActiveTaskRun.ExitCode, null));
         }
 
         private bool TimeoutTest()
@@ -1359,7 +1360,7 @@ namespace Microsoft.FactoryTestFramework.Server
         {
             lock (runnerStateLock)
             {
-                // See if you get lucky and the test finishes on its own???
+                // See if you get lucky and the task finishes on its own???
                 if (!TestProcess.WaitForExit(500))
                 {
                     TestAborted = true;
@@ -1438,19 +1439,15 @@ namespace Microsoft.FactoryTestFramework.Server
         public bool IsRunning { get; set; }
 
         [JsonIgnore]
-        public Guid ActiveTestRunGuid {
+        public Guid ActiveTaskRunGuid {
             get
             {
-                return ActiveTestRun.Guid;
+                return ActiveTaskRun.Guid;
             }
         }
 
-        private TestRun_Server ActiveTestRun;
-        
-        //public ExecutableTest Test { get; }
-
-        public event TestRunnerEventHandler OnTestEvent;
-
+        private TaskRun_Server ActiveTaskRun;
+        public event TaskRunnerEventHandler OnTestEvent;
         private Process TestProcess;
         private bool TestAborted = false;
         private bool TestTimeout = false;
@@ -1464,35 +1461,35 @@ namespace Microsoft.FactoryTestFramework.Server
         /// </summary>
         private object runnerStateLock = new object();
         /// <summary>
-        /// Lock to maintain serial ordering of test stdout & stderr
+        /// Lock to maintain serial ordering of task stdout & stderr
         /// </summary>
         private object outputLock = new object();
 
-        private static Dictionary<Guid, TestRunner> _testRunnerMap;
+        private static Dictionary<Guid, TaskRunner> _taskRunnerMap;
     }
 
     /// <summary>
-    /// Server side only TestRun class.
+    /// Server side only TaskRun class.
     /// </summary>
-    public class TestRun_Server : TestRun
+    public class TaskRun_Server : TaskRun
     {
         // TODO: Move testrunner into testrun_server
-        static TestRun_Server()
+        static TaskRun_Server()
         {
-            _testRunMap = new Dictionary<Guid, TestRun_Server>();
+            _taskRunMap = new Dictionary<Guid, TaskRun_Server>();
             _testMapLock = new object();
         }
 
-        public static List<Guid> GetTestRunGuidsByTestGuid(Guid testGuid)
+        public static List<Guid> GetTaskRunGuidsByTestGuid(Guid testGuid)
         {
-            return _testRunMap.Values.Where(x => x.OwningTestGuid == testGuid).Select(x => x.Guid).ToList();
+            return _taskRunMap.Values.Where(x => x.OwningTaskGuid == testGuid).Select(x => x.Guid).ToList();
         }
 
-        public static TestRun_Server GetTestRunByGuid(Guid testRunGuid)
+        public static TaskRun_Server GetTaskRunByGuid(Guid taskRunGuid)
         {
-            if (_testRunMap.ContainsKey(testRunGuid))
+            if (_taskRunMap.ContainsKey(taskRunGuid))
             {
-                return _testRunMap[testRunGuid];
+                return _taskRunMap[taskRunGuid];
             }
             else
             {
@@ -1500,93 +1497,93 @@ namespace Microsoft.FactoryTestFramework.Server
             }
         }
 
-        public static TestRun_Server CreateTestRunWithoutTest(string filePath, string arguments, string logFileOrFolder, TestType type)
+        public static TaskRun_Server CreateTaskRunWithoutTest(string filePath, string arguments, string logFileOrFolder, TaskType type)
         {
-            return new TestRun_Server(filePath, arguments, logFileOrFolder, type);
+            return new TaskRun_Server(filePath, arguments, logFileOrFolder, type);
         }
 
-        public static void RemoveTestRun(Guid testRunGuid, bool preserveLogs)
+        public static void RemoveTaskRun(Guid taskRunGuid, bool preserveLogs)
         {
-            TestRun_Server testRun = null;
+            TaskRun_Server taskRun = null;
             lock (_testMapLock)
             {
-                if (_testRunMap.TryGetValue(testRunGuid, out testRun))
+                if (_taskRunMap.TryGetValue(taskRunGuid, out taskRun))
                 {
-                    _testRunMap.Remove(testRunGuid);
+                    _taskRunMap.Remove(taskRunGuid);
                     if (!preserveLogs)
                     {
-                        if (File.Exists(testRun.ConsoleLogFilePath))
+                        if (File.Exists(taskRun.LogFilePath))
                         {
-                            File.Delete(testRun.ConsoleLogFilePath);
+                            File.Delete(taskRun.LogFilePath);
                         }
                     }
                 }
             }
         }
 
-        public static bool UpdateTestRun(TestRun updatedTestRun)
+        public static bool UpdateTaskRun(TaskRun updatedTaskRun)
         {
-            if (updatedTestRun == null)
+            if (updatedTaskRun == null)
             {
                 return false;
             }
 
             lock (_testMapLock)
             {
-                if (!_testRunMap.ContainsKey(updatedTestRun.Guid))
+                if (!_taskRunMap.ContainsKey(updatedTaskRun.Guid))
                 {
                     return false;
                 }
 
-                var run = _testRunMap[updatedTestRun.Guid];
+                var run = _taskRunMap[updatedTaskRun.Guid];
 
-                if (run.TestRunComplete)
+                if (run.TaskRunComplete)
                 {
-                    // TestRun was marked as finished, don't let it be edited post-completion
+                    // TaskRun was marked as finished, don't let it be edited post-completion
                     return false;
                 }
 
-                run.ExitCode = updatedTestRun.ExitCode;
-                run.TestStatus = updatedTestRun.TestStatus;
-                run.TimeFinished = updatedTestRun.TimeFinished;
-                run.TimeStarted = updatedTestRun.TimeStarted;
-                run.UpdateOwningTestFromTestRun();
+                run.ExitCode = updatedTaskRun.ExitCode;
+                run.TaskStatus = updatedTaskRun.TaskStatus;
+                run.TimeFinished = updatedTaskRun.TimeFinished;
+                run.TimeStarted = updatedTaskRun.TimeStarted;
+                run.UpdateOwningTestFromTaskRun();
 
                 return true;
             }
         }
 
 
-        public static void RemoveTestRunsForTest(Guid testGuid, bool preserveLogs)
+        public static void RemoveTaskRunsForTest(Guid testGuid, bool preserveLogs)
         {
-            Parallel.ForEach(GetTestRunGuidsByTestGuid(testGuid), testRunGuid =>
+            Parallel.ForEach(GetTaskRunGuidsByTestGuid(testGuid), taskRunGuid =>
             {
-                RemoveTestRun(testRunGuid, preserveLogs);
+                RemoveTaskRun(taskRunGuid, preserveLogs);
             });
         }
 
-        public TestRun_Server(TestBase owningTest, string defaultLogFolder) : base(owningTest)
+        public TaskRun_Server(TaskBase owningTask, string defaultLogFolder) : base(owningTask)
         {
             CtorCommon();
-            OwningTest = owningTest;
+            OwningTest = owningTask;
 
             // Setup log path
-            string LogFolder = owningTest.LogFolder;
+            string LogFolder = owningTask.LogFolder;
             if (LogFolder == null)
             {
                 LogFolder = defaultLogFolder;
             }
 
-            ConsoleLogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TestName, Guid));
+            LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TaskName, Guid));
         }
 
         /// <summary>
-        /// Private Ctor used for test runs not backed by a TestBase object
+        /// Private Ctor used for task runs not backed by a TaskBase object
         /// </summary>
-        /// <param name="testPath"></param>
+        /// <param name="taskPath"></param>
         /// <param name="arguments"></param>
         /// <param name="logFileOrPath"></param>
-        private TestRun_Server(string testPath, string arguments, string logFileOrPath, TestType type) : base(null)
+        private TaskRun_Server(string taskPath, string arguments, string logFileOrPath, TaskType type) : base(null)
         {
             CtorCommon();
             
@@ -1595,53 +1592,53 @@ namespace Microsoft.FactoryTestFramework.Server
                 var ext = logFileOrPath.Substring(logFileOrPath.Length - 3);
                 if (ext == ".log" || ext == ".txt")
                 {
-                    ConsoleLogFilePath = logFileOrPath;
+                    LogFilePath = logFileOrPath;
                 }
                 else
                 {
-                    ConsoleLogFilePath = Path.Combine(logFileOrPath, String.Format("{0}_Run{1}.log", TestName, Guid));
+                    LogFilePath = Path.Combine(logFileOrPath, String.Format("{0}_Run{1}.log", TaskName, Guid));
                 }
             }
             
-            // Set remaining values via method args. They weren't set by base Ctor since the owning test is null.
-            TestPath = testPath;
+            // Set remaining values via method args. They weren't set by base Ctor since the owning task is null.
+            TaskPath = taskPath;
             Arguments = arguments;
-            TestName = Path.GetFileName(testPath);
-            TestType = type;
+            TaskName = Path.GetFileName(taskPath);
+            TaskType = type;
         }
 
         private void CtorCommon()
         {
-            // Add to GUID -> TestRun map
+            // Add to GUID -> TaskRun map
             lock (_testMapLock)
             {
-                _testRunMap.Add(Guid, this);
+                _taskRunMap.Add(Guid, this);
             }
         }
 
-        private TestRun_Server(TestRun testRun, TestBase owningTest) : base(owningTest)
+        private TaskRun_Server(TaskRun taskRun, TaskBase owningTask) : base(owningTask)
         {
             // This is used as a copy constructor. Don't add it to the map, it should be there already.
-            ConsoleLogFilePath = testRun.ConsoleLogFilePath;
-            TestStatus = testRun.TestStatus;
-            TimeFinished = testRun.TimeFinished;
-            TimeStarted = testRun.TimeStarted;
-            ExitCode = testRun.ExitCode;
-            TestOutput = testRun.TestOutput;
-            OwningTest = owningTest;
+            LogFilePath = taskRun.LogFilePath;
+            TaskStatus = taskRun.TaskStatus;
+            TimeFinished = taskRun.TimeFinished;
+            TimeStarted = taskRun.TimeStarted;
+            ExitCode = taskRun.ExitCode;
+            TaskOutput = taskRun.TaskOutput;
+            OwningTest = owningTask;
         }
 
 
-        public void UpdateOwningTestFromTestRun()
+        public void UpdateOwningTestFromTaskRun()
         {
             if (OwningTest != null)
             {
                 lock (OwningTest.TestLock)
                 {
-                    OwningTest.LatestTestRunStatus = this.TestStatus;
-                    OwningTest.LatestTestRunTimeStarted = this.TimeStarted;
-                    OwningTest.LatestTestRunTimeFinished = this.TimeFinished;
-                    OwningTest.LatestTestRunExitCode = this.ExitCode;
+                    OwningTest.LatestTaskRunStatus = this.TaskStatus;
+                    OwningTest.LatestTaskRunTimeStarted = this.TimeStarted;
+                    OwningTest.LatestTaskRunTimeFinished = this.TimeFinished;
+                    OwningTest.LatestTaskRunExitCode = this.ExitCode;
                 }
             }
         }
@@ -1649,28 +1646,28 @@ namespace Microsoft.FactoryTestFramework.Server
         public void StartWaitingForExternalResult()
         {
             TimeStarted = DateTime.Now;
-            TestStatus = TestStatus.WaitingForExternalResult;
-            UpdateOwningTestFromTestRun();
+            TaskStatus = TaskStatus.WaitingForExternalResult;
+            UpdateOwningTestFromTaskRun();
         }
 
         public void EndWaitingForExternalResult()
         {
             TimeFinished = DateTime.Now;
-            UpdateOwningTestFromTestRun();
+            UpdateOwningTestFromTaskRun();
         }
 
         [JsonIgnore]
-        public TestBase OwningTest { get; }
+        public TaskBase OwningTest { get; }
 
-        public TestRunner GetOwningTestRunner()
+        public TaskRunner GetOwningTaskRunner()
         {
-            return TestRunner.GetTestRunnerForTestRun(this.Guid);
+            return TaskRunner.GetTaskRunnerForTaskRun(this.Guid);
         }
 
         /// <summary>
-        /// Tracks all the test runs that have ever occured, mapped by the test run GUID
+        /// Tracks all the task runs that have ever occured, mapped by the task run GUID
         /// </summary>
-        private static Dictionary<Guid, TestRun_Server> _testRunMap;
+        private static Dictionary<Guid, TaskRun_Server> _taskRunMap;
         private static object _testMapLock;
     }
 }

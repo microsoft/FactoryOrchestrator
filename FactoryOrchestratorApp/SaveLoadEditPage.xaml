@@ -1,0 +1,140 @@
+﻿<Page
+    x:Class="Microsoft.FactoryOrchestrator.UWP.SaveLoadEditPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Microsoft.FactoryOrchestrator.UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <Flyout x:Name="SaveFlyout" x:Key="SaveFlyout" Closing="SaveFlyout_Closing">
+            <StackPanel>
+                <TextBlock x:Name="SaveFlyoutTextHeader" Text="File to save as:" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
+                <TextBox x:Name="SaveFlyoutUserPath" Text="" KeyDown="ConfirmSave_KeyDown"/>
+                <TextBlock x:Name="SaveFlyoutText1" Text=".tasklists will be automattically appended to the filename"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="CancelSave" Padding="5" Margin="5" Click="CancelSave_Click">
+                        <SymbolIcon Symbol="Cancel"/>
+                    </Button>
+                    <Button x:Name="ConfirmSave" Padding="5" Margin="5" Click="ConfirmSave_Click">
+                        <SymbolIcon Symbol="Save"/>
+                    </Button>
+                    <ProgressBar x:Name="SaveProgressBar" Margin="5" IsIndeterminate="True" Visibility="Collapsed" />
+                </StackPanel>
+            </StackPanel>
+        </Flyout>
+        <Flyout x:Name="LoadFlyout" x:Key="LoadFlyout" Closing="LoadFlyout_Closing">
+            <StackPanel>
+                <TextBlock x:Name="LoadFlyoutTextHeader" Text="" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
+                <TextBox x:Name="LoadFlyoutUserPath" Text="" KeyDown="ConfirmLoad_KeyDown"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="CancelLoad" Padding="5" Margin="5" Click="CancelLoad_Click">
+                        <SymbolIcon Symbol="Cancel"/>
+                    </Button>
+                    <Button x:Name="ConfirmLoad" Padding="5" Margin="5" Click="ConfirmLoad_Click">
+                        <SymbolIcon Symbol="Save"/>
+                    </Button>
+                    <ProgressBar x:Name="LoadProgressBar" Margin="5" IsIndeterminate="True" Visibility="Collapsed" />
+                </StackPanel>
+            </StackPanel>
+        </Flyout>
+    </Page.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Load Folder as TaskList (exe, cmd, ps1, TAEF): " Grid.Row="0" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Right" Margin="10,0" VerticalAlignment="Center"/>
+        <Button x:Name="LoadFolderButton" Grid.Row="0" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFolderButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+            <SymbolIcon Symbol="OpenLocal"/>
+        </Button>
+
+        <TextBlock Text="Load TaskLists XML File: " Grid.Row="2" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Button x:Name="LoadFileButton" Grid.Row="2" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFileButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+            <SymbolIcon Symbol="OpenFile"/>
+        </Button>
+
+        <TextBlock Text="Create new TaskList: " Grid.Row="4" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Button x:Name="NewListButton" Grid.Row="4" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="NewListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+            <SymbolIcon Symbol="Add"/>
+        </Button>
+        
+        <TextBlock Text="Existing TaskLists:" Grid.Row="6" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <!--TODO: Quality: It is likely better to add the buttons programmatically in the 3rd Column once they become names-->
+        <!--<ListView x:Name="TaskListsView"  Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{x:Bind TestViewModel.TestData.TaskListGuids, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
+        <!--SelectionChanged="TaskListsView_SelectionChanged"-->
+        <!--
+            <ListView.Items>
+            </ListView.Items>
+        </ListView>-->
+        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled">
+            <ListView.Resources>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Grid x:Name="ItemGrid" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="350" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0" />
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
+                                        <Button x:Name="EditListButton" Margin="10,0,5,0" Click="EditListButton_Click">
+                                            <SymbolIcon Symbol="Edit"/>
+                                        </Button>
+                                        <Button x:Name="SaveListButton" Click="SaveListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource SaveFlyout}">
+                                            <SymbolIcon Symbol="Save"/>
+                                        </Button>
+                                        <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteListButton_Click">
+                                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE75C;"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.Resources>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock x:Name="TaskListGuid" Text="{Binding}" VerticalAlignment="Center" Margin="10,0" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackPanel Grid.Row="10" Grid.Column="0" Orientation="Horizontal">
+            <Button x:Name="SaveAllButton" Margin="5,0" Flyout="{StaticResource SaveFlyout}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA35;"/>
+                    <TextBlock Text="Save All TaskLists to XML File" Margin="5,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE75C;"/>
+                    <TextBlock Text="Clear All TaskLists From Server" Margin="5,0"/>
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</Page>
