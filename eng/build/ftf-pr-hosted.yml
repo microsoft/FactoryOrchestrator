@@ -21,8 +21,7 @@ steps:
   displayName: 'NuGet restore'
 
 - task: VSBuild@1
-  displayName: 'Build solution **\*.sln x86 and AppXPackage'
+  displayName: 'Build debug solution **\*.sln x86'
   inputs:
     platform: x86
-    configuration: '$(BuildConfiguration)'
-    msbuildArgs: '/p:AppxBundlePlatforms="x86" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
+    configuration: 'Debug'
