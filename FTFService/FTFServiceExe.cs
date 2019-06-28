@@ -557,12 +557,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                     if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
                     {
                         // Save logs to DATA if on a WCOS system
-                        _taskExecutionManager = new TaskManager_Server(@"U:\FTFLogs");
+                        _taskExecutionManager = new TaskManager_Server(@"U:\FactoryOrchestratorLogs");
                     }
                     else
                     {
                         // Otherwise save them next to the FTFService.exe
-                        _taskExecutionManager = new TaskManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FTFLogs")); ;
+                        _taskExecutionManager = new TaskManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FactoryOrchestratorLogs")); ;
                     }
                 }
                 else
