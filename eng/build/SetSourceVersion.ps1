@@ -23,30 +23,27 @@ else
     $buildNumber = "1.0." + $buildNumber
 }
 
-$AllVersionFiles = Get-ChildItem $SrcPath AssemblyInfo.cs -recurse 
-
-foreach ($file in $AllVersionFiles) 
+$file = Get-Item -Path "$SrcPath\Properties\AssemblyInfo.cs"
+Write-Host "Creating assembly info file for:" $file.FullName
+$tempFile = $env:TEMP + "\" + $file.Name + ".tmp"
+    
+#now load all content of the original file and rewrite modified to the same file
+if ($tfs -eq $true)
 {
-    Write-Host "Modifying file " + $file.FullName
-    #save the file for restore
-    $backFile = $file.FullName + ".backup.tmp"
-    $tempFile = $file.FullName + ".tmp"
-    Copy-Item $file.FullName $backFile
-    #now load all content of the original file and rewrite modified to the same file
-    if ($tfs -eq $true)
-    {
-        Get-Content $file.FullName |
-        %{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
-        %{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } |
-        %{$_ -replace 'AssemblyDescription.+', "AssemblyDescription("""")]" }  > $tempFile
-    }
-    else
-    {
-        Get-Content $file.FullName |
-        %{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
-        %{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } |
-        %{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }  > $tempFile
-    }
-
-    Move-Item $tempFile $file.FullName -force
+    Get-Content $file.FullName |
+    %{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
+    %{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } |
+    %{$_ -replace 'AssemblyDescription.+', "AssemblyDescription("""")]" }  > $tempFile
 }
+else
+{
+    Get-Content $file.FullName |
+    %{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
+    %{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } |
+    %{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }  > $tempFile
+}
+
+$destDir = $file.DirectoryName + "\..\obj\"
+$dir = New-Item -Path $destDir -ItemType Directory -Force
+$destFile = $destDir + $file.Name
+Move-Item $tempFile $destFile -force

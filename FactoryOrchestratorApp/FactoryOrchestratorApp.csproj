@@ -131,7 +131,7 @@
     <Compile Include="TaskListExecutionPage.xaml.cs">
       <DependentUpon>TaskListExecutionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="obj\AssemblyInfo.cs" />
     <Compile Include="ResultsPage.xaml.cs">
       <DependentUpon>ResultsPage.xaml</DependentUpon>
     </Compile>
