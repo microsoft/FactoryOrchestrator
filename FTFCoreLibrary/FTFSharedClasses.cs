@@ -355,12 +355,8 @@ namespace Microsoft.FactoryOrchestrator.Core
                 _testFriendlyName = value;
             }
         }
-        public bool ShouldSerializeBackgroundTask()
-        {
-            return BackgroundTask == true;
-        }
 
-        [XmlAttribute]
+        [XmlIgnore]
         public bool BackgroundTask { get; set; }
 
         private string _testFriendlyName;
@@ -538,6 +534,8 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             Tasks = new Dictionary<Guid, TaskBase>();
             TasksForXml = new List<TaskBase>();
+            BackgroundTasks = new Dictionary<Guid, TaskBase>();
+            BackgroundTasksForXml = new List<TaskBase>();
             RunInParallel = false;
             AllowOtherTaskListsToRun = false;
             TerminateBackgroundTasksOnCompletion = true;
@@ -621,7 +619,12 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         public bool ShouldSerializeTerminateBackgroundTasksOnCompletion()
         {
-            return TerminateBackgroundTasksOnCompletion == false;
+            return BackgroundTasks.Count > 0;
+        }
+
+        public bool ShouldSerializeBackgroundTasksForXml()
+        {
+            return BackgroundTasks.Count > 0;
         }
 
         /// <summary>
@@ -632,15 +635,29 @@ namespace Microsoft.FactoryOrchestrator.Core
         [JsonIgnore]
         public List<TaskBase> TasksForXml { get; set; }
 
+
+        /// <summary>
+        /// XML serializer can't serialize Dictionaries. Use a list instead for XML.
+        /// </summary>
+        [XmlArrayItem("Task")]
+        [XmlArray("BackgroundTasks")]
+        [JsonIgnore]
+        public List<TaskBase> BackgroundTasksForXml { get; set; }
+
         /// <summary>
         /// Tests in the TaskList, tracked by task GUID
         /// </summary>
         [XmlIgnore]
         public Dictionary<Guid, TaskBase> Tasks { get; set; }
 
+        /// <summary>
+        /// Background Tests in the TaskList, tracked by task GUID
+        /// </summary>
+        [XmlIgnore]
+        public Dictionary<Guid, TaskBase> BackgroundTasks { get; set; }
+
         [XmlAttribute]
         public Guid Guid { get; set; }
-
 
         [XmlAttribute]
         public bool RunInParallel { get; set; }
@@ -869,7 +886,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// This class is used to save & load TaskLists from an XML file.
     /// </summary>
-    [XmlRootAttribute(ElementName = "FactoryOchestratorXML", IsNullable = false)]
+    [XmlRootAttribute(ElementName = "FactoryOrchestratorXML", IsNullable = false)]
     public partial class FactoryOrchestratorXML
     {
         public FactoryOrchestratorXML()
@@ -903,8 +920,30 @@ namespace Microsoft.FactoryOrchestrator.Core
                     list.Tasks.Add(task.Guid, task);
                 }
 
-                // clear old xml list
+                foreach (var bgtask in list.BackgroundTasksForXml)
+                {
+                    if (bgtask.Type != TaskType.ConsoleExe)
+                    {
+                        throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTasks!");
+                    }
+
+                    if (bgtask.TimeoutSeconds != -1)
+                    {
+                        throw new XmlSchemaValidationException("BackgroundTasks cannot have a timeout value!");
+                    }
+
+                    if (bgtask.Guid == Guid.Empty)
+                    {
+                        bgtask.Guid = Guid.NewGuid();
+                    }
+
+                    (bgtask as ExecutableTask).BackgroundTask = true;
+                    list.BackgroundTasks.Add(bgtask.Guid, bgtask);
+                }
+
+                // clear xml lists
                 list.TasksForXml = new List<TaskBase>();
+                list.BackgroundTasksForXml = new List<TaskBase>();
             }
         }
 
@@ -918,6 +957,8 @@ namespace Microsoft.FactoryOrchestrator.Core
             {
                 list.TasksForXml = new List<TaskBase>();
                 list.TasksForXml.AddRange(list.Tasks.Values);
+                list.BackgroundTasksForXml = new List<TaskBase>();
+                list.BackgroundTasksForXml.AddRange(list.BackgroundTasks.Values);
             }
         }
 
@@ -956,10 +997,10 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                                 // Remove xsi:type so they are properly validated against the shared "task" XSD type
                                 document.Load(reader);
-                                var tests = document.SelectNodes("//task");
-                                foreach (var testNode in tests)
+                                var tasks = document.SelectNodes("//Task");
+                                foreach (var taskNode in tasks)
                                 {
-                                    var removed = ((XmlNode)testNode).Attributes.RemoveNamedItem("xsi:type");
+                                    var removed = ((XmlNode)taskNode).Attributes.RemoveNamedItem("xsi:type");
                                 }
                                 XmlIsValid = true;
                                 document.Validate(ValidationEventHandler);

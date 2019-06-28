@@ -5,41 +5,40 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 >
   <xs:element name="TaskRunGuids">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="Guid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  <xs:element name="Task">
     <xs:complexType>
-      <xs:all>
-        <xs:element name="LatestTaskRunTimeStarted" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="LatestTaskRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="LatestTaskRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="LatestTaskRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="IsEnabled" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
-        <xs:element ref="TaskRunGuids" minOccurs="0" maxOccurs="1"/>
-      </xs:all>
-      <xs:attribute type="xs:string" name="Name" use="optional"/>
-      <xs:attribute type="xs:string" name="Path" use="optional"/>
-      <xs:attribute type="xs:string" name="Guid" use="optional"/>
-      <xs:attribute type="xs:string" name="Arguments" use="optional"/>
-      <xs:attribute type="xs:boolean" name="BackgroundTask" use="optional"/>
-      <xs:attribute type="xs:int" name="Timeout" use="optional"/>
+      <xs:sequence>
+          <xs:element name="Guid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
-    <xs:element name="Tasks">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element ref="Task" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+  
+  <xs:complexType name="TaskType">
+    <xs:all>
+      <xs:element name="LatestTaskRunTimeStarted" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="LatestTaskRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="LatestTaskRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="LatestTaskRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="IsEnabled" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element ref="TaskRunGuids" minOccurs="0" maxOccurs="1"/>
+    </xs:all>
+    <xs:attribute type="xs:string" name="Name" use="optional"/>
+    <xs:attribute type="xs:string" name="Path" use="optional"/>
+    <xs:attribute type="xs:string" name="Guid" use="optional"/>
+    <xs:attribute type="xs:string" name="Arguments" use="optional"/>
+    <xs:attribute type="xs:int" name="Timeout" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="TasksType">
+    <xs:sequence>
+      <xs:element name="Task" type="TaskType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  
     <xs:element name="TaskList">
       <xs:complexType>
         <xs:sequence>
-          <xs:element ref="Tasks"/>
+          <xs:element name="Tasks" type="TasksType" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="BackgroundTasks" type="TasksType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="Guid" type="xs:string" use="optional"/>
         <xs:attribute name="RunInParallel" type="xs:boolean" use="required"/>

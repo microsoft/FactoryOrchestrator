@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources>
-        <Flyout x:Name="EditFlyout" x:Key="EditFlyout" LightDismissOverlayMode="On">
+        <Flyout x:Name="EditFlyout" x:Key="EditFlyout" LightDismissOverlayMode="On" >
             <Grid x:Name="FlyoutGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -23,7 +23,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="EditFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="EditFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5" HorizontalAlignment="Center"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Task Name:" Padding="5"/>
                 <TextBox Grid.Row="1" Grid.Column="1" x:Name="TestNameBox" Text="" MinWidth="200"/>
                 <TextBlock Grid.Row="2" Grid.Column="0"  x:Name="PathBlock" Text="Task Path:" Padding="5"/>
@@ -34,7 +34,6 @@
                 <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="200"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TimeoutBlock" Text="Timeout (seconds):" Padding="5"/>
                 <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged"/>
-                <CheckBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="BackgroundCheck" Content="Run as Background Task?" IsChecked="False" Padding="5"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="2" >
                     <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
                         <SymbolIcon Symbol="Cancel"/>
@@ -51,6 +50,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -58,18 +61,58 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
-        <TextBlock x:Name="TaskListHeader" Grid.ColumnSpan="3" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="0" HorizontalAlignment="Center"/>
+        <TextBlock x:Name="TaskListHeader" Grid.ColumnSpan="2" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="0" HorizontalAlignment="Center"/>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
+            <TextBlock x:Name="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}" Text="TaskList Options:"/>
+            <CheckBox x:Name="ParallelCheck" Content="Run Tests in Parallel?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
+            <CheckBox x:Name="BlockingCheck" Content="Allow Other TaskLists to Run?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
+            <CheckBox x:Name="TerminateCheck" Content="Terminate Background Tasks on Completion?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
             <Button x:Name="NewExecutableButton" Content="New Executable Task" Click="NewExecutableButton_Click"/>
             <Button x:Name="NewTAEFButton" Content="New TAEF Task" Click="NewTAEFButton_Click"/>
             <Button x:Name="NewUWPButton" Content="New UWP App Task" Click="NewUWPButton_Click"/>
             <Button x:Name="NewExternalButton" Content="New External Task" Click="NewExternalButton_Click"/>
-            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="ParallelCheck" Content="Run Tests in Parallel?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
-            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" x:Name="BlockingCheck" Content="Allow Other TaskLists to Run?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
+            <Button x:Name="NewBackgroundButton" Content="New Background Task" Click="NewBackgroundButton_Click"/>
         </StackPanel>
 
-        <ListView x:Name="TaskListView" Grid.Row="2"  Grid.Column="1" SelectionMode="Single" AllowDrop="True"  IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" DropCompleted="TaskListView_DropCompleted">
+        <TextBlock x:Name="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="BackgroundTasks:" Visibility="Collapsed"/>
+        <ListView x:Name="BgTaskListView" Grid.Row="4"  Grid.Column="1" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled">
+            <ListView.Resources>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Grid x:Name="BgItemGrid" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="250" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0" />
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <Button x:Name="EditBgListButton" Margin="10,0,5,0" Click="BgEditButton_Click">
+                                            <SymbolIcon Symbol="Edit"/>
+                                        </Button>
+                                        <Button x:Name="DeleteBgListButton" Margin="5,0,5,0" Click="BgDeleteButton_Click">
+                                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.Resources>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock x:Name="TestName" Text="{Binding Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <TextBlock x:Name="TasksHeader" Grid.Row="5" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="Tasks:" Visibility="Collapsed"/>
+        <ListView x:Name="TaskListView" Grid.Row="6"  Grid.Column="1" SelectionMode="Single" AllowDrop="True"  IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" DropCompleted="TaskListView_DropCompleted">
         <ListView.Resources>
             <Style TargetType="ListViewItem">
                 <Setter Property="Template">

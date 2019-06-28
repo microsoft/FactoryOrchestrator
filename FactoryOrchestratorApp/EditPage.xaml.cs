@@ -48,9 +48,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
             AppComboBox.ItemsSource = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
             ParallelCheck.IsChecked = activeList.RunInParallel;
             BlockingCheck.IsChecked = activeList.AllowOtherTaskListsToRun;
+            TerminateCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
             TaskListHeader.Text = $"Editing TaskList {activeList.Guid}";
-            TestsCollection = new ObservableCollection<TaskBase>(activeList.Tasks.Values);
-            TaskListView.ItemsSource = TestsCollection;
+
+            TasksCollection = new ObservableCollection<TaskBase>(activeList.Tasks.Values);
+            TaskListView.ItemsSource = TasksCollection;
+
+            BackgroundTasksCollection = new ObservableCollection<TaskBase>(activeList.BackgroundTasks.Values);
+            BgTaskListView.ItemsSource = BackgroundTasksCollection;
+
+            if (BackgroundTasksCollection.Count > 0)
+            {
+                BgTasksHeader.Visibility = Visibility.Visible;
+            }
+            if (TasksCollection.Count > 0)
+            {
+                TasksHeader.Visibility = Visibility.Visible;
+            }
 
             listEdited = false;
         }
@@ -88,86 +102,116 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return false;
         }
 
+        private void BgDeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            BackgroundTasksCollection.Remove(GetTestFromButton(sender as Button));
+            listEdited = true;
+
+            if (BackgroundTasksCollection.Count == 0)
+            {
+                BgTasksHeader.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BgEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            activeTask = GetTestFromButton(sender as Button);
+            activeTaskIndex = BackgroundTasksCollection.IndexOf(activeTask);
+            ConfigureFlyout(activeTask.Type, true);
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
+            {
+                Placement = FlyoutPlacementMode.Full,
+                ShowMode = FlyoutShowMode.Standard
+            });
+        }
+
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            TestsCollection.Remove(GetTestFromButton(sender as Button));
+            TasksCollection.Remove(GetTestFromButton(sender as Button));
             listEdited = true;
+
+            if (TasksCollection.Count == 0)
+            {
+                TasksHeader.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = GetTestFromButton(sender as Button);
-            activeTestIndex = TestsCollection.IndexOf(activeTest);
-            ConfigureFlyout(activeTest.Type);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full,
-                                                                    ShowMode = FlyoutShowMode.Standard});
+            activeTask = GetTestFromButton(sender as Button);
+            activeTaskIndex = TasksCollection.IndexOf(activeTask);
+            ConfigureFlyout(activeTask.Type);
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
+            {
+                Placement = FlyoutPlacementMode.Full,
+                ShowMode = FlyoutShowMode.Standard
+            });
         }
 
         private TaskBase CreateTestFromFlyout(TaskType testType)
         {
-            if (activeTest == null)
+            if (activeTask == null)
             {
-                activeTestIndex = -1;
+                activeTaskIndex = -1;
                 switch (testType)
                 {
                     case TaskType.ConsoleExe:
-                        activeTest = new ExecutableTask(TaskPathBox.Text);
+                        activeTask = new ExecutableTask(TaskPathBox.Text);
                         break;
                     case TaskType.UWP:
-                        activeTest = new UWPTask(AppComboBox.SelectedItem.ToString());
+                        activeTask = new UWPTask(AppComboBox.SelectedItem.ToString());
                         break;
                     case TaskType.External:
-                        activeTest = new ExternalTask(TaskPathBox.Text);
+                        activeTask = new ExternalTask(TaskPathBox.Text);
                         break;
                     case TaskType.TAEFDll:
-                        activeTest = new TAEFTest(TaskPathBox.Text);
+                        activeTask = new TAEFTest(TaskPathBox.Text);
                         break;
                 }
             }
 
-            activeTest.TestName = TestNameBox.Text;
+            activeTask.TestName = TestNameBox.Text;
 
             if (TimeoutBox.Text != "")
             {
                 try
                 {
-                    activeTest.TimeoutSeconds = Int32.Parse(TimeoutBox.Text);
+                    activeTask.TimeoutSeconds = Int32.Parse(TimeoutBox.Text);
                 }
                 catch (Exception)
                 {
-                    activeTest.TimeoutSeconds = -1;
+                    activeTask.TimeoutSeconds = -1;
                 }
             }
             else
             {
-                activeTest.TimeoutSeconds = -1;
+                activeTask.TimeoutSeconds = -1;
             }
 
             switch (testType)
             {
                 case TaskType.ConsoleExe:
-                    var exeTest = activeTest as ExecutableTask;
+                    var exeTest = activeTask as ExecutableTask;
                     exeTest.Path = TaskPathBox.Text;
                     exeTest.Arguments = ArgumentsBox.Text;
-                    exeTest.BackgroundTask = (bool)BackgroundCheck.IsChecked;
                     break;
                 case TaskType.UWP:
-                    var uwpTest = activeTest as UWPTask;
+                    var uwpTest = activeTask as UWPTask;
                     uwpTest.Path = AppComboBox.SelectedItem.ToString();
                     break;
                 case TaskType.External:
-                    var externalTest = activeTest as ExternalTask;
+                    var externalTest = activeTask as ExternalTask;
                     externalTest.Path = TaskPathBox.Text;
                     externalTest.Arguments = ArgumentsBox.Text;
                     break;
                 case TaskType.TAEFDll:
-                    var taefTest = activeTest as TAEFTest;
+                    var taefTest = activeTask as TAEFTest;
                     taefTest.Path = TaskPathBox.Text;
                     taefTest.Arguments = ArgumentsBox.Text;
                     break;
             }
 
-            return activeTest;
+            return activeTask;
         }
 
         private void TimeoutBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -182,42 +226,85 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private void ConfigureFlyout(TaskType testType)
+        private void ConfigureFlyout(TaskType testType, bool isBg = false)
         {
-            activeTestType = testType;
-
-            if (activeTest != null)
+            activeTaskType = testType;
+            if (isBg)
             {
-                TestNameBox.Text = activeTest.TestName;
-                TimeoutBox.Text = activeTest.TimeoutSeconds.ToString();
+                activeTaskIsBg = true;
+                TimeoutBlock.Visibility = Visibility.Collapsed;
+                TimeoutBox.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                TimeoutBlock.Visibility = Visibility.Visible;
+                TimeoutBox.Visibility = Visibility.Visible;
+            }
+
+            if (activeTask != null)
+            {
+                if (isBg)
+                {
+                    EditFlyoutTextHeader.Text = $"Editing Background Task";
+                }
+                TestNameBox.Text = activeTask.TestName;
+                TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
 
                 switch (testType)
                 {
                     case TaskType.ConsoleExe:
-                        var exeTest = activeTest as ExecutableTask;
+                        var exeTest = activeTask as ExecutableTask;
                         TaskPathBox.Text = exeTest.Path;
                         ArgumentsBox.Text = exeTest.Arguments;
-                        BackgroundCheck.IsChecked = exeTest.BackgroundTask;
+                        if (!isBg)
+                        {
+                            EditFlyoutTextHeader.Text = $"Editing Executable Task";
+                        }
                         break;
                     case TaskType.UWP:
-                        var uwpTest = activeTest as UWPTask;
+                        var uwpTest = activeTask as UWPTask;
                         AppComboBox.SelectedItem = uwpTest.Path;
+                        EditFlyoutTextHeader.Text = $"Editing UWP Task";
                         break;
                     case TaskType.External:
-                        var externalTest = activeTest as ExternalTask;
+                        var externalTest = activeTask as ExternalTask;
                         TaskPathBox.Text = externalTest.Path;
                         ArgumentsBox.Text = externalTest.Arguments;
+                        EditFlyoutTextHeader.Text = $"Editing External Task";
                         break;
                     case TaskType.TAEFDll:
-                        var taefTest = activeTest as TAEFTest;
+                        var taefTest = activeTask as TAEFTest;
                         TaskPathBox.Text = taefTest.Path;
                         ArgumentsBox.Text = taefTest.Arguments;
+                        EditFlyoutTextHeader.Text = $"Editing TAEF Test";
                         break;
                 }
             }
             else
             {
-                BackgroundCheck.IsChecked = false;
+                if (isBg)
+                {
+                    EditFlyoutTextHeader.Text = $"New Background Task";
+                }
+                else
+                {
+                    switch (testType)
+                    {
+                        case TaskType.ConsoleExe:
+                            EditFlyoutTextHeader.Text = $"New Executable Task";
+                            break;
+                        case TaskType.UWP:
+                            EditFlyoutTextHeader.Text = $"New UWP Task";
+                            break;
+                        case TaskType.External:
+                            EditFlyoutTextHeader.Text = $"New External Task";
+                            break;
+                        case TaskType.TAEFDll:
+                            EditFlyoutTextHeader.Text = $"New TAEF Test";
+                            break;
+                    }
+                }
+
                 var boxes = FlyoutGrid.Children.Where(x => x.GetType() == typeof(TextBox));
                 foreach (var item in boxes)
                 {
@@ -235,7 +322,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     AppBlock.Visibility = Visibility.Collapsed;
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
-                    BackgroundCheck.Visibility = Visibility.Visible;
                     break;
                 case TaskType.UWP:
                     PathBlock.Visibility = Visibility.Collapsed;
@@ -244,7 +330,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     AppBlock.Visibility = Visibility.Visible;
                     ArgumentsBlock.Visibility = Visibility.Collapsed;
                     ArgumentsBox.Visibility = Visibility.Collapsed;
-                    BackgroundCheck.Visibility = Visibility.Collapsed;
                     break;
                 case TaskType.External:
                     PathBlock.Visibility = Visibility.Visible;
@@ -253,7 +338,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     AppBlock.Visibility = Visibility.Collapsed;
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
-                    BackgroundCheck.Visibility = Visibility.Collapsed;
                     break;
                 case TaskType.TAEFDll:
                     PathBlock.Visibility = Visibility.Visible;
@@ -262,60 +346,89 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     AppBlock.Visibility = Visibility.Collapsed;
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
-                    BackgroundCheck.Visibility = Visibility.Collapsed;
                     break;
             }
         }
 
         private void NewExecutableButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = null;
+            activeTask = null;
             ConfigureFlyout(TaskType.ConsoleExe);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
         }
 
         private void NewTAEFButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = null;
+            activeTask = null;
             ConfigureFlyout(TaskType.TAEFDll);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
         }
 
         private void NewUWPButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = null;
+            activeTask = null;
             ConfigureFlyout(TaskType.UWP);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
         }
 
         private void NewExternalButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = null;
+            activeTask = null;
             ConfigureFlyout(TaskType.External);
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+        }
+        private void NewBackgroundButton_Click(object sender, RoutedEventArgs e)
+        {
+            activeTask = null;
+            ConfigureFlyout(TaskType.ConsoleExe, true);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
         }
 
         private void CancelEdit_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = null;
-            activeTestIndex = -1;
+            activeTask = null;
+            activeTaskIndex = -1;
             EditFlyout.Hide();
         }
 
         private void ConfirmEdit_Click(object sender, RoutedEventArgs e)
         {
-            activeTest = CreateTestFromFlyout(activeTestType);
+            activeTask = CreateTestFromFlyout(activeTaskType);
 
-            if (activeTest != null)
+            if (activeTask != null)
             {
-                if (activeTestIndex == -1)
+                if (activeTaskIndex == -1)
                 {
-                    TestsCollection.Add(activeTest);
+                    if (activeTaskIsBg)
+                    {
+                        BackgroundTasksCollection.Add(activeTask);
+                    }
+                    else
+                    {
+                        TasksCollection.Add(activeTask);
+                    }
                 }
                 else
                 {
-                    TestsCollection[activeTestIndex] = activeTest;
+                    if (activeTaskIsBg)
+                    {
+
+                        BackgroundTasksCollection[activeTaskIndex] = activeTask;
+                    }
+                    else
+                    {
+                        TasksCollection[activeTaskIndex] = activeTask;
+                    }
                 }
+            }
+
+            if (BackgroundTasksCollection.Count > 0)
+            {
+                BgTasksHeader.Visibility = Visibility.Visible;
+            }
+            if (TasksCollection.Count > 0)
+            {
+                TasksHeader.Visibility = Visibility.Visible;
             }
 
             listEdited = true;
@@ -325,9 +438,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void SaveTaskList()
         {
             activeList.Tasks = new Dictionary<Guid, TaskBase>();
-            foreach (var task in TestsCollection)
+            activeList.BackgroundTasks = new Dictionary<Guid, TaskBase>();
+            foreach (var task in TasksCollection)
             {
                 activeList.Tasks.Add(task.Guid, task);
+            }
+            foreach (var task in BackgroundTasksCollection)
+            {
+                activeList.BackgroundTasks.Add(task.Guid, task);
             }
 
             if (isNewList)
@@ -355,14 +473,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             activeList.AllowOtherTaskListsToRun = (bool)BlockingCheck.IsChecked;
             activeList.RunInParallel = (bool)ParallelCheck.IsChecked;
+            activeList.TerminateBackgroundTasksOnCompletion = (bool)TerminateCheck.IsChecked;
             listEdited = true;
         }
 
-        private ObservableCollection<TaskBase> TestsCollection;
+        private ObservableCollection<TaskBase> TasksCollection;
+        private ObservableCollection<TaskBase> BackgroundTasksCollection;
         private TaskList activeList;
-        private TaskBase activeTest;
-        private TaskType activeTestType;
-        private int activeTestIndex;
+        private TaskBase activeTask;
+        private TaskType activeTaskType;
+        private int activeTaskIndex;
+        private bool activeTaskIsBg;
         private bool isNewList;
         private bool listEdited;
 

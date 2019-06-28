@@ -209,10 +209,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text))
             {
-                var savePath = SaveFlyoutUserPath.Text + ".tasklists";
+                var savePath = SaveFlyoutUserPath.Text + ".factoryxml";
                 SaveProgressBar.Width = SaveFlyoutUserPath.ActualWidth - CancelSave.ActualWidth - ConfirmSave.ActualWidth - 30; // 30 == combined margin size
                 SaveProgressBar.Visibility = Visibility.Visible;
-                bool saved = true;
+                bool saved = false;
 
                 try
                 {
@@ -229,14 +229,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {}
                 finally
                 {
-                    ContentDialog failedSaveDialog = new ContentDialog
+                    if (!saved)
                     {
-                        Title = "Failed to save TaskLists XML file",
-                        Content = saved ? (savePath + Environment.NewLine + Environment.NewLine + "Check the path and try again.") : "No task list(s) found!",
-                        CloseButtonText = "Ok"
-                    };
+                        ContentDialog failedSaveDialog = new ContentDialog
+                        {
+                            Title = "Failed to save TaskLists XML file",
+                            Content = saved ? (savePath + Environment.NewLine + Environment.NewLine + "Check the path and try again.") : "No task list(s) found!",
+                            CloseButtonText = "Ok"
+                        };
 
-                    ContentDialogResult result = await failedSaveDialog.ShowAsync();
+                        ContentDialogResult result = await failedSaveDialog.ShowAsync();
+                    }
                 }
 
                 SaveProgressBar.Visibility = Visibility.Collapsed;
@@ -252,8 +255,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ContentDialog clearAllDialog = new ContentDialog
             {
                 Title = "Clear all TaskLists?",
-                Content = "All running TaskLists will be stopped. All TaskLists will be removed from the server.\n" +
-                "NOTE: If TaskLists are configured to load at service start, they will be reloaded on reboot.",
+                Content = "All running TaskLists will be stopped. All TaskLists will be removed from the server permanently.\n" +
+                "Created .factoryxml files will not be deleted, but will need to be manually loaded via \"Load FactoryOrchestratorXML file\".",
                 CloseButtonText = "Cancel",
                 PrimaryButtonText = "Clear All"
             };
@@ -265,11 +268,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 await Task.Run(async () =>
                 {
                     _listUpdateSem.Wait();
-                    foreach (var guid in TestViewModel.TestData.TaskListGuids)
-                    {
-                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTaskList(guid));
-                        await IPCClientHelper.IpcClient.InvokeAsync(x => x.DeleteTaskList(guid));
-                    }
+                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.ResetService(true));
                     _listUpdateSem.Release();
                 });
             }

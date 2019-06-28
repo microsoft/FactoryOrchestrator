@@ -172,7 +172,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                FTFService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, onlyTAEF);
+                tl = FTFService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, onlyTAEF);
             }
             catch (Exception e)
             {
@@ -492,7 +492,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _userCreatedValue = @"LocalUserCreated";
         private readonly string _userLoggedInValue = @"LocalUserLoggedIn";
         private readonly string _userNameValue = @"LocalUserName";
-        private readonly string _userPasswordValue = @"LocalUserPassword";
         private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
         private readonly string _firstBootStatePathValue = @"FirstBootStateTaskListsXML";
         private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
@@ -1132,7 +1131,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to create and sign-in a local user! ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to create and sign-in a local user! This is expected on desktop. ({e.Message})"));
             }
             finally
             {

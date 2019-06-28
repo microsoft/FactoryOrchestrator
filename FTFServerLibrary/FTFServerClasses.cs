@@ -59,7 +59,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             RunningTaskListTokens = new Dictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new Dictionary<Guid, List<TaskRunner>>();
             RunningTestTaskRunTokens = new Dictionary<Guid, CancellationTokenSource>();
-            TaskListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTaskLists.tasklists");
+            TaskListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTaskLists.factoryxml");
             SetDefaultLogFolder(defaultLogFolder, false);
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                             Directory.CreateDirectory(newLogFolder);
                         }
 
-                        var newStateFilePath = Path.Combine(newLogFolder, "FTFServiceKnownTaskLists.tasklists");
+                        var newStateFilePath = Path.Combine(newLogFolder, "FTFServiceKnownTaskLists.factoryxml");
 
                         if (!moveFiles)
                         {
@@ -576,7 +576,14 @@ namespace Microsoft.FactoryOrchestrator.Server
                     return false;
                 }
 
-                // Create testrun for all tests in the list
+                // Create testrun for all background tasks in the list
+                List<Guid> backgroundTaskRunGuids = new List<Guid>();
+                foreach (var task in list.BackgroundTasks.Values)
+                {
+                    backgroundTaskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder));
+                }
+
+                // Create testrun for all tasks in the list
                 List<Guid> taskRunGuids = new List<Guid>();
                 foreach (var task in list.Tasks.Values)
                 {
@@ -586,7 +593,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 // Update XML for state tracking.
                 SaveAllTaskListsToXmlFile(TaskListStateFile);
 
-                var workItem = new TaskListWorkItem(list.Guid, taskRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
+                var workItem = new TaskListWorkItem(list.Guid, backgroundTaskRunGuids, taskRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
                 var token = new CancellationTokenSource();
                 RunningTaskListTokens.Add(workItem.TaskListGuid, token);
                 RunningBackgroundTasks.Add(workItem.TaskListGuid, new List<TaskRunner>());
@@ -599,7 +606,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public class TaskListWorkItem
         {
-            public TaskListWorkItem(Guid taskListGuid, List<Guid> taskRunGuids, bool terminateBackgroundTasksOnCompletion, bool allowOtherTaskListsToRun, bool runListInParallel)
+            public TaskListWorkItem(Guid taskListGuid, List<Guid> backgroundTaskRunGuids, List<Guid> taskRunGuids, bool terminateBackgroundTasksOnCompletion, bool allowOtherTaskListsToRun, bool runListInParallel)
             {
                 TaskListGuid = taskListGuid;
                 AllowOtherTaskListsToRun = allowOtherTaskListsToRun;
@@ -613,6 +620,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             public bool RunListInParallel;
             public bool TerminateBackgroundTasksOnCompletion;
             public List<Guid> TaskRunGuids;
+            public List<Guid> BackgroundTaskRunGuids;
         }
 
         private void TaskListWorker(object i, CancellationToken token)
@@ -640,7 +648,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (!token.IsCancellationRequested)
             {
-                StartTaskRuns(item.TaskListGuid, item.TaskRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
+                StartTaskRuns(item.TaskListGuid, item.BackgroundTaskRunGuids, item.TaskRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
 
                 // Tests are done! Update the tokens & locks
                 lock (RunningTaskListLock)
@@ -660,14 +668,31 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        private void StartTaskRuns(Guid taskListGuid, List<Guid> taskRunGuids, CancellationToken token, bool terminateBackgroundTasksOnCompletion = true, bool runInParallel = false, TaskRunnerEventHandler taskRunEventHandler = null)
+        private void StartTaskRuns(Guid taskListGuid, List<Guid> backgroundTaskRunGuids, List<Guid> taskRunGuids, CancellationToken token, bool terminateBackgroundTasksOnCompletion = true, bool runInParallel = false, TaskRunnerEventHandler taskRunEventHandler = null)
         {
-            // Run all enabled tests in the list
+            var currentBgTasks = new List<TaskRun>();
+            // Start all background tasks
+            Parallel.ForEach(backgroundTaskRunGuids, (bgRunGuid, state) =>
+            {
+                var taskRun = TaskRun_Server.GetTaskRunByGuid(bgRunGuid);
+                var testToken = new CancellationTokenSource();
+                StartTest(taskRun, token, taskRunEventHandler);
+                RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
+                currentBgTasks.Add(taskRun);
+            });
+
+            // Wait for all background tasks to start
+            while (currentBgTasks.Any(x => x.TaskStatus == TaskStatus.NotRun))
+            {
+                Thread.Sleep(10);
+            }
+
+            // Run all tasks in the list
             if (!runInParallel)
             {
                 foreach (var runGuid in taskRunGuids)
                 {
-                    // find testrun, run it
+                    // find taskrun, run it
                     if (token.IsCancellationRequested)
                     {
                         break;
@@ -675,18 +700,8 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
                     var testToken = new CancellationTokenSource();
-
-                    if (!taskRun.BackgroundTask)
-                    {
-                        RunningTestTaskRunTokens.Add(taskRun.Guid, testToken);
-                    }
-
+                    RunningTestTaskRunTokens.Add(taskRun.Guid, testToken);
                     StartTest(taskRun, testToken.Token, taskRunEventHandler);
-
-                    if (taskRun.BackgroundTask)
-                    {
-                        RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
-                    }
 
                     // Update saved state
                     SaveAllTaskListsToXmlFile(TaskListStateFile);
@@ -702,11 +717,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                     }
 
                     var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
+                    var testToken = new CancellationTokenSource();
+                    RunningTestTaskRunTokens.Add(taskRun.Guid, testToken);
                     StartTest(taskRun, token, taskRunEventHandler);
-                    if (taskRun.BackgroundTask)
-                    {
-                        RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
-                    }
 
                     // Update saved state
                     SaveAllTaskListsToXmlFile(TaskListStateFile);
@@ -1176,7 +1189,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 TestProcess.BeginErrorReadLine();
                 TestProcess.BeginOutputReadLine();
                 // Start timeout timer if needed
-                if (ActiveTaskRun.TimeoutSeconds != -1)
+                if ((!ActiveTaskRun.BackgroundTask) && (ActiveTaskRun.TimeoutSeconds != -1))
                 {
                     Task.Run(async () =>
                     {
