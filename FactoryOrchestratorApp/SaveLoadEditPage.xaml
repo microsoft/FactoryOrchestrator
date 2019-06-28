@@ -60,27 +60,26 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Load Folder as TaskList (exe, cmd, ps1, TAEF): " Grid.Row="0" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Right" Margin="10,0" VerticalAlignment="Center"/>
-        <Button x:Name="LoadFolderButton" Grid.Row="0" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFolderButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+        <TextBlock Text="Load Folder as TaskList (exe, cmd, ps1, TAEF): " Grid.Row="0" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Right" Margin="10,10,0,0" VerticalAlignment="Center"/>
+        <Button x:Name="LoadFolderButton" Grid.Row="0" Grid.Column="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFolderButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
             <SymbolIcon Symbol="OpenLocal"/>
         </Button>
 
-        <TextBlock Text="Load FactoryOrchestratorXML File: " Grid.Row="2" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-        <Button x:Name="LoadFileButton" Grid.Row="2" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFileButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+        <TextBlock Text="Import FactoryOrchestratorXML File: " Grid.Row="2" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Button x:Name="LoadFileButton" Grid.Row="2" Grid.Column="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LoadFileButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
             <SymbolIcon Symbol="OpenFile"/>
         </Button>
 
         <TextBlock Text="Create new TaskList: " Grid.Row="4" Grid.Column="0" Style="{StaticResource TitleTextBlockStyle}" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-        <Button x:Name="NewListButton" Grid.Row="4" Grid.Column="2" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="NewListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
+        <Button x:Name="NewListButton" Grid.Row="4" Grid.Column="1" Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" Click="NewListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource LoadFlyout}">
             <SymbolIcon Symbol="Add"/>
         </Button>
 
-        <StackPanel  Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
+        <StackPanel  Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
             <TextBlock Text="Existing TaskLists:" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="Existing TaskLists are loaded every boot until deleted. They can also be manually saved to a file for archiving."  Style="{StaticResource BodyTextBlockStyle}"/>
+            <TextBlock Text="Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file."  Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
         <!--TODO: Quality: It is likely better to add the buttons programmatically in the 3rd Column once they become names-->
         <!--<ListView x:Name="TaskListsView"  Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{x:Bind TestViewModel.TestData.TaskListGuids, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
@@ -133,8 +132,8 @@
             </Button>
             <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click">
                 <StackPanel Orientation="Horizontal">
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE75C;"/>
-                    <TextBlock Text="Clear All TaskLists From Server" Margin="5,0"/>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
+                    <TextBlock Text="Delete All TaskLists On Server" Margin="5,0"/>
                 </StackPanel>
             </Button>
 

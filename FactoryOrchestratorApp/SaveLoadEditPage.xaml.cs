@@ -254,9 +254,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContentDialog clearAllDialog = new ContentDialog
             {
-                Title = "Clear all TaskLists?",
+                Title = "Delete all TaskLists?",
                 Content = "All running TaskLists will be stopped. All TaskLists will be removed from the server permanently.\n" +
-                "Created .factoryxml files will not be deleted, but will need to be manually loaded via \"Load FactoryOrchestratorXML file\".",
+                "Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via \"Load FactoryOrchestratorXML file\".",
                 CloseButtonText = "Cancel",
                 PrimaryButtonText = "Clear All"
             };
