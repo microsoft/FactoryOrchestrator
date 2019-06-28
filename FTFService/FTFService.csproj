@@ -46,7 +46,7 @@
     </None>
   </ItemGroup>
 
-  <Target Name="BeforeBuildPS" BeforeTargets="Build">
+  <Target Name="BeforeBuildPS" AfterTargets="BeforeBuild">
     <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
 
