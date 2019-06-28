@@ -609,6 +609,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             public TaskListWorkItem(Guid taskListGuid, List<Guid> backgroundTaskRunGuids, List<Guid> taskRunGuids, bool terminateBackgroundTasksOnCompletion, bool allowOtherTaskListsToRun, bool runListInParallel)
             {
                 TaskListGuid = taskListGuid;
+                BackgroundTaskRunGuids = backgroundTaskRunGuids;
                 AllowOtherTaskListsToRun = allowOtherTaskListsToRun;
                 RunListInParallel = runListInParallel;
                 TerminateBackgroundTasksOnCompletion = terminateBackgroundTasksOnCompletion;
