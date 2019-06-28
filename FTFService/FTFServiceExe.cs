@@ -431,7 +431,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             FTFService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
             var pkgManager = new PackageManager();
-            var packages = pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main).ToList();
+            // TODO: Bug: This should really check packages for the signed in user
+            var packages = pkgManager.FindPackagesWithPackageTypes(PackageTypes.Main).ToList();
             var pfns = packages.Select(x => x.Id.FamilyName).ToList();
             FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
             return pfns;

@@ -272,8 +272,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             RunWaitingForResult.TaskOutput.Add($"Looking for installed package with Package Family Name {RunWaitingForResult.TaskPath}");
 
             var pkgManager = new PackageManager();
-            var pkg = pkgManager.FindPackagesForUserWithPackageTypes("", packageFamilyName, PackageTypes.Main).FirstOrDefault();
-
+            var pkg = pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, packageFamilyName, PackageTypes.Main).FirstOrDefault();
             if (pkg == null)
             {
                 RunWaitingForResult.TaskOutput.Add($"Error: Could not find installed package with Package Family Name {RunWaitingForResult.TaskPath}");
