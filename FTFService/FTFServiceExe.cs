@@ -736,7 +736,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool ExecuteServerBootTasks()
         {
             // Enable local loopback every boot.
-            return (EnableUWPLocalLoopback() && CreateAndLoginLocalUser());
+            return EnableUWPLocalLoopback();
         }
 
         /// <summary>
@@ -1037,117 +1037,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if (volatileKey != null)
                 {
                     volatileKey.Close();
-                }
-            }
-
-            return success;
-        }
-
-        private bool CreateAndLoginLocalUser()
-        {
-            bool success = false;
-            RegistryKey nonMutableKey = null;
-            RegistryKey mutableKey = null;
-            RegistryKey volatileKey = null;
-
-            try
-            {
-                // OSDATA wont exist on Desktop, so try to open it on it's own
-                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
-            }
-            catch (Exception)
-            { }
-
-            try
-            {
-                nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
-                volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
-
-                int userLoggedIn = (int)volatileKey.GetValue(_userLoggedInValue, 0);
-
-                if (userLoggedIn == 0)
-                {
-                    int userCreated = (int)GetValueFromRegistry(mutableKey, nonMutableKey, _userCreatedValue, 0);
-                    string userName;
-
-                    if (userCreated == 0)
-                    {
-                        ServiceLogger.LogInformation($"Creating a local user...");
-
-                        var createRun = RunProcessViaCmd("usersim", "g", 5000);
-                        var exitCodeLineCreate = createRun.TaskOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
-                        if (!String.IsNullOrWhiteSpace(exitCodeLineCreate))
-                        {
-                            var exitCodeString = exitCodeLineCreate.Substring(18, exitCodeLineCreate.Length - 18 - 2);
-                            if (exitCodeString != "0x00000000")
-                            {
-                                throw new Exception($"Failed with hr={exitCodeString}");
-                            }
-                        }
-
-                        var userLine = createRun.TaskOutput.Where(x => x.Contains("Generated account")).DefaultIfEmpty("").First();
-                        if (String.IsNullOrWhiteSpace(userLine))
-                        {
-                            throw new Exception("Could not create a local user!");
-                        }
-
-                        userName = userLine.Split('\'')[1];
-                        if (String.IsNullOrWhiteSpace(userName))
-                        {
-                            throw new Exception("Could not create a local user!");
-                        }
-                        SetValueInRegistry(mutableKey, nonMutableKey, _userCreatedValue, 1, RegistryValueKind.DWord);
-                        SetValueInRegistry(mutableKey, nonMutableKey, _userNameValue, userName, RegistryValueKind.String);
-
-                        ServiceLogger.LogInformation($"Local user {userName} created.");
-                    }
-                    else
-                    {
-                        userName = (string)GetValueFromRegistry(mutableKey, nonMutableKey, _userNameValue, "");
-                        if (String.IsNullOrWhiteSpace(userName))
-                        {
-                            throw new Exception("Could not load local user registry value!");
-                        }
-                    }
-
-                    ServiceLogger.LogInformation($"Signing in local user {userName}...");
-                    var loginRun = RunProcessViaCmd("usersim", $"i {userName} empty", 5000);
-                    var exitCodeLine = loginRun.TaskOutput.Where(x => x.Contains("User Sim exiting")).DefaultIfEmpty("").First();
-                    if (!String.IsNullOrWhiteSpace(exitCodeLine))
-                    {
-                        var exitCodeString = exitCodeLine.Substring(18, exitCodeLine.Length - 18 - 2);
-                        if (exitCodeString != "0x00000000")
-                        {
-                            throw new Exception($"Failed with hr={exitCodeString}");
-                        }
-                    }
-                    volatileKey.SetValue(_userLoggedInValue, 1, RegistryValueKind.DWord);
-
-                    success = true;
-                }
-                else
-                {
-                    success = true;
-                }
-            }
-            catch (Exception e)
-            {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to create and sign-in a local user! This is expected on desktop. ({e.Message})"));
-            }
-            finally
-            {
-
-                if (volatileKey != null)
-                {
-                    volatileKey.Close();
-                }
-                if (mutableKey != null)
-                {
-                    mutableKey.Close();
-                }
-                if (nonMutableKey != null)
-                {
-                    nonMutableKey.Close();
                 }
             }
 
