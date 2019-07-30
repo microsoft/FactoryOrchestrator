@@ -175,7 +175,7 @@ steps:
   displayName: 'Copy msixbundle to root of drop'
   inputs:
     SourceFolder: '$(XES_DFSDROP)\release\msixbundle\Multi\FactoryOrchestratorApp'
-    Contents: 'Microsoft.FTFUWP_8wekyb3d8bbwe.msixbundle'
+    Contents: 'Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe_8wekyb3d8bbwe.msixbundle'
     TargetFolder: '$(XES_DFSDROP)\msixbundle'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
