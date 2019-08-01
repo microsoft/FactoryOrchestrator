@@ -261,13 +261,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FTFClientLibrary\FTFClientLibrary.csproj">
+    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj">
       <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
-      <Name>FTFClientLibrary</Name>
+      <Name>FactoryOrchestratorClientLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FTFCoreLibrary\FTFCoreLibrary.csproj">
-      <Project>{5ED97075-7281-4FA3-8E5F-D4B8D273BDCB}</Project>
-      <Name>FTFCoreLibrary</Name>
+    <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj">
+      <Project>{5ed97075-7281-4fa3-8e5f-d4b8d273bdcb}</Project>
+      <Name>FactoryOrchestratorCoreLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

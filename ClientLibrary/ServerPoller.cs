@@ -8,12 +8,12 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 namespace Microsoft.FactoryOrchestrator.Client
 {
     /// <summary>
-    /// FTFPoller is used to create a polling thread for a given FTF GUID. It can optionally raise a FTFPollerEvent event via OnUpdatedObject.
-    /// All FTF GUID types are supported.
+    /// ServerPoller is used to create a polling thread for a given FO GUID. It can optionally raise a ServerPollerEvent event via OnUpdatedObject.
+    /// All FO GUID types are supported.
     /// </summary>
-    public class FTFPoller
+    public class ServerPoller
     {
-        public FTFPoller(Guid? guidToPoll, Type guidType, IpcServiceClient<IFTFCommunication> ipcServiceClient, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 5)
+        public ServerPoller(Guid? guidToPoll, Type guidType, IpcServiceClient<IFOCommunication> ipcServiceClient, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 5)
         {
             _guidToPoll = guidToPoll;
             _client = ipcServiceClient;
@@ -74,7 +74,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                             int newInterval;
                             if (_invokeSem.Wait(0))
                             {
-                                OnUpdatedObject?.Invoke(this, new FTFPollEventArgs(_latestObject));
+                                OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(_latestObject));
                                 _invokeSem.Release();
                                 newInterval = Math.Max(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
                             }
@@ -92,7 +92,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                         else
                         {
                             _invokeSem.Wait();
-                            OnUpdatedObject?.Invoke(this, new FTFPollEventArgs(_latestObject));
+                            OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(_latestObject));
                             _invokeSem.Release();
                         }
                     }
@@ -148,7 +148,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         public bool IsPolling { get => !_stopped; }
 
         private Guid? _guidToPoll;
-        private IpcServiceClient<IFTFCommunication> _client;
+        private IpcServiceClient<IFOCommunication> _client;
         private object _latestObject;
         private int _pollingInterval;
         private int _initialPollingInterval;
@@ -159,12 +159,12 @@ namespace Microsoft.FactoryOrchestrator.Client
         private bool _stopped;
         private bool _adaptiveInterval;
         private int _adaptiveModifier;
-        public event FTFPollerEventHandler OnUpdatedObject;
+        public event ServerPollerEventHandler OnUpdatedObject;
     }
 
-    public class FTFPollEventArgs : EventArgs
+    public class ServerPollerEventArgs : EventArgs
     {
-        public FTFPollEventArgs(object result)
+        public ServerPollerEventArgs(object result)
         {
             Result = result;
         }
@@ -172,5 +172,5 @@ namespace Microsoft.FactoryOrchestrator.Client
         public object Result { get; }
     }
 
-    public delegate void FTFPollerEventHandler(object source, FTFPollEventArgs e);
+    public delegate void ServerPollerEventHandler(object source, ServerPollerEventArgs e);
 }

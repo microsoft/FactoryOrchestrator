@@ -7,28 +7,28 @@
 			"name": "official/rs_onecore_sigma_dplat_d6",
 			"CheckinFiles": [
 				{
-				"source": "FactoryTestFramework.Service.x86.man",
-				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/x86",
+				"source": "FactoryOrchestrator.Service.x86.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
 				},
 				{
-				"source": "FactoryTestFramework.Service.x64.man",
-				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/x64",
+				"source": "FactoryOrchestrator.Service.x64.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
 				},
 				{
-				"source": "FactoryTestFramework.Service.ARM.man",
-				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/arm",
+				"source": "FactoryOrchestrator.Service.ARM.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
 				},
 				{
-				"source": "FactoryTestFramework.Service.ARM64.man",
-				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/arm64",
+				"source": "FactoryOrchestrator.Service.ARM64.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
 				},
 				{
-				"source": "FactoryTestFramework.msixbundle.man",
-				"path": "/onecoreuap/base/manufacturing/FactoryTestFramework/appx/FTFUWP",
+				"source": "FactoryOrchestrator.msixbundle.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
 				}
 			]

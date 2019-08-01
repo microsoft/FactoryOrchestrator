@@ -296,7 +296,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// An ExecutableTask is an .exe binary that is run by the FTFServer. The exit code of the process determines if the task passed or failed.
+    /// An ExecutableTask is an .exe binary that is run by the FactoryOrchestratorServer. The exit code of the process determines if the task passed or failed.
     /// 0 == PASS, all others == FAIL.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
@@ -394,7 +394,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// An ExternalTest is a task run outside of the FTFServer.
+    /// An ExternalTest is a task run outside of the FactoryOrchestratorServer.
     /// task results must be returned to the server via SetTaskRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
@@ -462,7 +462,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// A UWPTest is a UWP task run by the FTFUWP client. These are used for UI.
+    /// A UWPTest is a UWP task run by the FactoryOrchestratorApp client. These are used for UI.
     /// task results must be returned to the server via SetTaskRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]

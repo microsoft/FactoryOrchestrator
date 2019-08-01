@@ -46,7 +46,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     _activeListPoller.StopPolling();
                 }
-                _activeListPoller = new FTFPoller(taskListGuid, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
+                _activeListPoller = new ServerPoller(taskListGuid, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
 #if DEBUG
                 if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
@@ -91,7 +91,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private async void OnUpdatedTaskListAsync(object source, FTFPollEventArgs e)
+        private async void OnUpdatedTaskListAsync(object source, ServerPollerEventArgs e)
         {
             if (e.Result != null)
             {
@@ -113,7 +113,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private async void OnUpdatedTaskListGuidsAsync(object source, FTFPollEventArgs e)
+        private async void OnUpdatedTaskListGuidsAsync(object source, ServerPollerEventArgs e)
         {
             var taskListGuids = e.Result as List<Guid>;
 
@@ -174,7 +174,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new FTFPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidsAsync;
             }
 
@@ -224,8 +224,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private Frame mainPage;
-        private FTFPoller _activeListPoller;
-        private FTFPoller _taskListGuidPoller;
+        private ServerPoller _activeListPoller;
+        private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private SemaphoreSlim _listUpdateSem;
     }

@@ -91,9 +91,9 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// IFTFCommunication defines the client <> server communication model. 
+    /// IFOCommunication defines the client <> server communication model. 
     /// </summary>
-    public interface IFTFCommunication
+    public interface IFOCommunication
     {
         // Service APIs
         void ResetService(bool preserveLogs = true);

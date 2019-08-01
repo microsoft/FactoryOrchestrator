@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetName>FTFCoreLibrary</TargetName>
+    <TargetName>FactoryOrchestratorCoreLibrary</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>

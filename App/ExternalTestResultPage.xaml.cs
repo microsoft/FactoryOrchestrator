@@ -19,7 +19,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 {
     /// <summary>
     /// A result entry page that queries the user if a given TaskRun for an external/UWP task passed or failed on the DUT.
-    /// The page is automatically navigated from if the TaskRun is "completed" by a remote FTF client.
+    /// The page is automatically navigated from if the TaskRun is "completed" by a remote FO client.
     /// </summary>
     public sealed partial class ExternalTestResultPage : Page
     {
@@ -34,7 +34,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             // Get TaskRun we are reporting results for
             taskRun = ((App)Application.Current).RunWaitingForResult;
-            taskRunPoller = new FTFPoller(taskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
+            taskRunPoller = new ServerPoller(taskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
             taskRunPoller.OnUpdatedObject += OnUpdatedRun;
 
             // Append task details to UI
@@ -59,7 +59,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        private void OnUpdatedRun(object source, FTFPollEventArgs e)
+        private void OnUpdatedRun(object source, ServerPollerEventArgs e)
         {
             lock (updateLock)
             {
@@ -109,7 +109,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (result != TaskStatus.Aborted)
                 {
                     // Don't consider the task "done" until the task passed/failed and that result was chosen by the user.
-                    // This is consistent with how FTFServer handles exe & TAEF tests.
+                    // This is consistent with how FactoryOrchestratorServer handles exe & TAEF tests.
                     taskRun.TimeFinished = DateTime.Now;
 
                     // Set the exit code
@@ -139,7 +139,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private bool testReportReady;
         private TaskRun taskRun;
-        private FTFPoller taskRunPoller;
+        private ServerPoller taskRunPoller;
         private object updateLock;
     }
 }

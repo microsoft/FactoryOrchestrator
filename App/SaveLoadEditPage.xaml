@@ -13,7 +13,7 @@
             <StackPanel>
                 <TextBlock x:Name="SaveFlyoutTextHeader" Text="File to save as:" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
                 <TextBox x:Name="SaveFlyoutUserPath" Text="" KeyDown="ConfirmSave_KeyDown"/>
-                <TextBlock x:Name="SaveFlyoutText1" Text=".factoryxml will be automattically appended to the filename"/>
+                <TextBlock x:Name="SaveFlyoutText1" Text=".xml will be automattically appended to the filename"/>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="CancelSave" Padding="5" Margin="5" Click="CancelSave_Click">
                         <SymbolIcon Symbol="Cancel"/>

@@ -78,7 +78,7 @@ steps:
   displayName: 'Source Index Symbols'
   inputs:
     SearchPattern: '$(Build.ARTIFACTSTAGINGDIRECTORY)\**\*.pdb'
-  condition: ne(variables['prototype'], 'true')
+  condition: ne(variables['skippublish'], 'true')
 
 - task: ms-vscs-artifact.build-tasks.artifactSymbolTask-1.artifactSymbolTask@0
   displayName: 'Publish to Symbols to Artifact Services'
@@ -86,61 +86,61 @@ steps:
     symbolServiceURI: 'https://microsoft.artifacts.visualstudio.com/DefaultCollection'
     requestName: '$(system.teamProject)/$(Build.BuildNumber)_$(BuildConfiguration)/$(Build.BuildId)'
     sourcePath: '$(Build.ARTIFACTSTAGINGDIRECTORY)'
-  condition: ne(variables['prototype'], 'true')
+  condition: ne(variables['skippublish'], 'true')
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: $(TFS_BUILDNUMBER)'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)\FactoryOrchestratorApp\AppPackages'
+    PathtoPublish: '$(Build.SourcesDirectory)\App\AppPackages'
     ArtifactName: '$(TFS_BUILDNUMBER)_$(BuildConfiguration)'
-  condition: ne(variables['prototype'], 'true')
+  condition: ne(variables['skippublish'], 'true')
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FTFService x86'
+  displayName: 'dotnet publish FactoryOrchestratorService x86'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FTFService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FTFService x64'
+  displayName: 'dotnet publish FactoryOrchestratorService x64'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FTFService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FTFService ARM'
+  displayName: 'dotnet publish FactoryOrchestratorService ARM'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FTFService_SCD --self-contained --runtime win-arm --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FTFService ARM64'
+  displayName: 'dotnet publish FactoryOrchestratorService ARM64'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\FTFService\FTFService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FTFService_SCD --self-contained --runtime win-arm64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --verbosity Detailed'
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: PowerShell@2
-  displayName: 'Create FTFService Manifest for VPack'
+  displayName: 'Create FactoryOrchestratorService Manifest for VPack'
   inputs:
     targetType: filePath
     filePath: ./eng/build/CreateServiceManifestForPkgES.ps1
-    arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryTestFramework'
+    arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryOrchestrator'
     failOnStderr: true
   condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
   timeoutInMinutes: 5
@@ -152,7 +152,7 @@ steps:
     TargetFolder: '$(XES_DFSDROP)\'
 
 - task: CopyFiles@2
-  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - FTFService publish'
+  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - FactoryOrchestratorService publish'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\bin\'
     TargetFolder: '$(XES_DFSDROP)\'
@@ -168,25 +168,44 @@ steps:
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
     filename: eng/build/MakeAppxBundle.cmd
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['prototype'], 'true')))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
   displayName: 'Copy msixbundle to root of drop'
   inputs:
     SourceFolder: '$(XES_DFSDROP)\release\msixbundle\Multi\FactoryOrchestratorApp'
-    Contents: 'Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe_8wekyb3d8bbwe.msixbundle'
+    Contents: 'Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe.msixbundle'
     TargetFolder: '$(XES_DFSDROP)\msixbundle'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
+  
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack msixbundle'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\msixbundle'
+    pushPkgName: 'FactoryOrchestrator.msixbundle'
+    description: 'FactoryOrchestrator.msixbundle'
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop msixbundle'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
 
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ARM'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FTFService_SCD'
-    pushPkgName: '$(Build.Repository.Name).Service.ARM'
-    description: '$(Build.Repository.Name).Service.ARM'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FactoryOrchestratorService_SCD'
+    pushPkgName: 'FactoryOrchestrator.Service.ARM'
+    description: 'FactoryOrchestrator.Service.ARM'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
@@ -203,9 +222,9 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ARM64'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FTFService_SCD'
-    pushPkgName: '$(Build.Repository.Name).Service.ARM64'
-    description: '$(Build.Repository.Name).Service.ARM64'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FactoryOrchestratorService_SCD'
+    pushPkgName: 'FactoryOrchestrator.Service.ARM64'
+    description: 'FactoryOrchestrator.Service.ARM64'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
@@ -222,9 +241,9 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack x86'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x86\FTFService_SCD'
-    pushPkgName: '$(Build.Repository.Name).Service.x86'
-    description: '$(Build.Repository.Name).Service.x86'
+    sourceDirectory: '$(XES_DFSDROP)\Release\x86\FactoryOrchestratorService_SCD'
+    pushPkgName: 'FactoryOrchestrator.Service.x86'
+    description: 'FactoryOrchestrator.Service.x86'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
@@ -241,33 +260,14 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack x64'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x64\FTFService_SCD'
-    pushPkgName: '$(Build.Repository.Name).Service.x64'
-    description: '$(Build.Repository.Name).Service.x64'
+    sourceDirectory: '$(XES_DFSDROP)\Release\x64\FactoryOrchestratorService_SCD'
+    pushPkgName: 'FactoryOrchestrator.Service.x64'
+    description: 'FactoryOrchestrator.Service.x64'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   enabled: true
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest to Drop x64'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack msixbundle'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\msixbundle'
-    pushPkgName: '$(Build.Repository.Name).msixbundle'
-    description: '$(Build.Repository.Name).msixbundle'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop msixbundle'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
@@ -315,7 +315,7 @@ steps:
   inputs:
     areaPath: 'OS\Core\SiGMa\Device Platform\OC - OneCore\Manufacturing'
     iterationPath: 'OS'
-    bugTags: 'FTF'
+    bugTags: 'FactoryOrchestrator'
     scanAll: false
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 

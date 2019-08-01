@@ -23,7 +23,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             IsLocalHost = (host == IPAddress.Loopback) ? true : false;
             IpAddress = host;
 
-            IpcClient = new IpcServiceClientBuilder<IFTFCommunication>()
+            IpcClient = new IpcServiceClientBuilder<IFOCommunication>()
                 .UseTcp(host, port)
                 .Build();
 
@@ -47,8 +47,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Warning: This helper API only works in .NET executables! It WILL NOT work in UWP apps, including FTFUWP.
-        /// FTFUWP has its own file transfer API in FileTransferHelper.cs
+        /// Warning: This helper API only works in .NET executables! It WILL NOT work in UWP apps, including FactoryOrchestratorApp.
+        /// FactoryOrchestratorApp has its own file transfer API in FileTransferHelper.cs
         /// </summary>
         public static async Task<bool> SendFileToServer(string clientFilename, string serverFilename)
         {
@@ -62,8 +62,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Warning: This helper API only works in .NET executables! It WILL NOT work in UWP apps, including FTFUWP.
-        /// FTFUWP has its own file transfer API in FileTransferHelper.cs
+        /// Warning: This helper API only works in .NET executables! It WILL NOT work in UWP apps, including FactoryOrchestratorApp.
+        /// FactoryOrchestratorApp has its own file transfer API in FileTransferHelper.cs
         /// </summary>
         public static async Task<bool> GetFileFromServer(string serverFilename, string clientFilename)
         {
@@ -86,7 +86,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             await IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"%systemroot%\system32\shutdown.exe", $"/r /t {secondsUntilReboot}", null));
         }
 
-        public static IpcServiceClient<IFTFCommunication> IpcClient { get; private set; }
+        public static IpcServiceClient<IFOCommunication> IpcClient { get; private set; }
         public static event IPCClientOnConnected OnConnected;
         public static bool IsLocalHost { get; private set; }
         public static IPAddress IpAddress { get; private set; }

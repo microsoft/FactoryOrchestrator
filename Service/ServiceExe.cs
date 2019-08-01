@@ -22,7 +22,7 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
-    class FTFServiceExe
+    class FOServiceExe
     {
         public static IIpcServiceHost ipcHost;
 
@@ -43,7 +43,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 builder
                     .AddTcp()
-                    .AddService<IFTFCommunication, FTFCommunicationHandler>();
+                    .AddService<IFOCommunication, FOCommunicationHandler>();
             });
 
             // Configure service providers for logger creation and managment
@@ -59,10 +59,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                 .AddSingleton(new LoggerFactory())
                 .BuildServiceProvider();
 
-            ServiceProvider ftfSvcProvider = services
+            ServiceProvider foSvcProvider = services
                 .AddLogging(builder =>
                 {
-                    // Log FTF level based on DEBUG ifdef
+                    // Log level based on DEBUG ifdef
                     builder
                     .SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
 
@@ -76,24 +76,24 @@ namespace Microsoft.FactoryOrchestrator.Service
             // svcProvider.GetRequiredService<ILoggerFactory>().AddConsole();
             // svcProvider.GetRequiredService<ILoggerFactory>().AddProvider();
 
-            // Allow any client on the network to connect to the FTFService, including loopback (other processes on this device)
+            // Allow any client on the network to connect to the FactoryOrchestratorService, including loopback (other processes on this device)
             // For network clients to work, we need to createa firewall entry:
-            // netsh advfirewall firewall add rule name=ftfservice_tcp_in program=<Path to FTFService.exe> protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
-            // netsh advfirewall firewall add rule name=ftfservice_tcp_out program=<Path to FTFService.exe> protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
-            ipcHost = new IpcServiceHostBuilder(ipcSvcProvider).AddTcpEndpoint<IFTFCommunication>("tcp", IPAddress.Any, 45684)
+            // netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_in program=<Path to FactoryOrchestratorService.exe> protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
+            // netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_out program=<Path to FactoryOrchestratorService.exe> protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
+            ipcHost = new IpcServiceHostBuilder(ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Any, 45684)
                                                             .Build();
 
-            var _logger = ftfSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFServiceExe>();
+            var _logger = foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOServiceExe>();
 
-            // FTFService handler
-            ServiceRunner<FTFService>.Run(config =>
+            // FactoryOrchestratorService handler
+            ServiceRunner<FOService>.Run(config =>
             {
                 var name = config.GetDefaultName();
                 config.Service(serviceConfig =>
                 {
                     serviceConfig.ServiceFactory((extraArguments, controller) =>
                     {
-                        return new FTFService(controller, ftfSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FTFService>());
+                        return new FOService(controller, foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOService>());
                     });
 
                     serviceConfig.OnStart((service, extraParams) =>
@@ -110,13 +110,13 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     serviceConfig.OnError(e =>
                     {
-                        if (FTFService.Instance != null)
+                        if (FOService.Instance != null)
                         {
                             _logger.LogError(e, string.Format("Service {0} errored with exception", name));
                         }
                         else
                         {
-                            FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Service {name} errored with exception {e.Message}"));
+                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Service {name} errored with exception {e.Message}"));
                         }
                     });
                 });
@@ -124,24 +124,24 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             // Dispose of loggers, this needs to be done manually
             ipcSvcProvider.GetService<ILoggerFactory>().Dispose();
-            ftfSvcProvider.GetService<ILoggerFactory>().Dispose();
+            foSvcProvider.GetService<ILoggerFactory>().Dispose();
         }
     }
 
-    // Find the FTFService singleton -> pass call to it
-    public class FTFCommunicationHandler : IFTFCommunication
+    // Find the FactoryOrchestratorService singleton -> pass call to it
+    public class FOCommunicationHandler : IFOCommunication
     {
         // TODO: Logging: Catch exceptions & log them
         public List<ServiceEvent> GetAllServiceEvents()
         {
-            return FTFService.Instance.ServiceEvents.Values.ToList();
+            return FOService.Instance.ServiceEvents.Values.ToList();
         }
 
         public List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked)
         {
-            if (timeLastChecked < FTFService.Instance.LastEventTime)
+            if (timeLastChecked < FOService.Instance.LastEventTime)
             {
-                return FTFService.Instance.ServiceEvents.Values.Where(x => x.EventTime > timeLastChecked).ToList();
+                return FOService.Instance.ServiceEvents.Values.Where(x => x.EventTime > timeLastChecked).ToList();
             }
             else
             {
@@ -151,9 +151,9 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex)
         {
-            if (lastEventIndex < FTFService.Instance.LastEventIndex)
+            if (lastEventIndex < FOService.Instance.LastEventIndex)
             {
-                return FTFService.Instance.ServiceEvents.Where(x => x.Key > lastEventIndex).Select(x => x.Value).ToList();
+                return FOService.Instance.ServiceEvents.Where(x => x.Key > lastEventIndex).Select(x => x.Value).ToList();
             }
             else
             {
@@ -162,127 +162,127 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
         public ServiceEvent GetLastServiceError()
         {
-            return FTFService.Instance.ServiceEvents.Values.Where(x => x.ServiceEventType == ServiceEventType.ServiceError).DefaultIfEmpty(null).LastOrDefault();
+            return FOService.Instance.ServiceEvents.Values.Where(x => x.ServiceEventType == ServiceEventType.ServiceError).DefaultIfEmpty(null).LastOrDefault();
         }
 
         public TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path}");
             TaskList tl = null;
 
             try
             {
-                tl = FTFService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, onlyTAEF);
+                tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, onlyTAEF);
             }
             catch (Exception e)
             {
-                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path}");
             return tl;
         }
 
         public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
             List<Guid> taskLists = null;
 
             try
             {
-                taskLists = FTFService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
+                taskLists = FOService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
             }
             catch (Exception e)
             {
-                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
             return taskLists;
         }
 
         public TaskList CreateTaskListFromTaskList(TaskList list)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromTaskList {list.Guid}");
-            var serverList = FTFService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromTaskList {list.Guid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromTaskList {list.Guid}");
+            var serverList = FOService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromTaskList {list.Guid}");
             return serverList;
         }
 
         public bool SaveTaskListToXmlFile(Guid guid, string filename)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
-            var saved = FTFService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
+            var saved = FOService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
             return saved;
         }
 
         public bool SaveAllTaskListsToXmlFile(string filename)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
-            var saved = FTFService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
+            var saved = FOService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
             return saved;
         }
 
         public List<Guid> GetTaskListGuids()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuids");
-            var guids = FTFService.Instance.TestExecutionManager.GetTaskListGuids();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListGuids");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuids");
+            var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListGuids");
             return guids;
         }
 
         public TaskList QueryTaskList(Guid taskListGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
-            var list = FTFService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskList {taskListGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
+            var list = FOService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskList {taskListGuid}");
             return list;
         }
         public TaskBase QueryTask(Guid taskGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
-            var task = FTFService.Instance.TestExecutionManager.GetTask(taskGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
+            var task = FOService.Instance.TestExecutionManager.GetTask(taskGuid);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
             return task;
         }
 
         public bool DeleteTaskList(Guid listToDelete)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: DeleteTaskList {listToDelete}");
-            var deleted = FTFService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTaskList {listToDelete}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteTaskList {listToDelete}");
+            var deleted = FOService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTaskList {listToDelete}");
             return deleted;
         }
 
         public void ResetService(bool preserveLogs = true)
         {
             // Kill all processes including bg tasks, delete all state except registry configuration, re-run boot tasks
-            FTFService.Instance.TestExecutionManager.Reset(preserveLogs, true);
+            FOService.Instance.TestExecutionManager.Reset(preserveLogs, true);
             // Pause a bit to allow the IPC call to return before we kill it off
-            Task.Run(() => { System.Threading.Thread.Sleep(100); FTFService.Instance.Stop(); FTFService.Instance.Start(true); });
+            Task.Run(() => { System.Threading.Thread.Sleep(100); FOService.Instance.Stop(); FOService.Instance.Start(true); });
         }
 
         public bool UpdateTask(TaskBase updatedTask)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
-            var updated = FTFService.Instance.TestExecutionManager.UpdateTask(updatedTask);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
+            var updated = FOService.Instance.TestExecutionManager.UpdateTask(updatedTask);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
             return updated;
         }
 
         public bool UpdateTaskList(TaskList taskList)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskList {taskList.Guid}");
-            var updated = FTFService.Instance.TestExecutionManager.UpdateTaskList(taskList);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskList {taskList.Guid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskList {taskList.Guid}");
+            var updated = FOService.Instance.TestExecutionManager.UpdateTaskList(taskList);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskList {taskList.Guid}");
             return updated;
         }
 
         public bool SetDefaultTePath(string teExePath)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
             bool success = false;
             try
             {
@@ -292,103 +292,103 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception)
             {}
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
 
             return success;
         }
 
         public bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
-            var updated = FTFService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+            var updated = FOService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
             return updated;
         }
 
         public void AbortAllTaskLists()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
-            FTFService.Instance.TestExecutionManager.AbortAllTaskLists();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
+            FOService.Instance.TestExecutionManager.AbortAllTaskLists();
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
         }
 
         public void AbortTaskList(Guid taskListGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskList {taskListGuid}");
-            FTFService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskList {taskListGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskList {taskListGuid}");
+            FOService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskList {taskListGuid}");
         }
         public void AbortTaskRun(Guid taskRunGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskRun {taskRunGuid}");
-            FTFService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskRun {taskRunGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskRun {taskRunGuid}");
+            FOService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskRun {taskRunGuid}");
         }
 
         public string GetServiceVersionString()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
-            var version = FTFService.GetServiceVersionString();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
+            var version = FOService.GetServiceVersionString();
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
             return version;
         }
 
         public TaskRun QueryTaskRun(Guid taskRunGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
             var run = TaskRun_Server.GetTaskRunByGuid(taskRunGuid).DeepCopy();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
             return run;
         }
 
         public bool UpdateTaskRun(TaskRun taskRun)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskRun {taskRun.Guid}");
-            var updated = FTFService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskRun {taskRun.Guid}");
+            var updated = FOService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
             return updated;
         }
 
         public bool RunTaskList(Guid taskListToRun)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}");
-            var ran = FTFService.Instance.TestExecutionManager.RunTaskList(taskListToRun);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}");
+            var ran = FOService.Instance.TestExecutionManager.RunTaskList(taskListToRun);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}");
             return ran;
         }
 
         public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
-            var run = FTFService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
+            var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
             return run;
         }
 
         public TaskRun RunTask(Guid testGuid)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunTask {testGuid}");
-            var run = FTFService.Instance.TestExecutionManager.RunTask(testGuid);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {testGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {testGuid}");
+            var run = FOService.Instance.TestExecutionManager.RunTask(testGuid);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {testGuid}");
             return run;
         }
 
         public TaskRun RunApp(string packageFamilyName)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
-            var run = FTFService.Instance.TestExecutionManager.RunApp(packageFamilyName);
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
+            var run = FOService.Instance.TestExecutionManager.RunApp(packageFamilyName);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
             return run;
         }
 
         public byte[] GetFile(string sourceFilename)
         {
             byte[] bytes = null;
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
 
             if (!File.Exists(sourceFilename))
             {
-                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile does not exist!"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile does not exist!"));
             }
 
             try
@@ -397,17 +397,17 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile could not be read! {e.Message} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile could not be read! {e.Message} {e.HResult}"));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
 
             return bytes;
         }
 
         public bool SendFile(string targetFilename, byte[] fileData)
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
 
             var result = false;
             try
@@ -419,28 +419,28 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {targetFilename} for SendFile could not be saved! {e.Message} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {targetFilename} for SendFile could not be saved! {e.Message} {e.HResult}"));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
 
             return result;
         }
 
         public List<string> GetInstalledApps()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
             var pkgManager = new PackageManager();
             // TODO: Bug: This should really check packages for the signed in user
             var packages = pkgManager.FindPackagesWithPackageTypes(PackageTypes.Main).ToList();
             var pfns = packages.Select(x => x.Id.FamilyName).ToList();
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
             return pfns;
         }
 
         public List<Tuple<string, string>> GetIpAddressesAndNicNames()
         {
-            FTFService.Instance.ServiceLogger.LogDebug($"Start: GetIpAddressesAndNicNames");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetIpAddressesAndNicNames");
             List<Tuple<string, string>> ipAndNic = new List<Tuple<string, string>>();
 
             try
@@ -460,15 +460,15 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FTFService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"GetIpAddressesAndNicNames() failed! {e.Message} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"GetIpAddressesAndNicNames() failed! {e.Message} {e.HResult}"));
             }
 
-            FTFService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
             return ipAndNic;
         }
     }
 
-    public class FTFService : IMicroService
+    public class FOService : IMicroService
     {
         enum RegKeyType
         {
@@ -477,12 +477,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             Volatile
         }
 
-        private static FTFService _singleton = null;
+        private static FOService _singleton = null;
         private static readonly object _constructorLock = new object();
 
         private TaskManager_Server _taskExecutionManager;
         private IMicroServiceController _controller;
-        public ILogger<FTFService> ServiceLogger;
+        public ILogger<FOService> ServiceLogger;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
         private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
@@ -499,17 +499,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
 
         //private readonly string _firewallValue = @"FirewallConfigured";
-        //private RegistryKey _ftfPersistentKey = null;
-        //private RegistryKey _ftfVolatileKey = null;
 
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
 
         /// <summary>
-        /// FTFService singleton
+        /// FactoryOrchestratorService singleton
         /// </summary>
-        public static FTFService Instance
+        public static FOService Instance
         {
             get
             {
@@ -518,7 +516,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
 
         /// <summary>
-        /// Returns build number of FTFService.
+        /// Returns build number of FactoryOrchestratorService.
         /// </summary>
         /// <returns></returns>
         public static string GetServiceVersionString()
@@ -542,7 +540,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             return $"{assemblyVersion} ({description})";
         }
 
-        public FTFService(IMicroServiceController controller, ILogger<FTFService> logger)
+        public FOService(IMicroServiceController controller, ILogger<FOService> logger)
         {
             lock (_constructorLock)
             {
@@ -562,13 +560,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        // Otherwise save them next to the FTFService.exe
+                        // Otherwise save them next to the FactoryOrchestratorService.exe
                         _taskExecutionManager = new TaskManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FactoryOrchestratorLogs")); ;
                     }
                 }
                 else
                 {
-                    throw new Exception("FTFService already created! Only one instance allowed.");
+                    throw new Exception("FactoryOrchestratorService already created! Only one instance allowed.");
                 }
             }
         }
@@ -610,7 +608,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server. Only start after all boot tasks are complete.
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             _taskExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
-            FTFServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
+            FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
             ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
         }
@@ -730,7 +728,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
 
         /// <summary>
-        /// Executes server required tasks that should run on first boot (of FTF) or every boot.
+        /// Executes server required tasks that should run on first boot (of FactoryOrchestrator) or every boot.
         /// </summary>
         /// <returns></returns>
         public bool ExecuteServerBootTasks()
@@ -740,7 +738,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
 
         /// <summary>
-        /// Executes user defined tasks that should run on first boot (of FTF) or every boot.
+        /// Executes user defined tasks that should run on first boot (of FactoryOrchestrator) or every boot.
         /// </summary>
         /// <returns></returns>
         public void ExecuteUserBootTasks(bool force)
@@ -754,7 +752,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             bool everyBootTasksExecuted = false;
             bool stateFileBackedup = false;
             var logFolder = _taskExecutionManager.DefaultLogFolder;
-            var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FTFTempTaskListStateFile");
+            var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FactoryOrchestratorTempTaskListStateFile");
             try
             {
                 // OSDATA wont exist on Desktop, so try to open it on it's own
@@ -1030,7 +1028,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback! You may not be able to use the FTF UWP app locally ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback! You may not be able to use the FactoryOrchestrator UWP app locally ({e.Message})"));
             }
             finally
             {
@@ -1099,32 +1097,32 @@ namespace Microsoft.FactoryOrchestrator.Service
             return key;
         }
 
-        // Firewall is configured in FTFServiceTemplate.wm.xml Windows Manifest file
+        // Firewall is configured in FactoryOrchestratorServiceTemplate.wm.xml Windows Manifest file
         //private bool AddFirewallRules()
         //{
         //    try
         //    {
-        //        if (_ftfKey == null)
+        //        if (_foKey == null)
         //        {
         //            OpenOrCreateRegKey();
         //        }
 
-        //        var value = (int)_ftfKey.GetValue(_firewallValue, 0);
+        //        var value = (int)_foKey.GetValue(_firewallValue, 0);
 
         //        if (value == 0)
         //        {
         //            // Run firewall commands
-        //       //     netsh advfirewall firewall add rule name = ftfservice_tcp_in program =< Path to FTFService.exe > protocol = tcp dir =in enable = yes action = allow profile =public,private,domain
+        //       //     netsh advfirewall firewall add rule name = FactoryOrchestratorService_tcp_in program =< Path to FactoryOrchestratorService.exe > protocol = tcp dir =in enable = yes action = allow profile =public,private,domain
 
-        //     //netsh advfirewall firewall add rule name=ftfservice_tcp_out program =< Path to FTFService.exe> protocol= tcp dir=out enable= yes action= allow profile=public,private,domain
+        //     //netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_out program =< Path to FactoryOrchestratorService.exe> protocol= tcp dir=out enable= yes action= allow profile=public,private,domain
 
-        //            _ftfKey.SetValue(_firewallValue, 1, RegistryValueKind.DWord);
+        //            _foKey.SetValue(_firewallValue, 1, RegistryValueKind.DWord);
         //            return true;
         //        }
         //    }
         //    catch (Exception e)
         //    {
-        //        ServiceLogger.LogError($"Unable to create FTFService firewall rules! You may not be able to use the FTF UWP app over the network ({e.Message})");
+        //        ServiceLogger.LogError($"Unable to create FactoryOrchestratorService firewall rules! You may not be able to use the FactoryOrchestrator UWP app over the network ({e.Message})");
         //    }
 
         //    return false;

@@ -59,7 +59,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             RunningTaskListTokens = new Dictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new Dictionary<Guid, List<TaskRunner>>();
             RunningTestTaskRunTokens = new Dictionary<Guid, CancellationTokenSource>();
-            TaskListStateFile = Path.Combine(defaultLogFolder, "FTFServiceKnownTaskLists.factoryxml");
+            TaskListStateFile = Path.Combine(defaultLogFolder, "FactoryOrchestratorKnownTaskLists.xml");
             SetDefaultLogFolder(defaultLogFolder, false);
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (moveFiles && (_defaultLogFolder != null) && (Directory.Exists(_defaultLogFolder)))
                         {
                             // Move existing folder to temp folder
-                            var tempDir = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FTFTemp");
+                            var tempDir = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FOTemp");
                             CopyDirectory(_defaultLogFolder, tempDir, true);
 
                             // Delete old folder
@@ -102,7 +102,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                             Directory.CreateDirectory(newLogFolder);
                         }
 
-                        var newStateFilePath = Path.Combine(newLogFolder, "FTFServiceKnownTaskLists.factoryxml");
+                        var newStateFilePath = Path.Combine(newLogFolder, "FactoryOrchestratorKnownTaskLists.xml");
 
                         if (!moveFiles)
                         {

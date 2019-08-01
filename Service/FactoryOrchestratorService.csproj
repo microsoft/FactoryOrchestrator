@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <TargetName>FTFService</TargetName>
+    <TargetName>FactoryOrchestratorService</TargetName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
@@ -28,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FTFServerLibrary\FTFServerLibrary.csproj" />
-    <ProjectReference Include="..\FTFCoreLibrary\FTFCoreLibrary.csproj" />
+    <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

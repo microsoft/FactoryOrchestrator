@@ -121,7 +121,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _activeCmdTaskRun = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{command}\"", null));
 
             // Watch for new output
-            _taskRunPoller = new FTFPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
+            _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
             _taskRunPoller.OnUpdatedObject += OnUpdatedCmdStatusAsync;
             _taskRunPoller.StartPolling();
         }
@@ -131,7 +131,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        private async void OnUpdatedCmdStatusAsync(object source, FTFPollEventArgs e)
+        private async void OnUpdatedCmdStatusAsync(object source, ServerPollerEventArgs e)
         {
             _activeCmdTaskRun = (TaskRun)e.Result;
 
@@ -294,7 +294,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool newCmd;
         private int lastOutput;
         private int maxBlocks = 400;
-        private FTFPoller _taskRunPoller;
+        private ServerPoller _taskRunPoller;
         private SemaphoreSlim _cmdSem;
         private SemaphoreSlim _outSem;
     }

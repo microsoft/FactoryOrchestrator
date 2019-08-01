@@ -32,7 +32,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _test = (TaskBase)e.Parameter;
                 CreateHeader();
                 UpdateArgs();
-                _testPoller = new FTFPoller(_test.Guid, typeof(TaskBase), IPCClientHelper.IpcClient, 5000);
+                _testPoller = new ServerPoller(_test.Guid, typeof(TaskBase), IPCClientHelper.IpcClient, 5000);
                 _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
                 _testPoller.StartPolling();
                 if (!TryCreateTaskRunPoller(_test.LastTaskRunGuid))
@@ -63,7 +63,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private async void OnUpdatedTestAsync(object source, FTFPollEventArgs e)
+        private async void OnUpdatedTestAsync(object source, ServerPollerEventArgs e)
         {
             _test = (TaskBase)e.Result;
             if ((_test != null) && (_taskRunPoller == null))
@@ -81,7 +81,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private async void OnUpdatedTaskRunAsync(object source, FTFPollEventArgs e)
+        private async void OnUpdatedTaskRunAsync(object source, ServerPollerEventArgs e)
         {
             _selectedRun = (TaskRun)e.Result;
 
@@ -331,7 +331,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         }
                     }
 
-                    _taskRunPoller = new FTFPoller((Guid)taskRunGuid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
+                    _taskRunPoller = new ServerPoller((Guid)taskRunGuid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
                     _taskRunPoller.OnUpdatedObject += OnUpdatedTaskRunAsync;
                     _taskRunPoller.StartPolling();
                     return true;
@@ -342,8 +342,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private TaskBase _test;
         private TaskRun _selectedRun;
-        private FTFPoller _taskRunPoller;
-        private FTFPoller _testPoller;
+        private ServerPoller _taskRunPoller;
+        private ServerPoller _testPoller;
         private object _taskRunPollLock = new object();
         private int lastOutput;
     }

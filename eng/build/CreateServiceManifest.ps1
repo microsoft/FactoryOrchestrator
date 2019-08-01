@@ -2,6 +2,7 @@ Param
 (
     [Parameter(Mandatory = $true)][string]$PublishFolder,
     [Parameter(Mandatory = $false)][string]$SourceRootFolder = "",
+    [Parameter(Mandatory = $true)][string]$DestinationRootFolder,
 	[Parameter(Mandatory = $true)][string]$OutputFile,
     [Parameter(Mandatory = $true)][string]$Owner,
     [Parameter(Mandatory = $true)][string]$Namespace,
@@ -10,9 +11,7 @@ Param
 
 $ErrorActionPreference = "stop"
 
-$DestinationRootDir = "`$(runtime.system32)\manufacturing\FTFService"
-
-[xml] $templateXml = Get-Content "$PSScriptRoot\FTFServiceTemplate.wm.xml"
+[xml] $templateXml = Get-Content "$PSScriptRoot\FactoryOrchestratorServiceTemplate.wm.xml"
 $wmxmlNs = "urn:Microsoft.CompPlat/ManifestSchema.v1.00"
 $ns = @{wmxml = "$wmxmlNs"}
 
@@ -32,7 +31,7 @@ $filesToAdd = Get-ChildItem $PublishFolder -Recurse -File
 foreach ($file in $filesToAdd)
 {
     # Default destination
-    $fileDestinationDir = $DestinationRootDir
+    $fileDestinationDir = $DestinationRootFolder
     # If file was in a subfolder, append it
     if (-not ($file.DirectoryName -like $PublishDir.FullName))
     {

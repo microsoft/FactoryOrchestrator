@@ -184,7 +184,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         if (IPCClientHelper.IsLocalHost)
                         {
                             // TODO: Performance: this should be in its own thread, so other service events can be handled
-                            // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FTF
+                            // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FactoryOrchestrator
                             // Only allow one external run at a time though
                             var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskRun((Guid)evnt.Guid));
                             if (!run.TaskRunComplete)

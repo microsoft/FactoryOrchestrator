@@ -40,7 +40,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new FTFPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidsAsync;
             }
 
@@ -125,7 +125,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
                 catch (Exception ex)
                 {
-                    ShowLoadFailure(_isFileLoad, path, new ServiceEvent(ServiceEventType.ServiceError, null, "Check that FTFService is running on DUT" + Environment.NewLine + ex.Message));
+                    ShowLoadFailure(_isFileLoad, path, new ServiceEvent(ServiceEventType.ServiceError, null, "Check that FactoryOrchestratorService is running on DUT" + Environment.NewLine + ex.Message));
                 }
 
                 LoadProgressBar.Visibility = Visibility.Collapsed;
@@ -209,7 +209,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text))
             {
-                var savePath = SaveFlyoutUserPath.Text + ".factoryxml";
+                var savePath = SaveFlyoutUserPath.Text + ".xml";
                 SaveProgressBar.Width = SaveFlyoutUserPath.ActualWidth - CancelSave.ActualWidth - ConfirmSave.ActualWidth - 30; // 30 == combined margin size
                 SaveProgressBar.Visibility = Visibility.Visible;
                 bool saved = false;
@@ -287,7 +287,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <summary>
         /// Keeps the Known TaskLists in sync with the server.
         /// </summary>
-        private async void OnUpdatedTaskListGuidsAsync(object source, FTFPollEventArgs e)
+        private async void OnUpdatedTaskListGuidsAsync(object source, ServerPollerEventArgs e)
         {
             var taskListGuids = e.Result as List<Guid>;
 
@@ -341,7 +341,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         public TestViewModel TestViewModel { get; set; }
 
-        private FTFPoller _taskListGuidPoller;
+        private ServerPoller _taskListGuidPoller;
         private SemaphoreSlim _listUpdateSem;
         private Guid _activeGuid;
         private bool _isFileLoad;
