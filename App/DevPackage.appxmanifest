@@ -29,5 +29,6 @@
     <rescap:Capability Name="packageQuery"/>
     <rescap:Capability Name="extendedExecutionUnconstrained"/>
     <rescap:Capability Name="broadFileSystemAccess"/>
+    <rescap:Capability Name="confirmAppClose"/>
   </Capabilities>
 </Package>

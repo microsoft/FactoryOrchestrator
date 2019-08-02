@@ -14,6 +14,7 @@ using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Core.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -88,6 +89,32 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
+
+            // Requires confirmAppClose restricted capability
+            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += App_CloseRequestedAsync;
+        }
+
+        // Ask the user to confirm before quitting, as on Factory it might not be easy to relaunch the app
+        private async void App_CloseRequestedAsync(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
+        {
+            var deferral = e.GetDeferral();
+
+            ContentDialog exitFlyout = new ContentDialog()
+            {
+                Title = "Exit?",
+                Content = "Exit Factory Orchestrator?",
+                CloseButtonText = "No",
+                PrimaryButtonText = "Yes",
+            };
+
+            var result = await exitFlyout.ShowAsync();
+
+            if (result == ContentDialogResult.None)
+            {
+                e.Handled = true;
+            }
+
+            deferral.Complete();
         }
 
         /// <summary>
