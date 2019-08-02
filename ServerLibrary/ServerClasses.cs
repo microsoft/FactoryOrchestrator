@@ -1,6 +1,7 @@
 ﻿using Microsoft.FactoryOrchestrator.Core;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,7 +19,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         public static Guid CreateTaskRun(this TaskBase task, string defaultLogFolder)
         {
             TaskRun_Server run;
-            lock (task.TestLock)
+            lock (task.TaskLock)
             {
                 run = new TaskRun_Server(task, defaultLogFolder);
                 task.TaskRunGuids.Add(run.Guid);
@@ -37,7 +38,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public static void Reset(this TaskBase task, bool preserveLogs = true)
         {
-            lock (task.TestLock)
+            lock (task.TaskLock)
             {
                 task.LatestTaskRunStatus = TaskStatus.NotRun;
                 task.LatestTaskRunExitCode = null;
@@ -46,7 +47,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 task.TaskRunGuids = new List<Guid>();
             }
 
-            TaskRun_Server.RemoveTaskRunsForTest(task.Guid, preserveLogs);
+            TaskRun_Server.RemoveTaskRunsForTask(task.Guid, preserveLogs);
         }
     }
 
@@ -55,10 +56,10 @@ namespace Microsoft.FactoryOrchestrator.Server
         public TaskManager_Server(string defaultLogFolder)
         {
             _startNonParallelTaskRunLock = new SemaphoreSlim(1, 1);
-            KnownTaskLists = new Dictionary<Guid, TaskList>();
-            RunningTaskListTokens = new Dictionary<Guid, CancellationTokenSource>();
-            RunningBackgroundTasks = new Dictionary<Guid, List<TaskRunner>>();
-            RunningTestTaskRunTokens = new Dictionary<Guid, CancellationTokenSource>();
+            KnownTaskLists = new ConcurrentDictionary<Guid, TaskList>();
+            RunningTaskListTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
+            RunningBackgroundTasks = new ConcurrentDictionary<Guid, List<TaskRunner>>();
+            RunningTestTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             TaskListStateFile = Path.Combine(defaultLogFolder, "FactoryOrchestratorKnownTaskLists.xml");
             SetDefaultLogFolder(defaultLogFolder, false);
         }
@@ -167,13 +168,12 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskList CreateTaskListFromDirectory(String path, bool onlyTAEF)
         {
-            // Recursive search for all exe and dll files
+            // Recursive search for all executable files
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
             var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
             TaskList tests = new TaskList(Guid.NewGuid());
-            // TODO: Performance: Parallel
-            //Parallel.ForEach<string>(dlls, (dll) =>
-            foreach (var dll in dlls)
+
+            Parallel.ForEach<string>(dlls, (dll) =>
             {
                 try
                 {
@@ -187,8 +187,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     // TODO: Logging
                 }
-            }
-            //);
+            });
 
             // Assume every .exe is a valid console task
             if (!onlyTAEF)
@@ -202,7 +201,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             lock (KnownTaskListLock)
             {
-                KnownTaskLists.Add(tests.Guid, tests);
+                KnownTaskLists.TryAdd(tests.Guid, tests);
             }
 
             // Update XML for state tracking (this locks KnownTaskListLock)
@@ -285,7 +284,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     }
                     else
                     {
-                        KnownTaskLists.Add(list.Guid, list);
+                        KnownTaskLists.TryAdd(list.Guid, list);
                     }
                 }
             }
@@ -306,7 +305,8 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 // Abort() gracefully returns if the guid is invalid
                 AbortTaskList(listToDelete);
-                removed = KnownTaskLists.Remove(listToDelete);   
+                TaskList removedList;
+                removed = KnownTaskLists.TryRemove(listToDelete, out removedList);   
             }
 
             // Update XML for state tracking
@@ -358,7 +358,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 try
                 {
-                    KnownTaskLists.Add(taskList.Guid, taskList);
+                    KnownTaskLists.TryAdd(taskList.Guid, taskList);
                 }
                 catch (ArgumentException)
                 {
@@ -393,10 +393,10 @@ namespace Microsoft.FactoryOrchestrator.Server
                     {
                         Parallel.ForEach(RunningBackgroundTasks.Values.SelectMany(x => x), (bgRunner) =>
                         {
-                            bgRunner.StopTest();
+                            bgRunner.StopTask();
                         });
 
-                        RunningBackgroundTasks = new Dictionary<Guid, List<TaskRunner>>();
+                        RunningBackgroundTasks.Clear();
                     }
 
                     // Reset all tests
@@ -409,9 +409,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                     File.Delete(TaskListStateFile);
 
                     // Create new dictionaries
-                    RunningTaskListTokens = new Dictionary<Guid, CancellationTokenSource>();
-                    RunningTestTaskRunTokens = new Dictionary<Guid, CancellationTokenSource>();
-                    KnownTaskLists = new Dictionary<Guid, TaskList>();
+                    RunningTaskListTokens.Clear();
+                    RunningTestTaskRunTokens.Clear();
+                    KnownTaskLists.Clear();
                 }
             }
         }
@@ -437,7 +437,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 // Timeout after a second
                 if (!runner.WaitForExit(1000))
                 {
-                    runner.StopTest();
+                    runner.StopTask();
                     throw new Exception(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
                 }
 
@@ -595,8 +595,8 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 var workItem = new TaskListWorkItem(list.Guid, backgroundTaskRunGuids, taskRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
                 var token = new CancellationTokenSource();
-                RunningTaskListTokens.Add(workItem.TaskListGuid, token);
-                RunningBackgroundTasks.Add(workItem.TaskListGuid, new List<TaskRunner>());
+                RunningTaskListTokens.TryAdd(workItem.TaskListGuid, token);
+                RunningBackgroundTasks.TryAdd(workItem.TaskListGuid, new List<TaskRunner>());
                 Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem, token.Token);
                 t.Start();
             }
@@ -654,7 +654,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                 // Tests are done! Update the tokens & locks
                 lock (RunningTaskListLock)
                 {
-                    RunningTaskListTokens.Remove(item.TaskListGuid);
+                    CancellationTokenSource removed;
+                    RunningTaskListTokens.TryRemove(item.TaskListGuid, out removed);
                 }
                 if (usedSem)
                 {
@@ -701,7 +702,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
                     var testToken = new CancellationTokenSource();
-                    RunningTestTaskRunTokens.Add(taskRun.Guid, testToken);
+                    RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
                     StartTest(taskRun, testToken.Token, taskRunEventHandler);
 
                     // Update saved state
@@ -719,7 +720,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
                     var testToken = new CancellationTokenSource();
-                    RunningTestTaskRunTokens.Add(taskRun.Guid, testToken);
+                    RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
                     StartTest(taskRun, token, taskRunEventHandler);
 
                     // Update saved state
@@ -732,9 +733,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 Parallel.ForEach(RunningBackgroundTasks[taskListGuid], (bgRunner) =>
                 {
-                    bgRunner.StopTest();
+                    bgRunner.StopTask();
                 });
-                RunningBackgroundTasks.Remove(taskListGuid);
+
+                List<TaskRunner> removed;
+                RunningBackgroundTasks.TryRemove(taskListGuid, out removed);
             }
         }
 
@@ -753,7 +756,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         runner.OnTestEvent += taskRunEventHandler;
                     }
 
-                    if (!runner.RunTest())
+                    if (!runner.RunTask())
                     {
                         throw new Exception(String.Format("Unable to start TaskRun {0} for task {1}", taskRun.Guid, taskRun.TaskName));
                     }
@@ -780,7 +783,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     if (taskRun.RunByServer)
                     {
-                        runner.StopTest();
+                        runner.StopTask();
                     }
                     else
                     {
@@ -830,7 +833,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                 if (RunningTaskListTokens.TryGetValue(taskListToCancel, out token))
                 {
                     token.Cancel();
-                    RunningTaskListTokens.Remove(taskListToCancel);
+                    CancellationTokenSource removed;
+                    RunningTaskListTokens.TryRemove(taskListToCancel, out removed);
 
                     var taskRunGuids = KnownTaskLists[taskListToCancel].Tasks.Values.Select(x => x.Guid);
                     foreach (var guid in taskRunGuids)
@@ -838,7 +842,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (RunningTestTaskRunTokens.TryGetValue(guid, out token))
                         {
                             token.Cancel();
-                            RunningTestTaskRunTokens.Remove(guid);
+                            RunningTestTaskRunTokens.TryRemove(guid, out removed);
                         }
                     }
                 }
@@ -851,15 +855,18 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 CancellationTokenSource token;
                 List<TaskRunner> backgroundTasks;
+
                 if (RunningTestTaskRunTokens.TryGetValue(taskRunToCancel, out token))
                 {
                     token.Cancel();
-                    RunningTestTaskRunTokens.Remove(taskRunToCancel);
+                    CancellationTokenSource removed;
+                    RunningTestTaskRunTokens.TryRemove(taskRunToCancel, out removed);
                 }
                 else if (RunningBackgroundTasks.TryGetValue(taskRunToCancel, out backgroundTasks))
                 {
-                    backgroundTasks[0].StopTest();
-                    RunningBackgroundTasks.Remove(taskRunToCancel);
+                    backgroundTasks[0].StopTask();
+                    List<TaskRunner> removed;
+                    RunningBackgroundTasks.TryRemove(taskRunToCancel, out removed);
                 }
                 else 
                 {
@@ -868,7 +875,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (list.Select(x => x.ActiveTaskRunGuid).Contains(taskRunToCancel))
                         {
                             var runner = list.First(x => x.ActiveTaskRunGuid == taskRunToCancel);
-                            runner.StopTest();
+                            runner.StopTask();
                             list.Remove(runner);
                         }
                     }
@@ -885,12 +892,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                 return null;
             }
 
-            var run = TaskRun_Server.CreateTaskRunWithoutTest(expandedPath, arguments, logFilePath, TaskType.ConsoleExe);
+            var run = TaskRun_Server.CreateTaskRunWithoutTask(expandedPath, arguments, logFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
             var token = new CancellationTokenSource();
             StartTest(run, token.Token);
 
-            RunningBackgroundTasks.Add(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
+            RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
 
             return run;
         }
@@ -912,11 +919,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             if (run.BackgroundTask)
             {
                 StartTest(run, token.Token);
-                RunningBackgroundTasks.Add(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
+                RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
             }
             else
             {
-                RunningTestTaskRunTokens.Add(run.Guid, token);
+                RunningTestTaskRunTokens.TryAdd(run.Guid, token);
                 Task t = new Task(() => { StartTest(run, token.Token); });
                 t.Start();
             }
@@ -926,19 +933,19 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskRun RunApp(string packageFamilyName)
         {
-            var run = TaskRun_Server.CreateTaskRunWithoutTest(packageFamilyName, null, null, TaskType.UWP);
+            var run = TaskRun_Server.CreateTaskRunWithoutTask(packageFamilyName, null, null, TaskType.UWP);
             var token = new CancellationTokenSource();
-            RunningTestTaskRunTokens.Add(run.Guid, token);
+            RunningTestTaskRunTokens.TryAdd(run.Guid, token);
             Task t = new Task(() => { StartTest(run, token.Token); });
             t.Start();
 
             return run;
         }
 
-        private Dictionary<Guid, TaskList> KnownTaskLists;
-        private Dictionary<Guid, CancellationTokenSource> RunningTaskListTokens;
-        private Dictionary<Guid, CancellationTokenSource> RunningTestTaskRunTokens;
-        private Dictionary<Guid, List<TaskRunner>> RunningBackgroundTasks;
+        private ConcurrentDictionary<Guid, TaskList> KnownTaskLists;
+        private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskListTokens;
+        private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTestTaskRunTokens;
+        private ConcurrentDictionary<Guid, List<TaskRunner>> RunningBackgroundTasks;
         private readonly object KnownTaskListLock = new object();
         private readonly object RunningTaskListLock = new object();
         private readonly SemaphoreSlim _startNonParallelTaskRunLock;
@@ -1074,7 +1081,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         static TaskRunner()
         {
-            _taskRunnerMap = new Dictionary<Guid, TaskRunner>();
+            _taskRunnerMap = new ConcurrentDictionary<Guid, TaskRunner>();
         }
 
         public static TaskRunner GetTaskRunnerForTaskRun(Guid taskRunGuid)
@@ -1094,10 +1101,10 @@ namespace Microsoft.FactoryOrchestrator.Server
             IsRunning = false;
             ActiveTaskRun = taskRun;
             BackgroundTask = taskRun.BackgroundTask;
-            _taskRunnerMap.Add(taskRun.Guid, this);
+            _taskRunnerMap.TryAdd(taskRun.Guid, this);
         }
 
-        public bool RunTest()
+        public bool RunTask()
         {
             lock (runnerStateLock)
             {
@@ -1107,10 +1114,10 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
 
                 // Create Process object
-                TestProcess = CreateTestProcess();
+                TaskProcess = CreateProcess();
 
                 // Start the process
-                return StartTestProcess();
+                return StartProcess();
             }
         }
 
@@ -1125,19 +1132,19 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
 
                 // Create Process object
-                TestProcess = CreateTestProcess();
+                TaskProcess = CreateProcess();
 
                 // Override args to check if this is a valid TAEF test, not try to run it
-                TestProcess.StartInfo.Arguments = "\"" + ActiveTaskRun.TaskPath + "\"" + " /list";
+                TaskProcess.StartInfo.Arguments = "\"" + ActiveTaskRun.TaskPath + "\"" + " /list";
 
                 // Start the process
-                return StartTestProcess();
+                return StartProcess();
             }
         }
 
-        private Process CreateTestProcess()
+        private Process CreateProcess()
         {
-            TestProcess = new Process();
+            TaskProcess = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
 
             if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
@@ -1169,26 +1176,26 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
 
             // Configure event handling
-            TestProcess.EnableRaisingEvents = true;
-            TestProcess.Exited += OnExited;
-            TestProcess.OutputDataReceived += OnOutputData;
-            TestProcess.ErrorDataReceived += OnErrorData;
+            TaskProcess.EnableRaisingEvents = true;
+            TaskProcess.Exited += OnExited;
+            TaskProcess.OutputDataReceived += OnOutputData;
+            TaskProcess.ErrorDataReceived += OnErrorData;
 
-            TestProcess.StartInfo = startInfo;
-            return TestProcess;
+            TaskProcess.StartInfo = startInfo;
+            return TaskProcess;
         }
 
-        private bool StartTestProcess()
+        private bool StartProcess()
         {
-            if (TestProcess.Start())
+            if (TaskProcess.Start())
             {
                 IsRunning = true;
                 ActiveTaskRun.TaskStatus = TaskStatus.Running;
                 ActiveTaskRun.TimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
-                TestProcess.BeginErrorReadLine();
-                TestProcess.BeginOutputReadLine();
+                TaskProcess.BeginErrorReadLine();
+                TaskProcess.BeginOutputReadLine();
                 // Start timeout timer if needed
                 if ((!ActiveTaskRun.BackgroundTask) && (ActiveTaskRun.TimeoutSeconds != -1))
                 {
@@ -1199,7 +1206,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         // If we hit the timeout and the task didn't finish, stop it now.
                         if (!TimeoutToken.IsCancellationRequested)
                         {
-                            TimeoutTest();
+                            TimeoutTask();
                         }
                     });
                 }
@@ -1207,11 +1214,12 @@ namespace Microsoft.FactoryOrchestrator.Server
             else
             {
                 ActiveTaskRun.TaskStatus = TaskStatus.Failed;
-                _taskRunnerMap.Remove(ActiveTaskRunGuid);
+                TaskRunner removed;
+                _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
                 // TODO: log error
             }
 
-            ActiveTaskRun.UpdateOwningTestFromTaskRun();
+            ActiveTaskRun.UpdateOwningTaskFromTaskRun();
 
             // Write header to file
             var LogFilePath = ActiveTaskRun.LogFilePath;
@@ -1321,22 +1329,23 @@ namespace Microsoft.FactoryOrchestrator.Server
             TimeoutToken.Cancel();
 
             // Save the result of the task
-            if (!TestAborted)
+            if (!TaskAborted)
             {
                 ActiveTaskRun.TimeFinished = DateTime.Now;
-                ActiveTaskRun.ExitCode = TestProcess.ExitCode;
+                ActiveTaskRun.ExitCode = TaskProcess.ExitCode;
                 ActiveTaskRun.TaskStatus = (ActiveTaskRun.ExitCode == 0) ? TaskStatus.Passed : TaskStatus.Failed;
             }
             else
             {
                 ActiveTaskRun.ExitCode = -1;
-                ActiveTaskRun.TaskStatus = TestTimeout ? TaskStatus.Timeout : TaskStatus.Aborted;
+                ActiveTaskRun.TaskStatus = TaskTimeout ? TaskStatus.Timeout : TaskStatus.Aborted;
             }
-            ActiveTaskRun.UpdateOwningTestFromTaskRun();
+            ActiveTaskRun.UpdateOwningTaskFromTaskRun();
 
             // Save task output to file
-            // Delay a sec to ensure all task output events fired
-            Thread.Sleep(100);
+            // Wait for all output to complete
+            TaskProcess.WaitForExit();
+
             lock (outputLock)
             {
                 var LogFilePath = ActiveTaskRun.LogFilePath;
@@ -1358,27 +1367,28 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
 
             IsRunning = false;
-            _taskRunnerMap.Remove(ActiveTaskRunGuid);
+            TaskRunner removed;
+            _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
 
             // Raise event if event handler exists
             OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, (int)ActiveTaskRun.ExitCode, null));
         }
 
-        private bool TimeoutTest()
+        private bool TimeoutTask()
         {
-            TestTimeout = true;
-            return StopTest();
+            TaskTimeout = true;
+            return StopTask();
         }
 
-        public bool StopTest()
+        public bool StopTask()
         {
             lock (runnerStateLock)
             {
                 // See if you get lucky and the task finishes on its own???
-                if (!TestProcess.WaitForExit(500))
+                if (!TaskProcess.WaitForExit(500))
                 {
-                    TestAborted = true;
-                    TestProcess.Kill();
+                    TaskAborted = true;
+                    TaskProcess.Kill();
                     // Wait ten seconds for OnExited to fire
                     for (int i = 0; i < 100; i++)
                     {
@@ -1408,17 +1418,17 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public bool WaitForExit()
         {
-            return WaitForExit(-1);
+            return WaitForExit();
         }
         public bool WaitForExit(int milliseconds)
         {
-            // After TestProcess.WaitForExit returns true, we still may need to wait for the OnExited method to complete.
+            // After Process.WaitForExit returns true, we still may need to wait for the OnExited method to complete.
             // Maintain our own timer so we can still exit close to the expected ms timeout value the user supplied.
             var timer = Stopwatch.StartNew();
 
             if (IsRunning)
             {
-                if (TestProcess.WaitForExit(milliseconds))
+                if (TaskProcess.WaitForExit(milliseconds))
                 {
                     // Process exited, wait for IsRunning to be updated at the end of OnExited
                     while ((IsRunning) && (timer.ElapsedMilliseconds < milliseconds))
@@ -1462,9 +1472,9 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         private TaskRun_Server ActiveTaskRun;
         public event TaskRunnerEventHandler OnTestEvent;
-        private Process TestProcess;
-        private bool TestAborted = false;
-        private bool TestTimeout = false;
+        private Process TaskProcess;
+        private bool TaskAborted = false;
+        private bool TaskTimeout = false;
         private bool BackgroundTask;
         private CancellationTokenSource TimeoutToken = new CancellationTokenSource();
         private Timer outputTimer = null;
@@ -1479,7 +1489,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// </summary>
         private object outputLock = new object();
 
-        private static Dictionary<Guid, TaskRunner> _taskRunnerMap;
+        private static ConcurrentDictionary<Guid, TaskRunner> _taskRunnerMap;
     }
 
     /// <summary>
@@ -1487,16 +1497,16 @@ namespace Microsoft.FactoryOrchestrator.Server
     /// </summary>
     public class TaskRun_Server : TaskRun
     {
-        // TODO: Move testrunner into testrun_server
+        // TODO: Move taskrunner into taskrun_server
         static TaskRun_Server()
         {
-            _taskRunMap = new Dictionary<Guid, TaskRun_Server>();
-            _testMapLock = new object();
+            _taskRunMap = new ConcurrentDictionary<Guid, TaskRun_Server>();
+            _taskMapLock = new object();
         }
 
-        public static List<Guid> GetTaskRunGuidsByTestGuid(Guid testGuid)
+        public static List<Guid> GetTaskRunGuidsByTaskGuid(Guid taskGuid)
         {
-            return _taskRunMap.Values.Where(x => x.OwningTaskGuid == testGuid).Select(x => x.Guid).ToList();
+            return _taskRunMap.Values.Where(x => x.OwningTaskGuid == taskGuid).Select(x => x.Guid).ToList();
         }
 
         public static TaskRun_Server GetTaskRunByGuid(Guid taskRunGuid)
@@ -1511,7 +1521,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        public static TaskRun_Server CreateTaskRunWithoutTest(string filePath, string arguments, string logFileOrFolder, TaskType type)
+        public static TaskRun_Server CreateTaskRunWithoutTask(string filePath, string arguments, string logFileOrFolder, TaskType type)
         {
             return new TaskRun_Server(filePath, arguments, logFileOrFolder, type);
         }
@@ -1519,11 +1529,12 @@ namespace Microsoft.FactoryOrchestrator.Server
         public static void RemoveTaskRun(Guid taskRunGuid, bool preserveLogs)
         {
             TaskRun_Server taskRun = null;
-            lock (_testMapLock)
+            lock (_taskMapLock)
             {
                 if (_taskRunMap.TryGetValue(taskRunGuid, out taskRun))
                 {
-                    _taskRunMap.Remove(taskRunGuid);
+                    TaskRun_Server removed;
+                    _taskRunMap.TryRemove(taskRunGuid, out removed);
                     if (!preserveLogs)
                     {
                         if (File.Exists(taskRun.LogFilePath))
@@ -1542,7 +1553,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 return false;
             }
 
-            lock (_testMapLock)
+            lock (_taskMapLock)
             {
                 if (!_taskRunMap.ContainsKey(updatedTaskRun.Guid))
                 {
@@ -1561,16 +1572,16 @@ namespace Microsoft.FactoryOrchestrator.Server
                 run.TaskStatus = updatedTaskRun.TaskStatus;
                 run.TimeFinished = updatedTaskRun.TimeFinished;
                 run.TimeStarted = updatedTaskRun.TimeStarted;
-                run.UpdateOwningTestFromTaskRun();
+                run.UpdateOwningTaskFromTaskRun();
 
                 return true;
             }
         }
 
 
-        public static void RemoveTaskRunsForTest(Guid testGuid, bool preserveLogs)
+        public static void RemoveTaskRunsForTask(Guid taskGuid, bool preserveLogs)
         {
-            Parallel.ForEach(GetTaskRunGuidsByTestGuid(testGuid), taskRunGuid =>
+            Parallel.ForEach(GetTaskRunGuidsByTaskGuid(taskGuid), taskRunGuid =>
             {
                 RemoveTaskRun(taskRunGuid, preserveLogs);
             });
@@ -1579,7 +1590,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         public TaskRun_Server(TaskBase owningTask, string defaultLogFolder) : base(owningTask)
         {
             CtorCommon();
-            OwningTest = owningTask;
+            OwningTask = owningTask;
 
             // Setup log path
             string LogFolder = owningTask.LogFolder;
@@ -1624,9 +1635,9 @@ namespace Microsoft.FactoryOrchestrator.Server
         private void CtorCommon()
         {
             // Add to GUID -> TaskRun map
-            lock (_testMapLock)
+            lock (_taskMapLock)
             {
-                _taskRunMap.Add(Guid, this);
+                _taskRunMap.TryAdd(Guid, this);
             }
         }
 
@@ -1639,20 +1650,20 @@ namespace Microsoft.FactoryOrchestrator.Server
             TimeStarted = taskRun.TimeStarted;
             ExitCode = taskRun.ExitCode;
             TaskOutput = taskRun.TaskOutput;
-            OwningTest = owningTask;
+            OwningTask = owningTask;
         }
 
 
-        public void UpdateOwningTestFromTaskRun()
+        public void UpdateOwningTaskFromTaskRun()
         {
-            if (OwningTest != null)
+            if (OwningTask != null)
             {
-                lock (OwningTest.TestLock)
+                lock (OwningTask.TaskLock)
                 {
-                    OwningTest.LatestTaskRunStatus = this.TaskStatus;
-                    OwningTest.LatestTaskRunTimeStarted = this.TimeStarted;
-                    OwningTest.LatestTaskRunTimeFinished = this.TimeFinished;
-                    OwningTest.LatestTaskRunExitCode = this.ExitCode;
+                    OwningTask.LatestTaskRunStatus = this.TaskStatus;
+                    OwningTask.LatestTaskRunTimeStarted = this.TimeStarted;
+                    OwningTask.LatestTaskRunTimeFinished = this.TimeFinished;
+                    OwningTask.LatestTaskRunExitCode = this.ExitCode;
                 }
             }
         }
@@ -1661,17 +1672,17 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             TimeStarted = DateTime.Now;
             TaskStatus = TaskStatus.WaitingForExternalResult;
-            UpdateOwningTestFromTaskRun();
+            UpdateOwningTaskFromTaskRun();
         }
 
         public void EndWaitingForExternalResult()
         {
             TimeFinished = DateTime.Now;
-            UpdateOwningTestFromTaskRun();
+            UpdateOwningTaskFromTaskRun();
         }
 
         [JsonIgnore]
-        public TaskBase OwningTest { get; }
+        public TaskBase OwningTask { get; }
 
         public TaskRunner GetOwningTaskRunner()
         {
@@ -1681,7 +1692,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// <summary>
         /// Tracks all the task runs that have ever occured, mapped by the task run GUID
         /// </summary>
-        private static Dictionary<Guid, TaskRun_Server> _taskRunMap;
-        private static object _testMapLock;
+        private static ConcurrentDictionary<Guid, TaskRun_Server> _taskRunMap;
+        private static object _taskMapLock;
     }
 }

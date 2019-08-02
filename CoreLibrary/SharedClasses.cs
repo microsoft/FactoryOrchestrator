@@ -60,7 +60,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         protected TaskBase(TaskType type)
         {
             Type = type;
-            TestLock = new object();
+            TaskLock = new object();
             LatestTaskRunStatus = TaskStatus.NotRun;
             LatestTaskRunExitCode = null;
             LatestTaskRunTimeFinished = null;
@@ -292,7 +292,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         [JsonIgnore]
         [XmlIgnore]
-        public object TestLock;
+        public object TaskLock;
     }
 
     /// <summary>

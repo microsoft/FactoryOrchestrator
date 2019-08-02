@@ -65,7 +65,7 @@
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
             <TextBlock x:Name="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}" Text="TaskList Options:"/>
-            <CheckBox x:Name="ParallelCheck" Content="Run Tests in Parallel?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
+            <CheckBox x:Name="ParallelCheck" Content="Run Tasks in Parallel?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
             <CheckBox x:Name="BlockingCheck" Content="Allow Other TaskLists to Run?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
             <CheckBox x:Name="TerminateCheck" Content="Terminate Background Tasks on Completion?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
         </StackPanel>
