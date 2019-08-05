@@ -1018,9 +1018,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     ServiceLogger.LogInformation($"Enabling UWP local loopback...");
 
-                    // Run localloopback command for both "official" and "DEV" apps
-                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe", 5000);
-                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe", 5000);
+                    // Run local loopback command for both "official" and "DEV" apps
+                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe", 5000);
+                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryOrchestratorApp.DEV_8wekyb3d8bbwe", 5000);
                 }
 
                 success = true;
