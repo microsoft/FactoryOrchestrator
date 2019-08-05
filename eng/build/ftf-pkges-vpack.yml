@@ -78,7 +78,7 @@ steps:
   displayName: 'Source Index Symbols'
   inputs:
     SearchPattern: '$(Build.ARTIFACTSTAGINGDIRECTORY)\**\*.pdb'
-  condition: ne(variables['skippublish'], 'true')
+  condition: ne(variables['skipartifacts'], 'true')
 
 - task: ms-vscs-artifact.build-tasks.artifactSymbolTask-1.artifactSymbolTask@0
   displayName: 'Publish to Symbols to Artifact Services'
@@ -86,14 +86,14 @@ steps:
     symbolServiceURI: 'https://microsoft.artifacts.visualstudio.com/DefaultCollection'
     requestName: '$(system.teamProject)/$(Build.BuildNumber)_$(BuildConfiguration)/$(Build.BuildId)'
     sourcePath: '$(Build.ARTIFACTSTAGINGDIRECTORY)'
-  condition: ne(variables['skippublish'], 'true')
+  condition: ne(variables['skipartifacts'], 'true')
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: $(TFS_BUILDNUMBER)'
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)\App\AppPackages'
     ArtifactName: '$(TFS_BUILDNUMBER)_$(BuildConfiguration)'
-  condition: ne(variables['skippublish'], 'true')
+  condition: ne(variables['skipartifacts'], 'true')
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FactoryOrchestratorService x86'
@@ -187,7 +187,7 @@ steps:
     sourceDirectory: '$(XES_DFSDROP)\msixbundle'
     pushPkgName: 'FactoryOrchestrator.msixbundle'
     description: 'FactoryOrchestrator.msixbundle'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), and(ne(variables['skipmsix'], 'true'), ne(variables['skipvpack'], 'true'))))
   enabled: true
 
 - task: CopyFiles@2
@@ -196,7 +196,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), and(ne(variables['skipmsix'], 'true'), ne(variables['skipvpack'], 'true'))))
 
 - task: PkgESVPack@10
   env:
@@ -206,7 +206,7 @@ steps:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FactoryOrchestratorService_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.ARM'
     description: 'FactoryOrchestrator.Service.ARM'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -215,7 +215,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
 
 - task: PkgESVPack@10
   env:
@@ -225,7 +225,7 @@ steps:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FactoryOrchestratorService_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.ARM64'
     description: 'FactoryOrchestrator.Service.ARM64'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -234,7 +234,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
 
 - task: PkgESVPack@10
   env:
@@ -244,7 +244,7 @@ steps:
     sourceDirectory: '$(XES_DFSDROP)\Release\x86\FactoryOrchestratorService_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.x86'
     description: 'FactoryOrchestrator.Service.x86'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -263,7 +263,7 @@ steps:
     sourceDirectory: '$(XES_DFSDROP)\Release\x64\FactoryOrchestratorService_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.x64'
     description: 'FactoryOrchestrator.Service.x64'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -272,7 +272,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
@@ -327,7 +327,7 @@ steps:
     configPath: 'eng/build/GitCheckin.json'
     binVersion: Custom
     binVersionOverride: 'Production'
-  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), ne(variables['skipgitsubmit'], 'true'))
+  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
 - task: PkgESLateTasks@10
