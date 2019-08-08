@@ -29,6 +29,10 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     return JsonConvert.DeserializeObject<ExternalTask>(jo.ToString());
                 case TaskType.UWP:
                     return JsonConvert.DeserializeObject<UWPTask>(jo.ToString());
+                case TaskType.PowerShell:
+                    return JsonConvert.DeserializeObject<PowerShellTask>(jo.ToString());
+                case TaskType.BatchFile:
+                    return JsonConvert.DeserializeObject<BatchFileTask>(jo.ToString());
                 default:
                     throw new Exception("Trying to deserialize an unknown task type!");
             }
@@ -55,6 +59,12 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     break;
                 case TaskType.UWP:
                     serializer.Serialize(writer, value, typeof(UWPTask));
+                    break;
+                case TaskType.PowerShell:
+                    serializer.Serialize(writer, value, typeof(PowerShellTask));
+                    break;
+                case TaskType.BatchFile:
+                    serializer.Serialize(writer, value, typeof(BatchFileTask));
                     break;
                 default:
                     throw new Exception("Trying to serialize an unknown task type!");

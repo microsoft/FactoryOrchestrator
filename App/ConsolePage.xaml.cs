@@ -118,7 +118,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 _taskRunPoller.StopPolling();
             }
-            _activeCmdTaskRun = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{command}\"", null));
+            _activeCmdTaskRun = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"cmd.exe", $"/C \"{command}\"", null));
 
             // Watch for new output
             _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);

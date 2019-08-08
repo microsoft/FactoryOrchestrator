@@ -186,6 +186,9 @@ namespace Microsoft.FactoryOrchestrator.Server
             // Recursive search for all executable files
             var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
             var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
+            var bats = Directory.EnumerateFiles(path, "*.bat", SearchOption.AllDirectories);
+            var cmds = Directory.EnumerateFiles(path, "*.cmd", SearchOption.AllDirectories);
+            var ps1s = Directory.EnumerateFiles(path, "*.ps1", SearchOption.AllDirectories);
             TaskList tests = new TaskList(Guid.NewGuid());
 
             Parallel.ForEach<string>(dlls, (dll) =>
@@ -210,6 +213,24 @@ namespace Microsoft.FactoryOrchestrator.Server
                 foreach (var exe in exes)
                 {
                     var task = new ExecutableTask(exe);
+                    tests.Tasks.Add(task.Guid, task);
+                }
+
+                foreach (var cmd in cmds)
+                {
+                    var task = new BatchFileTask(cmd);
+                    tests.Tasks.Add(task.Guid, task);
+                }
+
+                foreach (var bat in bats)
+                {
+                    var task = new BatchFileTask(bat);
+                    tests.Tasks.Add(task.Guid, task);
+                }
+
+                foreach (var ps1 in ps1s)
+                {
+                    var task = new PowerShellTask(ps1);
                     tests.Tasks.Add(task.Guid, task);
                 }
             }
@@ -924,14 +945,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
         {
-            var expandedPath = Environment.ExpandEnvironmentVariables(exeFilePath);
-            if (!File.Exists(expandedPath))
-            {
-                // TODO: Logging: log error
-                return null;
-            }
-
-            var run = TaskRun_Server.CreateTaskRunWithoutTask(expandedPath, arguments, logFilePath, TaskType.ConsoleExe);
+            var run = TaskRun_Server.CreateTaskRunWithoutTask(exeFilePath, arguments, logFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
             var token = new CancellationTokenSource();
             StartTest(run, token.Token);
@@ -1191,6 +1205,16 @@ namespace Microsoft.FactoryOrchestrator.Server
                 startInfo.FileName = GlobalTeExePath;
                 startInfo.Arguments += "\"" + ActiveTaskRun.TaskPath + "\"" + GlobalTeArgs;
             }
+            else if (ActiveTaskRun.TaskType == TaskType.PowerShell)
+            {
+                startInfo.FileName = "pwsh.exe";
+                startInfo.Arguments += $"-f \"{ActiveTaskRun.TaskPath}\"";
+            }
+            else if (ActiveTaskRun.TaskType == TaskType.BatchFile)
+            {
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\"";
+            }
             else
             {
                 startInfo.FileName = ActiveTaskRun.TaskPath; 
@@ -1204,9 +1228,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
+            startInfo.Environment["Path"] = Environment.GetEnvironmentVariable("Path");
+
             if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
             {
-                startInfo.Environment["Path"] = startInfo.Environment["Path"] + ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
+                startInfo.Environment["Path"] += ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
                 startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
             }
             else
@@ -1620,7 +1646,6 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-
         public static void RemoveTaskRunsForTask(Guid taskGuid, bool preserveLogs)
         {
             Parallel.ForEach(GetTaskRunGuidsByTaskGuid(taskGuid), taskRunGuid =>
@@ -1649,6 +1674,32 @@ namespace Microsoft.FactoryOrchestrator.Server
             LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TaskName, Guid));
         }
 
+        public static string FindFileInPath(string file)
+        {
+            file = Environment.ExpandEnvironmentVariables(file);
+
+            if (!File.Exists(file))
+            {
+                if (Path.GetDirectoryName(file) == String.Empty)
+                {
+                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+                    {
+                        string path = testPath.Trim();
+                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))
+                        {
+                            return Path.GetFullPath(path);
+                        }
+                    }
+                }
+
+                // No match found, just return the existing path
+                return file;
+            }
+
+            // file is a full path, return it
+            return Path.GetFullPath(file);
+        }
+
         /// <summary>
         /// Private Ctor used for task runs not backed by a TaskBase object
         /// </summary>
@@ -1657,6 +1708,12 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// <param name="logFileOrPath"></param>
         private TaskRun_Server(string taskPath, string arguments, string logFileOrPath, TaskType type) : base(null)
         {
+            // Set values via method args. They weren't set by base Ctor since the owning task is null.
+            TaskPath = taskPath;
+            Arguments = arguments;
+            TaskName = Path.GetFileName(taskPath);
+            TaskType = type;
+
             CtorCommon();
             
             if (logFileOrPath != null)
@@ -1671,16 +1728,16 @@ namespace Microsoft.FactoryOrchestrator.Server
                     LogFilePath = Path.Combine(logFileOrPath, String.Format("{0}_Run{1}.log", TaskName, Guid));
                 }
             }
-            
-            // Set remaining values via method args. They weren't set by base Ctor since the owning task is null.
-            TaskPath = taskPath;
-            Arguments = arguments;
-            TaskName = Path.GetFileName(taskPath);
-            TaskType = type;
         }
 
         private void CtorCommon()
         {
+            // If an executable, find the actual path to the file.
+            if ((TaskType == TaskType.ConsoleExe) || (TaskType == TaskType.BatchFile))
+            {
+                TaskPath = FindFileInPath(TaskPath);
+            }
+
             // Add to GUID -> TaskRun map
             lock (_taskMapLock)
             {

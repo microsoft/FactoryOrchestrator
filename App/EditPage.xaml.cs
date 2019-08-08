@@ -171,6 +171,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     case TaskType.TAEFDll:
                         activeTask = new TAEFTest(TaskPathBox.Text);
                         break;
+                    case TaskType.BatchFile:
+                        activeTask = new BatchFileTask(TaskPathBox.Text);
+                        break;
+                    case TaskType.PowerShell:
+                        activeTask = new PowerShellTask(TaskPathBox.Text);
+                        break;
                 }
             }
 
@@ -211,23 +217,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
             switch (testType)
             {
                 case TaskType.ConsoleExe:
-                    var exeTest = activeTask as ExecutableTask;
-                    exeTest.Path = TaskPathBox.Text;
-                    exeTest.Arguments = ArgumentsBox.Text;
+                case TaskType.BatchFile:
+                case TaskType.PowerShell:
+                case TaskType.TAEFDll:
+                case TaskType.External:
+                    var task = activeTask as TaskBase;
+                    task.Path = TaskPathBox.Text;
+                    task.Arguments = ArgumentsBox.Text;
                     break;
                 case TaskType.UWP:
                     var uwpTest = activeTask as UWPTask;
                     uwpTest.Path = AppComboBox.SelectedItem.ToString();
-                    break;
-                case TaskType.External:
-                    var externalTest = activeTask as ExternalTask;
-                    externalTest.Path = TaskPathBox.Text;
-                    externalTest.Arguments = ArgumentsBox.Text;
-                    break;
-                case TaskType.TAEFDll:
-                    var taefTest = activeTask as TAEFTest;
-                    taefTest.Path = TaskPathBox.Text;
-                    taefTest.Arguments = ArgumentsBox.Text;
                     break;
             }
 
@@ -315,6 +315,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         ArgumentsBox.Text = taefTest.Arguments;
                         EditFlyoutTextHeader.Text = $"Editing TAEF Test";
                         break;
+                    case TaskType.PowerShell:
+                        var script = activeTask as PowerShellTask;
+                        TaskPathBox.Text = script.Path;
+                        ArgumentsBox.Text = script.Arguments;
+                        EditFlyoutTextHeader.Text = $"Editing PowerShell Task";
+                        break;
+                    case TaskType.BatchFile:
+                        var cmd = activeTask as BatchFileTask;
+                        TaskPathBox.Text = cmd.Path;
+                        ArgumentsBox.Text = cmd.Arguments;
+                        EditFlyoutTextHeader.Text = $"Editing Batch File Task";
+                        break;
                 }
             }
             else
@@ -339,6 +351,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         case TaskType.TAEFDll:
                             EditFlyoutTextHeader.Text = $"New TAEF Test";
                             break;
+                        case TaskType.PowerShell:
+                            EditFlyoutTextHeader.Text = $"New PowerShell Task";
+                            break;
+                        case TaskType.BatchFile:
+                            EditFlyoutTextHeader.Text = $"New Batch Task";
+                            break;
                     }
                 }
 
@@ -353,6 +371,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             switch (testType)
             {
                 case TaskType.ConsoleExe:
+                case TaskType.External:
+                case TaskType.PowerShell:
+                case TaskType.BatchFile:
                     PathBlock.Visibility = Visibility.Visible;
                     TaskPathBox.Visibility = Visibility.Visible;
                     AppComboBox.Visibility = Visibility.Collapsed;
@@ -367,22 +388,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     AppBlock.Visibility = Visibility.Visible;
                     ArgumentsBlock.Visibility = Visibility.Collapsed;
                     ArgumentsBox.Visibility = Visibility.Collapsed;
-                    break;
-                case TaskType.External:
-                    PathBlock.Visibility = Visibility.Visible;
-                    TaskPathBox.Visibility = Visibility.Visible;
-                    AppComboBox.Visibility = Visibility.Collapsed;
-                    AppBlock.Visibility = Visibility.Collapsed;
-                    ArgumentsBlock.Visibility = Visibility.Visible;
-                    ArgumentsBox.Visibility = Visibility.Visible;
-                    break;
-                case TaskType.TAEFDll:
-                    PathBlock.Visibility = Visibility.Visible;
-                    TaskPathBox.Visibility = Visibility.Visible;
-                    AppComboBox.Visibility = Visibility.Collapsed;
-                    AppBlock.Visibility = Visibility.Collapsed;
-                    ArgumentsBlock.Visibility = Visibility.Visible;
-                    ArgumentsBox.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -418,6 +423,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             activeTask = null;
             ConfigureFlyout(TaskType.ConsoleExe, true);
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+        }
+        private void NewPSButton_Click(object sender, RoutedEventArgs e)
+        {
+            activeTask = null;
+            ConfigureFlyout(TaskType.PowerShell);
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+        }
+
+        private void NewCMDButton_Click(object sender, RoutedEventArgs e)
+        {
+            activeTask = null;
+            ConfigureFlyout(TaskType.BatchFile);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
         }
 

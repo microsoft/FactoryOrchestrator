@@ -50,7 +50,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <HyperlinkButton Content="You must allow file system access for this app! Click here for instructions." NavigateUri="https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontWeight="bold"/>
+        <HyperlinkButton Content="Windows 10 (Desktop) only: You must allow file system access for this app! Click here for instructions." NavigateUri="https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontWeight="bold"/>
         <TextBlock Text="Client File: " Grid.Row="2" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Right" Margin="10,0" VerticalAlignment="Center"/>
         <TextBox x:Name="ClientFileTextBox"  Grid.Row="2" Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 

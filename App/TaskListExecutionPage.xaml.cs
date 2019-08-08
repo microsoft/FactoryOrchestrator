@@ -74,6 +74,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     RunButtonIcon.Symbol = Symbol.Play;
                 }
             }
+            else
+            {
+                ContentDialog select = new ContentDialog()
+                {
+                    Title = "No TaskList selected!",
+                    Content = "Select (or create) a TaskList and try again.",
+                    CloseButtonText = "Ok"
+                };
+                await select.ShowAsync();
+            }
         }
 
         private void TestsView_SelectionChanged(object sender, RoutedEventArgs e)

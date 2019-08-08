@@ -72,12 +72,18 @@
             <CheckBox x:Name="BlockingCheck" Content="Allow Other TaskLists to Run?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
             <CheckBox x:Name="TerminateCheck" Content="Terminate Background Tasks on Completion?" IsChecked="False" Checked="ListCheck_Checked" Unchecked="ListCheck_Checked" IsThreeState="False"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
-            <Button x:Name="NewExecutableButton" Content="New Executable Task" Click="NewExecutableButton_Click"/>
-            <Button x:Name="NewTAEFButton" Content="New TAEF Task" Click="NewTAEFButton_Click"/>
-            <Button x:Name="NewUWPButton" Content="New UWP App Task" Click="NewUWPButton_Click"/>
-            <Button x:Name="NewExternalButton" Content="New External Task" Click="NewExternalButton_Click"/>
-            <Button x:Name="NewBackgroundButton" Content="New Background Task" Click="NewBackgroundButton_Click"/>
+        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
+                <Button x:Name="NewExecutableButton" Content="New Executable Task" Click="NewExecutableButton_Click"/>
+                <Button x:Name="NewPSButton" Content="New PowerShell Task" Click="NewPSButton_Click"/>
+                <Button x:Name="NewCMDButton" Content="New Batch File Task" Click="NewCMDButton_Click"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
+                <Button x:Name="NewTAEFButton" Content="New TAEF Task" Click="NewTAEFButton_Click"/>
+                <Button x:Name="NewUWPButton" Content="New UWP App Task" Click="NewUWPButton_Click"/>
+                <Button x:Name="NewExternalButton" Content="New External Task" Click="NewExternalButton_Click"/>
+                <Button x:Name="NewBackgroundButton" Content="New Background Task" Click="NewBackgroundButton_Click"/>
+            </StackPanel>
         </StackPanel>
 
         <TextBlock x:Name="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="BackgroundTasks:" Visibility="Collapsed"/>
@@ -123,15 +129,18 @@
                         <ControlTemplate TargetType="ListViewItem">
                             <Grid x:Name="ItemGrid" >
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="250" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <ContentPresenter Grid.Column="0" />
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                                        <Button x:Name="EditListButton" Margin="10,0,5,0" Click="EditButton_Click">
-                                            <SymbolIcon Symbol="Edit"/>
-                                        </Button>
-                                        <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteButton_Click">
+                                
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
+                                <ContentPresenter Grid.Column="1" />
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
+                                    <Button x:Name="EditListButton" Margin="10,0,5,0" Click="EditButton_Click">
+                                        <SymbolIcon Symbol="Edit"/>
+                                    </Button>
+                                    <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteButton_Click">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE75C;"/>
                                     </Button>
                                 </StackPanel>

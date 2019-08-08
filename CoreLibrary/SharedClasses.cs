@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -28,7 +29,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         ConsoleExe = 0,
         TAEFDll = 1,
         External = 2,
-        UWP = 3
+        UWP = 3,
+        PowerShell = 4,
+        BatchFile = 5
     }
 
     public class TaskBaseEqualityComparer : EqualityComparer<TaskBase>
@@ -53,6 +56,8 @@ namespace Microsoft.FactoryOrchestrator.Core
     [XmlInclude(typeof(UWPTask))]
     [XmlInclude(typeof(ExternalTask))]
     [XmlInclude(typeof(TAEFTest))]
+    [XmlInclude(typeof(PowerShellTask))]
+    [XmlInclude(typeof(BatchFileTask))]
     public abstract class TaskBase
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
@@ -156,7 +161,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             get
             {
-                return ((Type == TaskType.TAEFDll) || (Type == TaskType.ConsoleExe));
+                return ((Type != TaskType.External) && (Type != TaskType.UWP));
             }
         }
 
@@ -384,6 +389,110 @@ namespace Microsoft.FactoryOrchestrator.Core
         private string _testFriendlyName;
     }
 
+    [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+    public class PowerShellTask : ExecutableTask
+    {
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+
+        private PowerShellTask() : base(null, TaskType.PowerShell)
+        {
+
+        }
+
+        public PowerShellTask(string scriptPath) : base(scriptPath, TaskType.PowerShell)
+        {
+            _scriptPath = scriptPath;
+        }
+
+        [XmlAttribute("Name")]
+        public override string TestName
+        {
+            get
+            {
+                if (_testFriendlyName != null)
+                {
+                    return _testFriendlyName;
+                }
+                else
+                {
+                    return System.IO.Path.GetFileName(_scriptPath);
+                }
+            }
+            set
+            {
+                _testFriendlyName = value;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TaskBase;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            return base.Equals(obj as ExecutableTask);
+        }
+
+        private string _scriptPath;
+        private string _testFriendlyName;
+    }
+
+    [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+    public class BatchFileTask : ExecutableTask
+    {
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+
+        private BatchFileTask() : base(null, TaskType.BatchFile)
+        {
+
+        }
+
+        public BatchFileTask(string scriptPath) : base(scriptPath, TaskType.BatchFile)
+        {
+            _scriptPath = scriptPath;
+        }
+
+        [XmlAttribute("Name")]
+        public override string TestName
+        {
+            get
+            {
+                if (_testFriendlyName != null)
+                {
+                    return _testFriendlyName;
+                }
+                else
+                {
+                    return System.IO.Path.GetFileName(_scriptPath);
+                }
+            }
+            set
+            {
+                _testFriendlyName = value;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TaskBase;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            return base.Equals(obj as ExecutableTask);
+        }
+
+        private string _scriptPath;
+        private string _testFriendlyName;
+    }
+
     /// <summary>
     /// A TAEFTest is a type of ExecutableTask, which is always run by TE.exe. TAEF tests are comprised of one or more sub-tests (TAEFTestCase).
     /// Pass/Fail is determined by TE.exe.
@@ -398,7 +507,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         }
 
-        public TAEFTest(string taskPath) : base(taskPath, TaskType.TAEFDll)
+        public TAEFTest(string testPath) : base(testPath, TaskType.TAEFDll)
         {
         }
 
@@ -781,7 +890,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             get
             {
-                return ((TaskType == TaskType.TAEFDll) || (TaskType == TaskType.ConsoleExe));
+                return ((TaskType != TaskType.External) && (TaskType != TaskType.UWP));
             }
         }
 
@@ -944,10 +1053,10 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                 foreach (var bgtask in list.BackgroundTasksForXml)
                 {
-                    // Validate background tasks meet our extra requirements
-                    if (bgtask.Type != TaskType.ConsoleExe)
+                    // Validate background tasks meet requirements
+                    if ((bgtask.Type != TaskType.ConsoleExe) && (bgtask.Type != TaskType.PowerShell) && (bgtask.Type != TaskType.BatchFile))
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTasks!");
+                        throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTask, PowerShellTask, or BatchFileTask!");
                     }
 
                     if (bgtask.TimeoutSeconds != -1)
