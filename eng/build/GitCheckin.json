@@ -4,7 +4,7 @@
 			"collection": "microsoft",
 			"project": "OS",
 			"repo": "os",
-			"name": "official/rs_onecore_sigma_dplat_d6",
+			"name": "official/rs_onecore_sigma_dplat_wcos",
 			"CheckinFiles": [
 				{
 				"source": "FactoryOrchestrator.Service.x86.man",
