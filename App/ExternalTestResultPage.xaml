@@ -11,8 +11,9 @@
     <Grid Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
         <TextBlock Text="Action Required: Test result expected by Factory Orchestrator Service" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30"/>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
-            <TextBlock x:Name="TestText"  Text="Test: " HorizontalAlignment="Center" FontSize="30"/>
-            <TextBlock x:Name="TaskRunText" Text="Test Run: " HorizontalAlignment="Center" FontSize="30"/>
+            <TextBlock x:Name="TestText"  Text="Task: " HorizontalAlignment="Center" FontSize="30"/>
+            <TextBlock x:Name="ArgsText"  Text="Arguments: " HorizontalAlignment="Center" FontSize="30"/>
+            <TextBlock x:Name="TaskRunText" Text="Task Run: " HorizontalAlignment="Center" FontSize="30"/>
             <Grid HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -23,6 +24,15 @@
                 <Button x:Name="PassButton" Grid.Column="0" Margin="20" FontSize="50" Content="Pass ✔" Click="PassButton_Click"/>
                 <Button x:Name="FailButton" Grid.Column="1" Margin="20" FontSize="50" Content="Fail ❌" Click="FailButton_Click"/>
                 <Button x:Name="AbortButton" Grid.Column="2" Margin="20" FontSize="50" Content="Abort ⛔" Click="AbortButton_Click"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Text="Comments:" Grid.Column="0" Padding="10"/>
+                <TextBox x:Name="CommentBox" Grid.Column="1" TextWrapping="Wrap" MinHeight="200" />
             </Grid>
         </StackPanel>
     </Grid>

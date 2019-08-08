@@ -85,7 +85,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         Title = "Save TaskList?",
                         Content = "Do you want to save your changes?",
                         PrimaryButtonText = "Yes",
-                        CloseButtonText = "No"
+                        SecondaryButtonText = "No",
+                        CloseButtonText = "Cancel"
                     };
 
                     ContentDialogResult result = await deleteFileDialog.ShowAsync();
@@ -94,10 +95,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         SaveTaskList();
                     }
-                }
 
-                this.Frame.GoBack();
-                return true;
+                    if (result != ContentDialogResult.None)
+                    {
+                        this.Frame.GoBack();
+                        return true;
+                    }
+                }
             }
             return false;
         }
@@ -188,6 +192,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeTask.TimeoutSeconds = -1;
             }
 
+            if (RetryBox.Text != "")
+            {
+                try
+                {
+                    activeTask.MaxNumberOfRetries = UInt32.Parse(RetryBox.Text);
+                }
+                catch (Exception)
+                {
+                    activeTask.MaxNumberOfRetries = 0;
+                }
+            }
+            else
+            {
+                activeTask.MaxNumberOfRetries = 0;
+            }
+
             switch (testType)
             {
                 case TaskType.ConsoleExe:
@@ -226,6 +246,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void RetryBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                UInt32.Parse(RetryBox.Text);
+            }
+            catch (Exception)
+            {
+                RetryBox.Text = "";
+            }
+        }
+
         private void ConfigureFlyout(TaskType testType, bool isBg = false)
         {
             activeTaskType = testType;
@@ -234,11 +266,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeTaskIsBg = true;
                 TimeoutBlock.Visibility = Visibility.Collapsed;
                 TimeoutBox.Visibility = Visibility.Collapsed;
+                RetryBox.Visibility = Visibility.Collapsed;
+                RetryBlock.Visibility = Visibility.Collapsed;
             }
             else
             {
                 TimeoutBlock.Visibility = Visibility.Visible;
                 TimeoutBox.Visibility = Visibility.Visible;
+                RetryBox.Visibility = Visibility.Visible;
+                RetryBlock.Visibility = Visibility.Visible;
             }
 
             if (activeTask != null)
@@ -249,6 +285,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
                 TestNameBox.Text = activeTask.TestName;
                 TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
+                RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
 
                 switch (testType)
                 {
@@ -486,6 +523,5 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool activeTaskIsBg;
         private bool isNewList;
         private bool listEdited;
-
     }
 }

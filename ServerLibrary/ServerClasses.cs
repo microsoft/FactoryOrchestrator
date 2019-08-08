@@ -31,6 +31,21 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run.Guid;
         }
 
+        public static Guid CreateTaskRun(this TaskBase task, string defaultLogFolder, Guid taskListGuid)
+        {
+            TaskRun_Server run;
+            lock (task.TaskLock)
+            {
+                run = new TaskRun_Server(task, defaultLogFolder, taskListGuid);
+                task.TaskRunGuids.Add(run.Guid);
+                task.LatestTaskRunExitCode = null;
+                task.LatestTaskRunStatus = TaskStatus.NotRun;
+                task.LatestTaskRunTimeFinished = null;
+                task.LatestTaskRunTimeStarted = null;
+            }
+            return run.Guid;
+        }
+
         public static void GetLatestTaskRun(this TaskBase task)
         {
             TaskRun_Server.GetTaskRunByGuid(task.TaskRunGuids.Last());
@@ -580,14 +595,15 @@ namespace Microsoft.FactoryOrchestrator.Server
                 List<Guid> backgroundTaskRunGuids = new List<Guid>();
                 foreach (var task in list.BackgroundTasks.Values)
                 {
-                    backgroundTaskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder));
+                    backgroundTaskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder, TaskListGuidToRun));
                 }
 
-                // Create testrun for all tasks in the list
+                // Create taskrun for all tasks in the list
                 List<Guid> taskRunGuids = new List<Guid>();
                 foreach (var task in list.Tasks.Values)
                 {
-                    taskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder));
+                    task.TimesRetried = 0;
+                    taskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder, TaskListGuidToRun));
                 }
 
                 // Update XML for state tracking.
@@ -665,7 +681,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (token.IsCancellationRequested)
             {
-                // Update XML for state tracking. This is only needed if a task was aborted.
+                // Update XML for state tracking. This is only needed if a tasklist was aborted.
                 SaveAllTaskListsToXmlFile(TaskListStateFile);
             }
         }
@@ -678,7 +694,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 var taskRun = TaskRun_Server.GetTaskRunByGuid(bgRunGuid);
                 var testToken = new CancellationTokenSource();
-                StartTest(taskRun, token, taskRunEventHandler);
+                StartTest(taskRun, token, taskRunEventHandler, true);
                 RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
                 currentBgTasks.Add(taskRun);
             });
@@ -694,37 +710,44 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 foreach (var runGuid in taskRunGuids)
                 {
-                    // find taskrun, run it
+                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
+
                     if (token.IsCancellationRequested)
                     {
-                        break;
+                        taskRun.TaskStatus = TaskStatus.Aborted;
+                        taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
                     }
+                    else
+                    {
+                        var testToken = new CancellationTokenSource();
+                        RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
+                        StartTest(taskRun, testToken.Token, taskRunEventHandler, false);
 
-                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
-                    var testToken = new CancellationTokenSource();
-                    RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
-                    StartTest(taskRun, testToken.Token, taskRunEventHandler);
-
-                    // Update saved state
-                    SaveAllTaskListsToXmlFile(TaskListStateFile);
+                        // Update saved state
+                        SaveAllTaskListsToXmlFile(TaskListStateFile);
+                    }
                 }
             }
             else
             {
-                Parallel.ForEach(taskRunGuids, (runGuid, state) =>
+                Parallel.ForEach(taskRunGuids, (runGuid) =>
                 {
+                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
+
                     if (token.IsCancellationRequested)
                     {
-                        state.Stop();
+                        taskRun.TaskStatus = TaskStatus.Aborted;
+                        taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
                     }
+                    else
+                    {
+                        var testToken = new CancellationTokenSource();
+                        RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
+                        StartTest(taskRun, token, taskRunEventHandler);
 
-                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
-                    var testToken = new CancellationTokenSource();
-                    RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
-                    StartTest(taskRun, token, taskRunEventHandler);
-
-                    // Update saved state
-                    SaveAllTaskListsToXmlFile(TaskListStateFile);
+                        // Update saved state
+                        SaveAllTaskListsToXmlFile(TaskListStateFile);
+                    }
                 });
             }
 
@@ -741,7 +764,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        private void StartTest(TaskRun_Server taskRun, CancellationToken token, TaskRunnerEventHandler taskRunEventHandler = null)
+        private void StartTest(TaskRun_Server taskRun, CancellationToken token, TaskRunnerEventHandler taskRunEventHandler = null, bool backgroundTask = false)
         {
             if (!token.IsCancellationRequested)
             {
@@ -804,6 +827,22 @@ namespace Microsoft.FactoryOrchestrator.Server
                         OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTaskRunFinished, taskRun.Guid));
                     }
                 }
+
+                if ((!token.IsCancellationRequested) && (taskRun.OwningTask != null) && (taskRun.TaskStatus != TaskStatus.Passed) && (!backgroundTask))
+                {
+                    if (taskRun.OwningTask.TimesRetried < taskRun.OwningTask.MaxNumberOfRetries)
+                    {
+                        var newRunGuid = taskRun.OwningTask.CreateTaskRun(DefaultLogFolder);
+                        var newRun = TaskRun_Server.GetTaskRunByGuid(newRunGuid);
+                        taskRun.OwningTask.TimesRetried++;
+                        StartTest(newRun, token, taskRunEventHandler);
+                    }
+                    else if (taskRun.OwningTask.AbortTaskListOnFailed)
+                    {
+                        AbortTaskList(taskRun.OwningTaskListGuid);
+                    }
+                }
+
             }
         }
 
@@ -1269,10 +1308,13 @@ namespace Microsoft.FactoryOrchestrator.Server
             var logFilePath = ActiveTaskRun.LogFilePath;
             if (logFilePath != null)
             {
-                if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
+                lock (outputLock)
                 {
-                    File.AppendAllLines(logFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
-                    nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
+                    if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
+                    {
+                        File.AppendAllLines(logFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
+                        nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
+                    }
                 }
             }
         }
@@ -1587,6 +1629,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             });
         }
 
+        public TaskRun_Server(TaskBase owningTask, string defaultLogFolder, Guid TaskListGuid) : this(owningTask, defaultLogFolder)
+        {
+            OwningTaskListGuid = TaskListGuid;
+        }
+
         public TaskRun_Server(TaskBase owningTask, string defaultLogFolder) : base(owningTask)
         {
             CtorCommon();
@@ -1683,6 +1730,9 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         [JsonIgnore]
         public TaskBase OwningTask { get; }
+
+        [JsonIgnore]
+        public Guid OwningTaskListGuid { get; }
 
         public TaskRunner GetOwningTaskRunner()
         {

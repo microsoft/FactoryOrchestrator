@@ -20,27 +20,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             };
         }
 
-        public ObservableCollection<String> GetTestNames(Guid guid)
-        {
-            List<String> testNamesAndResults = new List<String>();
-            foreach (var task in TestData.TaskListMap[guid].Tasks.Values)
-            {
-                if (task.LatestTaskRunStatus == TaskStatus.Passed)
-                {
-                    testNamesAndResults.Add(task.TestName + " ✔");
-                }
-                else if (task.LatestTaskRunStatus == TaskStatus.Failed)
-                {
-                    testNamesAndResults.Add(task.TestName + " ❌");
-                }
-                else
-                {
-                    testNamesAndResults.Add(task.TestName);
-                }
-            }
-            return new ObservableCollection<String>(testNamesAndResults);
-        }
-
         public void SetTestNames(Guid guid)
         {
             SetTestStatus(guid);
@@ -52,16 +31,32 @@ namespace Microsoft.FactoryOrchestrator.UWP
             List<String> testResults = new List<String>();
             foreach (var task in TestData.TaskListMap[guid].Tasks.Values)
             {
+                String str;
                 switch (task.LatestTaskRunStatus)
                 {
                     case TaskStatus.Passed:
-                        testResults.Add("✔ Passed");
+                        str = "✔ Passed";
+                        if (task.TimesRetried > 0)
+                        {
+                            str += $" (On retry {task.TimesRetried})";
+                        }
+                        testResults.Add(str);
                         break;
                     case TaskStatus.Failed:
-                        testResults.Add("❌ Failed");
+                        str = "❌ Failed";
+                        if (task.TimesRetried > 0)
+                        {
+                            str += $" (All {task.MaxNumberOfRetries} retries)";
+                        }
+                        testResults.Add(str);
                         break;
                     case TaskStatus.Running:
-                        testResults.Add("▶ Running");
+                        str = "▶ Running";
+                        if (task.TimesRetried > 0)
+                        {
+                            str += $" (Retry {task.TimesRetried} of {task.MaxNumberOfRetries})";
+                        }
+                        testResults.Add(str);
                         break;
                     case TaskStatus.NotRun:
                         testResults.Add("❔ Not Run");

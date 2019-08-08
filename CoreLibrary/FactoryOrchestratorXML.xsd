@@ -18,14 +18,15 @@
       <xs:element name="LatestTaskRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
       <xs:element name="LatestTaskRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/>
       <xs:element name="LatestTaskRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="IsEnabled" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="TimesRetried" type="xs:int" minOccurs="0" maxOccurs="1"/>
       <xs:element ref="TaskRunGuids" minOccurs="0" maxOccurs="1"/>
     </xs:all>
     <xs:attribute type="xs:string" name="Name" use="optional"/>
     <xs:attribute type="xs:string" name="Path" use="optional"/>
     <xs:attribute type="xs:string" name="Guid" use="optional"/>
     <xs:attribute type="xs:string" name="Arguments" use="optional"/>
-    <xs:attribute type="xs:int" name="Timeout" use="optional"/>
+    <xs:attribute type="xs:int" name="MaxNumberOfRetries" use="optional"/>
+    <xs:attribute type="xs:boolean" name="AbortTaskListOnFailed" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="TasksType">

@@ -68,6 +68,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             TaskRunGuids = new List<Guid>();
             TimeoutSeconds = -1;
             Arguments = "";
+            MaxNumberOfRetries = 0;
+            TimesRetried = 0;
+            AbortTaskListOnFailed = false;
         }
 
         public TaskBase(string taskPath, TaskType type) : this(type)
@@ -180,6 +183,14 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        [XmlAttribute]
+        public bool AbortTaskListOnFailed { get; set; }
+
+        [XmlAttribute]
+        public uint MaxNumberOfRetries { get; set; }
+
+        public uint TimesRetried { get; set; }
+
         // XmlSerializer calls these to check if these values are set.
         // If not set, don't serialize.
         // https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/defining-default-values-with-the-shouldserialize-and-reset-methods
@@ -205,7 +216,18 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             return TimeoutSeconds != -1;
         }
-
+        public bool ShouldSerializeTimesRetried()
+        {
+            return TimesRetried != 0;
+        }
+        public bool ShouldSerializeMaxNumberOfRetries()
+        {
+            return MaxNumberOfRetries != 0;
+        }
+        public bool ShouldSerializeAbortTaskListOnFailed()
+        {
+            return AbortTaskListOnFailed == true;
+        }
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskBase;
@@ -922,6 +944,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                 foreach (var bgtask in list.BackgroundTasksForXml)
                 {
+                    // Validate background tasks meet our extra requirements
                     if (bgtask.Type != TaskType.ConsoleExe)
                     {
                         throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTasks!");
@@ -930,6 +953,11 @@ namespace Microsoft.FactoryOrchestrator.Core
                     if (bgtask.TimeoutSeconds != -1)
                     {
                         throw new XmlSchemaValidationException("BackgroundTasks cannot have a timeout value!");
+                    }
+
+                    if (bgtask.MaxNumberOfRetries != 0)
+                    {
+                        throw new XmlSchemaValidationException("BackgroundTasks cannot have a retry value!");
                     }
 
                     if (bgtask.Guid == Guid.Empty)

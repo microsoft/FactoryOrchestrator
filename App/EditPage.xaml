@@ -18,6 +18,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -34,6 +35,8 @@
                 <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="200"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TimeoutBlock" Text="Timeout (seconds):" Padding="5"/>
                 <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" Text="Maximum number of retries:" Padding="5"/>
+                <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="RetryBox_TextChanged"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="2" >
                     <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
                         <SymbolIcon Symbol="Cancel"/>

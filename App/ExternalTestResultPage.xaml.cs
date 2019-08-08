@@ -39,6 +39,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             // Append task details to UI
             TestText.Text += taskRun.TaskName;
+            ArgsText.Text += taskRun.Arguments;
             TaskRunText.Text += taskRun.Guid.ToString();
 
             base.OnNavigatedTo(e);
@@ -105,6 +106,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 testReportReady = true;
                 taskRun.TaskStatus = result;
+                if (!String.IsNullOrWhiteSpace(CommentBox.Text))
+                {
+                    taskRun.TaskOutput.Add(CommentBox.Text);
+                }
 
                 if (result != TaskStatus.Aborted)
                 {
