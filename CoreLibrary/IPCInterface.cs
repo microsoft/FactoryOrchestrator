@@ -105,6 +105,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         bool SetDefaultTePath(string teExePath);
         bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);
         List<Tuple<string, string>> GetIpAddressesAndNicNames();
+        List<string> GetDisabledPages();
 
         // TaskList APIs
         TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF);

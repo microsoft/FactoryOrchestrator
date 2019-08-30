@@ -25,6 +25,7 @@ namespace Microsoft.FactoryOrchestrator.Service
     class FOServiceExe
     {
         public static IIpcServiceHost ipcHost;
+        public static ServiceProvider ipcSvcProvider;
 
         public static void Main(string[] args)
         {
@@ -47,7 +48,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             });
 
             // Configure service providers for logger creation and managment
-            ServiceProvider ipcSvcProvider = servicesIpc
+            ipcSvcProvider = servicesIpc
                 .AddLogging(builder =>
                 {
                     // Only log IPC framework errors
@@ -70,18 +71,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 .AddOptions()
                 .AddSingleton(new LoggerFactory())
                 .BuildServiceProvider();
-
-
-            // Enable both console logging and file logging
-            // svcProvider.GetRequiredService<ILoggerFactory>().AddConsole();
-            // svcProvider.GetRequiredService<ILoggerFactory>().AddProvider();
-
-            // Allow any client on the network to connect to the FactoryOrchestratorService, including loopback (other processes on this device)
-            // For network clients to work, we need to createa firewall entry:
-            // netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_in program=<Path to FactoryOrchestratorService.exe> protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
-            // netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_out program=<Path to FactoryOrchestratorService.exe> protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
-            ipcHost = new IpcServiceHostBuilder(ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Any, 45684)
-                                                            .Build();
 
             var _logger = foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOServiceExe>();
 
@@ -466,6 +455,31 @@ namespace Microsoft.FactoryOrchestrator.Service
             FOService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
             return ipAndNic;
         }
+
+        public List<string> GetDisabledPages()
+        {
+            List<string> ret = new List<string>();
+
+            if (FOService.Instance.DisableCommandPromptPage)
+            {
+                // values must match "Tag" on MainPage.xaml
+                ret.Add("console");
+            }
+            if (FOService.Instance.DisableUWPAppsPage)
+            {
+                ret.Add("apps");
+            }
+            if (FOService.Instance.DisableManageTasklistsPage)
+            {
+                ret.Add("save");
+            }
+            if (FOService.Instance.DisableFileTransferPage)
+            {
+                ret.Add("files");
+            }
+
+            return ret;
+        }
     }
 
     public class FOService : IMicroService
@@ -489,20 +503,25 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator\EveryBootTaskStatus";
         private readonly string _firstBootCompleteValue = @"FirstBootTaskListsComplete";
         private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
-        private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
-        private readonly string _userCreatedValue = @"LocalUserCreated";
-        private readonly string _userLoggedInValue = @"LocalUserLoggedIn";
-        private readonly string _userNameValue = @"LocalUserName";
         private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
         private readonly string _firstBootStatePathValue = @"FirstBootStateTaskListsXML";
         private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
         private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
-
-        //private readonly string _firewallValue = @"FirewallConfigured";
+        private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
+        private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
+        private readonly string _disableCmdPromptValue = @"DisableCommandPromptPage";
+        private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
+        private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
+        private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
 
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
+        public bool DisableCommandPromptPage { get; private set; }
+        public bool DisableUWPAppsPage { get; private set; }
+        public bool DisableManageTasklistsPage { get; private set; }
+        public bool DisableFileTransferPage { get; private set; }
+        public bool DisableNetworkAccess { get; private set; }
 
         /// <summary>
         /// FactoryOrchestratorService singleton
@@ -605,7 +624,18 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            // Start IPC server. Only start after all boot tasks are complete.
+            // Start IPC server on port 45684. Only start after all boot tasks are complete.
+            if (DisableNetworkAccess)
+            {
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Loopback, 45684)
+                                                                .Build();
+            }
+            else
+            {
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Any, 45684)
+                                                                .Build();
+            }
+
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             _taskExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
@@ -734,7 +764,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool ExecuteServerBootTasks()
         {
             // Enable local loopback every boot.
-            return EnableUWPLocalLoopback();
+            return LoadOEMCustomizations() && EnableUWPLocalLoopback();
         }
 
         /// <summary>
@@ -1039,6 +1069,19 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             return success;
+        }
+
+        private bool LoadOEMCustomizations()
+        {
+            var nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+
+            DisableNetworkAccess = (bool)GetValueFromRegistry(null, nonMutableKey, _disableNetworkAccessValue, false);
+            DisableCommandPromptPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableCmdPromptValue, false);
+            DisableFileTransferPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableFileTransferValue, false);
+            DisableUWPAppsPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableUWPAppsValue, false);
+            DisableManageTasklistsPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableTaskManagerValue, false);
+
+            return true;
         }
 
         private TaskRun_Server RunProcessViaCmd(string process, string args, int timeoutMS)

@@ -21,17 +21,52 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Disabled;
+
+            // Put ipaddress in header
             Header.Text += IPCClientHelper.IsLocalHost ? " (Local Device)" : $" ({IPCClientHelper.IpAddress.ToString()})";
+
+            // If localhost connection, hide file transfer page
+            if (IPCClientHelper.IsLocalHost)
+            {
+                NavigationViewItem fileItem = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == "files").First();
+                fileItem.Visibility = Visibility.Collapsed;
+                fileItem.IsEnabled = false;
+                var pageMap = navViewPages.Where(x => x.Tag == "files").First();
+                navViewPages.Remove(pageMap);
+                pageMap.Enabled = false;
+                navViewPages.Add(pageMap);
+            }
+
+            // If there was a previous tab loaded, navigate to it
             lastNavTag = ((App)Application.Current).MainPageLastNavTag;
+
             // Add handler for ContentFrame navigation.
             ContentFrame.Navigated += On_ContentFrameNavigated;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            // NavView doesn't load any page by default, so load home page.
+            // Hide tabs disabled by OEM Customization
+            List<string> disabledPages = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetDisabledPages());
+            foreach (var disabledPage in disabledPages)
+            {
+                foreach (NavigationViewItem item in NavView.MenuItems)
+                {
+                    if (item.Tag.ToString() == disabledPage)
+                    {
+                        item.Visibility = Visibility.Collapsed;
+                        item.IsEnabled = false;
+                        var pageMap = navViewPages.Where(x => x.Tag == disabledPage).First();
+                        navViewPages.Remove(pageMap);
+                        pageMap.Enabled = false;
+                        navViewPages.Add(pageMap);
+                    }
+                }
+            }
+
             if (lastNavTag == null)
             {
+                // NavView doesn't load any page by default, so load home page.
                 NavView.SelectedItem = NavView.MenuItems[0];
                 ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
             }
@@ -88,14 +123,21 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ((App)Application.Current).MainPageLastNavTag = lastNavTag = navItemTag;
 
-            Type page;
+            Type page = null;
+            
             //if (navItemTag == "settings")
             //{
             //    page = typeof(SettingsPage);
             //}
             //else
             {
-                page = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag)).Page;
+                var pageMap = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag));
+
+                if (pageMap.Enabled)
+                {
+                    // Dont navigate unless the page is enabled
+                    page = pageMap.Page;
+                }
             }
              
             // Get the page type before navigation so you can prevent duplicate entries in the backstack.
@@ -141,14 +183,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private string lastNavTag;
-        private readonly List<(string Tag, Type Page)> navViewPages = new List<(string Tag, Type Page)>
+        private List<(string Tag, Type Page, bool Enabled)> navViewPages = new List<(string Tag, Type Page, bool Enabled)>
         {
-            ("run", typeof(TaskListExecutionPage)),
-            ("console", typeof(ConsolePage)),
-            ("apps", typeof(AppsPage)),
-            ("save", typeof(SaveLoadEditPage)),
-            ("files", typeof(FileTransferPage)),
-            ("about", typeof(AboutPage))
+            ("run", typeof(TaskListExecutionPage), true),
+            ("console", typeof(ConsolePage), true),
+            ("apps", typeof(AppsPage), true),
+            ("save", typeof(SaveLoadEditPage), true),
+            ("files", typeof(FileTransferPage), true),
+            ("about", typeof(AboutPage), true)
         };
     }
 

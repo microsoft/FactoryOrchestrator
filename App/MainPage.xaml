@@ -68,16 +68,16 @@
             <TextBlock x:Name="Header" Grid.Row="0" Text="Factory Orchestrator" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
             <NavigationView x:Name="NavView" Grid.Row="2" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" ItemInvoked="NavView_ItemInvoked">
                 <NavigationView.MenuItems>
-                    <NavigationViewItem Tag="run" Content="Run TaskLists" Icon="Play"/>
-                    <NavigationViewItem Tag="console">
+                    <NavigationViewItem Tag="run" Content="Run TaskLists" Icon="Play" ToolTipService.ToolTip="hi"/>
+                    <NavigationViewItem Tag="console" ToolTipService.ToolTip="Non-interactive cmd.exe prompt">
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;"/>
                             <TextBlock Text="Command Prompt" Margin="10, 9"/>
                         </StackPanel>
                     </NavigationViewItem>
-                    <NavigationViewItem Tag="apps" Content="UWP Apps" Icon="AllApps"/>
-                    <NavigationViewItem Tag="save" Content="Manage TaskLists" Icon="Edit"/>
-                    <NavigationViewItem Tag="files" Content="Transfer Files" Icon="SyncFolder"/>
+                    <NavigationViewItem Tag="apps" Content="UWP Apps" Icon="AllApps" ToolTipService.ToolTip="Launch a UWP app"/>
+                    <NavigationViewItem Tag="save" Content="Manage TaskLists" Icon="Edit" ToolTipService.ToolTip="Create or edit a TaskList"/>
+                    <NavigationViewItem Tag="files" Content="Transfer Files" Icon="SyncFolder" ToolTipService.ToolTip="Transfer file to/from connected device"/>
                     <NavigationViewItem Tag="about" Content="About Factory Orchestrator" Icon="Help"/>
                 </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" IsTabStop="True" Padding="0, 0, 24, 0"/>
