@@ -23,8 +23,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
-            this.TestViewModel = new TestViewModel();
-            this.DataContext = TestViewModel;
             _listUpdateSem = new SemaphoreSlim(1, 1);
             _selectedTaskList = -1;
             mainPage = null;
@@ -33,15 +31,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
 #endif
         }
 
-        public TestViewModel TestViewModel { get; set; }
-
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (TaskListsView.SelectedItem != null)
             {
                 Guid taskListGuid = (Guid)TaskListsView.SelectedItem;
                 _selectedTaskList = TaskListsView.SelectedIndex;
-                TestViewModel.SetActiveTaskList(taskListGuid);
+
                 if (_activeListPoller != null)
                 {
                     _activeListPoller.StopPolling();
@@ -92,8 +88,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             int index = control.SelectedIndex;
             if (index != -1)
             {
-                var testGuid = TestViewModel.TestData.TestGuidsMap[index];
-                TaskBase task = TestViewModel.TestData.TaskListMap[(Guid)TestViewModel.TestData.SelectedTaskListGuid].Tasks[testGuid];
+                TaskBase task = ActiveListCollection[index];
 
                 // Navigate from the MainPage frame so this is a "full screen" page
                 mainPage.Navigate(typeof(ResultsPage), task);
@@ -108,8 +103,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TaskList list = (TaskList)e.Result;
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
+                    var listArray = list.Tasks.Values.ToArray();
+                    for (int i = 0; i < listArray.Length; i++)
+                    {
+                        if (ActiveListCollection[i] != listArray[i])
+                        {
+                            ActiveListCollection[i] = listArray[i];
+                        }
+                    }
 
-                    TestViewModel.AddOrUpdateTaskList(list);
+                    for (int i = listArray.Length; i < ActiveListCollection.Count; i++)
+                    {
+                        ActiveListCollection.RemoveAt(i);
+                    }
 
                     if (list.TaskListStatus == TaskStatus.Running)
                     {
@@ -129,39 +135,26 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (taskListGuids != null)
             {
+                // Add or update TaskLists
                 foreach (var guid in taskListGuids)
                 {
-                    if (!TestViewModel.TestData.TaskListGuids.Contains(guid))
+                    var list = TaskListCollection.Where(x => x.Guid == guid).DefaultIfEmpty(null).FirstOrDefault();
+
+                    if (list == null)
                     {
-                        _listUpdateSem.Wait();
-                        if (!TestViewModel.TestData.TaskListGuids.Contains(guid))
-                        {
-                            var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
-
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                            {
-                                TestViewModel.AddOrUpdateTaskList(list);
-                                TaskListsView.ItemsSource = TestViewModel.TestData.TaskListGuids;
-                                if (TaskListsView.SelectedItem == null)
-                                {
-                                    TestViewModel.TestData.SelectedTaskListGuid = list.Guid;
-                                    TaskListsView.SelectedItem = list.Guid;
-                                }
-                            });
-                        }
-
-                        _listUpdateSem.Release();
+                        var newList = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
+                        TaskListCollection.Add(newList);
                     }
                 }
-                
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+
+                // Prune non-existant lists
+                foreach (var item in TaskListCollection)
                 {
-                    if (TestViewModel.PruneKnownTaskLists(taskListGuids))
+                    if (!taskListGuids.Contains(item.Guid))
                     {
-                        TaskListsView.ItemsSource = TestViewModel.TestData.TaskListGuids;
+                        TaskListCollection.Remove(item);
                     }
-                });
-                
+                }
             }
         }
 
@@ -238,5 +231,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private SemaphoreSlim _listUpdateSem;
+        public ObservableCollection<TaskList> TaskListCollection;
+        public ObservableCollection<TaskBase> ActiveListCollection;
+
     }
 }

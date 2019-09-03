@@ -125,6 +125,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         // Task Execution APIs
         bool RunTaskList(Guid taskListGuid);
+        bool RunTaskListFromInitial(Guid taskListGuid, int initialTask);
         void AbortAllTaskLists();
         void AbortTaskList(Guid taskListGuid);
         void AbortTaskRun(Guid taskRunGuid);

@@ -26,7 +26,7 @@
             <CheckBox x:Name="DisablePolling" Content="DisablePolling" Margin="10,0" IsChecked="False" Checked="DisablePolling_Click"  Unchecked="DisablePolling_Click" Visibility="Collapsed"/>
         </StackPanel>
 
-        <ListView x:Name="TaskListsView" Grid.Column="0" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TestViewModel.TestData.TaskListGuids, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ListView x:Name="TaskListsView" Grid.Column="0" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.Items>
             </ListView.Items>
         </ListView>
@@ -37,11 +37,11 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <ListView x:Name="TestsView" Grid.Column="0" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TestViewModel.TestData.TestNames, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListView x:Name="TestsView" Grid.Column="0" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <ListView.Items>
                     </ListView.Items>
                 </ListView>
-                <ListView x:Name="ResultsView" Grid.Column="1" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TestViewModel.TestData.TestStatus, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
+                <ListView x:Name="ResultsView" Grid.Column="1" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False">
                     <ListView.Items>
                     </ListView.Items>
                 </ListView>

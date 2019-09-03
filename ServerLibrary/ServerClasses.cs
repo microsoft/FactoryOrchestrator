@@ -594,7 +594,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             return TaskRun_Server.UpdateTaskRun(latestTaskRun);
         }
 
-        public bool RunTaskList(Guid TaskListGuidToRun)
+        public bool RunTaskList(Guid TaskListGuidToRun, int startIndex = 0)
         {
             TaskList list = null;
 
@@ -621,10 +621,11 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 // Create taskrun for all tasks in the list
                 List<Guid> taskRunGuids = new List<Guid>();
-                foreach (var task in list.Tasks.Values)
+                var tasks = list.Tasks.ToList();
+                for (int i = startIndex; i < tasks.Count; i++)
                 {
-                    task.TimesRetried = 0;
-                    taskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder, TaskListGuidToRun));
+                    tasks[i].Value.TimesRetried = 0;
+                    taskRunGuids.Add(tasks[i].Value.CreateTaskRun(DefaultLogFolder, TaskListGuidToRun));
                 }
 
                 // Update XML for state tracking.
@@ -639,6 +640,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
 
             return true;
+        }
+
+        public bool RunTaskListFromInitial(Guid taskListToRun, int initialTask)
+        {
+            return RunTaskList(taskListToRun, initialTask);
         }
 
         public class TaskListWorkItem
