@@ -1677,7 +1677,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 LogFolder = defaultLogFolder;
             }
 
-            LogFilePath = Path.Combine(LogFolder, String.Format("{0}_Run{1}.log", TaskName, Guid));
+            LogFilePath = Path.Combine(LogFolder, TaskName, $"Run_{Guid}.log");
         }
 
         public static string FindFileInPath(string file)

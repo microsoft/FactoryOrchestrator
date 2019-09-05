@@ -509,18 +509,30 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator\EveryBootTaskStatus";
-        private readonly string _firstBootCompleteValue = @"FirstBootTaskListsComplete";
-        private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
-        private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
-        private readonly string _firstBootStatePathValue = @"FirstBootStateTaskListsXML";
-        private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
-        private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
+
         private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
+
+        // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
         private readonly string _disableCmdPromptValue = @"DisableCommandPromptPage";
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
         private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
+
+        // Default paths in testcontent directory for user tasklists
+        private readonly string _firstBootStateDefaultPath = @"U:\TestContent\InitialTaskLists.xml";
+        private readonly string _firstBootDefaultPath = @"U:\TestContent\FirstBootTasks.xml";
+        private readonly string _everyBootDefaultPath = @"U:\TestContent\EveryBootTasks.xml";
+
+        // Registry fallbacks for user tasklists
+        private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
+        private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
+        private readonly string _firstBootStatePathValue = @"FirstBootStateTaskListsXML";
+
+        // user tasklists state registry values
+        private readonly string _firstBootCompleteValue = @"FirstBootTaskListsComplete";
+        private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
+        private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
 
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
@@ -619,7 +631,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Execute user defined tasks.
             ExecuteUserBootTasks(forceUserTaskRerun);
 
-            // Load first boot state file, or try to load known TaskLists from the existing state file
+            // Load first boot state file, or try to load known TaskLists from the existing state file.
             if (!LoadFirstBootStateFile() && File.Exists(_taskExecutionManager.TaskListStateFile))
             {
                 try
@@ -675,8 +687,16 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0))
                 {
                     ServiceLogger.LogInformation("Checking for first boot state TaskLists XML...");
-                    // Find the TaskLists XML path.
-                    string firstBootStateTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStatePathValue) as string;
+                    // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
+                    string firstBootStateTaskListPath = null;
+                    if (File.Exists(_firstBootStateDefaultPath))
+                    {
+                        firstBootStateTaskListPath = _firstBootStateDefaultPath;
+                    }
+                    else
+                    {
+                        firstBootStateTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStatePathValue) as string;
+                    }
 
                     if (firstBootStateTaskListPath != null)
                     {
@@ -819,8 +839,17 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
                 {
                     ServiceLogger.LogInformation("Checking for first boot TaskLists XML...");
-                    // Find the TaskLists XML path.
-                    string firstBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootTasksPathValue) as string;
+
+                    // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
+                    string firstBootTaskListPath = null;
+                    if (File.Exists(_firstBootDefaultPath))
+                    {
+                        firstBootTaskListPath = _firstBootDefaultPath;
+                    }
+                    else
+                    {
+                        firstBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootTasksPathValue) as string;
+                    }
 
                     if (firstBootTaskListPath != null)
                     {
@@ -884,8 +913,16 @@ namespace Microsoft.FactoryOrchestrator.Service
                     if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
                     {
                         ServiceLogger.LogInformation($"Checking for every boot TaskLists XML...");
-                        // Find the TaskLists XML path.
-                        var everyBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _everyBootTasksPathValue) as string;
+                        // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
+                        string everyBootTaskListPath = null;
+                        if (File.Exists(_everyBootDefaultPath))
+                        {
+                            everyBootTaskListPath = _everyBootDefaultPath;
+                        }
+                        else
+                        {
+                            everyBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _everyBootTasksPathValue) as string;
+                        }
 
                         if (everyBootTaskListPath != null)
                         {
