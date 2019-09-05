@@ -74,7 +74,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             KnownTaskLists = new ConcurrentDictionary<Guid, TaskList>();
             RunningTaskListTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new ConcurrentDictionary<Guid, List<TaskRunner>>();
-            RunningTestTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
+            RunningTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             TaskListStateFile = Path.Combine(defaultLogFolder, "FactoryOrchestratorKnownTaskLists.xml");
             SetDefaultLogFolder(defaultLogFolder, false);
         }
@@ -419,7 +419,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     }
 
                     // Cancel any started testruns
-                    foreach (var token in RunningTestTaskRunTokens.Values)
+                    foreach (var token in RunningTaskRunTokens.Values)
                     {
                         token.Cancel();
                     }
@@ -446,7 +446,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     // Create new dictionaries
                     RunningTaskListTokens.Clear();
-                    RunningTestTaskRunTokens.Clear();
+                    RunningTaskRunTokens.Clear();
                     KnownTaskLists.Clear();
                 }
             }
@@ -747,7 +747,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     else
                     {
                         var testToken = new CancellationTokenSource();
-                        RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
+                        RunningTaskRunTokens.TryAdd(taskRun.Guid, testToken);
                         StartTest(taskRun, testToken.Token, taskRunEventHandler, false);
 
                         // Update saved state
@@ -769,7 +769,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     else
                     {
                         var testToken = new CancellationTokenSource();
-                        RunningTestTaskRunTokens.TryAdd(taskRun.Guid, testToken);
+                        RunningTaskRunTokens.TryAdd(taskRun.Guid, testToken);
                         StartTest(taskRun, token, taskRunEventHandler);
 
                         // Update saved state
@@ -873,7 +873,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        public void AbortAllTaskLists()
+        public void AbortAll()
         {
             lock (RunningTaskListLock)
             {
@@ -881,13 +881,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     token.Cancel();
                 }
-                foreach (var token in RunningTestTaskRunTokens.Values)
+                foreach (var token in RunningTaskRunTokens.Values)
                 {
                     token.Cancel();
                 }
 
                 RunningTaskListTokens.Clear();
-                RunningTestTaskRunTokens.Clear();
+                RunningTaskRunTokens.Clear();
             }
         }
 
@@ -902,13 +902,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                     CancellationTokenSource removed;
                     RunningTaskListTokens.TryRemove(taskListToCancel, out removed);
 
-                    var taskRunGuids = KnownTaskLists[taskListToCancel].Tasks.Values.Select(x => x.Guid);
+                    var taskRunGuids = KnownTaskLists[taskListToCancel].Tasks.Values.Select(x => x.LatestTaskRunGuid);
                     foreach (var guid in taskRunGuids)
                     {
-                        if (RunningTestTaskRunTokens.TryGetValue(guid, out token))
+                        if (RunningTaskRunTokens.TryGetValue((Guid)guid, out token))
                         {
                             token.Cancel();
-                            RunningTestTaskRunTokens.TryRemove(guid, out removed);
+                            RunningTaskRunTokens.TryRemove((Guid)guid, out removed);
                         }
                     }
                 }
@@ -922,11 +922,11 @@ namespace Microsoft.FactoryOrchestrator.Server
                 CancellationTokenSource token;
                 List<TaskRunner> backgroundTasks;
 
-                if (RunningTestTaskRunTokens.TryGetValue(taskRunToCancel, out token))
+                if (RunningTaskRunTokens.TryGetValue(taskRunToCancel, out token))
                 {
                     token.Cancel();
                     CancellationTokenSource removed;
-                    RunningTestTaskRunTokens.TryRemove(taskRunToCancel, out removed);
+                    RunningTaskRunTokens.TryRemove(taskRunToCancel, out removed);
                 }
                 else if (RunningBackgroundTasks.TryGetValue(taskRunToCancel, out backgroundTasks))
                 {
@@ -982,7 +982,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                RunningTestTaskRunTokens.TryAdd(run.Guid, token);
+                RunningTaskRunTokens.TryAdd(run.Guid, token);
                 Task t = new Task(() => { StartTest(run, token.Token); });
                 t.Start();
             }
@@ -994,7 +994,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             var run = TaskRun_Server.CreateTaskRunWithoutTask(packageFamilyName, null, null, TaskType.UWP);
             var token = new CancellationTokenSource();
-            RunningTestTaskRunTokens.TryAdd(run.Guid, token);
+            RunningTaskRunTokens.TryAdd(run.Guid, token);
             Task t = new Task(() => { StartTest(run, token.Token); });
             t.Start();
 
@@ -1003,7 +1003,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         private ConcurrentDictionary<Guid, TaskList> KnownTaskLists;
         private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskListTokens;
-        private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTestTaskRunTokens;
+        private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskRunTokens;
         private ConcurrentDictionary<Guid, List<TaskRunner>> RunningBackgroundTasks;
         private readonly object KnownTaskListLock = new object();
         private readonly object RunningTaskListLock = new object();

@@ -35,7 +35,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _testPoller = new ServerPoller(_test.Guid, typeof(TaskBase), IPCClientHelper.IpcClient, 5000);
                 _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
                 _testPoller.StartPolling();
-                if (!TryCreateTaskRunPoller(_test.LastTaskRunGuid))
+                if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
                 {
                     // Set task status to not run
                     OverallTestResult.Text = "❔ Not Run";
@@ -68,7 +68,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _test = (TaskBase)e.Result;
             if ((_test != null) && (_taskRunPoller == null))
             {
-                TryCreateTaskRunPoller(_test.LastTaskRunGuid);
+                TryCreateTaskRunPoller(_test.LatestTaskRunGuid);
             }
 
             if (_test != null)
@@ -128,7 +128,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void CreateHeader()
         {
-            TestHeader.Text = String.Format("{0} ({1})", _test.TestName, _test.Guid.ToString());
+            TestHeader.Text = String.Format("{0} ({1})", _test.Name, _test.Guid.ToString());
         }
 
         private void UpdateResultsSummary()

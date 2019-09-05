@@ -222,6 +222,24 @@ namespace Microsoft.FactoryOrchestrator.Service
             return guids;
         }
 
+        public List<(Guid, TaskStatus)> GetTaskListGuidsWithStatus()
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuidsWithStatus");
+            var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
+            var ret = new List<(Guid, TaskStatus)>();
+            foreach (var guid in guids)
+            {
+                var list = FOService.Instance.TestExecutionManager.GetTaskList(guid);
+                if (list != null)
+                {
+                    ret.Add((guid, list.TaskListStatus));
+                }
+            }
+
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuidsWithStatus");
+            return ret;
+        }
+
         public TaskList QueryTaskList(Guid taskListGuid)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
@@ -255,9 +273,9 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public bool UpdateTask(TaskBase updatedTask)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
             var updated = FOService.Instance.TestExecutionManager.UpdateTask(updatedTask);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.TestName} {updatedTask.Guid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
             return updated;
         }
 
@@ -294,10 +312,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             return updated;
         }
 
-        public void AbortAllTaskLists()
+        public void AbortAll()
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
-            FOService.Instance.TestExecutionManager.AbortAllTaskLists();
+            FOService.Instance.TestExecutionManager.AbortAll();
             FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
         }
 
@@ -733,7 +751,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             _ipcCancellationToken.Cancel();
 
             // Abort everything that's running, except persisted background tasks
-            TestExecutionManager.AbortAllTaskLists();
+            TestExecutionManager.AbortAll();
 
             // Update state file
             TestExecutionManager.SaveAllTaskListsToXmlFile(TestExecutionManager.TaskListStateFile);

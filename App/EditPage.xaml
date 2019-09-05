@@ -115,7 +115,7 @@
             </ListView.Resources>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock x:Name="TestName" Text="{Binding Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0" />
+                    <TextBlock x:Name="TaskName" Text="{Binding Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -152,7 +152,7 @@
         </ListView.Resources>
         <ListView.ItemTemplate>
             <DataTemplate>
-                <TextBlock x:Name="TestName" Text="{Binding Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0" />
+                <TextBlock x:Name="TaskName" Text="{Binding Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0" />
             </DataTemplate>
         </ListView.ItemTemplate>
         </ListView>

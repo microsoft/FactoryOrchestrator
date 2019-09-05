@@ -114,6 +114,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         bool SaveAllTaskListsToXmlFile(string filename);
         TaskList CreateTaskListFromTaskList(TaskList list);
         List<Guid> GetTaskListGuids();
+        List<(Guid, TaskStatus)> GetTaskListGuidsWithStatus();
         TaskList QueryTaskList(Guid taskListGuid);
         bool DeleteTaskList(Guid listToDelete);
         bool UpdateTaskList(TaskList taskList);
@@ -126,7 +127,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         // Task Execution APIs
         bool RunTaskList(Guid taskListGuid);
         bool RunTaskListFromInitial(Guid taskListGuid, int initialTask);
-        void AbortAllTaskLists();
+        void AbortAll();
         void AbortTaskList(Guid taskListGuid);
         void AbortTaskRun(Guid taskRunGuid);
         TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null);

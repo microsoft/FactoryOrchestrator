@@ -53,7 +53,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                     }
                     else
                     {
-                        newObj = await _client.InvokeAsync(x => x.GetTaskListGuids());
+                        newObj = await _client.InvokeAsync(x => x.GetTaskListGuidsWithStatus());
                     }
                 }
                 else //if (_guidType == typeof(TaskRun))

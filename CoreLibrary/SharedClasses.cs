@@ -86,7 +86,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         // TODO: Make only getters and add internal apis to set
         [XmlAttribute("Name")]
-        public virtual string TestName
+        public virtual string Name
         {
             get
             {
@@ -115,7 +115,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     return true;
                 }
-                else if (LatestTaskRunStatus == TaskStatus.Failed)
+                else if ((LatestTaskRunStatus == TaskStatus.Failed) || (LatestTaskRunStatus == TaskStatus.Timeout))
                 {
                     return false;
                 }
@@ -173,7 +173,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
-        public Guid? LastTaskRunGuid
+        public Guid? LatestTaskRunGuid
         {
             get
             {
@@ -262,7 +262,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 return false;
             }
 
-            if (this.LastTaskRunGuid != rhs.LastTaskRunGuid)
+            if (this.LatestTaskRunGuid != rhs.LatestTaskRunGuid)
             {
                 return false;
             }
@@ -348,7 +348,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         public override string ToString()
         {
-            return TestName;
+            return Name;
         }
 
         public override bool Equals(object obj)
@@ -364,7 +364,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         [XmlAttribute("Name")]
-        public override string TestName
+        public override string Name
         {
             get
             {
@@ -406,7 +406,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         [XmlAttribute("Name")]
-        public override string TestName
+        public override string Name
         {
             get
             {
@@ -458,7 +458,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         [XmlAttribute("Name")]
-        public override string TestName
+        public override string Name
         {
             get
             {
@@ -549,7 +549,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         public override string ToString()
         {
-            return TestName;
+            return Name;
         }
 
         public override bool Equals(object obj)
@@ -561,7 +561,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 return false;
             }
 
-            if (rhs.TestName != TestName)
+            if (rhs.Name != Name)
             {
                 return false;
             }
@@ -570,7 +570,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         [XmlAttribute("Name")]
-        public override string TestName
+        public override string Name
         {
             get
             {
@@ -624,7 +624,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 return false;
             }
 
-            if (this.TestName != this.TestName)
+            if (this.Name != this.Name)
             {
                 return false;
             }
@@ -633,7 +633,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         [XmlAttribute("Name")]
-        public override string TestName
+        public override string Name
         {
             get
             {
@@ -692,17 +692,21 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     return TaskStatus.Passed;
                 }
+                else if (Tasks.Values.Any(x => x.LatestTaskRunStatus == TaskStatus.Aborted))
+                {
+                    return TaskStatus.Aborted;
+                }
                 else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
                 {
                     return TaskStatus.Running;
                 }
-                else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Failed) || (x.LatestTaskRunStatus == TaskStatus.Timeout)))
-                {
-                    return TaskStatus.Failed;
-                }
                 else if (Tasks.Values.Any(x => x.LatestTaskRunStatus == TaskStatus.Unknown))
                 {
                     return TaskStatus.Unknown;
+                }
+                else if (Tasks.Values.Any(x => (x.LatestTaskRunPassed != null) && ((bool)x.LatestTaskRunPassed == false)))
+                {
+                    return TaskStatus.Failed;
                 }
                 else
                 {
@@ -836,7 +840,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 OwningTaskGuid = owningTask.Guid;
                 TaskPath = owningTask.Path;
                 Arguments = owningTask.Arguments;
-                TaskName = owningTask.TestName;
+                TaskName = owningTask.Name;
                 TaskType = owningTask.Type;
                 TimeoutSeconds = owningTask.TimeoutSeconds;
                 if (TaskType == TaskType.ConsoleExe)

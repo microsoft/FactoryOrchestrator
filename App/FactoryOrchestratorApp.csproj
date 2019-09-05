@@ -128,6 +128,7 @@
     <Compile Include="SaveLoadEditPage.xaml.cs">
       <DependentUpon>SaveLoadEditPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TaskBaseDataBindingConverter.cs" />
     <Compile Include="TaskListExecutionPage.xaml.cs">
       <DependentUpon>TaskListExecutionPage.xaml</DependentUpon>
     </Compile>
@@ -135,8 +136,6 @@
     <Compile Include="ResultsPage.xaml.cs">
       <DependentUpon>ResultsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestData.cs" />
-    <Compile Include="TestViewModel.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

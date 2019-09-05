@@ -2,6 +2,7 @@
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -30,14 +31,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public SaveLoadEditPage()
         {
             this.InitializeComponent();
-            TestViewModel = new TestViewModel();
             _listUpdateSem = new SemaphoreSlim(1, 1);
+            TaskListCollection = new ObservableCollection<TaskList>();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             mainPage = (Frame)e.Parameter;
-
             if (_taskListGuidPoller == null)
             {
                 _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
@@ -289,44 +289,40 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private async void OnUpdatedTaskListGuidsAsync(object source, ServerPollerEventArgs e)
         {
-            var taskListGuids = e.Result as List<Guid>;
+            var taskListGuids = (e.Result as List<(Guid guid, TaskStatus status)>).Select(x => x.guid);
 
             if (taskListGuids != null)
             {
+                // Add or update TaskLists
                 foreach (var guid in taskListGuids)
                 {
-                    if (!TestViewModel.TestData.TaskListGuids.Contains(guid))
+                    var list = TaskListCollection.Where(x => x.Guid == guid).DefaultIfEmpty(null).FirstOrDefault();
+
+                    if (list == null)
                     {
-                        _listUpdateSem.Wait();
-                        if (!TestViewModel.TestData.TaskListGuids.Contains(guid))
+                        var newList = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                         {
-                            var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
-
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                            {
-                                TestViewModel.AddOrUpdateTaskList(list);
-                                TaskListsView.ItemsSource = TestViewModel.TestData.TaskListGuids;
-                                if (TaskListsView.SelectedItem == null)
-                                {
-                                    TestViewModel.TestData.SelectedTaskListGuid = list.Guid;
-                                    TaskListsView.SelectedItem = list.Guid;
-                                }
-                            });
-                        }
-
-                        _listUpdateSem.Release();
+                            TaskListCollection.Add(newList);
+                        });
                     }
                 }
 
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                // Prune non-existant lists
+                for (int i = 0; i < TaskListCollection.Count; i++)
                 {
-                    if (TestViewModel.PruneKnownTaskLists(taskListGuids))
+                    var item = TaskListCollection[i];
+                    if (!taskListGuids.Contains(item.Guid))
                     {
-                        TaskListsView.ItemsSource = TestViewModel.TestData.TaskListGuids;
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            TaskListCollection.RemoveAt(i);
+                        });
+                        i--;
                     }
-                });
-
+                }
             }
+
         }
 
         /// <summary>
@@ -336,11 +332,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;
-            return (Guid)(((ContentPresenter)(grid.Children[0])).Content);
+            return ((TaskList)((ContentPresenter)(grid.Children[0])).Content).Guid;
         }
 
-        public TestViewModel TestViewModel { get; set; }
-
+        public ObservableCollection<TaskList> TaskListCollection;
         private ServerPoller _taskListGuidPoller;
         private SemaphoreSlim _listUpdateSem;
         private Guid _activeGuid;

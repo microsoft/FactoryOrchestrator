@@ -180,7 +180,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
 
-            activeTask.TestName = TestNameBox.Text;
+            activeTask.Name = TestNameBox.Text;
 
             if (TimeoutBox.Text != "")
             {
@@ -283,7 +283,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     EditFlyoutTextHeader.Text = $"Editing Background Task";
                 }
-                TestNameBox.Text = activeTask.TestName;
+                TestNameBox.Text = activeTask.Name;
                 TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
                 RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
 
@@ -522,7 +522,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;
-            return (TaskBase)(((ContentPresenter)(grid.Children[0])).Content);
+            return ((ContentPresenter)(grid.Children.Where(x => x.GetType() == typeof(ContentPresenter)).First())).Content as TaskBase;
         }
         private void ListCheck_Checked(object sender, RoutedEventArgs e)
         {
