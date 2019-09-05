@@ -46,6 +46,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run.Guid;
         }
 
+
         public static void GetLatestTaskRun(this TaskBase task)
         {
             TaskRun_Server.GetTaskRunByGuid(task.TaskRunGuids.Last());
@@ -179,6 +180,54 @@ namespace Microsoft.FactoryOrchestrator.Server
                     CopyDirectory(subdir.FullName, temppath, copySubDirs);
                 }
             }
+        }
+        
+        /// <summary>
+        /// Loads a taskrun log file into a taskrun_server object. This has a very hard dependency on the output format.
+        /// </summary>
+        /// <param name="filePath">log file to load</param>
+        /// <returns>created taskrun object</returns>
+        public TaskRun_Server LoadTaskRunFromFile(string filePath)
+        {
+            TaskRun_Server run = null;
+
+            try
+            {
+                Guid? taskGuid = null;
+                Guid? taskRunGuid = null;
+                var lines = File.ReadAllLines(filePath).ToList();
+                taskGuid = new Guid(lines.First(x => x.StartsWith("GUID:")).Split(' ').Last());
+                taskRunGuid = new Guid(lines.First(x => x.StartsWith("TaskRun GUID:")).Split(' ').Last());
+
+
+                if ((taskGuid != null) && (taskRunGuid != null))
+                {
+                    var task = GetTask((Guid)taskGuid);
+                    var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey((Guid)taskGuid)).First();
+                    run = new TaskRun_Server(task, DefaultLogFolder, list.Guid, (Guid)taskRunGuid);
+                    run.TimeStarted = DateTime.Parse(lines.Where(x => x.StartsWith("Date/Time run:")).First().Replace("Date/Time run:", ""));
+                    run.TimeFinished = run.TimeStarted + TimeSpan.Parse(lines.First(x => x.StartsWith("Time to complete:")).Split(' ').Last());
+                    var status = TaskStatus.Unknown;
+                    Enum.TryParse(lines.First(x => x.StartsWith("Result:")).Split(' ').Last(), out status);
+                    run.TaskStatus = status;
+                    run.ExitCode = int.Parse(lines.First(x => x.StartsWith("Exit code:")).Split(' ').Last());
+                    var startOutput = lines.First(x => x.StartsWith("---------------"));
+                    var endOutput = lines.Last(x => x.StartsWith("---------------"));
+                    var startIndex = lines.IndexOf(startOutput);
+                    var endIndex = lines.IndexOf(endOutput);
+                    run.TaskOutput = lines.GetRange(startIndex + 1, endIndex - startIndex - 1);
+                }
+            }
+            catch (Exception)
+            {
+                if (run != null)
+                {
+                    TaskRun_Server.RemoveTaskRun(run.Guid, true);
+                    run = null;
+                }
+            }
+
+            return run;
         }
 
         public TaskList CreateTaskListFromDirectory(String path, bool onlyTAEF)
@@ -1293,6 +1342,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             ActiveTaskRun.UpdateOwningTaskFromTaskRun();
 
             // Write header to file
+            // WARNING: Update LoadTaskRunFromFile() if you change the header format!
             var LogFilePath = ActiveTaskRun.LogFilePath;
             if (LogFilePath != null)
             {
@@ -1430,6 +1480,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         File.AppendAllLines(ActiveTaskRun.LogFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
                         nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
                     }
+                    // WARNING: Update LoadTaskRunFromFile() if you change the footer format!
                     File.AppendAllLines(LogFilePath,
                                         new String[] {
                                     "---------------------------------------------",
@@ -1665,19 +1716,26 @@ namespace Microsoft.FactoryOrchestrator.Server
             OwningTaskListGuid = TaskListGuid;
         }
 
+        public TaskRun_Server(TaskBase owningTask, string defaultLogFolder, Guid TaskListGuid, Guid TaskRunGuid) : this(owningTask, defaultLogFolder)
+        {
+            OwningTaskListGuid = TaskListGuid;
+
+            // CtorCommon already added the wrong guid to the map. Remove autogenned guid, add ours by re-running CtorCommon()
+            RemoveTaskRun(this.Guid, false);
+            Guid = TaskRunGuid;
+            CtorCommon();
+
+            // Fix log path, as it also used the wrong guid.
+            SetLogFolderFromTask(defaultLogFolder);
+        }
+
         public TaskRun_Server(TaskBase owningTask, string defaultLogFolder) : base(owningTask)
         {
             CtorCommon();
             OwningTask = owningTask;
 
             // Setup log path
-            string LogFolder = owningTask.LogFolder;
-            if (LogFolder == null)
-            {
-                LogFolder = defaultLogFolder;
-            }
-
-            LogFilePath = Path.Combine(LogFolder, TaskName, $"Run_{Guid}.log");
+            SetLogFolderFromTask(defaultLogFolder);
         }
 
         public static string FindFileInPath(string file)
@@ -1751,6 +1809,16 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
+        private void SetLogFolderFromTask(string defaultLogFolder)
+        {
+            string LogFolder = OwningTask.LogFolder;
+            if (LogFolder == null)
+            {
+                LogFolder = defaultLogFolder;
+            }
+
+            LogFilePath = Path.Combine(LogFolder, TaskName, $"Run_{Guid}.log");
+        }
         private TaskRun_Server(TaskRun taskRun, TaskBase owningTask) : base(owningTask)
         {
             // This is used as a copy constructor. Don't add it to the map, it should be there already.

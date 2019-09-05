@@ -173,15 +173,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void CheckForServiceEvents()
         {
-            List<ServiceEvent> newEvents;
+            List<ServiceEvent> newEvents = new List<ServiceEvent>();
 
-            if (!eventSeen)
+            try
             {
-                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetAllServiceEvents());
+                if (!eventSeen)
+                {
+                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetAllServiceEvents());
+                }
+                else
+                {
+                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEventsByIndex(lastEventIndex));
+                }
             }
-            else
+            catch (Exception)
             {
-                newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEventsByIndex(lastEventIndex));
+                // TODO: Logging
             }
 
             // Handle events in a queue

@@ -61,7 +61,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                     newObj = await _client.InvokeAsync(x => x.QueryTaskRun((Guid)_guidToPoll));
                 }
 
-                if (!newObj.Equals(_latestObject))
+                if (((newObj == null) && (_latestObject != null)) || (!newObj.Equals(_latestObject)))
                 {
                     _latestObject = newObj;
                     if (!_stopped)

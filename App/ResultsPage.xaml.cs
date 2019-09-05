@@ -31,7 +31,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 _test = (TaskBase)e.Parameter;
                 CreateHeader();
-                UpdateArgs();
                 _testPoller = new ServerPoller(_test.Guid, typeof(TaskBase), IPCClientHelper.IpcClient, 5000);
                 _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
                 _testPoller.StartPolling();
@@ -45,6 +44,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 _test = null;
             }
+
+            UpdateTaskRunNav(null);
 
             BackButton.IsEnabled = this.Frame.CanGoBack;
             base.OnNavigatedTo(e);
@@ -75,18 +76,32 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
+                    UpdateTaskRunNav(_selectedRun);
                     CreateHeader();
-                    UpdateArgs();
                 });
             }
         }
 
         private async void OnUpdatedTaskRunAsync(object source, ServerPollerEventArgs e)
         {
-            _selectedRun = (TaskRun)e.Result;
+            var newRun = (TaskRun)e.Result;
 
-            if (_selectedRun != null)
+            if (newRun != null)
             {
+                if (_selectedRun == null || newRun.Guid != _selectedRun.Guid)
+                {
+                    // Clear output, update navi
+                    lastOutput = 0;
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        OutputStack.Children.Clear();
+                        UpdateTaskRunNav(newRun);
+
+                    });
+                }
+
+                _selectedRun = newRun;
+
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     UpdateResultsSummary();
@@ -129,6 +144,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void CreateHeader()
         {
             TestHeader.Text = String.Format("{0} ({1})", _test.Name, _test.Guid.ToString());
+            if (_test.Arguments != null)
+            {
+                Args.Text = _test.Arguments.ToString();
+                Args.Visibility = Visibility.Visible;
+                ArgsConst.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Args.Visibility = Visibility.Collapsed;
+                ArgsConst.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void UpdateResultsSummary()
@@ -192,6 +218,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 LogPathConst.Visibility = Visibility.Visible;
                 LogPath.Visibility = Visibility.Visible;
             }
+
+            TaskRunGuid.Text = _selectedRun.Guid.ToString();
+            TaskRunStack.Visibility = Visibility.Visible;
 
             // TODO: Feature: Wire up test cases when we track those for TAEF
         }
@@ -291,24 +320,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private void UpdateArgs()
-        {
-            if (_test.Arguments != null)
-            {
-                Args.Text = _test.Arguments.ToString();
-                Args.IsReadOnly = true;
-            }
-            else
-            {
-                _test.Arguments = "";
-            }
-        }
-
-        private void UpdateArgsOnServer()
-        {
-
-        }
-
         private bool TryCreateTaskRunPoller(Guid? taskRunGuid)
         {
             lock (_taskRunPollLock)
@@ -340,11 +351,47 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return false;
         }
 
+        private void UpdateTaskRunNav(TaskRun run)
+        {
+            if ((run == null) || (_test.TaskRunGuids.Count <= 1))
+            {
+                NextRunButton.IsEnabled = false;
+                PreviousRunButton.IsEnabled = false;
+            }
+            else if (run != null)
+            {
+                if (_test.TaskRunGuids.IndexOf(run.Guid) < _test.TaskRunGuids.Count - 1)
+                {
+                    NextRunButton.IsEnabled = true;
+                }
+                if (_test.TaskRunGuids.IndexOf(run.Guid) > 0)
+                {
+                    PreviousRunButton.IsEnabled = true;
+                }
+            }
+        }
+
+        private void PreviousRunButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Disable Navi until we get a new TaskRun object
+            NextRunButton.IsEnabled = false;
+            PreviousRunButton.IsEnabled = false;
+            TryCreateTaskRunPoller(_test.TaskRunGuids[_test.TaskRunGuids.IndexOf(_selectedRun.Guid) - 1]);
+        }
+
+        private void NextRunButton_Click(object sender, RoutedEventArgs e)
+        {
+            NextRunButton.IsEnabled = false;
+            PreviousRunButton.IsEnabled = false;
+            TryCreateTaskRunPoller(_test.TaskRunGuids[_test.TaskRunGuids.IndexOf(_selectedRun.Guid) + 1]);
+        }
+
         private TaskBase _test;
         private TaskRun _selectedRun;
         private ServerPoller _taskRunPoller;
         private ServerPoller _testPoller;
         private object _taskRunPollLock = new object();
         private int lastOutput;
+
     }
 }

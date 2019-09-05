@@ -343,9 +343,25 @@ namespace Microsoft.FactoryOrchestrator.Service
         public TaskRun QueryTaskRun(Guid taskRunGuid)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
-            var run = TaskRun_Server.GetTaskRunByGuid(taskRunGuid).DeepCopy();
+            var run = TaskRun_Server.GetTaskRunByGuid(taskRunGuid);
+            TaskRun ret = null;
+            if (run != null)
+            {
+                ret = run.DeepCopy();
+            }
+            else
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"QueryTaskRun {taskRunGuid}, run not known to server, seeing if we can load it from the log file...");
+
+                var files = Directory.EnumerateFiles(FOService.Instance.TestExecutionManager.DefaultLogFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories);
+                if (files.Count() == 1)
+                {
+                    ret = FOService.Instance.TestExecutionManager.LoadTaskRunFromFile(files.First());
+                }
+            }
+
             FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
-            return run;
+            return ret;
         }
 
         public bool UpdateTaskRun(TaskRun taskRun)
