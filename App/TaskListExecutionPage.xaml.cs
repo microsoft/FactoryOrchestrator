@@ -333,6 +333,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             Status = status;
         }
 
+        public override string ToString()
+        {
+            // Accessible name.
+            return $"Task List {Guid} with Status {Status}";
+        }
+
         public Guid Guid { get; set; }
         public TaskStatus Status { get; set; }
     }

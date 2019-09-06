@@ -19,7 +19,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                    <Button x:Name="RunListButton" ToolTipService.ToolTip="Run" Margin="10,0,5,0" Click="RunListButton_Click">
+                    <Button x:Name="RunListButton" ToolTipService.ToolTip="Run" Margin="10,0,5,0" Click="RunListButton_Click" AutomationProperties.Name="Run task list">
                         <SymbolIcon Symbol="Play"/>
                     </Button>
                 </StackPanel>
@@ -33,7 +33,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                    <Button x:Name="PauseListButton" ToolTipService.ToolTip="Pause" Margin="10,0,5,0" Click="PauseListButton_Click">
+                    <Button x:Name="PauseListButton" ToolTipService.ToolTip="Pause" Margin="10,0,5,0" Click="PauseListButton_Click" AutomationProperties.Name="pause task list">
                         <SymbolIcon Symbol="Pause"/>
                     </Button>
                 </StackPanel>
@@ -47,10 +47,10 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                    <Button x:Name="ResumeListButton" ToolTipService.ToolTip="Resume" Margin="10,0,5,0" Click="ResumeListButton_Click">
+                    <Button x:Name="ResumeListButton" ToolTipService.ToolTip="Resume" Margin="10,0,5,0" Click="ResumeListButton_Click" AutomationProperties.Name="resume task list">
                         <SymbolIcon Symbol="Play"/>
                     </Button>
-                    <Button x:Name="RestartListButton" ToolTipService.ToolTip="Restart" Click="RestartListButton_Click">
+                    <Button x:Name="RestartListButton" ToolTipService.ToolTip="Restart" Click="RestartListButton_Click" AutomationProperties.Name="restart task list">
                         <SymbolIcon Symbol="Refresh"/>
                     </Button>
                 </StackPanel>
@@ -68,7 +68,7 @@
                     <TextBlock x:Name="TaskListStatus" Text="{x:Bind Status}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                    <Button x:Name="RestartListButton" ToolTipService.ToolTip="Rerun" Click="RestartListButton_Click">
+                    <Button x:Name="RestartListButton" ToolTipService.ToolTip="Rerun TaskList" Click="RestartListButton_Click" AutomationProperties.Name="re-run task list">
                         <SymbolIcon Symbol="Play"/>
                     </Button>
                 </StackPanel>
@@ -84,7 +84,7 @@
 
                 <TextBlock x:Name="TaskStatus" Text="{x:Bind Converter={StaticResource TaskBaseDataBindingConverter}, ConverterParameter=status}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <Button x:Name="RetryTaskButton" ToolTipService.ToolTip="Rerun Task" Click="RetryTaskButton_Click" Grid.Column="1">
-                    <SymbolIcon Symbol="Refresh"/>
+                    <SymbolIcon Symbol="Refresh" AutomationProperties.Name="re-run task" ToolTipService.ToolTip="Rerun Task"/>
                 </Button>
             </Grid>
         </DataTemplate>
@@ -102,7 +102,7 @@
 
         <TextBlock Text="Task Lists" Grid.Column="0" Grid.Row="0" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
         <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" >
-            <TextBlock Text="Tests" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="Tasks" Style="{StaticResource TitleTextBlockStyle}"/>
             <CheckBox x:Name="DisablePolling" Content="DisablePolling" Margin="10,0" IsChecked="False" Checked="DisablePolling_Click"  Unchecked="DisablePolling_Click" Visibility="Collapsed"/>
         </StackPanel>
 

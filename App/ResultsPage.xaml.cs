@@ -71,6 +71,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 TryCreateTaskRunPoller(_test.LatestTaskRunGuid);
             }
+            else if (_test.TaskRunGuids.Count == 0)
+            {
+                // TaskRuns were deleted while we were looking at the results
+                _taskRunPoller.StopPolling();
+                _selectedRun = null;
+                _taskRunPoller = null;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    OutputStack.Children.Clear();
+                    UpdateTaskRunNav(_selectedRun);
+                    TaskRunGuid.Visibility = Visibility.Collapsed;
+                    TaskRunGuidConst.Visibility = Visibility.Collapsed;
+                });
+            }
 
             if (_test != null)
             {
@@ -143,7 +157,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void CreateHeader()
         {
-            TestHeader.Text = String.Format("{0} ({1})", _test.Name, _test.Guid.ToString());
+            TestHeader.Text = _test.Name;
+            TaskGuid.Text = _test.Guid.ToString();
+
             if (_test.Arguments != null)
             {
                 Args.Text = _test.Arguments.ToString();
@@ -220,7 +236,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             TaskRunGuid.Text = _selectedRun.Guid.ToString();
-            TaskRunStack.Visibility = Visibility.Visible;
+            TaskRunGuid.Visibility = Visibility.Visible;
+            TaskRunGuidConst.Visibility = Visibility.Visible;
 
             // TODO: Feature: Wire up test cases when we track those for TAEF
         }

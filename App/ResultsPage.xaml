@@ -22,19 +22,19 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
+        <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" AutomationProperties.Name="Go Back"/>
         <StackPanel x:Name="HeaderStack" Grid.Row="0" Grid.Column="1" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" >
-            <Button x:Name="PreviousRunButton" Click="PreviousRunButton_Click" Visibility="Visible" IsEnabled="False">
+            <Button x:Name="PreviousRunButton" Click="PreviousRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=PrevText}"> 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Back" />
-                    <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Previous Run"/>
+                    <TextBlock x:Name="PrevText" Padding="5,0" TextWrapping="Wrap" Text="Previous Run"/>
                 </StackPanel>
             </Button>
             <TextBlock x:Name="TestHeader" Text="" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}" />
-            <Button x:Name="NextRunButton" Click="NextRunButton_Click" Visibility="Visible" IsEnabled="False">
+            <Button x:Name="NextRunButton" Click="NextRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=NextText}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Forward" />
-                    <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Next Run"/>
+                    <TextBlock x:Name="NextText" Padding="5,0" TextWrapping="Wrap" Text="Next Run"/>
                 </StackPanel>
             </Button>
         </StackPanel>
@@ -46,9 +46,11 @@
             <TextBlock x:Name="ArgsConst" Text="Arguments:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
             <TextBlock x:Name="Args" Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="NoWrap" Visibility="Visible"/>
         </Grid>
-        <StackPanel x:Name="TaskRunStack" Grid.Row="2" Grid.Column="1" Margin="0" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
-            <TextBlock x:Name="TaskRunGuidConst" Text="TaskRun Guid:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="TaskRunGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
+        <StackPanel x:Name="TaskRunStack" Grid.Row="2" Grid.Column="1" Margin="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock x:Name="TaskGuidConst" Text="Task Guid:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="TaskGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
+            <TextBlock x:Name="TaskRunGuidConst" Text="TaskRun Guid:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed"/>
+            <TextBlock x:Name="TaskRunGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True" Visibility="Collapsed"/>
         </StackPanel>
         <StackPanel x:Name="TestResultSummaryStack" Grid.Row="3" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
             <TextBlock x:Name="OverallTestResultConst" Text="Status:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>

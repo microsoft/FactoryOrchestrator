@@ -18,18 +18,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public AppsPage()
         {
             this.InitializeComponent();
-            packageStrings = new List<string>();
+            PackageStrings = new List<string>();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             // Get installed UWPs
             var pkgManager = new PackageManager();
-            packageStrings = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
+            PackageStrings = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
 
-            // todo: quality: bind properly with template
-            PackageList.ItemsSource = packageStrings;
-            PackageList.UpdateLayout();
             base.OnNavigatedTo(e);
         }
 
@@ -38,6 +35,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ((App)Application.Current).uwpRunGuidFromAppsPage = (await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunApp((string)e.ClickedItem))).Guid;
         }
 
-        private List<string> packageStrings;
+        public List<string> PackageStrings { get; private set; }
     }
 }

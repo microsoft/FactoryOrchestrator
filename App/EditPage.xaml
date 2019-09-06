@@ -63,7 +63,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}"/>
+        <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" AutomationProperties.Name="Go Back"/>
         <TextBlock x:Name="TaskListHeader" Grid.ColumnSpan="2" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="0" HorizontalAlignment="Center"/>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
@@ -100,10 +100,10 @@
                                     </Grid.ColumnDefinitions>
                                     <ContentPresenter Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                        <Button x:Name="EditBgListButton" Margin="10,0,5,0" Click="BgEditButton_Click">
+                                        <Button x:Name="EditBackgroundListButton" Margin="10,0,5,0" Click="BgEditButton_Click">
                                             <SymbolIcon Symbol="Edit"/>
                                         </Button>
-                                        <Button x:Name="DeleteBgListButton" Margin="5,0,5,0" Click="BgDeleteButton_Click">
+                                        <Button x:Name="DeleteBackgroundListButton" Margin="5,0,5,0" Click="BgDeleteButton_Click">
                                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                         </Button>
                                     </StackPanel>

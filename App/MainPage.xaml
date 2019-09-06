@@ -11,7 +11,7 @@
 
     <Grid>
         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
-            <Button x:Name="NetworkButton" Visibility="Visible" Padding="5" Margin="10">
+            <Button x:Name="NetworkButton" AutomationProperties.Name="Network information" Visibility="Visible" Padding="5" Margin="10">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />
                 </StackPanel>
@@ -25,31 +25,31 @@
                     </Flyout>
                 </Button.Flyout>
             </Button>
-            <Button x:Name="ExitButton" Padding="5" Margin="10">
+            <Button x:Name="ExitButton" AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="10">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button.Flyout>
                     <Flyout x:Name="ExitFlyout">
                         <StackPanel>
-                            <TextBlock TextWrapping="Wrap" Text="Exit Factory Orchestrator?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
+                            <TextBlock x:Name="ExitText" TextWrapping="Wrap" Text="Exit Factory Orchestrator?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click">
+                                <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
-                                        <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Exit"/>
+                                        <TextBlock x:Name="ExitButtonText" Padding="5,0" TextWrapping="Wrap" Text="Exit"/>
                                     </StackPanel>
                                 </Button>
-                                <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click">
+                                <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click" AutomationProperties.LabeledBy="{Binding ElementName=RebootButtonText}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE777;"/>
-                                        <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Reboot"/>
+                                        <TextBlock x:Name="RebootButtonText" Padding="5,0" TextWrapping="Wrap" Text="Reboot"/>
                                     </StackPanel>
                                 </Button>
-                                <Button x:Name="ConfirmShutdown" Padding="8" Margin="10,5" Click="ConfirmShutdown_Click">
+                                <Button x:Name="ConfirmShutdown" Padding="8" Margin="10,5" Click="ConfirmShutdown_Click" AutomationProperties.LabeledBy="{Binding ElementName=ShutdownButtonText}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7E8;"/>
-                                        <TextBlock  Padding="5,0" TextWrapping="Wrap" Text="Shutdown"/>
+                                        <TextBlock x:Name="ShutdownButtonText" Padding="5,0" TextWrapping="Wrap" Text="Shutdown"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -68,11 +68,11 @@
             <TextBlock x:Name="Header" Grid.Row="0" Text="Factory Orchestrator" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
             <NavigationView x:Name="NavView" Grid.Row="2" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" ItemInvoked="NavView_ItemInvoked">
                 <NavigationView.MenuItems>
-                    <NavigationViewItem Tag="run" Content="Run TaskLists" Icon="Play" ToolTipService.ToolTip="hi"/>
-                    <NavigationViewItem Tag="console" ToolTipService.ToolTip="Non-interactive cmd.exe prompt">
+                    <NavigationViewItem Tag="run" Content="Run TaskLists" Icon="Play"/>
+                    <NavigationViewItem Tag="console" ToolTipService.ToolTip="Non-interactive cmd.exe prompt" AutomationProperties.LabeledBy="{Binding ElementName=CommandPromptText}">
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;"/>
-                            <TextBlock Text="Command Prompt" Margin="10, 9"/>
+                            <TextBlock x:Name="CommandPromptText" Text="Command Prompt" Margin="10, 9"/>
                         </StackPanel>
                     </NavigationViewItem>
                     <NavigationViewItem Tag="apps" Content="UWP Apps" Icon="AllApps" ToolTipService.ToolTip="Launch a UWP app"/>

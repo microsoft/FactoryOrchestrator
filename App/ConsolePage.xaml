@@ -22,8 +22,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="CommandConst" Text="Command:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
-            <TextBox x:Name="CommandBox" Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
-            <Button x:Name="RunButton" Click="RunButton_Click" Grid.Column="2">
+            <TextBox Name="CommandBox" AutomationProperties.LabeledBy="{Binding ElementName=CommandConst}"  Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
+            <Button Name="RunButton" ToolTipService.ToolTip="Execute command" AutomationProperties.Name="Execute command" Click="RunButton_Click" Grid.Column="2">
                 <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
             </Button>
         </Grid>
@@ -33,4 +33,5 @@
             <StackPanel x:Name="OutputStack" Margin="5" VerticalAlignment="Top" Orientation="Vertical" SizeChanged="OutputStack_SizeChanged"/>
         </ScrollViewer>
     </Grid>
+    
 </Page>
