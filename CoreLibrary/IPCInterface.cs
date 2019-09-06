@@ -130,7 +130,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         void AbortAll();
         void AbortTaskList(Guid taskListGuid);
         void AbortTaskRun(Guid taskRunGuid);
-        TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null);
+        TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null);
         TaskRun RunApp(string packageFamilyName);
         TaskRun RunTask(Guid taskGuid);
 

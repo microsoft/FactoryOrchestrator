@@ -388,7 +388,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             return ran;
         }
 
-        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
+        public TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
             var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);

@@ -78,12 +78,12 @@ namespace Microsoft.FactoryOrchestrator.Client
 
         public static async void ShutdownServerDevice(uint secondsUntilShutdown = 2)
         {
-            await IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"%systemroot%\system32\shutdown.exe", $"/s /t {secondsUntilShutdown}", null));
+            await IpcClient.InvokeAsync(x => x.RunExecutable(@"%systemroot%\system32\shutdown.exe", $"/s /t {secondsUntilShutdown}", null));
         }
 
         public static async void RebootServerDevice(uint secondsUntilReboot = 2)
         {
-            await IpcClient.InvokeAsync(x => x.RunExecutableAsBackgroundTask(@"%systemroot%\system32\shutdown.exe", $"/r /t {secondsUntilReboot}", null));
+            await IpcClient.InvokeAsync(x => x.RunExecutable(@"%systemroot%\system32\shutdown.exe", $"/r /t {secondsUntilReboot}", null));
         }
 
         public static IpcServiceClient<IFOCommunication> IpcClient { get; private set; }
