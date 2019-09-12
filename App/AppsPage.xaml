@@ -8,13 +8,12 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid x:Name="AppsGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="Launch installed app package (exit with ALT+F4):" Style="{StaticResource SubtitleTextBlockStyle}"/>
-        <ListView x:Name="PackageList" Grid.Row="2" Height="Auto" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="PackageList_ItemClick" ItemsSource="{x:Bind PackageStrings, Mode=OneWay}"/>
+        <ListView x:Name="PackageList" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="PackageList_ItemClick"/>
     </Grid>
 </Page>

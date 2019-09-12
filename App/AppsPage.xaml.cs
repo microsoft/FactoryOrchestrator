@@ -1,6 +1,7 @@
 ﻿using Microsoft.FactoryOrchestrator.Client;
 using System.Collections.Generic;
 using System.Linq;
+using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -26,7 +27,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // Get installed UWPs
             var pkgManager = new PackageManager();
             PackageStrings = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
-
+            PackageList.ItemsSource = PackageStrings;
             base.OnNavigatedTo(e);
         }
 
