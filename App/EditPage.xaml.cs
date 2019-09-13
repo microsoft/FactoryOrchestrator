@@ -95,13 +95,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         SaveTaskList();
                     }
-
-                    if (result != ContentDialogResult.None)
-                    {
-                        this.Frame.GoBack();
-                        return true;
-                    }
                 }
+
+                this.Frame.GoBack();
+                return true;
+
             }
             return false;
         }
@@ -230,6 +228,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     uwpTest.Path = AppComboBox.SelectedItem.ToString();
                     break;
             }
+
+            activeTask.AbortTaskListOnFailed = (bool)AbortOnFailBox.IsChecked;
 
             return activeTask;
         }
