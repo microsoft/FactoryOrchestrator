@@ -289,18 +289,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private async void OnUpdatedTaskListGuidsAsync(object source, ServerPollerEventArgs e)
         {
-            var taskListGuids = (e.Result as List<(Guid guid, TaskStatus status)>).Select(x => x.guid);
+            var taskListSummaries = e.Result as List<TaskListSummary>;
 
-            if (taskListGuids != null)
+            if (taskListSummaries != null)
             {
                 // Add or update TaskLists
-                foreach (var guid in taskListGuids)
+                foreach (var summary in taskListSummaries)
                 {
-                    var list = TaskListCollection.Where(x => x.Guid == guid).DefaultIfEmpty(null).FirstOrDefault();
+                    var list = TaskListCollection.Where(x => x.Guid == summary.Guid).DefaultIfEmpty(null).FirstOrDefault();
 
                     if (list == null)
                     {
-                        var newList = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
+                        var newList = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(summary.Guid));
                         await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                         {
                             TaskListCollection.Add(newList);
@@ -312,7 +312,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 for (int i = 0; i < TaskListCollection.Count; i++)
                 {
                     var item = TaskListCollection[i];
-                    if (!taskListGuids.Contains(item.Guid))
+                    if (!taskListSummaries.Select(x => x.Guid).Contains(item.Guid))
                     {
                         await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                         {

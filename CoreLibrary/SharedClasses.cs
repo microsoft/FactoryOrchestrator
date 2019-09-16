@@ -670,9 +670,10 @@ namespace Microsoft.FactoryOrchestrator.Core
             RunInParallel = false;
             AllowOtherTaskListsToRun = false;
             TerminateBackgroundTasksOnCompletion = true;
+            Name = "";
         }
 
-        public TaskList(Guid guid) : this()
+        public TaskList(string name, Guid guid) : this()
         {
             if (guid != null)
             {
@@ -682,6 +683,8 @@ namespace Microsoft.FactoryOrchestrator.Core
             {
                 Guid = Guid.NewGuid();
             }
+
+            Name = name;
         }
 
         public TaskStatus TaskListStatus
@@ -713,6 +716,11 @@ namespace Microsoft.FactoryOrchestrator.Core
                     return TaskStatus.NotRun;
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
 
         public override bool Equals(object obj)
@@ -793,6 +801,9 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         [XmlAttribute]
         public Guid Guid { get; set; }
+
+        [XmlAttribute]
+        public string Name { get; set; }
 
         [XmlAttribute]
         public bool RunInParallel { get; set; }
@@ -1230,5 +1241,28 @@ namespace Microsoft.FactoryOrchestrator.Core
         private static bool XmlIsValid { get; set; }
         private static object XmlSerializeLock = new object();
         private static string ValidationErrors;
+    }
+
+    /// <summary>
+    /// A helper class containing the bare minimum information about a TaskList. Use to quickly update clients about TaskLists and their statuses.
+    /// </summary>
+    public class TaskListSummary
+    {
+        public TaskListSummary(Guid guid, string name, TaskStatus status)
+        {
+            Guid = guid;
+            Status = status;
+            Name = name;
+        }
+
+        public override string ToString()
+        {
+            // Accessible name.
+            return $"Task List {Name} ({Guid}) with Status {Status}";
+        }
+
+        public Guid Guid { get; set; }
+        public TaskStatus Status { get; set; }
+        public string Name { get; set; }
     }
 }

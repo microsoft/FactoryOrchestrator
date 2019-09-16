@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.Security.Authentication.Web.Provider;
+using Windows.Storage;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -29,7 +30,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _listUpdateSem = new SemaphoreSlim(1, 1);
             _selectedTaskList = -1;
             mainPage = null;
-            TaskListCollection = new ObservableCollection<GuidStatusPair>();
+            TaskListCollection = new ObservableCollection<TaskListSummary>();
             ActiveListCollection = new ObservableCollection<TaskBase>();
 #if DEBUG
             DisablePolling.Visibility = Visibility.Visible;
@@ -40,7 +41,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (TaskListsView.SelectedItem != null)
             {
-                Guid taskListGuid = ((GuidStatusPair)TaskListsView.SelectedItem).Guid;
+                Guid taskListGuid = ((TaskListSummary)TaskListsView.SelectedItem).Guid;
                 _selectedTaskList = TaskListsView.SelectedIndex;
 
                 if (_activeListPoller != null)
@@ -120,14 +121,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             _listUpdateSem.Wait();
 
-            var taskListGuidStatus = e.Result as List<(Guid guid, TaskStatus status)>;
-            if (taskListGuidStatus != null)
+            var taskListSummaries = e.Result as List<TaskListSummary>;
+            if (taskListSummaries != null)
             {
                 // Add or update TaskLists
-                foreach (var tuple in taskListGuidStatus)
+                foreach (var summary in taskListSummaries)
                 {
-                    var pair = new GuidStatusPair(tuple.guid, tuple.status);
-                    GuidStatusPair existingPair = null;
+                    TaskListSummary existingPair = null;
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                     {
                         var updateNeeded = false;
@@ -135,13 +135,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         for (int i = 0; i < TaskListCollection.Count; i++)
                         {
                             existingPair = TaskListCollection[i];
-                            if (existingPair.Guid == pair.Guid)
+                            if (existingPair.Guid == summary.Guid)
                             {
                                 guidFound = true;
 
-                                if (existingPair.Status != pair.Status)
+                                if (existingPair.Status != summary.Status)
                                 {
-                                    existingPair.Status = pair.Status;
+                                    existingPair.Status = summary.Status;
                                     updateNeeded = true;
                                 }
 
@@ -151,8 +151,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                         if (!guidFound)
                         {
-                            TaskListCollection.Add(pair);
-                            existingPair = pair;
+                            TaskListCollection.Add(summary);
+                            existingPair = summary;
                             updateNeeded = true;
                         }
 
@@ -189,7 +189,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
 
                 // Prune non-existant lists
-                var guids = taskListGuidStatus.Select(x => x.guid);
+                var guids = taskListSummaries.Select(x => x.Guid);
                 for (int i = 0; i < TaskListCollection.Count; i++)
                 {
                     var item = TaskListCollection[i];
@@ -313,7 +313,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private Guid GetTaskListGuidFromButton(Button button)
         {
-            return (button.DataContext as GuidStatusPair).Guid;
+            return (button.DataContext as TaskListSummary).Guid;
         }
 
         private Frame mainPage;
@@ -321,25 +321,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private SemaphoreSlim _listUpdateSem;
-        public ObservableCollection<GuidStatusPair> TaskListCollection;
+        public ObservableCollection<TaskListSummary> TaskListCollection;
         public ObservableCollection<TaskBase> ActiveListCollection;
-    }
-
-    public class GuidStatusPair
-    {
-        public GuidStatusPair(Guid guid, TaskStatus status)
-        {
-            Guid = guid;
-            Status = status;
-        }
-
-        public override string ToString()
-        {
-            // Accessible name.
-            return $"Task List {Guid} with Status {Status}";
-        }
-
-        public Guid Guid { get; set; }
-        public TaskStatus Status { get; set; }
     }
 }

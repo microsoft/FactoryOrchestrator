@@ -66,7 +66,29 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" AutomationProperties.Name="Go Back"/>
-        <TextBlock x:Name="TaskListHeader" Grid.ColumnSpan="2" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="0" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Spacing="10">
+            <TextBlock x:Name="TaskListHeader" Style="{StaticResource SubheaderTextBlockStyle}" VerticalAlignment="Center"/>
+            <Button x:Name="EditListNameButton" ToolTipService.ToolTip="Rename TaskList" VerticalAlignment="Center">
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8AC;"/>
+                <Button.Flyout>
+                    <Flyout x:Name="EditListNameFlyout" Opening="EditListNameFlyout_Opening">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock TextWrapping="Wrap" Text="Rename Tasklist" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
+                            <TextBox TextWrapping="Wrap" x:Name="RenameBox"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="CancelNameEdit" Padding="5" Margin="5" Click="CancelNameEdit_Click">
+                                    <SymbolIcon Symbol="Cancel"/>
+                                </Button>
+                                <Button x:Name="ConfirmNameEdit" Padding="5" Margin="5" Click="ConfirmNameEdit_Click">
+                                    <SymbolIcon Symbol="Save"/>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+            <TextBlock x:Name="TaskListHeader2" Grid.ColumnSpan="2" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+        </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
             <TextBlock x:Name="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}" Text="TaskList Options:"/>
@@ -97,11 +119,14 @@
                             <ControlTemplate TargetType="ListViewItem">
                                 <Grid x:Name="BgItemGrid" >
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="250" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <ContentPresenter Grid.Column="0" />
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
+                                    <ContentPresenter Grid.Column="1" />
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroupBg">
                                         <Button x:Name="EditBackgroundListButton" Margin="10,0,5,0" Click="BgEditButton_Click">
                                             <SymbolIcon Symbol="Edit"/>
                                         </Button>

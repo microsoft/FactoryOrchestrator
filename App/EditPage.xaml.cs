@@ -42,14 +42,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
             else
             {
                 isNewList = true;
-                activeList = new TaskList(Guid.NewGuid());
+                activeList = new TaskList("New TaskList", Guid.NewGuid());
             }
 
             AppComboBox.ItemsSource = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
             ParallelCheck.IsChecked = activeList.RunInParallel;
             BlockingCheck.IsChecked = activeList.AllowOtherTaskListsToRun;
             TerminateCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
-            TaskListHeader.Text = $"Editing TaskList {activeList.Guid}";
+            UpdateHeader();
 
             TasksCollection = new ObservableCollection<TaskBase>(activeList.Tasks.Values);
             TaskListView.ItemsSource = TasksCollection;
@@ -67,6 +67,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             listEdited = false;
+        }
+
+        private void UpdateHeader()
+        {
+            TaskListHeader.Text = $"Editing TaskList: {activeList.Name}";
+            TaskListHeader2.Text = $"({activeList.Guid.ToString()})";
         }
 
         private async void Back_Click(object sender, RoutedEventArgs e)
@@ -530,6 +536,38 @@ namespace Microsoft.FactoryOrchestrator.UWP
             activeList.RunInParallel = (bool)ParallelCheck.IsChecked;
             activeList.TerminateBackgroundTasksOnCompletion = (bool)TerminateCheck.IsChecked;
             listEdited = true;
+        }
+
+        private void CancelNameEdit_Click(object sender, RoutedEventArgs e)
+        {
+            EditListNameFlyout.Hide();
+        }
+
+        private async void ConfirmNameEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(RenameBox.Text))
+            {
+                ContentDialog failedEdit = new ContentDialog
+                {
+                    Title = "Name must not be empty!",
+                    Content = "The TaskList name must not be empty!",
+                    CloseButtonText = "Ok"
+                };
+                RenameBox.Text = activeList.Name;
+
+                ContentDialogResult result = await failedEdit.ShowAsync();
+            }
+            else if (!activeList.Name.Equals(RenameBox.Text, StringComparison.InvariantCulture))
+            {
+                activeList.Name = RenameBox.Text;
+                listEdited = true;
+                UpdateHeader();
+                EditListNameFlyout.Hide();
+            }
+        }
+        private void EditListNameFlyout_Opening(object sender, object e)
+        {
+            RenameBox.Text = activeList.Name;
         }
 
         private ObservableCollection<TaskBase> TasksCollection;

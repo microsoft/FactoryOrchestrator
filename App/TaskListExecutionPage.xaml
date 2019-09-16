@@ -11,13 +11,13 @@
     <Page.Resources>
         <local:TaskBaseDataBindingConverter x:Key="TaskBaseDataBindingConverter"/>
 
-        <DataTemplate x:DataType="local:GuidStatusPair" x:Key="TaskListItemTemplate_NotRun">
+        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_NotRun">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
+                <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
                     <Button x:Name="RunListButton" ToolTipService.ToolTip="Run" Margin="10,0,5,0" Click="RunListButton_Click" AutomationProperties.Name="Run task list">
                         <SymbolIcon Symbol="Play"/>
@@ -25,13 +25,13 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="local:GuidStatusPair" x:Key="TaskListItemTemplate_Running">
+        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_Running">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
+                <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
                     <Button x:Name="PauseListButton" ToolTipService.ToolTip="Pause" Margin="10,0,5,0" Click="PauseListButton_Click" AutomationProperties.Name="pause task list">
                         <SymbolIcon Symbol="Pause"/>
@@ -39,13 +39,13 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="local:GuidStatusPair" x:Key="TaskListItemTemplate_Paused">
+        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_Paused">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
+                <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
                     <Button x:Name="ResumeListButton" ToolTipService.ToolTip="Resume" Margin="10,0,5,0" Click="ResumeListButton_Click" AutomationProperties.Name="resume task list">
                         <SymbolIcon Symbol="Play"/>
@@ -56,14 +56,14 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="local:GuidStatusPair" x:Key="TaskListItemTemplate_Completed">
+        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_Completed">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
+                    <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                     <TextBlock Text="-" VerticalAlignment="Center" Margin="1,0" Grid.Column="0" />
                     <TextBlock x:Name="TaskListStatus" Text="{x:Bind Status}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
                 </StackPanel>

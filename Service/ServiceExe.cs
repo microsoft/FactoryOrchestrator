@@ -105,7 +105,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         }
                         else
                         {
-                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Service {name} errored with exception {e.Message}"));
+                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Service {name} errored with exception {e.AllExceptionsToString()}"));
                         }
                     });
                 });
@@ -165,7 +165,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
             }
 
             FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path}");
@@ -183,7 +183,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.Message));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
             }
 
             FOService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
@@ -222,21 +222,21 @@ namespace Microsoft.FactoryOrchestrator.Service
             return guids;
         }
 
-        public List<(Guid, TaskStatus)> GetTaskListGuidsWithStatus()
+        public List<TaskListSummary> GetTaskListSummaries()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuidsWithStatus");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListSummaries");
             var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
-            var ret = new List<(Guid, TaskStatus)>();
+            var ret = new List<TaskListSummary>();
             foreach (var guid in guids)
             {
                 var list = FOService.Instance.TestExecutionManager.GetTaskList(guid);
                 if (list != null)
                 {
-                    ret.Add((guid, list.TaskListStatus));
+                    ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus));
                 }
             }
 
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuidsWithStatus");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListSummaries");
             return ret;
         }
 
@@ -390,9 +390,9 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutable {exeFilePath} {arguments}");
             var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutableAsBackgroundTask {exeFilePath} {arguments}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutable {exeFilePath} {arguments}");
             return run;
         }
 
@@ -428,7 +428,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile could not be read! {e.Message} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile could not be read! {e.AllExceptionsToString()} {e.HResult}"));
             }
 
             FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
@@ -450,7 +450,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {targetFilename} for SendFile could not be saved! {e.Message} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {targetFilename} for SendFile could not be saved! {e.AllExceptionsToString()} {e.HResult}"));
             }
 
             FOService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
@@ -491,7 +491,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"GetIpAddressesAndNicNames() failed! {e.Message} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"GetIpAddressesAndNicNames() failed! {e.AllExceptionsToString()} {e.HResult}"));
             }
 
             FOService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
@@ -674,7 +674,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    ServiceLogger.LogWarning($"Factory Orchestrator Service could not load {_taskExecutionManager.TaskListStateFile}\n {e.Message}");
+                    ServiceLogger.LogWarning($"Factory Orchestrator Service could not load {_taskExecutionManager.TaskListStateFile}\n {e.AllExceptionsToString()}");
                 }
             }
 
@@ -752,7 +752,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to load first boot state TaskLists XML! ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to load first boot state TaskLists XML! ({e.AllExceptionsToString()})"));
             }
 
             return loaded;
@@ -920,7 +920,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete first boot TaskLists! ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete first boot TaskLists! ({e.AllExceptionsToString()})"));
                 firstBootTasksFailed = true;
             }
 
@@ -993,7 +993,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete every boot TaskLists! ({e.Message})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete every boot TaskLists! ({e.AllExceptionsToString()})"));
                     everyBootTasksFailed = true;
                 }
             }
@@ -1137,7 +1137,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback! You may not be able to use the FactoryOrchestrator UWP app locally ({e.Message})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback! You may not be able to use the FactoryOrchestrator UWP app locally ({e.AllExceptionsToString()})"));
             }
             finally
             {

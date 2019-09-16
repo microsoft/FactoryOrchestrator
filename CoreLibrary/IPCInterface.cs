@@ -114,7 +114,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         bool SaveAllTaskListsToXmlFile(string filename);
         TaskList CreateTaskListFromTaskList(TaskList list);
         List<Guid> GetTaskListGuids();
-        List<(Guid, TaskStatus)> GetTaskListGuidsWithStatus();
+        List<TaskListSummary> GetTaskListSummaries();
         TaskList QueryTaskList(Guid taskListGuid);
         bool DeleteTaskList(Guid listToDelete);
         bool UpdateTaskList(TaskList taskList);

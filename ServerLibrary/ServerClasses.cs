@@ -14,6 +14,35 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
+
+    public static class Exception_ServerExtensions
+    {
+        public static string AllExceptionsToString(this Exception ex)
+        {
+            string ret = "";
+            var exc = ex;
+            while (exc != null)
+            {
+                if (ret.Length > 0)
+                {
+                    ret += " -> ";
+                }
+                if (exc.Message != null)
+                {
+                    ret += $"{exc.GetType().ToString()}:{exc.Message}";
+                }
+                else
+                {
+                    ret += $"{exc.GetType().ToString()}";
+                }
+
+                exc = exc.InnerException;
+            }
+
+             return ret;
+        }
+    }
+
     public static class TaskBase_ServerExtensions
     {
         public static Guid CreateTaskRun(this TaskBase task, string defaultLogFolder)
@@ -238,7 +267,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             var bats = Directory.EnumerateFiles(path, "*.bat", SearchOption.AllDirectories);
             var cmds = Directory.EnumerateFiles(path, "*.cmd", SearchOption.AllDirectories);
             var ps1s = Directory.EnumerateFiles(path, "*.ps1", SearchOption.AllDirectories);
-            TaskList tests = new TaskList(Guid.NewGuid());
+            TaskList tests = new TaskList(path, Guid.NewGuid());
 
             Parallel.ForEach<string>(dlls, (dll) =>
             {

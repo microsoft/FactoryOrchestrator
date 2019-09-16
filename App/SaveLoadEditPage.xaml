@@ -120,7 +120,7 @@
             </ListView.Resources>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="core:TaskList">
-                    <TextBlock x:Name="TaskListGuid" Text="{x:Bind Guid}" VerticalAlignment="Center" Margin="10,0" />
+                    <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
