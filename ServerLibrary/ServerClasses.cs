@@ -1287,17 +1287,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
             {
                 startInfo.FileName = GlobalTeExePath;
-                startInfo.Arguments += "\"" + ActiveTaskRun.TaskPath + "\"" + GlobalTeArgs;
+                startInfo.Arguments += "\"" + ActiveTaskRun.TaskPath + "\" " + GlobalTeArgs + " ";
             }
             else if (ActiveTaskRun.TaskType == TaskType.PowerShell)
             {
                 startInfo.FileName = "pwsh.exe";
-                startInfo.Arguments += $"-f \"{ActiveTaskRun.TaskPath}\"";
+                startInfo.Arguments += $"-f \"{ActiveTaskRun.TaskPath}\" ";
             }
             else if (ActiveTaskRun.TaskType == TaskType.BatchFile)
             {
                 startInfo.FileName = "cmd.exe";
-                startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\"";
+                startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\" ";
             }
             else
             {
