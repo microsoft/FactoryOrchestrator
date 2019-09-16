@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -12,11 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.2.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\IpcFramework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj" />
   </ItemGroup>
 
 </Project>

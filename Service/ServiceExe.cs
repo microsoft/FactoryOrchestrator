@@ -19,6 +19,7 @@ using Windows.Management.Deployment;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using JKang.IpcServiceFramework.Tcp;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -681,12 +682,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
             if (DisableNetworkAccess)
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Loopback, 45684)
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Loopback, 45684, new TcpConcurrencyOptions(3))
                                                                 .Build();
             }
             else
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Any, 45684)
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Any, 45684, new TcpConcurrencyOptions(3))
                                                                 .Build();
             }
 
