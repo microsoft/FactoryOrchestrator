@@ -256,9 +256,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 Title = "Delete all TaskLists?",
                 Content = "All running TaskLists will be stopped. All TaskLists will be removed from the server permanently.\n" +
-                "Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via \"Load FactoryOrchestratorXML file\".",
+                "Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via \"Load FactoryOrchestratorXML file\".\n\n" +
+                "If \"Factory Reset\" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded.\n" +
+                "\"Factory Reset\" WILL interrupt communication with clients, including this app, until the boot tasks complete.",
                 CloseButtonText = "Cancel",
-                PrimaryButtonText = "Clear All"
+                PrimaryButtonText = "Delete All",
+                SecondaryButtonText = "Factory Reset"
             };
 
             ContentDialogResult result = await clearAllDialog.ShowAsync();
@@ -269,6 +272,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     _listUpdateSem.Wait();
                     await IPCClientHelper.IpcClient.InvokeAsync(x => x.ResetService(true));
+                    _listUpdateSem.Release();
+                });
+            }
+            else if (result == ContentDialogResult.Secondary)
+            {
+                await Task.Run(async () =>
+                {
+                    _listUpdateSem.Wait();
+                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.ResetService(true, true));
                     _listUpdateSem.Release();
                 });
             }

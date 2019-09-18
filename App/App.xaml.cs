@@ -179,11 +179,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (!eventSeen)
                 {
-                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetAllServiceEvents());
+                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents());
                 }
                 else
                 {
-                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEventsByIndex(lastEventIndex));
+                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
                 }
             }
             catch (Exception)

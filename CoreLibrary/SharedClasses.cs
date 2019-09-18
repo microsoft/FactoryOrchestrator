@@ -100,7 +100,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         public TaskType Type { get; set; }
         [XmlAttribute("Path")]
         public string Path { get; set; }
-        public string LogFolder { get; set; }
         [XmlAttribute]
         public string Arguments { get; set; }
         [XmlAttribute]
@@ -274,11 +273,6 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
 
             if (this.LatestTaskRunTimeStarted != rhs.LatestTaskRunTimeStarted)
-            {
-                return false;
-            }
-
-            if (this.LogFolder != rhs.LogFolder)
             {
                 return false;
             }

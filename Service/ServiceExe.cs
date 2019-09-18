@@ -122,12 +122,12 @@ namespace Microsoft.FactoryOrchestrator.Service
     public class FOCommunicationHandler : IFOCommunication
     {
         // TODO: Logging: Catch exceptions & log them
-        public List<ServiceEvent> GetAllServiceEvents()
+        public List<ServiceEvent> GetServiceEvents()
         {
             return FOService.Instance.ServiceEvents.Values.ToList();
         }
 
-        public List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked)
+        public List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked)
         {
             if (timeLastChecked < FOService.Instance.LastEventTime)
             {
@@ -139,7 +139,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex)
+        public List<ServiceEvent> GetServiceEvents(ulong lastEventIndex)
         {
             if (lastEventIndex < FOService.Instance.LastEventIndex)
             {
@@ -264,12 +264,26 @@ namespace Microsoft.FactoryOrchestrator.Service
             return deleted;
         }
 
-        public void ResetService(bool preserveLogs = true)
+        public void ResetService()
         {
-            // Kill all processes including bg tasks, delete all state except registry configuration, re-run boot tasks
+            ResetService(false, false);
+        }
+
+        public void ResetService(bool preserveLogs)
+        {
+            ResetService(preserveLogs, false);
+        }
+
+        public void ResetService(bool preserveLogs, bool factoryReset)
+        {
+            // Kill all processes including bg tasks, delete all state except registry configuration
             FOService.Instance.TestExecutionManager.Reset(preserveLogs, true);
-            // Pause a bit to allow the IPC call to return before we kill it off
-            Task.Run(() => { System.Threading.Thread.Sleep(100); FOService.Instance.Stop(); FOService.Instance.Start(true); });
+
+            if (factoryReset)
+            {
+                // Pause a bit to allow the IPC call to return before we kill it off
+                Task.Run(() => { System.Threading.Thread.Sleep(100); FOService.Instance.Stop(); FOService.Instance.Start(true); });
+            }
         }
 
         public bool UpdateTask(TaskBase updatedTask)
@@ -305,11 +319,19 @@ namespace Microsoft.FactoryOrchestrator.Service
             return success;
         }
 
-        public bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs)
+        public string GetLogFolder()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
-            var updated = FOService.Instance.TestExecutionManager.SetDefaultLogFolder(logFolder, moveExistingLogs);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: GetLogFolder");
+            var folder = FOService.Instance.TestExecutionManager.LogFolder;
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetLogFolder");
+            return folder;
+        }
+
+        public bool SetLogFolder(string logFolder, bool moveExistingLogs)
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+            var updated = FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
             return updated;
         }
 
@@ -354,7 +376,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 FOService.Instance.ServiceLogger.LogDebug($"QueryTaskRun {taskRunGuid}, run not known to server, seeing if we can load it from the log file...");
 
-                var files = Directory.EnumerateFiles(FOService.Instance.TestExecutionManager.DefaultLogFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories);
+                var files = Directory.EnumerateFiles(FOService.Instance.TestExecutionManager.LogFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories);
                 if (files.Count() == 1)
                 {
                     ret = FOService.Instance.TestExecutionManager.LoadTaskRunFromFile(files.First());
@@ -381,11 +403,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             return ran;
         }
 
-        public bool RunTaskListFromInitial(Guid taskListToRun, int initialTaskIndex)
+        public bool RunTaskList(Guid taskListToRun, int initialTaskIndex)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskListFromInitial {taskListToRun} {initialTaskIndex}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
             var ran = FOService.Instance.TestExecutionManager.RunTaskListFromInitial(taskListToRun, initialTaskIndex);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskListFromInitial {taskListToRun} {initialTaskIndex}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
             return ran;
         }
 
@@ -397,11 +419,19 @@ namespace Microsoft.FactoryOrchestrator.Service
             return run;
         }
 
-        public TaskRun RetryTask(Guid testGuid)
+        public TaskRun RunTask(Guid taskGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {testGuid}");
-            var run = FOService.Instance.TestExecutionManager.RetryTask(testGuid);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {testGuid}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {taskGuid}");
+            var run = FOService.Instance.TestExecutionManager.RunTask(taskGuid);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {taskGuid}");
+            return run;
+        }
+
+        public TaskRun RunTask(TaskBase task)
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {task}");
+            var run = FOService.Instance.TestExecutionManager.RunTask(task);
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {task}");
             return run;
         }
 
@@ -667,7 +697,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             ExecuteUserBootTasks(forceUserTaskRerun);
 
             // Load first boot state file, or try to load known TaskLists from the existing state file.
-            if (!LoadFirstBootStateFile() && File.Exists(_taskExecutionManager.TaskListStateFile))
+            if (!LoadFirstBootStateFile(forceUserTaskRerun) && File.Exists(_taskExecutionManager.TaskListStateFile))
             {
                 try
                 {
@@ -698,7 +728,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
         }
 
-        private bool LoadFirstBootStateFile()
+        private bool LoadFirstBootStateFile(bool force)
         {
             RegistryKey mutableKey = null;
             RegistryKey nonMutableKey = null;
@@ -719,7 +749,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 var firstBootStateLoaded = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStateLoadedValue) as int?;
 
-                if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0))
+                if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0) || (force))
                 {
                     ServiceLogger.LogInformation("Checking for first boot state TaskLists XML...");
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
@@ -844,7 +874,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             bool firstBootTasksExecuted = false;
             bool everyBootTasksExecuted = false;
             bool stateFileBackedup = false;
-            var logFolder = _taskExecutionManager.DefaultLogFolder;
+            var logFolder = _taskExecutionManager.LogFolder;
             var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FactoryOrchestratorTempTaskListStateFile");
             try
             {
@@ -892,7 +922,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         ServiceLogger.LogInformation($"First boot TaskLists XML found, attempting to load {firstBootTaskListPath}...");
                         // Create a new directory for the first boot logs
-                        _taskExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "FirstBootTaskLists"), false);
+                        _taskExecutionManager.SetLogFolder(Path.Combine(logFolder, "FirstBootTaskLists"), false);
 
                         // Load the TaskLists file specified in registry
                         var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootTaskListPath);
@@ -965,7 +995,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                             ServiceLogger.LogInformation($"Every boot TaskLists XML found, attempting to load {everyBootTaskListPath}...");
 
                             // Create a new directory for the first boot logs
-                            _taskExecutionManager.SetDefaultLogFolder(Path.Combine(logFolder, "EveryBootTaskLists"), false);
+                            _taskExecutionManager.SetLogFolder(Path.Combine(logFolder, "EveryBootTaskLists"), false);
 
                             // Load the TaskLists file specified in registry
                             var everyBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(everyBootTaskListPath);
@@ -1048,7 +1078,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             if (firstBootTasksExecuted || everyBootTasksExecuted)
             {
                 // Reset server state, clearing the first boot and first run tasklists, but keep the logs and tasks running.
-                _taskExecutionManager.SetDefaultLogFolder(logFolder, false);
+                _taskExecutionManager.SetLogFolder(logFolder, false);
                 _taskExecutionManager.Reset(true, false);
 
                 // Restore state file, if it existed

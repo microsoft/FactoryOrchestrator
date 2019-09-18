@@ -289,7 +289,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             var newStatus = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
             var lastTask = newStatus.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.Aborted).DefaultIfEmpty(null).FirstOrDefault();
             var index = newStatus.Tasks.Keys.ToList().IndexOf(lastTask.Guid);
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTaskListFromInitial(guid, index));
+            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTaskList(guid, index));
         }
 
         private void PauseListButton_Click(object sender, RoutedEventArgs e)
@@ -306,7 +306,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var button = sender as Button;
             var guid = (button.DataContext as TaskBase).Guid;
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RetryTask(guid));
+            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTask(guid));
         }
 
         /// <summary>

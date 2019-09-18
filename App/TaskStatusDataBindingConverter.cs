@@ -54,26 +54,27 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         status += $" (On retry {task.TimesRetried})";
                     }
+                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    {
+                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                    }
                     break;
                 case TaskStatus.Failed:
                     status += "❌ Failed";
                     if ((!isList) && (task.TimesRetried > 0))
                     {
-                        status += $" (All {task.MaxNumberOfRetries} retries)";
+                        status += $" (All {task.TimesRetried} retries)";
+                    }
+                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    {
+                        status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
                     break;
                 case TaskStatus.Running:
                     status += "▶ Running";
                     if ((!isList) && (task.TimesRetried > 0))
                     {
-                        if (task.MaxNumberOfRetries == 0)
-                        {
-                            status += $" (Retry {task.TimesRetried})";
-                        }
-                        else
-                        {
-                            status += $" (Retry {task.TimesRetried} of {task.MaxNumberOfRetries})";
-                        }
+                        status += $" (Retry {task.TimesRetried})";
                     }
                     break;
                 case TaskStatus.NotRun:
@@ -81,9 +82,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     break;
                 case TaskStatus.Aborted:
                     status += "⛔ Aborted";
+                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    {
+                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                    }
                     break;
                 case TaskStatus.Timeout:
                     status += "⏱ Timed-out";
+                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    {
+                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                    }
                     break;
                 case TaskStatus.RunPending:
                     status += "❔ Run Pending";

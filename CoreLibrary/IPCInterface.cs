@@ -96,14 +96,17 @@ namespace Microsoft.FactoryOrchestrator.Core
     public interface IFOCommunication
     {
         // Service APIs
-        void ResetService(bool preserveLogs = true);
-        List<ServiceEvent> GetAllServiceEvents();
-        List<ServiceEvent> GetServiceEventsByTime(DateTime timeLastChecked);
-        List<ServiceEvent> GetServiceEventsByIndex(ulong lastEventIndex);
+        void ResetService();
+        void ResetService(bool preserveLogs);
+        void ResetService(bool preserveLogs, bool factoryReset);
+        List<ServiceEvent> GetServiceEvents();
+        List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked);
+        List<ServiceEvent> GetServiceEvents(ulong lastEventIndex);
         ServiceEvent GetLastServiceError();
         string GetServiceVersionString();
         bool SetDefaultTePath(string teExePath);
-        bool SetDefaultLogFolder(string logFolder, bool moveExistingLogs);
+        bool SetLogFolder(string logFolder, bool moveExistingLogs);
+        string GetLogFolder();
         List<Tuple<string, string>> GetIpAddressesAndNicNames();
         List<string> GetDisabledPages();
 
@@ -126,13 +129,14 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         // Task Execution APIs
         bool RunTaskList(Guid taskListGuid);
-        bool RunTaskListFromInitial(Guid taskListGuid, int initialTask);
+        bool RunTaskList(Guid taskListGuid, int initialTask);
         void AbortAll();
         void AbortTaskList(Guid taskListGuid);
         void AbortTaskRun(Guid taskRunGuid);
         TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null);
         TaskRun RunApp(string packageFamilyName);
-        TaskRun RetryTask(Guid taskGuid);
+        TaskRun RunTask(Guid taskGuid);
+        TaskRun RunTask(TaskBase task);
 
         // TaskRun APIs
         bool UpdateTaskRun(TaskRun taskRun);

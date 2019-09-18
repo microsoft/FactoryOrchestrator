@@ -45,12 +45,12 @@ namespace Microsoft.FactoryOrchestrator.Server
 
     public static class TaskBase_ServerExtensions
     {
-        public static Guid CreateTaskRun(this TaskBase task, string defaultLogFolder)
+        public static Guid CreateTaskRun(this TaskBase task, string logFolder)
         {
             TaskRun_Server run;
             lock (task.TaskLock)
             {
-                run = new TaskRun_Server(task, defaultLogFolder);
+                run = new TaskRun_Server(task, logFolder);
                 task.TaskRunGuids.Add(run.Guid);
                 task.LatestTaskRunExitCode = null;
                 task.LatestTaskRunStatus = TaskStatus.RunPending;
@@ -60,12 +60,12 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run.Guid;
         }
 
-        public static Guid CreateTaskRun(this TaskBase task, string defaultLogFolder, Guid taskListGuid)
+        public static Guid CreateTaskRun(this TaskBase task, string logFolder, Guid taskListGuid)
         {
             TaskRun_Server run;
             lock (task.TaskLock)
             {
-                run = new TaskRun_Server(task, defaultLogFolder, taskListGuid);
+                run = new TaskRun_Server(task, logFolder, taskListGuid);
                 task.TaskRunGuids.Add(run.Guid);
                 task.LatestTaskRunExitCode = null;
                 task.LatestTaskRunStatus = TaskStatus.RunPending;
@@ -98,20 +98,20 @@ namespace Microsoft.FactoryOrchestrator.Server
 
     public class TaskManager_Server
     {
-        public TaskManager_Server(string defaultLogFolder)
+        public TaskManager_Server(string logFolder)
         {
             _startNonParallelTaskRunLock = new SemaphoreSlim(1, 1);
             KnownTaskLists = new ConcurrentDictionary<Guid, TaskList>();
             RunningTaskListTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new ConcurrentDictionary<Guid, List<TaskRunner>>();
             RunningTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
-            TaskListStateFile = Path.Combine(defaultLogFolder, "FactoryOrchestratorKnownTaskLists.xml");
-            SetDefaultLogFolder(defaultLogFolder, false);
+            TaskListStateFile = Path.Combine(logFolder, "FactoryOrchestratorKnownTaskLists.xml");
+            SetLogFolder(logFolder, false);
         }
 
-        public bool SetDefaultLogFolder(string newLogFolder, bool moveFiles)
+        public bool SetLogFolder(string newLogFolder, bool moveFiles)
         {
-            if (newLogFolder == _defaultLogFolder)
+            if (newLogFolder == _logFolder)
             {
                 return true;
             }
@@ -128,14 +128,14 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     lock (KnownTaskListLock)
                     {
-                        if (moveFiles && (_defaultLogFolder != null) && (Directory.Exists(_defaultLogFolder)))
+                        if (moveFiles && (_logFolder != null) && (Directory.Exists(_logFolder)))
                         {
                             // Move existing folder to temp folder
                             var tempDir = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FOTemp");
-                            CopyDirectory(_defaultLogFolder, tempDir, true);
+                            CopyDirectory(_logFolder, tempDir, true);
 
                             // Delete old folder
-                            Directory.Delete(_defaultLogFolder, true);
+                            Directory.Delete(_logFolder, true);
 
                             // Move temp folder to new folder
                             CopyDirectory(tempDir, newLogFolder, true);
@@ -160,7 +160,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         }
 
                         // Update paths
-                        _defaultLogFolder = newLogFolder;
+                        _logFolder = newLogFolder;
                         TaskListStateFile = newStateFilePath;
                     }
                 }
@@ -233,7 +233,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     var task = GetTask((Guid)taskGuid);
                     var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey((Guid)taskGuid)).First();
-                    run = new TaskRun_Server(task, DefaultLogFolder, list.Guid, (Guid)taskRunGuid);
+                    run = new TaskRun_Server(task, LogFolder, list.Guid, (Guid)taskRunGuid);
                     run.TimeStarted = DateTime.Parse(lines.Where(x => x.StartsWith("Date/Time run:")).First().Replace("Date/Time run:", ""));
                     run.TimeFinished = run.TimeStarted + TimeSpan.Parse(lines.First(x => x.StartsWith("Time to complete:")).Split(' ').Last());
                     var status = TaskStatus.Unknown;
@@ -539,7 +539,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
-            TaskRun_Server taskRun = new TaskRun_Server(maybeTAEF, DefaultLogFolder);
+            TaskRun_Server taskRun = new TaskRun_Server(maybeTAEF, LogFolder);
             TaskRunner runner = new TaskRunner(taskRun);
             bool isTaef = false;
             try
@@ -694,7 +694,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 List<Guid> backgroundTaskRunGuids = new List<Guid>();
                 foreach (var task in list.BackgroundTasks.Values)
                 {
-                    backgroundTaskRunGuids.Add(task.CreateTaskRun(DefaultLogFolder, TaskListGuidToRun));
+                    backgroundTaskRunGuids.Add(task.CreateTaskRun(LogFolder, TaskListGuidToRun));
                 }
 
                 // Create taskrun for all tasks in the list
@@ -703,7 +703,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 for (int i = startIndex; i < tasks.Count; i++)
                 {
                     tasks[i].Value.TimesRetried = 0;
-                    taskRunGuids.Add(tasks[i].Value.CreateTaskRun(DefaultLogFolder, TaskListGuidToRun));
+                    taskRunGuids.Add(tasks[i].Value.CreateTaskRun(LogFolder, TaskListGuidToRun));
                 }
 
                 // Update XML for state tracking.
@@ -880,7 +880,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         runner.OnTestEvent += taskRunEventHandler;
                     }
 
-                    if (!runner.RunTask())
+                    if (!runner.Run())
                     {
                         throw new Exception(String.Format("Unable to start TaskRun {0} for task {1}", taskRun.Guid, taskRun.TaskName));
                     }
@@ -933,7 +933,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     if (taskRun.OwningTask.TimesRetried < taskRun.OwningTask.MaxNumberOfRetries)
                     {
-                        var newRunGuid = taskRun.OwningTask.CreateTaskRun(DefaultLogFolder);
+                        var newRunGuid = taskRun.OwningTask.CreateTaskRun(LogFolder);
                         var newRun = TaskRun_Server.GetTaskRunByGuid(newRunGuid);
                         taskRun.OwningTask.TimesRetried++;
                         StartTest(newRun, token, taskRunEventHandler);
@@ -1035,7 +1035,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-        public TaskRun RetryTask(Guid taskGuid)
+        public TaskRun RunTask(Guid taskGuid)
         {
             var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(taskGuid)).DefaultIfEmpty(null).First();
 
@@ -1049,16 +1049,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             CancellationTokenSource t;
             if (RunningTaskListTokens.TryGetValue(list.Guid, out t))
             {
+                // TODO: Logging: log error
                 return null;
             }
 
             var task = list.Tasks[taskGuid];
             lock (task.TaskLock)
             {
-                task.TimesRetried++;
+                task.TimesRetried = 0;
             }
 
-            var runGuid = task.CreateTaskRun(DefaultLogFolder, list.Guid);
+            var runGuid = task.CreateTaskRun(LogFolder, list.Guid);
             var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
             var runList = new List<Guid>();
             runList.Add(runGuid);
@@ -1077,6 +1078,43 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             return run;
         }
+
+        public TaskRun RunTask(TaskBase task)
+        {
+            if (task == null)
+            {
+                // TODO: Logging: log error
+                return null;
+            }
+
+            if (KnownTaskLists.SelectMany(x => x.Value.Tasks.Values).Any(y => y.Guid.Equals(task.Guid)))
+            {
+                return RunTask(task.Guid);
+            }
+
+            lock (task.TaskLock)
+            {
+                task.TimesRetried = 0;
+            }
+            var runGuid = task.CreateTaskRun(LogFolder);
+            var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
+            var token = new CancellationTokenSource();
+
+            if (run.BackgroundTask)
+            {
+                StartTest(run, token.Token);
+                RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
+            }
+            else
+            {
+                RunningTaskRunTokens.TryAdd(run.Guid, token);
+                Task t = new Task(() => { StartTest(run, token.Token); });
+                t.Start();
+            }
+
+            return run;
+        }
+
 
         private void QueueTaskListWorkItem(TaskListWorkItem workItem)
         {
@@ -1105,9 +1143,9 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly object KnownTaskListLock = new object();
         private readonly object RunningTaskListLock = new object();
         private readonly SemaphoreSlim _startNonParallelTaskRunLock;
-        private string _defaultLogFolder;
+        private string _logFolder;
 
-        public string DefaultLogFolder { get => _defaultLogFolder; }
+        public string LogFolder { get => _logFolder; }
         public string TaskListStateFile { get; private set; }
         public bool IsTaskListRunning
         {
@@ -1260,7 +1298,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             _taskRunnerMap.TryAdd(taskRun.Guid, this);
         }
 
-        public bool RunTask()
+        public bool Run()
         {
             lock (runnerStateLock)
             {
@@ -1759,12 +1797,12 @@ namespace Microsoft.FactoryOrchestrator.Server
             });
         }
 
-        public TaskRun_Server(TaskBase owningTask, string defaultLogFolder, Guid TaskListGuid) : this(owningTask, defaultLogFolder)
+        public TaskRun_Server(TaskBase owningTask, string logFolder, Guid TaskListGuid) : this(owningTask, logFolder)
         {
             OwningTaskListGuid = TaskListGuid;
         }
 
-        public TaskRun_Server(TaskBase owningTask, string defaultLogFolder, Guid TaskListGuid, Guid TaskRunGuid) : this(owningTask, defaultLogFolder)
+        public TaskRun_Server(TaskBase owningTask, string logFolder, Guid TaskListGuid, Guid TaskRunGuid) : this(owningTask, logFolder)
         {
             OwningTaskListGuid = TaskListGuid;
 
@@ -1774,16 +1812,16 @@ namespace Microsoft.FactoryOrchestrator.Server
             CtorCommon();
 
             // Fix log path, as it also used the wrong guid.
-            SetLogFolderFromTask(defaultLogFolder);
+            SetLogFile(logFolder);
         }
 
-        public TaskRun_Server(TaskBase owningTask, string defaultLogFolder) : base(owningTask)
+        public TaskRun_Server(TaskBase owningTask, string logFolder) : base(owningTask)
         {
             CtorCommon();
             OwningTask = owningTask;
 
             // Setup log path
-            SetLogFolderFromTask(defaultLogFolder);
+            SetLogFile(logFolder);
         }
 
         public static string FindFileInPath(string file)
@@ -1857,15 +1895,9 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        private void SetLogFolderFromTask(string defaultLogFolder)
+        private void SetLogFile(string logFolder)
         {
-            string LogFolder = OwningTask.LogFolder;
-            if (LogFolder == null)
-            {
-                LogFolder = defaultLogFolder;
-            }
-
-            LogFilePath = Path.Combine(LogFolder, TaskName, $"Run_{Guid}.log");
+            LogFilePath = Path.Combine(logFolder, TaskName, $"Run_{Guid}.log");
         }
         private TaskRun_Server(TaskRun taskRun, TaskBase owningTask) : base(owningTask)
         {
