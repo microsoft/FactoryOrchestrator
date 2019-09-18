@@ -196,6 +196,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 case TaskStatus.Timeout:
                     OverallTestResult.Text = "⏱ Timed-out";
                     break;
+                case TaskStatus.RunPending:
+                    OverallTestResult.Text = "❔ Run Pending";
+                    break;
                 default:
                     OverallTestResult.Text = "❔ Unknown";
                     break;

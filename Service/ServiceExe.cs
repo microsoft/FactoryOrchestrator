@@ -397,10 +397,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             return run;
         }
 
-        public TaskRun RunTask(Guid testGuid)
+        public TaskRun RetryTask(Guid testGuid)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {testGuid}");
-            var run = FOService.Instance.TestExecutionManager.RunTask(testGuid);
+            var run = FOService.Instance.TestExecutionManager.RetryTask(testGuid);
             FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {testGuid}");
             return run;
         }

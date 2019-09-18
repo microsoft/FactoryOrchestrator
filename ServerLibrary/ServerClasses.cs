@@ -53,7 +53,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 run = new TaskRun_Server(task, defaultLogFolder);
                 task.TaskRunGuids.Add(run.Guid);
                 task.LatestTaskRunExitCode = null;
-                task.LatestTaskRunStatus = TaskStatus.NotRun;
+                task.LatestTaskRunStatus = TaskStatus.RunPending;
                 task.LatestTaskRunTimeFinished = null;
                 task.LatestTaskRunTimeStarted = null;
             }
@@ -68,7 +68,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 run = new TaskRun_Server(task, defaultLogFolder, taskListGuid);
                 task.TaskRunGuids.Add(run.Guid);
                 task.LatestTaskRunExitCode = null;
-                task.LatestTaskRunStatus = TaskStatus.NotRun;
+                task.LatestTaskRunStatus = TaskStatus.RunPending;
                 task.LatestTaskRunTimeFinished = null;
                 task.LatestTaskRunTimeStarted = null;
             }
@@ -710,11 +710,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 SaveAllTaskListsToXmlFile(TaskListStateFile);
 
                 var workItem = new TaskListWorkItem(list.Guid, backgroundTaskRunGuids, taskRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
-                var token = new CancellationTokenSource();
-                RunningTaskListTokens.TryAdd(workItem.TaskListGuid, token);
-                RunningBackgroundTasks.TryAdd(workItem.TaskListGuid, new List<TaskRunner>());
-                Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem, token.Token);
-                t.Start();
+                QueueTaskListWorkItem(workItem);
             }
 
             return true;
@@ -805,9 +801,9 @@ namespace Microsoft.FactoryOrchestrator.Server
             });
 
             // Wait for all background tasks to start
-            while (currentBgTasks.Any(x => x.TaskStatus == TaskStatus.NotRun))
+            while (currentBgTasks.Any(x => x.TaskStatus == TaskStatus.RunPending))
             {
-                Thread.Sleep(10);
+                Thread.Sleep(30);
             }
 
             // Run all tasks in the list
@@ -1039,33 +1035,56 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-        public TaskRun RunTask(Guid taskGuid)
+        public TaskRun RetryTask(Guid taskGuid)
         {
-            var task = KnownTaskLists.SelectMany(x => x.Value.Tasks.Values).Where(y => y.Guid.Equals(taskGuid)).DefaultIfEmpty(null).First();
+            var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(taskGuid)).DefaultIfEmpty(null).First();
 
-            if (task == null)
+            if (list == null)
             {
                 // TODO: Logging: log error
                 return null;
             }
 
-            var runGuid = task.CreateTaskRun(DefaultLogFolder);
+            // If list is running already, fail
+            CancellationTokenSource t;
+            if (RunningTaskListTokens.TryGetValue(list.Guid, out t))
+            {
+                return null;
+            }
+
+            var task = list.Tasks[taskGuid];
+            lock (task.TaskLock)
+            {
+                task.TimesRetried++;
+            }
+
+            var runGuid = task.CreateTaskRun(DefaultLogFolder, list.Guid);
             var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
-            var token = new CancellationTokenSource();
+            var runList = new List<Guid>();
+            runList.Add(runGuid);
+            TaskListWorkItem workItem;
 
             if (run.BackgroundTask)
             {
-                StartTest(run, token.Token);
-                RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
+                workItem = new TaskListWorkItem(list.Guid, runList, new List<Guid>(), list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
             }
             else
             {
-                RunningTaskRunTokens.TryAdd(run.Guid, token);
-                Task t = new Task(() => { StartTest(run, token.Token); });
-                t.Start();
+                workItem = new TaskListWorkItem(list.Guid, new List<Guid>(), runList, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
             }
 
+            QueueTaskListWorkItem(workItem);
+
             return run;
+        }
+
+        private void QueueTaskListWorkItem(TaskListWorkItem workItem)
+        {
+            var token = new CancellationTokenSource();
+            RunningTaskListTokens.TryAdd(workItem.TaskListGuid, token);
+            RunningBackgroundTasks.TryAdd(workItem.TaskListGuid, new List<TaskRunner>());
+            Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem, token.Token);
+            t.Start();
         }
 
         public TaskRun RunApp(string packageFamilyName)

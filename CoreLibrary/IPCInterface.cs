@@ -132,7 +132,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         void AbortTaskRun(Guid taskRunGuid);
         TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null);
         TaskRun RunApp(string packageFamilyName);
-        TaskRun RunTask(Guid taskGuid);
+        TaskRun RetryTask(Guid taskGuid);
 
         // TaskRun APIs
         bool UpdateTaskRun(TaskRun taskRun);

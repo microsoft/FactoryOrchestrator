@@ -96,7 +96,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             ActiveListCollection.Insert(i, listArray[i]);
                         }
 
-                        if ((ActiveListCollection[i].LatestTaskRunPassed != null) && (ActiveListCollection[i].LatestTaskRunPassed == false))
+                        // Show retry button if tasklist is no longer running and the task failed
+                        if (((list.TaskListStatus != TaskStatus.Running) && (list.TaskListStatus != TaskStatus.RunPending)) && (ActiveListCollection[i].LatestTaskRunPassed != null) && (ActiveListCollection[i].LatestTaskRunPassed == false))
                         {
                             ListViewItem item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
                             while (item == null)
@@ -305,7 +306,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var button = sender as Button;
             var guid = (button.DataContext as TaskBase).Guid;
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTask(guid));
+            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RetryTask(guid));
         }
 
         /// <summary>

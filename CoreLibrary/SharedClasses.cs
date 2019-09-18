@@ -20,6 +20,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         Timeout,
         Running,
         NotRun,
+        RunPending,
         WaitingForExternalResult,
         Unknown
     }
@@ -695,11 +696,15 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     return TaskStatus.Passed;
                 }
+                else if (Tasks.Values.All(x => x.LatestTaskRunStatus == TaskStatus.RunPending))
+                {
+                    return TaskStatus.RunPending;
+                }
                 else if (Tasks.Values.Any(x => x.LatestTaskRunStatus == TaskStatus.Aborted))
                 {
                     return TaskStatus.Aborted;
                 }
-                else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
+                else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.RunPending) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
                 {
                     return TaskStatus.Running;
                 }

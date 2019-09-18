@@ -128,7 +128,7 @@
     <Compile Include="SaveLoadEditPage.xaml.cs">
       <DependentUpon>SaveLoadEditPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TaskBaseDataBindingConverter.cs" />
+    <Compile Include="TaskStatusDataBindingConverter.cs" />
     <Compile Include="TaskListExecutionPage.xaml.cs">
       <DependentUpon>TaskListExecutionPage.xaml</DependentUpon>
     </Compile>

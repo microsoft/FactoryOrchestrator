@@ -20,7 +20,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public MainPage()
         {
             this.InitializeComponent();
-            this.NavigationCacheMode = NavigationCacheMode.Disabled;
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
+            //this.NavigationCacheMode = NavigationCacheMode.Disabled;
 
             // Put ipaddress in header
             Header.Text += IPCClientHelper.IsLocalHost ? " (Local Device)" : $" ({IPCClientHelper.IpAddress.ToString()})";
@@ -46,6 +47,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            this.Frame.CacheSize = 3;
             // Hide tabs disabled by OEM Customization
             List<string> disabledPages = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetDisabledPages());
             foreach (var disabledPage in disabledPages)
@@ -74,7 +76,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 NavView.SelectedItem = NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == lastNavTag).First();
             }
-            NavView_Navigate(lastNavTag, null);
+
+            NavView_Navigate(lastNavTag, null, e);
 
             base.OnNavigatedTo(e);
         }
@@ -119,7 +122,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private void NavView_Navigate(string navItemTag, NavigationTransitionInfo recommendedNavigationTransitionInfo)
+        private void NavView_Navigate(string navItemTag, NavigationTransitionInfo recommendedNavigationTransitionInfo, NavigationEventArgs e = null)
         {
             ((App)Application.Current).MainPageLastNavTag = lastNavTag = navItemTag;
 
@@ -143,8 +146,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // Get the page type before navigation so you can prevent duplicate entries in the backstack.
             var preNavPageType = ContentFrame.CurrentSourcePageType;
 
-            // Only navigate if the selected page isn't currently loaded.
-            if (!(page is null) && !Type.Equals(preNavPageType, page))
+            // Only navigate if the selected page isn't currently loaded or if we came from another full page view.
+            if (!(page is null) && (!Type.Equals(preNavPageType, page) || e != null))
             {
                 ContentFrame.Navigate(page, this.Frame, recommendedNavigationTransitionInfo);
             }
