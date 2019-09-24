@@ -212,7 +212,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         }
         
         /// <summary>
-        /// Loads a taskrun log file into a taskrun_server object. This has a very hard dependency on the output format.
+        /// Loads a taskrun log file into a taskrun_server object. This has a very hard dependency on the output format, defined by WriteLogHeader() and WriteLogFooter().
         /// </summary>
         /// <param name="filePath">log file to load</param>
         /// <returns>created taskrun object</returns>
@@ -222,29 +222,94 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             try
             {
-                Guid? taskGuid = null;
-                Guid? taskRunGuid = null;
                 var lines = File.ReadAllLines(filePath).ToList();
-                taskGuid = new Guid(lines.First(x => x.StartsWith("GUID:")).Split(' ').Last());
-                taskRunGuid = new Guid(lines.First(x => x.StartsWith("TaskRun GUID:")).Split(' ').Last());
 
+                // At a minimum, the task header must have been written to the log file, check for the start of the output section first.
+                // This will throw an exception if it doesn't exist.
+                var startOutput = lines.First(x => x.StartsWith("---------------"));
+                var taskRunGuid = new Guid(lines.First(x => x.StartsWith("TaskRun GUID:")).Split(' ').Last());
 
-                if ((taskGuid != null) && (taskRunGuid != null))
+                // Get task guid if it exists
+                Guid taskGuid;
+                try
                 {
-                    var task = GetTask((Guid)taskGuid);
-                    var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey((Guid)taskGuid)).First();
-                    run = new TaskRun_Server(task, LogFolder, list.Guid, (Guid)taskRunGuid);
-                    run.TimeStarted = DateTime.Parse(lines.Where(x => x.StartsWith("Date/Time run:")).First().Replace("Date/Time run:", ""));
+                    taskGuid = new Guid(lines.First(x => x.StartsWith("Task GUID:")).Split(' ').Last());
+                }
+                catch (Exception)
+                {
+                    taskGuid = Guid.Empty;
+                }
+
+                // Create a new TaskRun object representing this TaskRun log file
+                var task = GetTask(taskGuid);
+                if (task != null)
+                {
+                    var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(taskGuid)).DefaultIfEmpty(null).First();
+                    run = new TaskRun_Server(task, LogFolder, list.Guid);
+                }
+                else
+                {
+                    run = TaskRun_Server.CreateTaskRunWithoutTask("", "", filePath, TaskType.External);
+                }
+
+                // Update run based on info in the log file. If a field cant be parsed, use a default
+                if (!TaskRun_Server.UpdateTaskRunGuid(run.Guid, taskRunGuid))
+                {
+                    // The taskrun already exists.
+                    throw new Exception();
+                }
+
+                run.LogFilePath = filePath;
+                run.TaskType = (TaskType)Enum.Parse(typeof(TaskType), lines.First(x => x.StartsWith("Type:")).Substring(6));
+                run.Arguments = lines.First(x => x.StartsWith("Arguments: ")).Substring(11);
+                run.TaskPath = lines.First(x => x.StartsWith("Path: ")).Substring(6);
+
+                try
+                {
+                    run.TimeStarted = DateTime.Parse(lines.Where(x => x.StartsWith("Date/Time run: ")).First().Replace("Date/Time run: ", ""));
+                }
+                catch (Exception)
+                {
+                    run.TimeStarted = null;
+                }
+
+                try
+                {
                     run.TimeFinished = run.TimeStarted + TimeSpan.Parse(lines.First(x => x.StartsWith("Time to complete:")).Split(' ').Last());
-                    var status = TaskStatus.Unknown;
-                    Enum.TryParse(lines.First(x => x.StartsWith("Result:")).Split(' ').Last(), out status);
-                    run.TaskStatus = status;
+                }
+                catch (Exception)
+                {
+                    run.TimeFinished = null;
+                }
+
+                try
+                {
+                    run.TaskStatus = (TaskStatus)Enum.Parse(typeof(TaskStatus), lines.First(x => x.StartsWith("Result:")).Split(' ').Last());
+                }
+                catch (Exception)
+                {
+                    run.TaskStatus = TaskStatus.Unknown;
+                }
+
+                try
+                {
                     run.ExitCode = int.Parse(lines.First(x => x.StartsWith("Exit code:")).Split(' ').Last());
-                    var startOutput = lines.First(x => x.StartsWith("---------------"));
+                }
+                catch (Exception)
+                {
+                    run.ExitCode = null;
+                }
+
+                try
+                {
                     var endOutput = lines.Last(x => x.StartsWith("---------------"));
                     var startIndex = lines.IndexOf(startOutput);
                     var endIndex = lines.IndexOf(endOutput);
                     run.TaskOutput = lines.GetRange(startIndex + 1, endIndex - startIndex - 1);
+                }
+                catch
+                {
+                    run.TaskOutput = new List<string>();
                 }
             }
             catch (Exception)
@@ -385,9 +450,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 foreach (var list in xml.TaskLists)
                 {
-                    // Update "running" tests, as their state is unknown
-                    list.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.Running).Select(x => x.LatestTaskRunStatus = TaskStatus.Unknown);
-                    list.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult).Select(x => x.LatestTaskRunStatus = TaskStatus.Unknown);
+                    // Update "running" Tasks, as their state is unknown
+                    var badStateTasks = list.Tasks.Values.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
+                    foreach (var task in badStateTasks)
+                    {
+                        task.LatestTaskRunStatus = TaskStatus.Unknown;
+                    }
+                    badStateTasks = list.BackgroundTasks.Values.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
+                    foreach (var task in badStateTasks)
+                    {
+                        task.LatestTaskRunStatus = TaskStatus.Unknown;
+                    }
 
                     if (KnownTaskLists.ContainsKey(list.Guid))
                     {
@@ -887,8 +960,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
-                    // TODO: Logging : Log External tests to file
+                    // Mark the run as started.
                     taskRun.StartWaitingForExternalResult();
+
+                    // Write log file. Unlike an executable Task, we must do this manually.
+                    taskRun.WriteLogHeader();
+
+                    // Let the service know we are waiting for a result
                     OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTaskRunResult, taskRun.Guid));
                 }
 
@@ -906,11 +984,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                 if (token.IsCancellationRequested)
                 {
                     if (taskRun.RunByServer)
-                    {
+                    {  
+                        // Task was canceled, stop executing it.
                         runner.StopTask();
                     }
                     else
                     {
+                        // If external, mark as Aborted
                         taskRun.TaskStatus = TaskStatus.Aborted;
                         taskRun.ExitCode = -1;
                     }
@@ -918,7 +998,13 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (taskRun.RunByClient)
                 {
+                    // Mark the run as finished.
                     taskRun.EndWaitingForExternalResult();
+
+                    // Write log file. Unlike an executable Task, we must do this manually.
+                    taskRun.WriteLogFooter();
+
+                    // Let the service know we got a result
                     if (token.IsCancellationRequested)
                     {
                         OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTaskRunAborted, taskRun.Guid));
@@ -931,8 +1017,11 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if ((!token.IsCancellationRequested) && (taskRun.OwningTask != null) && (taskRun.TaskStatus != TaskStatus.Passed) && (!backgroundTask))
                 {
+                    // Task failed, was not cancelled, and is not a background task.
+                    // Check the OwningTask for special cases.
                     if (taskRun.OwningTask.TimesRetried < taskRun.OwningTask.MaxNumberOfRetries)
                     {
+                        // Re-run the task under a new TaskRun
                         var newRunGuid = taskRun.OwningTask.CreateTaskRun(LogFolder);
                         var newRun = TaskRun_Server.GetTaskRunByGuid(newRunGuid);
                         taskRun.OwningTask.TimesRetried++;
@@ -940,7 +1029,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     }
                     else if (taskRun.OwningTask.AbortTaskListOnFailed)
                     {
-                        AbortTaskList(taskRun.OwningTaskListGuid);
+                        AbortTaskList((Guid)taskRun.OwningTaskListGuid);
                     }
                 }
 
@@ -1087,7 +1176,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 return null;
             }
 
-            if (KnownTaskLists.SelectMany(x => x.Value.Tasks.Values).Any(y => y.Guid.Equals(task.Guid)))
+            if (GetTask(task.Guid) != null)
             {
                 return RunTask(task.Guid);
             }
@@ -1226,7 +1315,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
     public class TaskRunnerEventArgs : EventArgs
     {
-        public TaskRunnerEventArgs(TaskStatus testStatus, int eventStatusCode, String eventMessage)
+        public TaskRunnerEventArgs(TaskStatus testStatus, int? eventStatusCode, String eventMessage)
         {
             TestStatus = testStatus;
             EventStatusCode = eventStatusCode;
@@ -1234,7 +1323,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         }
 
         public TaskStatus TestStatus { get; }
-        public int EventStatusCode { get; }
+        public int? EventStatusCode { get; }
         public String EventMessage { get; }
     }
 
@@ -1393,79 +1482,67 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         private bool StartProcess()
         {
-            if (TaskProcess.Start())
+            try
             {
+                TaskProcess.Start();
                 IsRunning = true;
+            }
+
+            catch (Exception e)
+            {
+                // Process failed to start. Log the failure.
+                ActiveTaskRun.TaskStatus = TaskStatus.Failed;
+                TaskRunner removed;
+                _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
+                ActiveTaskRun.TaskOutput.Add("Process failed to start!");
+                ActiveTaskRun.TaskOutput.Add(e.Message);
+            }
+
+            if (IsRunning)
+            {
+                // Process started successfully.
                 ActiveTaskRun.TaskStatus = TaskStatus.Running;
                 ActiveTaskRun.TimeStarted = DateTime.Now;
 
                 // Start async read (OnOutputData, OnErrorData)
                 TaskProcess.BeginErrorReadLine();
                 TaskProcess.BeginOutputReadLine();
-                // Start timeout timer if needed
+                // Start Task timeout timer if needed
                 if ((!ActiveTaskRun.BackgroundTask) && (ActiveTaskRun.TimeoutSeconds != -1))
                 {
                     Task.Run(async () =>
                     {
                         await Task.Delay(new TimeSpan(0, 0, ActiveTaskRun.TimeoutSeconds), TimeoutToken.Token);
 
-                        // If we hit the timeout and the task didn't finish, stop it now.
-                        if (!TimeoutToken.IsCancellationRequested)
+                    // If we hit the timeout and the task didn't finish, stop it now.
+                    if (!TimeoutToken.IsCancellationRequested)
                         {
                             TimeoutTask();
                         }
                     });
                 }
             }
-            else
-            {
-                ActiveTaskRun.TaskStatus = TaskStatus.Failed;
-                TaskRunner removed;
-                _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
-                // TODO: log error
-            }
 
+            // Update Task with result of starting the process
             ActiveTaskRun.UpdateOwningTaskFromTaskRun();
 
             // Write header to file
-            // WARNING: Update LoadTaskRunFromFile() if you change the header format!
+            ActiveTaskRun.WriteLogHeader();
+
             var LogFilePath = ActiveTaskRun.LogFilePath;
             if (LogFilePath != null)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
-                List<string> header = new List<string>();
-
-                if (!BackgroundTask)
+                if (!IsRunning)
                 {
-                    header.Add(String.Format("Task: {0}", ActiveTaskRun.TaskName));
+                    // Process.Start() failed. Finish writing the log file, as OnExited will never execute.
+                    ActiveTaskRun.WriteLogFooter();
+                    OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, "Process failed to start."));
                 }
                 else
                 {
-                    header.Add(String.Format("Background Task: {0}", ActiveTaskRun.TaskName));
+                    // Update log file output every 5 seconds
+                    outputTimer = new Timer(OnOutputTimer, null, 5000, 5000);
                 }
-
-                header.Add(String.Format("GUID: {0}", (ActiveTaskRun.OwningTaskGuid == null) ? "Not a known Task" : ActiveTaskRun.OwningTaskGuid.ToString()));
-                header.Add(String.Format("TaskRun GUID: {0}", ActiveTaskRun.Guid));
-                header.Add(String.Format("Type: {0}", ActiveTaskRun.TaskType));
-                header.Add(String.Format("Path: {0}", ActiveTaskRun.TaskPath));
-                header.Add(String.Format("Arguments: {0}", ActiveTaskRun.Arguments));
-                header.Add(String.Format("Date/Time run: {0}", (ActiveTaskRun.TimeStarted == null) ? "Never Started" : ActiveTaskRun.TimeStarted.ToString()));
-                if (IsRunning)
-                {
-                    header.Add(String.Format("--------------- Console Output --------------"));
-                }
-                else
-                {
-                    header.Add("---------------------------------------------");
-                    header.Add("Process failed to start!");
-                    header.Add("---------------------------------------------");
-                    header.Add(String.Format("Result: {0}", ActiveTaskRun.TaskStatus));
-                    header.Add(String.Format("Exit code: {0}", ActiveTaskRun.ExitCode));
-                }
-                File.WriteAllLines(LogFilePath, header);
-
-                nextIndexToSave = 0;
-                outputTimer = new Timer(OnOutputTimer, null, 5000, 5000);
             }
 
             return IsRunning;
@@ -1478,11 +1555,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 lock (outputLock)
                 {
-                    if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
-                    {
-                        File.AppendAllLines(logFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
-                        nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
-                    }
+                    ActiveTaskRun.WriteUpdatedLogOutput();
                 }
             }
         }
@@ -1539,17 +1612,18 @@ namespace Microsoft.FactoryOrchestrator.Server
             TimeoutToken.Cancel();
 
             // Save the result of the task
-            if (!TaskAborted)
+            if (TaskAborted)
+            {
+                ActiveTaskRun.ExitCode = -1;
+                ActiveTaskRun.TaskStatus = TaskTimeout ? TaskStatus.Timeout : TaskStatus.Aborted;
+            }
+            else
             {
                 ActiveTaskRun.TimeFinished = DateTime.Now;
                 ActiveTaskRun.ExitCode = TaskProcess.ExitCode;
                 ActiveTaskRun.TaskStatus = (ActiveTaskRun.ExitCode == 0) ? TaskStatus.Passed : TaskStatus.Failed;
             }
-            else
-            {
-                ActiveTaskRun.ExitCode = -1;
-                ActiveTaskRun.TaskStatus = TaskTimeout ? TaskStatus.Timeout : TaskStatus.Aborted;
-            }
+
             ActiveTaskRun.UpdateOwningTaskFromTaskRun();
 
             // Save task output to file
@@ -1558,23 +1632,8 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             lock (outputLock)
             {
-                var LogFilePath = ActiveTaskRun.LogFilePath;
-                if (LogFilePath != null)
-                {
-                    if (nextIndexToSave != ActiveTaskRun.TaskOutput.Count)
-                    {
-                        File.AppendAllLines(ActiveTaskRun.LogFilePath, ActiveTaskRun.TaskOutput.GetRange(nextIndexToSave, ActiveTaskRun.TaskOutput.Count - nextIndexToSave));
-                        nextIndexToSave = ActiveTaskRun.TaskOutput.Count;
-                    }
-                    // WARNING: Update LoadTaskRunFromFile() if you change the footer format!
-                    File.AppendAllLines(LogFilePath,
-                                        new String[] {
-                                    "---------------------------------------------",
-                                    String.Format("Result: {0}", ActiveTaskRun.TaskStatus),
-                                    String.Format("Exit code: {0}", ActiveTaskRun.ExitCode),
-                                    String.Format("Time to complete: {0}", (ActiveTaskRun.RunTime == null) ? "" : ActiveTaskRun.RunTime.ToString())
-                                        });
-                }
+                // Write remaining output to file
+                ActiveTaskRun.WriteLogFooter();
             }
 
             IsRunning = false;
@@ -1582,7 +1641,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
 
             // Raise event if event handler exists
-            OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, (int)ActiveTaskRun.ExitCode, null));
+            OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, "Process exited."));
         }
 
         private bool TimeoutTask()
@@ -1689,7 +1748,6 @@ namespace Microsoft.FactoryOrchestrator.Server
         private bool BackgroundTask;
         private CancellationTokenSource TimeoutToken = new CancellationTokenSource();
         private Timer outputTimer = null;
-        private int nextIndexToSave = 0;
 
         /// <summary>
         /// Lock to maintain consistent state of execution status (Run, Abort etc)
@@ -1730,6 +1788,36 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Replaces the Guid for an existing TaskRun with a new Guid
+        /// </summary>
+        /// <param name="oldGuid"></param>
+        /// <param name="newGuid"></param>
+        /// <returns></returns>
+        internal static bool UpdateTaskRunGuid(Guid oldGuid, Guid newGuid)
+        {
+            lock (_taskMapLock)
+            {
+                TaskRun_Server run;
+                if (!_taskRunMap.TryRemove(oldGuid, out run))
+                {
+                    return false;
+                }
+                run.Guid = newGuid;
+
+                // Fix log path, as it also used the wrong guid.
+                run.SetLogFile(run.LogFilePath.Replace(oldGuid.ToString(), newGuid.ToString()));
+
+                if (!_taskRunMap.TryAdd(run.Guid, run))
+                {
+                    // the guid already exists!
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static TaskRun_Server CreateTaskRunWithoutTask(string filePath, string arguments, string logFileOrFolder, TaskType type)
@@ -1783,6 +1871,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 run.TaskStatus = updatedTaskRun.TaskStatus;
                 run.TimeFinished = updatedTaskRun.TimeFinished;
                 run.TimeStarted = updatedTaskRun.TimeStarted;
+                run.TaskOutput = updatedTaskRun.TaskOutput;
                 run.UpdateOwningTaskFromTaskRun();
 
                 return true;
@@ -1797,57 +1886,38 @@ namespace Microsoft.FactoryOrchestrator.Server
             });
         }
 
+        // TODO: Quality: The taskrun_server CTORS are convoluted and could be simplified.
+
         public TaskRun_Server(TaskBase owningTask, string logFolder, Guid TaskListGuid) : this(owningTask, logFolder)
         {
             OwningTaskListGuid = TaskListGuid;
         }
 
-        public TaskRun_Server(TaskBase owningTask, string logFolder, Guid TaskListGuid, Guid TaskRunGuid) : this(owningTask, logFolder)
-        {
-            OwningTaskListGuid = TaskListGuid;
-
-            // CtorCommon already added the wrong guid to the map. Remove autogenned guid, add ours by re-running CtorCommon()
-            RemoveTaskRun(this.Guid, false);
-            Guid = TaskRunGuid;
-            CtorCommon();
-
-            // Fix log path, as it also used the wrong guid.
-            SetLogFile(logFolder);
-        }
-
         public TaskRun_Server(TaskBase owningTask, string logFolder) : base(owningTask)
         {
             CtorCommon();
+            OwningTaskListGuid = null;
             OwningTask = owningTask;
 
             // Setup log path
             SetLogFile(logFolder);
         }
 
-        public static string FindFileInPath(string file)
+        /// <summary>
+        /// This is used as a copy constructor. Don't add it to the map, it should be there already.
+        /// </summary>
+        /// <param name="taskRun"></param>
+        /// <param name="owningTask"></param>
+        private TaskRun_Server(TaskRun taskRun, TaskBase owningTask) : base(owningTask)
         {
-            file = Environment.ExpandEnvironmentVariables(file);
-
-            if (!File.Exists(file))
-            {
-                if (Path.GetDirectoryName(file) == String.Empty)
-                {
-                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
-                    {
-                        string path = testPath.Trim();
-                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))
-                        {
-                            return Path.GetFullPath(path);
-                        }
-                    }
-                }
-
-                // No match found, just return the existing path
-                return file;
-            }
-
-            // file is a full path, return it
-            return Path.GetFullPath(file);
+            LogFilePath = taskRun.LogFilePath;
+            TaskStatus = taskRun.TaskStatus;
+            TimeFinished = taskRun.TimeFinished;
+            TimeStarted = taskRun.TimeStarted;
+            ExitCode = taskRun.ExitCode;
+            TaskOutput = taskRun.TaskOutput;
+            OwningTaskListGuid = taskRun.OwningTaskGuid;
+            OwningTask = owningTask;
         }
 
         /// <summary>
@@ -1863,6 +1933,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             Arguments = arguments;
             TaskName = Path.GetFileName(taskPath);
             TaskType = type;
+            OwningTaskListGuid = null;
 
             CtorCommon();
             
@@ -1895,23 +1966,40 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
+        public static string FindFileInPath(string file)
+        {
+            file = Environment.ExpandEnvironmentVariables(file);
+
+            if (!File.Exists(file))
+            {
+                if (Path.GetDirectoryName(file) == String.Empty)
+                {
+                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+                    {
+                        string path = testPath.Trim();
+                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))
+                        {
+                            return Path.GetFullPath(path);
+                        }
+                    }
+                }
+
+                // No match found, just return the existing path
+                return file;
+            }
+
+            // file is a full path, return it
+            return Path.GetFullPath(file);
+        }
+
         private void SetLogFile(string logFolder)
         {
             LogFilePath = Path.Combine(logFolder, TaskName, $"Run_{Guid}.log");
         }
-        private TaskRun_Server(TaskRun taskRun, TaskBase owningTask) : base(owningTask)
-        {
-            // This is used as a copy constructor. Don't add it to the map, it should be there already.
-            LogFilePath = taskRun.LogFilePath;
-            TaskStatus = taskRun.TaskStatus;
-            TimeFinished = taskRun.TimeFinished;
-            TimeStarted = taskRun.TimeStarted;
-            ExitCode = taskRun.ExitCode;
-            TaskOutput = taskRun.TaskOutput;
-            OwningTask = owningTask;
-        }
 
-
+        /// <summary>
+        /// If the TaskRun is related to a Task, updates that Task.
+        /// </summary>
         public void UpdateOwningTaskFromTaskRun()
         {
             if (OwningTask != null)
@@ -1926,6 +2014,9 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
+        /// <summary>
+        /// Marks an external TaskRun as started.
+        /// </summary>
         public void StartWaitingForExternalResult()
         {
             TimeStarted = DateTime.Now;
@@ -1933,23 +2024,102 @@ namespace Microsoft.FactoryOrchestrator.Server
             UpdateOwningTaskFromTaskRun();
         }
 
+        /// <summary>
+        /// Marks an external TaskRun as completed.
+        /// </summary>
         public void EndWaitingForExternalResult()
         {
             TimeFinished = DateTime.Now;
             UpdateOwningTaskFromTaskRun();
         }
 
-        [JsonIgnore]
-        public TaskBase OwningTask { get; }
+        /// <summary>
+        /// Logs general info about a TaskRun to its log file, done with the TaskRun starts executing.
+        /// </summary>
+        public void WriteLogHeader()
+        {
+            // WARNING: Update LoadTaskRunFromFile() if you change the header format!
+            if (LogFilePath != null)
+            {
+                _logIndex = 0;
+                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
+                List<string> header = new List<string>();
 
-        [JsonIgnore]
-        public Guid OwningTaskListGuid { get; }
+                if (!BackgroundTask)
+                {
+                    header.Add(String.Format("Task: {0}", TaskName));
+                }
+                else
+                {
+                    header.Add(String.Format("Background Task: {0}", TaskName));
+                }
+
+                header.Add(String.Format("Task GUID: {0}", (OwningTaskGuid == null) ? "Not a known Task" : OwningTaskGuid.ToString()));
+                header.Add(String.Format("TaskRun GUID: {0}", Guid));
+                header.Add(String.Format("Type: {0}", TaskType));
+                header.Add(String.Format("Path: {0}", TaskPath));
+                header.Add(String.Format("Arguments: {0}", Arguments));
+                header.Add(String.Format("Date/Time run: {0}", (TimeStarted == null) ? "Never Started" : TimeStarted.ToString()));
+                header.Add(String.Format("--------------- Output --------------"));
+
+                File.WriteAllLines(LogFilePath, header);
+            }
+        }
+
+        public void WriteUpdatedLogOutput()
+        {
+            if (LogFilePath != null)
+            {
+                if (_logIndex != TaskOutput.Count)
+                {
+                    File.AppendAllLines(LogFilePath, TaskOutput.GetRange(_logIndex, TaskOutput.Count - _logIndex));
+                    _logIndex = TaskOutput.Count;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logs the result of a TaskRun to its log file.
+        /// </summary>
+        public void WriteLogFooter()
+        {
+            // WARNING: Update LoadTaskRunFromFile() if you change the footer format!
+            if (LogFilePath != null)
+            {
+                WriteUpdatedLogOutput();
+                var footer = new List<string>();
+                // End output section
+                footer.Add("-------------------------------------");
+                footer.Add($"Result: {TaskStatus}");
+                if (ExitCode != null)
+                {
+                    footer.Add($"Exit code: {ExitCode}");
+                }
+                if (RunTime != null)
+                {
+                    footer.Add($"Time to complete: {RunTime}");
+                }
+
+                File.AppendAllLines(LogFilePath, footer);
+            }
+        }
 
         public TaskRunner GetOwningTaskRunner()
         {
             return TaskRunner.GetTaskRunnerForTaskRun(this.Guid);
         }
 
+        [JsonIgnore]
+        public TaskBase OwningTask { get; }
+
+        [JsonIgnore]
+        public Guid? OwningTaskListGuid { get; }
+
+        /// <summary>
+        /// Index of the last line written to the log file.
+        /// </summary>
+        private int _logIndex;
+        
         /// <summary>
         /// Tracks all the task runs that have ever occured, mapped by the task run GUID
         /// </summary>
