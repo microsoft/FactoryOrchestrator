@@ -128,21 +128,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Add or update TaskLists
                 foreach (var summary in taskListSummaries)
                 {
-                    TaskListSummary existingPair = null;
+                    TaskListSummary existingSummary = null;
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                     {
                         var updateNeeded = false;
                         var guidFound = false;
                         for (int i = 0; i < TaskListCollection.Count; i++)
                         {
-                            existingPair = TaskListCollection[i];
-                            if (existingPair.Guid == summary.Guid)
+                            existingSummary = TaskListCollection[i];
+                            if (existingSummary.Guid == summary.Guid)
                             {
+                                // Replace existing summary.
                                 guidFound = true;
 
-                                if (existingPair.Status != summary.Status)
+                                if (existingSummary.Status != summary.Status)
                                 {
-                                    existingPair.Status = summary.Status;
+                                    existingSummary.Status = summary.Status;
                                     updateNeeded = true;
                                 }
 
@@ -152,8 +153,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                         if (!guidFound)
                         {
+                            // Add new summary
                             TaskListCollection.Add(summary);
-                            existingPair = summary;
+                            existingSummary = summary;
                             updateNeeded = true;
                         }
 
@@ -162,29 +164,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         {
                             // Find the listview item for this tasklist. May need to wait for it to exist.
                             ListViewItem item;
-                            item = TaskListsView.ContainerFromItem(existingPair) as ListViewItem;
+                            item = TaskListsView.ContainerFromItem(existingSummary) as ListViewItem;
                             while (item == null)
                             {
                                 await Task.Delay(5);
-                                item = TaskListsView.ContainerFromItem(existingPair) as ListViewItem;
+                                item = TaskListsView.ContainerFromItem(existingSummary) as ListViewItem;
                             }
 
-                            switch (existingPair.Status)
-                            {
-                                case TaskStatus.Running:
-                                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Running"] as DataTemplate;
-                                    break;
-                                case TaskStatus.Aborted:
-                                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Paused"] as DataTemplate;
-                                    break;
-                                case TaskStatus.Passed:
-                                case TaskStatus.Failed:
-                                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Completed"] as DataTemplate;
-                                    break;
-                                default:
-                                    item.ContentTemplate = this.Resources["TaskListItemTemplate_NotRun"] as DataTemplate;
-                                    break;
-                            }
+                            SelectTemplate(existingSummary, item, true);
                         }
                     });
                 }
@@ -206,6 +193,118 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             _listUpdateSem.Release();
+        }
+
+        private void SelectTemplate(TaskListSummary list, ListViewItem item, bool updateOtherLists)
+        {
+            switch (list.Status)
+            {
+                case TaskStatus.Running:
+                    // Another list should never be running, but just in case...
+                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Running"] as DataTemplate;
+                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
+                    {
+                        DisableOtherTaskLists(list);
+                    }
+                    break;
+                case TaskStatus.Aborted:
+                    if (list.RunInParallel)
+                    {
+                        // "Resuming" doesnt make sense for a parallel list
+                        item.ContentTemplate = this.Resources["TaskListItemTemplate_Completed"] as DataTemplate;
+                    }
+                    else
+                    {
+                        item.ContentTemplate = this.Resources["TaskListItemTemplate_Paused"] as DataTemplate;
+                    }
+
+                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
+                    {
+                        EnableOtherTaskLists(list);
+                    }
+                    break;
+                case TaskStatus.Passed:
+                case TaskStatus.Failed:
+                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Completed"] as DataTemplate;
+                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
+                    {
+                        EnableOtherTaskLists(list);
+                    }
+                    break;
+                default:
+                    item.ContentTemplate = this.Resources["TaskListItemTemplate_NotRun"] as DataTemplate;
+                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
+                    {
+                        EnableOtherTaskLists(list);
+                    }
+                    break;
+            }
+        }
+
+        private async void EnableOtherTaskLists(TaskListSummary existingSummary)
+        {
+            var otherLists = TaskListCollection.Where(x => x.Guid != existingSummary.Guid);
+            foreach (var list in otherLists)
+            {
+                // Find the listview item for this tasklist. May need to wait for it to exist.
+                ListViewItem item;
+                item = TaskListsView.ContainerFromItem(list) as ListViewItem;
+                while (item == null)
+                {
+                    await Task.Delay(5);
+                    item = TaskListsView.ContainerFromItem(list) as ListViewItem;
+                }
+
+                // Set to null to reset template
+                item.ContentTemplate = null;
+
+                SelectTemplate(list, item, false);
+            }
+        }
+
+        private async void DisableOtherTaskLists(TaskListSummary existingSummary)
+        {
+            var otherLists = TaskListCollection.Where(x => x.Guid != existingSummary.Guid);
+            foreach (var list in otherLists)
+            {
+                // Find the listview item for this tasklist. May need to wait for it to exist.
+                ListViewItem item;
+                item = TaskListsView.ContainerFromItem(list) as ListViewItem;
+                while (item == null)
+                {
+                    await Task.Delay(5);
+                    item = TaskListsView.ContainerFromItem(list) as ListViewItem;
+                }
+
+                while (item.ContentTemplateRoot == null)
+                {
+                    await Task.Delay(5);
+                }
+
+                // Get the backing grid, disable all buttons
+                var contentGrid = item.ContentTemplateRoot as Grid;
+                ToolTip t = new ToolTip();
+                t.Content = "Disabled due to other running TaskList";
+                ToolTipService.SetToolTip(contentGrid, t);
+                var button = contentGrid.FindName("RestartListButton") as Button;
+                if (button != null)
+                {
+                    button.IsEnabled = false;
+                    ToolTipService.SetToolTip(button, t);
+                }
+                button = contentGrid.FindName("RunListButton") as Button;
+                if (button != null)
+                {
+                    button.IsEnabled = false;
+                    ToolTipService.SetToolTip(button, t);
+                }
+                button = contentGrid.FindName("ResumeListButton") as Button;
+                if (button != null)
+                {
+                    button.IsEnabled = false;
+                    ToolTipService.SetToolTip(button, t);
+                }
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
