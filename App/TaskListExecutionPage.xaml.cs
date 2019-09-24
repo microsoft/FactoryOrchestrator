@@ -171,7 +171,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                 item = TaskListsView.ContainerFromItem(existingSummary) as ListViewItem;
                             }
 
-                            SelectTemplate(existingSummary, item, true);
+                            await SelectTemplate(existingSummary, item, true);
                         }
                     });
                 }
@@ -195,7 +195,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _listUpdateSem.Release();
         }
 
-        private void SelectTemplate(TaskListSummary list, ListViewItem item, bool updateOtherLists)
+        private async Task SelectTemplate(TaskListSummary list, ListViewItem item, bool updateOtherLists)
         {
             switch (list.Status)
             {
@@ -204,7 +204,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     item.ContentTemplate = this.Resources["TaskListItemTemplate_Running"] as DataTemplate;
                     if (updateOtherLists && !list.AllowOtherTaskListsToRun)
                     {
-                        DisableOtherTaskLists(list);
+                        await DisableOtherTaskLists(list);
                     }
                     break;
                 case TaskStatus.Aborted:
@@ -220,7 +220,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (updateOtherLists && !list.AllowOtherTaskListsToRun)
                     {
-                        EnableOtherTaskLists(list);
+                        await EnableOtherTaskLists(list);
                     }
                     break;
                 case TaskStatus.Passed:
@@ -228,20 +228,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     item.ContentTemplate = this.Resources["TaskListItemTemplate_Completed"] as DataTemplate;
                     if (updateOtherLists && !list.AllowOtherTaskListsToRun)
                     {
-                        EnableOtherTaskLists(list);
+                        await EnableOtherTaskLists(list);
                     }
                     break;
                 default:
                     item.ContentTemplate = this.Resources["TaskListItemTemplate_NotRun"] as DataTemplate;
                     if (updateOtherLists && !list.AllowOtherTaskListsToRun)
                     {
-                        EnableOtherTaskLists(list);
+                        await EnableOtherTaskLists(list);
                     }
                     break;
             }
         }
 
-        private async void EnableOtherTaskLists(TaskListSummary existingSummary)
+        private async Task EnableOtherTaskLists(TaskListSummary existingSummary)
         {
             var otherLists = TaskListCollection.Where(x => x.Guid != existingSummary.Guid);
             foreach (var list in otherLists)
@@ -258,11 +258,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Set to null to reset template
                 item.ContentTemplate = null;
 
-                SelectTemplate(list, item, false);
+                await SelectTemplate(list, item, false);
             }
         }
 
-        private async void DisableOtherTaskLists(TaskListSummary existingSummary)
+        private async Task DisableOtherTaskLists(TaskListSummary existingSummary)
         {
             var otherLists = TaskListCollection.Where(x => x.Guid != existingSummary.Guid);
             foreach (var list in otherLists)
