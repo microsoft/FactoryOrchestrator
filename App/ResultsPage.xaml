@@ -73,15 +73,8 @@
             <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Column="1" Grid.Row="5" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Task Output:"/>
-        <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6">
-            <Grid x:Name="ScrollGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <StackPanel x:Name="LineNoStack" Grid.Column="0" Margin="5" VerticalAlignment="Center" Orientation="Vertical" />
-                <StackPanel x:Name="OutputStack" Grid.Column="1" Margin="5" VerticalAlignment="Center" Orientation="Vertical" />
-            </Grid>
+        <ScrollViewer  x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="6" Margin="5">
+            <StackPanel x:Name="OutputStack" VerticalAlignment="Top" Orientation="Vertical" />
         </ScrollViewer>
     </Grid>
 </Page>
