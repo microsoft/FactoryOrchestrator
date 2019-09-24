@@ -287,7 +287,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
             else // Not a UWP task, just an external task, launch the result page
             {
-                ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+                });
             }
 
             // TODO: Performance: Use signaling
