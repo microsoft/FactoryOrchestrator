@@ -32,7 +32,7 @@
                 </Grid.ColumnDefinitions>
                 
                 <TextBlock x:Name="CommentBlock" Text="Notes:" Grid.Column="0" Padding="10"/>
-                <TextBox x:Name="CommentBox" Grid.Column="1" TextWrapping="Wrap" MinHeight="200" AutomationProperties.LabeledBy="{Binding ElementName=CommentBlock}"/>
+                <TextBox x:Name="CommentBox" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="200" AutomationProperties.LabeledBy="{Binding ElementName=CommentBlock}"/>
             </Grid>
         </StackPanel>
     </Grid>

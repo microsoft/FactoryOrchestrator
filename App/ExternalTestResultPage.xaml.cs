@@ -108,7 +108,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 taskRun.TaskStatus = result;
                 if (!String.IsNullOrWhiteSpace(CommentBox.Text))
                 {
-                    taskRun.TaskOutput.Add(CommentBox.Text);
+                    foreach (var line in CommentBox.Text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+                    {
+                        taskRun.TaskOutput.Add(line);
+                    }
                 }
 
                 if (result != TaskStatus.Aborted)
