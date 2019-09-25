@@ -22,7 +22,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// </summary>
     public sealed partial class TaskListExecutionPage : Page
     {
-
         public TaskListExecutionPage()
         {
             this.InitializeComponent();
@@ -48,7 +47,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     _activeListPoller.StopPolling();
                 }
-                _activeListPoller = new ServerPoller(taskListGuid, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
+                _activeListPoller = new ServerPoller(taskListGuid, typeof(TaskList), Client, 2000);
                 ActiveListCollection.Clear();
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
 #if DEBUG
@@ -326,7 +325,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 1000);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 1000);
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidAndStatusAsync;
             }
 
@@ -379,22 +378,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void RunListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTaskList(guid));
+            _ = Client.RunTaskList(guid);
         }
 
         private async void ResumeListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            var newStatus = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
+            var newStatus = await Client.QueryTaskList(guid);
             var lastTask = newStatus.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.Aborted).DefaultIfEmpty(null).FirstOrDefault();
             var index = newStatus.Tasks.Keys.ToList().IndexOf(lastTask.Guid);
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTaskList(guid, index));
+            _ = Client.RunTaskList(guid, index);
         }
 
         private void PauseListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTaskList(guid));
+            _ = Client.AbortTaskList(guid);
         }
 
         private void RestartListButton_Click(object sender, RoutedEventArgs e)
@@ -405,7 +404,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var button = sender as Button;
             var guid = (button.DataContext as TaskBase).Guid;
-            _ = IPCClientHelper.IpcClient.InvokeAsync(x => x.RunTask(guid));
+            _ = Client.RunTask(guid);
         }
 
         /// <summary>
@@ -421,6 +420,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private SemaphoreSlim _listUpdateSem;
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
         public ObservableCollection<TaskListSummary> TaskListCollection;
         public ObservableCollection<TaskBase> ActiveListCollection;
     }

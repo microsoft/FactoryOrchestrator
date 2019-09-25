@@ -45,7 +45,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeList = new TaskList("New TaskList", Guid.NewGuid());
             }
 
-            AppComboBox.ItemsSource = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
+            AppComboBox.ItemsSource = await Client.GetInstalledApps();
             ParallelCheck.IsChecked = activeList.RunInParallel;
             BlockingCheck.IsChecked = activeList.AllowOtherTaskListsToRun;
             TerminateCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
@@ -511,11 +511,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (isNewList)
             {
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTaskListFromTaskList(activeList));
+                await Client.CreateTaskListFromTaskList(activeList);
             }
             else
             {
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.UpdateTaskList(activeList));
+                await Client.UpdateTaskList(activeList);
             }
         }
 
@@ -579,5 +579,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool activeTaskIsBg;
         private bool isNewList;
         private bool listEdited;
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

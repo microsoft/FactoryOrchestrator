@@ -1,8 +1,10 @@
-﻿using Microsoft.FactoryOrchestrator.Client;
+﻿using Microsoft.FactoryOrchestrator.Core;
+using Microsoft.FactoryOrchestrator.Client;
+using System;
 using System.Net;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -35,9 +37,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (validIp)
             {
-                await IPCClientHelper.StartIPCConnection(ip, 45684);
-                this.Frame.Navigate(typeof(MainPage));
+                ((App)Application.Current).Client = new FactoryOrchestratorClient(ip, 45684);
+                if (await ((App)Application.Current).Client.TryConnect())
+                {
+                    this.Frame.Navigate(typeof(MainPage));
+                }
+                else
+                {
+                    ((App)Application.Current).Client = null;
+                    ShowConnectFailure();
+                }
             }
+        }
+
+        private async void ShowConnectFailure()
+        {
+            ContentDialog failedConnectDialog = new ContentDialog
+            {
+                Title = "Unable to connect to target IP",
+                Content = $"Could not connect to {((App)Application.Current).Client.IpAddress}.\n\nCheck that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.",
+                CloseButtonText = "Ok"
+            };
+
+            ContentDialogResult r = await failedConnectDialog.ShowAsync();
         }
 
         private void LocalDeviceCheckBox_Click(object sender, RoutedEventArgs e)

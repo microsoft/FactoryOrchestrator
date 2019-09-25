@@ -34,7 +34,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             // Get TaskRun we are reporting results for
             taskRun = ((App)Application.Current).RunWaitingForResult;
-            taskRunPoller = new ServerPoller(taskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
+            taskRunPoller = new ServerPoller(taskRun.Guid, typeof(TaskRun), Client, 1000);
             taskRunPoller.OnUpdatedObject += OnUpdatedRun;
 
             // Append task details to UI
@@ -126,7 +126,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             // Report selected result to server
-            await IPCClientHelper.IpcClient.InvokeAsync(x => x.UpdateTaskRun(taskRun));
+            await Client.UpdateTaskRun(taskRun);
 
             ExitPage();
         }
@@ -149,5 +149,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private TaskRun taskRun;
         private ServerPoller taskRunPoller;
         private object updateLock;
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

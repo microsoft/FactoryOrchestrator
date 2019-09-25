@@ -11,8 +11,6 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.ExtendedExecution;
 using Windows.Management.Deployment;
-using Windows.Storage;
-using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Core.Preview;
 using Windows.UI.Xaml;
@@ -38,6 +36,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             MainPageLastNavTag = null;
             uwpRunGuidFromAppsPage = Guid.Empty;
             RunWaitingForResult = null;
+            Client = null;
         }
 
         /// <summary>
@@ -73,8 +72,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (rootFrame.Content == null)
                 {
-                    IPCClientHelper.OnConnected += OnIpcConnected;
-                    if (await IPCClientHelper.TryStartIPCConnection(IPAddress.Loopback, 45684))
+                    Client = new FactoryOrchestratorClient(IPAddress.Loopback, 45684);
+                    Client.OnConnected += OnIpcConnected;
+                    if (await Client.TryConnect())
                     {
                         rootFrame.Navigate(typeof(MainPage), e.Arguments);
                     }
@@ -83,6 +83,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         // When the navigation stack isn't restored navigate to the first page,
                         // configuring the new page by passing required information as a navigation
                         // parameter
+                        Client = null;
                         rootFrame.Navigate(typeof(ConnectionPage), e.Arguments);
                     }
                 }
@@ -179,11 +180,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (!eventSeen)
                 {
-                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents());
+                    newEvents = await Client.GetServiceEvents();
                 }
                 else
                 {
-                    newEvents = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
+                    newEvents = await Client.GetServiceEvents(lastEventIndex);
                 }
             }
             catch (Exception)
@@ -215,12 +216,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     case ServiceEventType.WaitingForExternalTaskRun:
                         // Check if we are localhost, if so we are the DUT and need to run the UWP task for the server.
                         // If not, do nothing, as we are not the DUT.
-                        if (IPCClientHelper.IsLocalHost)
+                        if (Client.IsLocalHost)
                         {
                             // TODO: Performance: this should be in its own thread, so other service events can be handled
                             // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FactoryOrchestrator
                             // Only allow one external run at a time though
-                            var run = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskRun((Guid)evnt.Guid));
+                            var run = await Client.QueryTaskRun((Guid)evnt.Guid);
                             if (!run.TaskRunComplete)
                             {
                                 await DoExternalAppTaskRunAsync(run);
@@ -268,7 +269,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             {
                                 // Just report it as passed, dont show external result UI
                                 RunWaitingForResult.TaskStatus = TaskStatus.Passed;
-                                await IPCClientHelper.IpcClient.InvokeAsync(x => x.UpdateTaskRun(RunWaitingForResult));
+                                await Client.UpdateTaskRun(RunWaitingForResult);
                                 uwpRunGuidFromAppsPage = Guid.Empty;
                             }
                         }
@@ -337,12 +338,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
             RunWaitingForResult.TimeFinished = DateTime.Now;
             RunWaitingForResult.TaskStatus = TaskStatus.Failed;
             RunWaitingForResult.ExitCode = -1;
-            await IPCClientHelper.IpcClient.InvokeAsync(x => x.UpdateTaskRun(RunWaitingForResult));
+            await Client.UpdateTaskRun(RunWaitingForResult);
         }
 
         public TaskRun RunWaitingForResult { get; private set; }
         public Guid uwpRunGuidFromAppsPage { get; set; }
         public string MainPageLastNavTag { get; set; }
+        public FactoryOrchestratorClient Client { get; set; }
+
         private bool eventSeen = false;
         private ulong lastEventIndex;
         private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
