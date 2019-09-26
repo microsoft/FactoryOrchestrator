@@ -1066,12 +1066,15 @@ namespace Microsoft.FactoryOrchestrator.Server
                     RunningTaskListTokens.TryRemove(taskListToCancel, out removed);
 
                     var taskRunGuids = KnownTaskLists[taskListToCancel].Tasks.Values.Select(x => x.LatestTaskRunGuid);
-                    foreach (var guid in taskRunGuids)
+                    if (taskRunGuids != null)
                     {
-                        if (RunningTaskRunTokens.TryGetValue((Guid)guid, out token))
+                        foreach (var guid in taskRunGuids)
                         {
-                            token.Cancel();
-                            RunningTaskRunTokens.TryRemove((Guid)guid, out removed);
+                            if (RunningTaskRunTokens.TryGetValue((Guid)guid, out token))
+                            {
+                                token.Cancel();
+                                RunningTaskRunTokens.TryRemove((Guid)guid, out removed);
+                            }
                         }
                     }
                 }
