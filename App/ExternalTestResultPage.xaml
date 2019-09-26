@@ -9,7 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
-        <TextBlock Text="Action Required: Test result expected by Factory Orchestrator Service" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30"/>
+        <TextBlock Text="Action Required: Task result expected by Factory Orchestrator Service" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30"/>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <TextBlock x:Name="TestText"  Text="Task: " HorizontalAlignment="Center" FontSize="30"/>
             <TextBlock x:Name="ArgsText"  Text="Arguments: " HorizontalAlignment="Center" FontSize="30"/>

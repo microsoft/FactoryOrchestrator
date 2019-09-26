@@ -257,7 +257,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                         if (launched)
                         {
-                            RunWaitingForResult.TaskOutput.Add($"{app.ToString()} was launched successfully");
+                            RunWaitingForResult.TaskOutput.Add($"{app.DisplayInfo.DisplayName} was launched successfully");
                             RunWaitingForResult.TaskStatus = TaskStatus.Running;
 
                             if (RunWaitingForResult.Guid != uwpRunGuidFromAppsPage)
@@ -276,7 +276,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         else
                         {
                             // Report failure to server
-                            RunWaitingForResult.TaskOutput.Add($"Error: {app.ToString()} was unable to launch");
+                            RunWaitingForResult.TaskOutput.Add($"Error: {app.DisplayInfo.DisplayName} was unable to launch");
                             ReportAppLaunchFailure();
                         }
                     });
@@ -322,7 +322,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (appToLaunch != null)
             {
-                RunWaitingForResult.TaskOutput.Add($"Found App entry {appToLaunch.ToString()} for {RunWaitingForResult.TaskPath}");
+                RunWaitingForResult.TaskOutput.Add($"Found App entry {appToLaunch.DisplayInfo.DisplayName} for {RunWaitingForResult.TaskPath}");
             }
             else
             {
