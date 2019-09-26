@@ -1247,11 +1247,14 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// </summary>
     public class TaskListSummary
     {
-        public TaskListSummary(Guid guid, string name, TaskStatus status)
+        public TaskListSummary(Guid guid, string name, TaskStatus status, bool runInParallel, bool allowOtherTaskListsToRun, bool terminateBackgroundTasksOnCompletion)
         {
             Guid = guid;
             Status = status;
             Name = name;
+            RunInParallel = runInParallel;
+            AllowOtherTaskListsToRun = allowOtherTaskListsToRun;
+            TerminateBackgroundTasksOnCompletion = terminateBackgroundTasksOnCompletion;
         }
 
         public override string ToString()
@@ -1263,5 +1266,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         public Guid Guid { get; set; }
         public TaskStatus Status { get; set; }
         public string Name { get; set; }
+        public bool RunInParallel { get; set; }
+        public bool AllowOtherTaskListsToRun { get; set; }
+        public bool TerminateBackgroundTasksOnCompletion { get; set; }
+
     }
 }

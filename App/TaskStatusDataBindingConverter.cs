@@ -54,7 +54,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         status += $" (On retry {task.TimesRetried})";
                     }
-                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
@@ -65,7 +65,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         status += $" (All {task.TimesRetried} retries)";
                     }
-                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
@@ -82,14 +82,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     break;
                 case TaskStatus.Aborted:
                     status += "⛔ Aborted";
-                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
                     break;
                 case TaskStatus.Timeout:
                     status += "⏱ Timed-out";
-                    if ((!isList) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }

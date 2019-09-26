@@ -233,7 +233,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 var list = FOService.Instance.TestExecutionManager.GetTaskList(guid);
                 if (list != null)
                 {
-                    ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus));
+                    ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus, list.RunInParallel, list.AllowOtherTaskListsToRun, list.TerminateBackgroundTasksOnCompletion));
                 }
             }
 
