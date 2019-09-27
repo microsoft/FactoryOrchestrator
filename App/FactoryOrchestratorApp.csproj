@@ -268,7 +268,7 @@
       <Project>{52ceb7ed-27e4-40df-810f-4971caf0f55e}</Project>
       <Name>IpcServiceFramework.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj">
+    <ProjectReference Include="..\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj">
       <Project>{0ed6137e-895f-4941-a136-abb977e1c4ef}</Project>
       <Name>FactoryOrchestratorUWPClientLibrary</Name>
     </ProjectReference>
