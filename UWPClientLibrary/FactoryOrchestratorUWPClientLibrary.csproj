@@ -41,7 +41,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FactoryOrchestratorUWPClient.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\FactoryOrchestratorUWPClientLibrary.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -50,7 +49,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj">
+    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj">
       <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
       <Name>FactoryOrchestratorClientLibrary</Name>
     </ProjectReference>

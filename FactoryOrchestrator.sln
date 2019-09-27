@@ -40,7 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpcServiceFramework.Integra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpcServiceFramework.Server", "IpcFramework\IpcServiceFramework.Server\IpcServiceFramework.Server.csproj", "{EC92FDBB-93C1-4F42-ABF6-B4A5D01DD571}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
