@@ -14,7 +14,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace Microsoft.FactoryOrchestrator.UWP
@@ -48,10 +47,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (IPCClientHelper.IpcClient != null)
+            if (Client != null)
             {
                 ServiceVersionText.Text = "Service Version: ";
-                ServiceVersionText.Text += await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+                ServiceVersionText.Text += await Client.GetServiceVersionString();
             }
 
             if (this.Frame.BackStack.First().SourcePageType == typeof(ConnectionPage))
@@ -76,5 +75,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
             return false;
         }
+
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

@@ -40,7 +40,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             mainPage = (Frame)e.Parameter;
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), IPCClientHelper.IpcClient, 2000);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 2000);
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidsAsync;
             }
 
@@ -105,19 +105,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     if (_isFileLoad)
                     {
-                        var lists = await IPCClientHelper.IpcClient.InvokeAsync(x => x.LoadTaskListsFromXmlFile(path));
+                        var lists = await Client.LoadTaskListsFromXmlFile(path);
                         if (lists == null)
                         {
-                            var error = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetLastServiceError());
+                            var error = await Client.GetLastServiceError();
                             ShowLoadFailure(_isFileLoad, path, error);
                         }
                     }
                     else
                     {
-                        var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.CreateTaskListFromDirectory(path, false));
+                        var list = await Client.CreateTaskListFromDirectory(path, false);
                         if (list == null)
                         {
-                            var error = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetLastServiceError());
+                            var error = await Client.GetLastServiceError();
                             ShowLoadFailure(_isFileLoad, path, error);
                         }
                     }
@@ -161,7 +161,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void DeleteListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            await IPCClientHelper.IpcClient.InvokeAsync(x => x.DeleteTaskList(guid));
+            await Client.DeleteTaskList(guid);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void EditListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            var list = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(guid));
+            var list = await Client.QueryTaskList(guid);
             mainPage.Navigate(typeof(EditPage), list);
             this.OnNavigatedFrom(null);
         }
@@ -218,11 +218,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     if (SaveAllButton.Flyout.IsOpen)
                     {
-                        saved = await IPCClientHelper.IpcClient.InvokeAsync(x => x.SaveAllTaskListsToXmlFile(savePath));
+                        saved = await Client.SaveAllTaskListsToXmlFile(savePath);
                     }
                     else
                     {
-                        saved = await IPCClientHelper.IpcClient.InvokeAsync(x => x.SaveTaskListToXmlFile(_activeGuid, savePath));
+                        saved = await Client.SaveTaskListToXmlFile(_activeGuid, savePath);
                     }
                 }
                 catch (Exception)
@@ -271,7 +271,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 await Task.Run(async () =>
                 {
                     _listUpdateSem.Wait();
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.ResetService(true));
+                    await Client.ResetService(true);
                     _listUpdateSem.Release();
                 });
             }
@@ -280,7 +280,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 await Task.Run(async () =>
                 {
                     _listUpdateSem.Wait();
-                    await IPCClientHelper.IpcClient.InvokeAsync(x => x.ResetService(true, true));
+                    await Client.ResetService(true, true);
                     _listUpdateSem.Release();
                 });
             }
@@ -312,7 +312,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (list == null)
                     {
-                        var newList = await IPCClientHelper.IpcClient.InvokeAsync(x => x.QueryTaskList(summary.Guid));
+                        var newList = await Client.QueryTaskList(summary.Guid);
                         await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                         {
                             TaskListCollection.Add(newList);
@@ -353,5 +353,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private Guid _activeGuid;
         private bool _isFileLoad;
         private Frame mainPage;
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

@@ -31,7 +31,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 _test = (TaskBase)e.Parameter;
                 CreateHeader();
-                _testPoller = new ServerPoller(_test.Guid, typeof(TaskBase), IPCClientHelper.IpcClient, 5000);
+                _testPoller = new ServerPoller(_test.Guid, typeof(TaskBase), Client, 5000);
                 _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
                 _testPoller.StartPolling();
                 if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
@@ -362,7 +362,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         }
                     }
 
-                    _taskRunPoller = new ServerPoller((Guid)taskRunGuid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
+                    _taskRunPoller = new ServerPoller((Guid)taskRunGuid, typeof(TaskRun), Client, 1000);
                     _taskRunPoller.OnUpdatedObject += OnUpdatedTaskRunAsync;
                     _taskRunPoller.StartPolling();
                     return true;
@@ -412,6 +412,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _testPoller;
         private object _taskRunPollLock = new object();
         private int lastOutput;
-
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

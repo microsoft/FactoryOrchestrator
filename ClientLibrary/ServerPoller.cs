@@ -13,10 +13,10 @@ namespace Microsoft.FactoryOrchestrator.Client
     /// </summary>
     public class ServerPoller
     {
-        public ServerPoller(Guid? guidToPoll, Type guidType, IpcServiceClient<IFOCommunication> ipcServiceClient, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 5)
+        public ServerPoller(Guid? guidToPoll, Type guidType, FactoryOrchestratorClient client, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 5)
         {
             _guidToPoll = guidToPoll;
-            _client = ipcServiceClient;
+            _client = client;
             _pollingInterval = pollingIntervalMs;
             _initialPollingInterval = pollingIntervalMs;
             _pollingIntervalStep = pollingIntervalMs / 10;
@@ -43,22 +43,22 @@ namespace Microsoft.FactoryOrchestrator.Client
                 // TODO: Logging: check for failure
                 if ((_guidType == typeof(TaskBase)) || (_guidType == typeof(ExecutableTask)) || (_guidType == typeof(UWPTask)) || (_guidType == typeof(TAEFTest)))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTask((Guid)_guidToPoll));
+                    newObj = await _client.QueryTask((Guid)_guidToPoll);
                 }
                 else if (_guidType == typeof(TaskList))
                 {
                     if (_guidToPoll != null)
                     {
-                        newObj = await _client.InvokeAsync(x => x.QueryTaskList((Guid)_guidToPoll));
+                        newObj = await _client.QueryTaskList((Guid)_guidToPoll);
                     }
                     else
                     {
-                        newObj = await _client.InvokeAsync(x => x.GetTaskListSummaries());
+                        newObj = await _client.GetTaskListSummaries();
                     }
                 }
                 else //if (_guidType == typeof(TaskRun))
                 {
-                    newObj = await _client.InvokeAsync(x => x.QueryTaskRun((Guid)_guidToPoll));
+                    newObj = await _client.QueryTaskRun((Guid)_guidToPoll);
                 }
 
                 if (((newObj == null) && (_latestObject != null)) || (!newObj.Equals(_latestObject)))
@@ -148,7 +148,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         public bool IsPolling { get => !_stopped; }
 
         private Guid? _guidToPoll;
-        private IpcServiceClient<IFOCommunication> _client;
+        private FactoryOrchestratorClient _client;
         private object _latestObject;
         private int _pollingInterval;
         private int _initialPollingInterval;

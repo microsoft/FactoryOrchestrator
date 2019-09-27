@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml;
+﻿using Microsoft.FactoryOrchestrator.Client;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -65,16 +66,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // todo: quality: transfer file in chunks with progress bar & cancel option
             if (sending)
             {
-                await FactoryOrchestrator.UWP.FileTransferHelper.SendFileToServer(ClientFileTextBox.Text, ServerFileTextBox.Text);
+                await FactoryOrchestrator.UWP.FileTransferHelper.SendFileToServer(Client, ClientFileTextBox.Text, ServerFileTextBox.Text);
             }
             else
             {
-                await FactoryOrchestrator.UWP.FileTransferHelper.GetFileFromServer(ServerFileTextBox.Text, ClientFileTextBox.Text);
+                await FactoryOrchestrator.UWP.FileTransferHelper.GetFileFromServer(Client, ServerFileTextBox.Text, ClientFileTextBox.Text);
             }
 
             ConfirmTransferFlyout.Hide();
         }
 
         private bool sending;
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

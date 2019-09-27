@@ -24,10 +24,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             //this.NavigationCacheMode = NavigationCacheMode.Disabled;
 
             // Put ipaddress in header
-            Header.Text += IPCClientHelper.IsLocalHost ? " (Local Device)" : $" ({IPCClientHelper.IpAddress.ToString()})";
+            Header.Text += Client.IsLocalHost ? " (Local Device)" : $" ({Client.IpAddress.ToString()})";
 
             // If localhost connection, hide file transfer page
-            if (IPCClientHelper.IsLocalHost)
+            if (Client.IsLocalHost)
             {
                 NavigationViewItem fileItem = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == "files").First();
                 fileItem.Visibility = Visibility.Collapsed;
@@ -49,7 +49,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.Frame.CacheSize = 3;
             // Hide tabs disabled by OEM Customization
-            List<string> disabledPages = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetDisabledPages());
+            List<string> disabledPages = await Client.GetDisabledPages();
             foreach (var disabledPage in disabledPages)
             {
                 foreach (NavigationViewItem item in NavView.MenuItems)
@@ -159,12 +159,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
         private void ConfirmReboot_Click(object sender, RoutedEventArgs e)
         {
-            IPCClientHelper.RebootServerDevice();
+            Client.RebootServerDevice(5);
         }
 
         private void ConfirmShutdown_Click(object sender, RoutedEventArgs e)
         {
-            IPCClientHelper.ShutdownServerDevice();
+            Client.ShutdownServerDevice(5);
         }
         private async void NetworkFlyout_Opening(object sender, object e)
         {
@@ -182,7 +182,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async Task<List<Tuple<string, string>>> GetIpAddresses()
         {
-            return await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetIpAddressesAndNicNames());
+            return await Client.GetIpAddressesAndNicNames();
         }
 
         private string lastNavTag;
@@ -195,6 +195,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ("files", typeof(FileTransferPage), true),
             ("about", typeof(AboutPage), true)
         };
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 
 }

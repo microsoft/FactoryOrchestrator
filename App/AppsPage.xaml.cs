@@ -26,16 +26,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             // Get installed UWPs
             var pkgManager = new PackageManager();
-            PackageStrings = await IPCClientHelper.IpcClient.InvokeAsync(x => x.GetInstalledApps());
+            PackageStrings = await Client.GetInstalledApps();
             PackageList.ItemsSource = PackageStrings;
             base.OnNavigatedTo(e);
         }
 
         private async void PackageList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            ((App)Application.Current).uwpRunGuidFromAppsPage = (await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunApp((string)e.ClickedItem))).Guid;
+            ((App)Application.Current).uwpRunGuidFromAppsPage = (await Client.RunApp((string)e.ClickedItem)).Guid;
         }
 
         public List<string> PackageStrings { get; private set; }
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

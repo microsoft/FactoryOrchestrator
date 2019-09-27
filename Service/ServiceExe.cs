@@ -45,7 +45,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 builder
                     .AddTcp()
-                    .AddService<IFOCommunication, FOCommunicationHandler>();
+                    .AddService<IFactoryOrchestratorService, FOCommunicationHandler>();
             });
 
             // Configure service providers for logger creation and managment
@@ -119,7 +119,7 @@ namespace Microsoft.FactoryOrchestrator.Service
     }
 
     // Find the FactoryOrchestratorService singleton -> pass call to it
-    public class FOCommunicationHandler : IFOCommunication
+    public class FOCommunicationHandler : IFactoryOrchestratorService
     {
         // TODO: Logging: Catch exceptions & log them
         public List<ServiceEvent> GetServiceEvents()
@@ -264,16 +264,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             return deleted;
         }
 
-        public void ResetService()
-        {
-            ResetService(false, false);
-        }
-
-        public void ResetService(bool preserveLogs)
-        {
-            ResetService(preserveLogs, false);
-        }
-
         public void ResetService(bool preserveLogs, bool factoryReset)
         {
             // Kill all processes including bg tasks, delete all state except registry configuration
@@ -393,14 +383,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             var updated = FOService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
             FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
             return updated;
-        }
-
-        public bool RunTaskList(Guid taskListToRun)
-        {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}");
-            var ran = FOService.Instance.TestExecutionManager.RunTaskList(taskListToRun);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}");
-            return ran;
         }
 
         public bool RunTaskList(Guid taskListToRun, int initialTaskIndex)
@@ -712,12 +694,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
             if (DisableNetworkAccess)
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Loopback, 45684)
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684)
                                                                 .Build();
             }
             else
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFOCommunication>("tcp", IPAddress.Any, 45684)
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684)
                                                                 .Build();
             }
 

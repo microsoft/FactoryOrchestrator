@@ -31,7 +31,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             _cmdSem = new SemaphoreSlim(1, 1);
             _outSem = new SemaphoreSlim(1, 1);
-            newCmd = false;
+            _newCmd = false;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -60,7 +60,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _taskRunPoller.StopPolling();
                 _cmdSem.Release();
                 _taskRunPoller = null;
-                await IPCClientHelper.IpcClient.InvokeAsync(x => x.AbortTaskRun(_activeCmdTaskRun.Guid));
+                await Client.AbortTaskRun(_activeCmdTaskRun.Guid);
                 CommandBox.IsEnabled = true;
                 RunButtonIcon.Symbol = Symbol.Play;
             }
@@ -113,15 +113,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
             });
 
             // Execute command
-            newCmd = true;
+            _newCmd = true;
             if (_taskRunPoller != null)
             {
                 _taskRunPoller.StopPolling();
             }
-            _activeCmdTaskRun = await IPCClientHelper.IpcClient.InvokeAsync(x => x.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null));
+            _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null);
 
             // Watch for new output
-            _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), IPCClientHelper.IpcClient, 1000);
+            _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), Client, 1000);
             _taskRunPoller.OnUpdatedObject += OnUpdatedCmdStatusAsync;
             _taskRunPoller.StartPolling();
         }
@@ -144,7 +144,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
 
                 _outSem.Wait();
-                while (lastOutput != _activeCmdTaskRun.TaskOutput.Count)
+                while (_lastOutput != _activeCmdTaskRun.TaskOutput.Count)
                 {
                     var blocks = PrepareOutput();
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -183,18 +183,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             List <(string text, bool isError)> ret = new List<(string text, bool isError)>();
 
-            if (newCmd)
+            if (_newCmd)
             {
-                lastOutput = 0;
-                newCmd = false;
+                _lastOutput = 0;
+                _newCmd = false;
             }
 
 
-            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, lastOutput + 500);
+            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + 500);
             string text = "";
             bool errorBlock = false;
 
-            for (int i = lastOutput; i < endCount; i++)
+            for (int i = _lastOutput; i < endCount; i++)
             {
                 if (_activeCmdTaskRun.TaskOutput[i] != null)
                 {
@@ -236,7 +236,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
 
-            lastOutput = endCount;
+            _lastOutput = endCount;
 
             if (!String.IsNullOrEmpty(text))
             {
@@ -291,11 +291,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private TaskRun _activeCmdTaskRun;
-        private bool newCmd;
-        private int lastOutput;
+        private bool _newCmd;
+        private int _lastOutput;
         private int maxBlocks = 400;
         private ServerPoller _taskRunPoller;
         private SemaphoreSlim _cmdSem;
         private SemaphoreSlim _outSem;
+        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
     }
 }

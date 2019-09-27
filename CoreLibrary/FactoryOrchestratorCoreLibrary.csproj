@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -10,6 +10,9 @@
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="ClientTemplate\IPCInterfaceHelperTemplate.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="FactoryOrchestratorXML.xsd">
@@ -17,5 +20,9 @@
     </EmbeddedResource>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
+
+  <Target Name="AfterBuildPS" AfterTargets="Build">
+    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\AutoGenerateInterfaceHelper.ps1 -InterfaceName IFactoryOrchestratorService -InterfaceFile $(ProjectDir)IPCInterface.cs -TemplateFile $(ProjectDir)ClientTemplate\IPCInterfaceHelperTemplate.cs -OutputFile $(ProjectDir)..\ClientLibrary\IPCInterfaceHelper.cs" />
+  </Target>
 
 </Project>

@@ -93,12 +93,10 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// IFOCommunication defines the client <> server communication model. 
     /// </summary>
-    public interface IFOCommunication
+    public interface IFactoryOrchestratorService
     {
         // Service APIs
-        void ResetService();
-        void ResetService(bool preserveLogs);
-        void ResetService(bool preserveLogs, bool factoryReset);
+        void ResetService(bool preserveLogs = false, bool factoryReset = false);
         List<ServiceEvent> GetServiceEvents();
         List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked);
         List<ServiceEvent> GetServiceEvents(ulong lastEventIndex);
@@ -111,7 +109,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         List<string> GetDisabledPages();
 
         // TaskList APIs
-        TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF);
+        TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF = false);
         List<Guid> LoadTaskListsFromXmlFile(string filename);
         bool SaveTaskListToXmlFile(Guid guid, string filename);
         bool SaveAllTaskListsToXmlFile(string filename);
@@ -128,8 +126,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         List<string> GetInstalledApps();
 
         // Task Execution APIs
-        bool RunTaskList(Guid taskListGuid);
-        bool RunTaskList(Guid taskListGuid, int initialTask);
+        bool RunTaskList(Guid taskListGuid, int initialTask = 0);
         void AbortAll();
         void AbortTaskList(Guid taskListGuid);
         void AbortTaskRun(Guid taskRunGuid);
@@ -145,5 +142,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         // File APIs
         byte[] GetFile(string sourceFilename);
         bool SendFile(string targetFilename, byte[] fileData);
-    }
+
+    } // IFactoryOrchestratorService
 }
