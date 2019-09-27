@@ -72,7 +72,30 @@ namespace JKang.IpcServiceFramework
                 catch (Exception ex)
                 {
                     logger?.LogError(ex, ex.Message);
-                    await writer.WriteAsync(IpcResponse.Fail($"Internal server error: {ex.Message}"), cancellationToken).ConfigureAwait(false);
+
+                    // Send the exception and any inner exceptions to the client
+                    var exception = ex;
+                    var message = "";
+                    while (exception != null)
+                    {
+                        message += $"{ex.ToString()}: {ex.Message}";
+                        exception = exception.InnerException;
+                        if (exception != null)
+                        {
+                            message += "\n";
+                        }
+                    }
+
+                    try
+                    {
+                        // If there was an Exception due to a communication issue sending the error message to the client might throw an Exception as well.
+                        // If it does, catch & discard it so the service listener thread doesn't crash.
+                        await writer.WriteAsync(IpcResponse.Fail($"Internal server error: {ex.Message}"), cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception)
+                    {
+                        logger?.LogError($"Unable to send IPCResponse to client after Exception occurred. Reason: {ex.Message}");
+                    }
                 }
             }
         }
