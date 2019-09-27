@@ -195,7 +195,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ("files", typeof(FileTransferPage), true),
             ("about", typeof(AboutPage), true)
         };
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 
 }

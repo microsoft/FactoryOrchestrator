@@ -72,7 +72,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (rootFrame.Content == null)
                 {
-                    Client = new FactoryOrchestratorClient(IPAddress.Loopback, 45684);
+                    Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
                     Client.OnConnected += OnIpcConnected;
                     if (await Client.TryConnect())
                     {
@@ -344,7 +344,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public TaskRun RunWaitingForResult { get; private set; }
         public Guid uwpRunGuidFromAppsPage { get; set; }
         public string MainPageLastNavTag { get; set; }
-        public FactoryOrchestratorClient Client { get; set; }
+        public FactoryOrchestratorUWPClient Client { get; set; }
 
         private bool eventSeen = false;
         private ulong lastEventIndex;

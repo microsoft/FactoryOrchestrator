@@ -37,6 +37,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         public List<string> PackageStrings { get; private set; }
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }

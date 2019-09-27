@@ -297,6 +297,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskRunPoller;
         private SemaphoreSlim _cmdSem;
         private SemaphoreSlim _outSem;
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }

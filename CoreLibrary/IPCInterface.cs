@@ -142,6 +142,10 @@ namespace Microsoft.FactoryOrchestrator.Core
         // File APIs
         byte[] GetFile(string sourceFilename);
         bool SendFile(string targetFilename, byte[] fileData);
+        void DeleteFileOrFolder(string path);
+        void MoveFileOrFolder(string sourcePath, string destinationPath);
+        List<string> EnumerateDirectories(string path, bool recursive = false);
+        List<string> EnumerateFiles(string path, bool recursive = false);
 
     } // IFactoryOrchestratorService
 }

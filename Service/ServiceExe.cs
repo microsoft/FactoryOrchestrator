@@ -471,6 +471,60 @@ namespace Microsoft.FactoryOrchestrator.Service
             return result;
         }
 
+        public void DeleteFileOrFolder(string path)
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteFileOrFolder {path}");
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            else if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+            else
+            {
+                throw new ArgumentException($"{path} is not a valid file or folder!");
+            }
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
+        }
+
+        public void MoveFileOrFolder(string sourcePath, string destinationPath)
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: MoveFileOrFolder {sourcePath} {destinationPath}");
+
+            if (File.Exists(sourcePath))
+            {
+                File.Move(sourcePath, destinationPath);
+            }
+            else if (Directory.Exists(sourcePath))
+            {
+                Directory.Move(sourcePath, destinationPath);
+            }
+            else
+            {
+                throw new ArgumentException($"{sourcePath} is not a valid file or folder!");
+            }
+
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: MoveFileOrFolder {sourcePath} {destinationPath}");
+        }
+
+        public List<string> EnumerateDirectories(string path, bool recursive = false)
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateDirectories {path}");
+            var dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateDirectories {path}");
+            return dirs;
+        }
+
+        public List<string> EnumerateFiles(string path, bool recursive = false)
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateFiles {path} {recursive}");
+            var files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateFiles {path} {recursive}");
+            return files;
+        }
+
         public List<string> GetInstalledApps()
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");

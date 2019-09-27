@@ -412,6 +412,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _testPoller;
         private object _taskRunPollLock = new object();
         private int lastOutput;
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }

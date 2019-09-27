@@ -37,7 +37,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (validIp)
             {
-                ((App)Application.Current).Client = new FactoryOrchestratorClient(ip, 45684);
+                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684);
                 if (await ((App)Application.Current).Client.TryConnect())
                 {
                     this.Frame.Navigate(typeof(MainPage));

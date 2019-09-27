@@ -76,6 +76,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return false;
         }
 
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }
