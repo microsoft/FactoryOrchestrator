@@ -168,7 +168,7 @@
                                         <SymbolIcon Symbol="Edit"/>
                                     </Button>
                                     <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteButton_Click">
-                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE75C;"/>
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                     </Button>
                                 </StackPanel>
                             </Grid>
