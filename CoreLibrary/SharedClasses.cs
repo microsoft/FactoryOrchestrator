@@ -126,6 +126,14 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        public bool IsRunning
+        {
+            get
+            {
+                return ((LatestTaskRunStatus == TaskStatus.Running) || (LatestTaskRunStatus == TaskStatus.RunPending) || (LatestTaskRunStatus == TaskStatus.WaitingForExternalResult));
+            }
+        }
+
         [XmlAttribute("Timeout")]
         public int TimeoutSeconds { get; set; }
 
@@ -714,6 +722,14 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     return TaskStatus.NotRun;
                 }
+            }
+        }
+
+        public bool IsRunning
+        {
+            get
+            {
+                return ((TaskListStatus == TaskStatus.Running) || (TaskListStatus == TaskStatus.RunPending));
             }
         }
 

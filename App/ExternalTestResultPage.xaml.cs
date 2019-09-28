@@ -149,6 +149,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private TaskRun taskRun;
         private ServerPoller taskRunPoller;
         private object updateLock;
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }

@@ -420,7 +420,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private SemaphoreSlim _listUpdateSem;
-        private FactoryOrchestratorClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
         public ObservableCollection<TaskListSummary> TaskListCollection;
         public ObservableCollection<TaskBase> ActiveListCollection;
     }

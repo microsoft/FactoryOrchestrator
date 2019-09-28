@@ -121,7 +121,6 @@
     <Compile Include="ExternalTestResultPage.xaml.cs">
       <DependentUpon>ExternalTestResultPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FileTransferHelper.cs" />
     <Compile Include="FileTransferPage.xaml.cs">
       <DependentUpon>FileTransferPage.xaml</DependentUpon>
     </Compile>
@@ -268,6 +267,10 @@
     <ProjectReference Include="..\IpcFramework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj">
       <Project>{52ceb7ed-27e4-40df-810f-4971caf0f55e}</Project>
       <Name>IpcServiceFramework.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj">
+      <Project>{0ed6137e-895f-4941-a136-abb977e1c4ef}</Project>
+      <Name>FactoryOrchestratorUWPClientLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

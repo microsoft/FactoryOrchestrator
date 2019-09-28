@@ -362,6 +362,46 @@ namespace Microsoft.FactoryOrchestrator.Client
             return await _IpcClient.InvokeAsync(x => x.SendFile(targetFilename, fileData));
         }
 
+        public async Task DeleteFileOrFolder(string path)
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("Start connection first!");
+            }
+
+            await _IpcClient.InvokeAsync(x => x.DeleteFileOrFolder(path));
+        }
+
+        public async Task MoveFileOrFolder(string sourcePath, string destinationPath)
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("Start connection first!");
+            }
+
+            await _IpcClient.InvokeAsync(x => x.MoveFileOrFolder(sourcePath, destinationPath));
+        }
+
+        public async Task<List<string>> EnumerateDirectories(string path, bool recursive = false)
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("Start connection first!");
+            }
+
+            return await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(path, recursive ));
+        }
+
+        public async Task<List<string>> EnumerateFiles(string path, bool recursive = false)
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("Start connection first!");
+            }
+
+            return await _IpcClient.InvokeAsync(x => x.EnumerateFiles(path, recursive ));
+        }
+
 
     }
 }
