@@ -8,6 +8,8 @@ Factory Orchestrator consists of the following projects:
 4) FactoryOrchestratorService - A .NET Core Executable project for FactoryOrchestratorService.exe, the FactoryOrchestrator server implementation.
 5) FactoryOrchestratorApp - A .NET UWP app project for FactoryOrchestratorApp.exe, the UWP used to communicate with FactoryOrchestratorService and run UI tests.
 
+This solution also contains an example .NET executable project which interacts with FactoryOrchestratorService (ClientSample), and a currently private fork of the IpcServiceFramework by Jacques Kang.
+
 # Usage
 FactoryOS images can automatically include the FactoryOrchestrator UWP and Service via the Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe optional AppX and FACTORY_TEST_FRAMEWORK_SERVICE Microsoft Feature.
 
@@ -28,6 +30,11 @@ netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_out prog
 4) (If replacing the existing service) Run "sc delete FactoryOrchestratorService" 
 5) (The created service entry only persists if device is in State Separation development mode.) Run "FactoryOrchestratorService.exe action:install name:FactoryOrchestratorService" 
 6) Run "sc start FactoryOrchestratorService"
+
+# Sample usage
+An example of the test content folder to use for this is at: \\wexfs\users\jafriedm\TestConsole
+
+Args must be in order: <IP ADDRESS> <TEST CONTENT FOLDER WITH FACTORYOCHESTRATORXML FILE(S)> <TARGET FOLDER ON DUT> <TARGET FOLDER ON PC TO SAVE LOGS>
 
 # Build and Test
 When building FactoryOrchestratorApp locally, DevPackage.appxmanifest is used instead of Package.appxmanifest. This causes the app to have a different PFN (Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe) and display name (Factory Orchestrator (DEV)).

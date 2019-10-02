@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpcServiceFramework.Server"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSample\ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -278,6 +280,26 @@ Global
 		{0ED6137E-895F-4941-A136-ABB977E1C4EF}.Release|x64.Build.0 = Release|Any CPU
 		{0ED6137E-895F-4941-A136-ABB977E1C4EF}.Release|x86.ActiveCfg = Release|Any CPU
 		{0ED6137E-895F-4941-A136-ABB977E1C4EF}.Release|x86.Build.0 = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|ARM.Build.0 = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|x64.Build.0 = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Debug|x86.Build.0 = Debug|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|ARM.Build.0 = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|ARM64.Build.0 = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|x64.ActiveCfg = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|x64.Build.0 = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|x86.ActiveCfg = Release|Any CPU
+		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
