@@ -9,6 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FactoryOrchestratorUWPClientLibrary</RootNamespace>
     <AssemblyName>FactoryOrchestratorUWPClientLibrary</AssemblyName>
+    <TargetName>FactoryOrchestratorUWPClientLibrary</TargetName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.17763.0</TargetPlatformVersion>
@@ -38,6 +39,12 @@
   </PropertyGroup>
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
+    <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FactoryOrchestratorUWPClient.cs" />

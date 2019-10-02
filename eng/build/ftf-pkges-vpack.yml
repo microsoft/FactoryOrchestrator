@@ -274,6 +274,25 @@ steps:
     TargetFolder: '$(XES_DFSDROP)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
 
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack Client Libraries'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorUWPClientLibrary'
+    pushPkgName: 'FactoryOrchestrator.ClientLibraries'
+    description: 'FactoryOrchestrator.ClientLibraries'
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop Client Libraries'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
