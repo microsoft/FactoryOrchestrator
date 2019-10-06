@@ -20,7 +20,12 @@ namespace Microsoft.FactoryOrchestrator.Client
     /// </summary>
     public partial class FactoryOrchestratorClient
     {
-        public FactoryOrchestratorClient(IPAddress host, int port)
+        /// <summary>
+        /// Creates a new FactoryOrchestratorClient instance. WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
+        /// </summary>
+        /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
+        public FactoryOrchestratorClient(IPAddress host, int port = 45684)
         {
             OnConnected = null;
             _IpcClient = null;
@@ -29,6 +34,10 @@ namespace Microsoft.FactoryOrchestrator.Client
             Port = port;
         }
 
+        /// <summary>
+        /// Establishes a connection to the Factory Orchestrator Service.
+        /// Throws an exception if it cannot connect.
+        /// </summary>
         public async Task Connect()
         {
             _IpcClient = new IpcServiceClientBuilder<IFactoryOrchestratorService>()
@@ -42,6 +51,10 @@ namespace Microsoft.FactoryOrchestrator.Client
             OnConnected?.Invoke();
         }
 
+        /// <summary>
+        /// Attempts to establish a connection to the Factory Orchestrator Service.
+        /// </summary>
+        /// <returns>true if it was able to connect.</returns>
         public async Task<bool> TryConnect()
         {
             try
@@ -55,7 +68,12 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
-        public async Task SendFileToServer(string clientFilename, string serverFilename)
+        /// <summary>
+        /// Copies a file from the client to the device running Factory Orchestrator Service. Creates directories if needed.
+        /// </summary>
+        /// <param name="clientFilename">Path on client PC to the file to copy.</param>
+        /// <param name="serverFilename">Path on device running Factory Orchestrator Service where the file will be saved.</param>
+        public async Task SendFileToDevice(string clientFilename, string serverFilename)
         {
             if (!File.Exists(clientFilename))
             {
@@ -66,7 +84,12 @@ namespace Microsoft.FactoryOrchestrator.Client
             await _IpcClient.InvokeAsync(x => x.SendFile(serverFilename, bytes));
         }
 
-        public async Task GetFileFromServer(string serverFilename, string clientFilename)
+        /// <summary>
+        /// Copies a file from the device running Factory Orchestrator Service to the client. Creates directories if needed.
+        /// </summary>
+        /// <param name="serverFilename">Path on device running Factory Orchestrator Service to the file to copy.</param>
+        /// <param name="clientFilename">Path on client PC where the file will be saved.</param>
+        public async Task GetFileFromDevice(string serverFilename, string clientFilename)
         {
             // Create target folder, if needed.
             Directory.CreateDirectory(Path.GetDirectoryName(clientFilename));
@@ -75,7 +98,12 @@ namespace Microsoft.FactoryOrchestrator.Client
             await WriteFileAsync(clientFilename, bytes);
         }
 
-        public async Task CopyDirectoryFromServer(string serverDirectory, string clientDirectory)
+        /// <summary>
+        /// Copies a folder from the device running Factory Orchestrator Service to the client. Creates directories if needed.
+        /// </summary>
+        /// <param name="serverDirectory">Path on device running Factory Orchestrator Service to the folder to copy.</param>
+        /// <param name="clientDirectory">Path on client PC where the folder will be saved.</param>
+        public async Task GetDirectoryFromDevice(string serverDirectory, string clientDirectory)
         {
             var files = await _IpcClient.InvokeAsync(x => x.EnumerateFiles(serverDirectory, false));
             var dirs = await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(serverDirectory, false));
@@ -88,7 +116,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             foreach (var file in files)
             {
                 var filename = Path.GetFileName(file);
-                await GetFileFromServer(file, Path.Combine(clientDirectory, filename));
+                await GetFileFromDevice(file, Path.Combine(clientDirectory, filename));
             }
             foreach (var dir in dirs)
             {
@@ -100,11 +128,16 @@ namespace Microsoft.FactoryOrchestrator.Client
                     Directory.CreateDirectory(clientsubDir);
                 }
 
-                await CopyDirectoryFromServer(dir, clientsubDir);
+                await GetDirectoryFromDevice(dir, clientsubDir);
             }
         }
 
-        public async Task CopyDirectoryToServer(string clientDirectory, string serverDirectory)
+        /// <summary>
+        /// Copies a folder from the client to the device running Factory Orchestrator Service. Creates directories if needed.
+        /// </summary>
+        /// <param name="clientDirectory">Path on client PC to the folder to copy.</param>
+        /// <param name="serverDirectory">Path on device running Factory Orchestrator Service where the folder will be saved.</param>
+        public async Task SendDirectoryToDevice(string clientDirectory, string serverDirectory)
         {
             if (!Directory.Exists(clientDirectory))
             {
@@ -116,21 +149,29 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             foreach (var file in files)
             {
-                await SendFileToServer(file, Path.Combine(serverDirectory, Path.GetFileName(file)));
+                await SendFileToDevice(file, Path.Combine(serverDirectory, Path.GetFileName(file)));
             }
 
             foreach (var dir in dirs)
             {
-                await CopyDirectoryToServer(dir, Path.Combine(serverDirectory, new DirectoryInfo(dir).Name));
+                await SendDirectoryToDevice(dir, Path.Combine(serverDirectory, new DirectoryInfo(dir).Name));
             }
         }
 
-        public async void ShutdownServerDevice(uint secondsUntilShutdown = 0)
+        /// <summary>
+        /// Shutdown the device running Factory Orchestrator Service. 
+        /// </summary>
+        /// <param name="secondsUntilShutdown">How long to delay shutdown, in seconds.</param>
+        public async void ShutdownDevice(uint secondsUntilShutdown = 0)
         {
             await RunExecutable(@"%systemroot%\system32\shutdown.exe", $"/s /t {secondsUntilShutdown}", null);
         }
 
-        public async void RebootServerDevice(uint secondsUntilReboot = 0)
+        /// <summary>
+        /// Reboot the device running Factory Orchestrator Service. 
+        /// </summary>
+        /// <param name="secondsUntilShutdown">How long to delay reboot, in seconds.</param>
+        public async void RebootDevice(uint secondsUntilReboot = 0)
         {
             await RunExecutable(@"%systemroot%\system32\shutdown.exe", $"/r /t {secondsUntilReboot}", null);
         }
@@ -147,7 +188,14 @@ namespace Microsoft.FactoryOrchestrator.Client
 
         private IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
 
+        /// <summary>
+        /// Event thrown when Client<=>Service connection is successfully established.
+        /// </summary>
         public event IPCClientOnConnected OnConnected;
+        
+        /// <summary>
+        /// True if Factory Orchestrator Service is running on the local device.
+        /// </summary>
         public bool IsLocalHost
         {
             get
@@ -156,10 +204,24 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// True if the Client<=>Service connection is successfully established.
+        /// </summary>
         public bool IsConnected { get; private set; }
+
+        /// <summary>
+        /// The IP address of the connected device.
+        /// </summary>
         public IPAddress IpAddress { get; private set; }
+
+        /// <summary>
+        /// The port of the connected device used. Factory Orchestrator Service defaults to 45684.
+        /// </summary>
         public int Port { get; private set; }
 
+        /// <summary>
+        /// Signature for OnConnected event handlers.
+        /// </summary>
         public delegate void IPCClientOnConnected(); 
     }
 }

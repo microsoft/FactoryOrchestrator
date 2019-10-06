@@ -155,21 +155,21 @@ namespace Microsoft.FactoryOrchestrator.Service
             return FOService.Instance.ServiceEvents.Values.Where(x => x.ServiceEventType == ServiceEventType.ServiceError).DefaultIfEmpty(null).LastOrDefault();
         }
 
-        public TaskList CreateTaskListFromDirectory(string path, bool onlyTAEF)
+        public TaskList CreateTaskListFromDirectory(string path, bool recursive)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path}");
+            FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path} {recursive}");
             TaskList tl = null;
 
             try
             {
-                tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, onlyTAEF);
+                tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, recursive);
             }
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
             }
 
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path}");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path} {recursive}");
             return tl;
         }
 
@@ -292,7 +292,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             return updated;
         }
 
-        public bool SetDefaultTePath(string teExePath)
+        public bool SetTeExePath(string teExePath)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
             bool success = false;

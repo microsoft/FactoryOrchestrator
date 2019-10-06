@@ -210,7 +210,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
             }
         }
-        
+
         /// <summary>
         /// Loads a taskrun log file into a taskrun_server object. This has a very hard dependency on the output format, defined by WriteLogHeader() and WriteLogFooter().
         /// </summary>
@@ -324,14 +324,15 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-        public TaskList CreateTaskListFromDirectory(String path, bool onlyTAEF)
+        public TaskList CreateTaskListFromDirectory(String path, bool recursive)
         {
-            // Recursive search for all executable files
-            var exes = Directory.EnumerateFiles(path, "*.exe", SearchOption.AllDirectories);
-            var dlls = Directory.EnumerateFiles(path, "*.dll", SearchOption.AllDirectories);
-            var bats = Directory.EnumerateFiles(path, "*.bat", SearchOption.AllDirectories);
-            var cmds = Directory.EnumerateFiles(path, "*.cmd", SearchOption.AllDirectories);
-            var ps1s = Directory.EnumerateFiles(path, "*.ps1", SearchOption.AllDirectories);
+            // Search for all "executable" files
+            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var exes = Directory.EnumerateFiles(path, "*.exe", searchOption);
+            var dlls = Directory.EnumerateFiles(path, "*.dll", searchOption);
+            var bats = Directory.EnumerateFiles(path, "*.bat", searchOption);
+            var cmds = Directory.EnumerateFiles(path, "*.cmd", searchOption);
+            var ps1s = Directory.EnumerateFiles(path, "*.ps1", searchOption);
             TaskList tests = new TaskList(path, Guid.NewGuid());
 
             Parallel.ForEach<string>(dlls, (dll) =>
@@ -351,31 +352,28 @@ namespace Microsoft.FactoryOrchestrator.Server
             });
 
             // Assume every .exe is a valid console task
-            if (!onlyTAEF)
+            foreach (var exe in exes)
             {
-                foreach (var exe in exes)
-                {
-                    var task = new ExecutableTask(exe);
-                    tests.Tasks.Add(task.Guid, task);
-                }
+                var task = new ExecutableTask(exe);
+                tests.Tasks.Add(task.Guid, task);
+            }
 
-                foreach (var cmd in cmds)
-                {
-                    var task = new BatchFileTask(cmd);
-                    tests.Tasks.Add(task.Guid, task);
-                }
+            foreach (var cmd in cmds)
+            {
+                var task = new BatchFileTask(cmd);
+                tests.Tasks.Add(task.Guid, task);
+            }
 
-                foreach (var bat in bats)
-                {
-                    var task = new BatchFileTask(bat);
-                    tests.Tasks.Add(task.Guid, task);
-                }
+            foreach (var bat in bats)
+            {
+                var task = new BatchFileTask(bat);
+                tests.Tasks.Add(task.Guid, task);
+            }
 
-                foreach (var ps1 in ps1s)
-                {
-                    var task = new PowerShellTask(ps1);
-                    tests.Tasks.Add(task.Guid, task);
-                }
+            foreach (var ps1 in ps1s)
+            {
+                var task = new PowerShellTask(ps1);
+                tests.Tasks.Add(task.Guid, task);
             }
 
             lock (KnownTaskListLock)

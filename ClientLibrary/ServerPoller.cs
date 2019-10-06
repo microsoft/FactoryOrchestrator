@@ -8,11 +8,21 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 namespace Microsoft.FactoryOrchestrator.Client
 {
     /// <summary>
-    /// ServerPoller is used to create a polling thread for a given FO GUID. It can optionally raise a ServerPollerEvent event via OnUpdatedObject.
-    /// All FO GUID types are supported.
+    /// Factory Ochestrator uses a polling model. ServerPoller is used to create a polling thread for a given Factory Ochestrator GUID. It can optionally raise a ServerPollerEvent event via OnUpdatedObject.
+    /// All Factory Orchestrator GUID types are supported.
     /// </summary>
     public class ServerPoller
     {
+        /// <summary>
+        /// Create a new ServerPoller. The ServerPoller is associated with a specific FactoryOrchestratorClient and object you want to poll. The desired object is referred to by its GUID. The GUID can be NULL for TaskRun polling.
+        /// If it is NULL and the guidType is TaskList, List<TaskListSummary> is returned.
+        /// </summary>
+        /// <param name="guidToPoll">GUID of the object you want to poll</param>
+        /// <param name="guidType">The type of object that GUID is for</param>
+        /// <param name="client">A connected FactoryOrchestratorClient instance</param>
+        /// <param name="pollingIntervalMs">How frequently the polling should be done, in milliseconds. Defaults to 500ms.</param>
+        /// <param name="adaptiveInterval">If true, automatically adjust the polling interval for best performance. Defaults to true.</param>
+        /// <param name="maxAdaptiveModifier">If adaptiveInterval is set, this defines the maximum multiplier/divisor that will be applied to the polling interval. For example, if maxAdaptiveModifier=2 and pollingIntervalMs=100, the object would be polled at a rate between 50ms to 200ms. Defaults to 5.</param>
         public ServerPoller(Guid? guidToPoll, Type guidType, FactoryOrchestratorClient client, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 5)
         {
             _guidToPoll = guidToPoll;
@@ -104,6 +114,9 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// Starts polling the object.
+        /// </summary>
         public void StartPolling()
         {
             if (_stopped != false)
@@ -114,6 +127,9 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// Stops polling the object.
+        /// </summary>
         public void StopPolling()
         {
             _stopped = true;
@@ -124,27 +140,19 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
-        public object LatestObject
-        {
-            get
-            {
-                if (_timer != null)
-                {
-                    while ((_timer != null) && (_latestObject == null))
-                    {
-                        Thread.Sleep(_pollingInterval + 10);
-                    }
+        /// <summary>
+        /// Returns the latest object retrieved from the server.
+        /// </summary>
+        public object LatestObject => _latestObject;
 
-                    return _latestObject;
-                }
-                else
-                {
-                    return _latestObject;
-                }
-            }
-        }
-
+        /// <summary>
+        /// The GUID of the object you are polling. Can be NULL for some scenarios.
+        /// </summary>
         public Guid? PollingGuid { get => _guidToPoll; }
+
+        /// <summary>
+        /// If true, the poller is actively polling for updates.
+        /// </summary>
         public bool IsPolling { get => !_stopped; }
 
         private Guid? _guidToPoll;
@@ -159,16 +167,30 @@ namespace Microsoft.FactoryOrchestrator.Client
         private bool _stopped;
         private bool _adaptiveInterval;
         private int _adaptiveModifier;
+
+        /// <summary>
+        /// Event thrown when a new object is received. It is only thrown if the object has changed since last polled.
+        /// </summary>
         public event ServerPollerEventHandler OnUpdatedObject;
     }
 
+    /// <summary>
+    /// Class used to share the new object with the callee via OnUpdatedObject. 
+    /// </summary>
     public class ServerPollerEventArgs : EventArgs
     {
+        /// <summary>
+        /// Creates a new ServerPollerEventArgs instance.
+        /// </summary>
+        /// <param name="result">Object from latest poll of the Server.</param>
         public ServerPollerEventArgs(object result)
         {
             Result = result;
         }
 
+        /// <summary>
+        /// The updated object polled on the server.
+        /// </summary>
         public object Result { get; }
     }
 

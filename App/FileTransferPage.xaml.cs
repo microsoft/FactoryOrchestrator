@@ -66,11 +66,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // todo: quality: transfer file in chunks with progress bar & cancel option
             if (sending)
             {
-                await Client.SendFileToServer(ClientFileTextBox.Text, ServerFileTextBox.Text);
+                await Client.SendFileToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text);
             }
             else
             {
-                await Client.GetFileFromServer(ServerFileTextBox.Text, ClientFileTextBox.Text);
+                await Client.GetFileFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text);
             }
 
             ConfirmTransferFlyout.Hide();

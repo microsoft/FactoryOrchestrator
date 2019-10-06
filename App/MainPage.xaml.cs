@@ -159,12 +159,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
         private void ConfirmReboot_Click(object sender, RoutedEventArgs e)
         {
-            Client.RebootServerDevice(5);
+            Client.RebootDevice(5);
         }
 
         private void ConfirmShutdown_Click(object sender, RoutedEventArgs e)
         {
-            Client.ShutdownServerDevice(5);
+            Client.ShutdownDevice(5);
         }
         private async void NetworkFlyout_Opening(object sender, object e)
         {

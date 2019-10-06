@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    /// <summary>
+    /// The status of a Task or TaskList.
+    /// </summary>
     public enum TaskStatus
     {
         Passed,
@@ -25,6 +28,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         Unknown
     }
 
+    /// <summary>
+    /// The type of Task.
+    /// </summary>
     public enum TaskType
     {
         ConsoleExe = 0,
@@ -35,6 +41,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         BatchFile = 5
     }
 
+    /// <summary>
+    /// Comparer for Task objects
+    /// </summary>
     public class TaskBaseEqualityComparer : EqualityComparer<TaskBase>
     {
         public override bool Equals(TaskBase x, TaskBase y)
@@ -63,6 +72,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
+
         protected TaskBase(TaskType type)
         {
             Type = type;
@@ -86,6 +96,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         // TODO: Make only getters and add internal apis to set
+        /// <summary>
+        /// The friendly name of the Task.
+        /// </summary>
         [XmlAttribute("Name")]
         public virtual string Name
         {
@@ -96,17 +109,48 @@ namespace Microsoft.FactoryOrchestrator.Core
             set { }
         }
 
+        /// <summary>
+        /// The type of the Task.
+        /// </summary>
         [XmlIgnore]
         public TaskType Type { get; set; }
-        [XmlAttribute("Path")]
+
+        /// <summary>
+        /// The path to the file used for the Task such an Exe.
+        /// </summary>
+        [XmlAttribute]
         public string Path { get; set; }
+
+        /// <summary>
+        /// The arguments passed to the Task.
+        /// </summary>
         [XmlAttribute]
         public string Arguments { get; set; }
+
+        /// <summary>
+        /// The GUID identifying the Task.
+        /// </summary>
         [XmlAttribute]
         public Guid Guid { get; set; }
+
+        /// <summary>
+        /// The time the latest run of this Task started. NULL if it has never started.
+        /// </summary>
         public DateTime? LatestTaskRunTimeStarted { get; set; }
+
+        /// <summary>
+        /// The time the latest run of this Task finished. NULL if it has never finished.
+        /// </summary>
         public DateTime? LatestTaskRunTimeFinished { get; set; }
+
+        /// <summary>
+        /// The status of the latest run of this Task.
+        /// </summary>
         public TaskStatus LatestTaskRunStatus { get; set; }
+
+        /// <summary>
+        /// True if the latest run of this Task passed. NULL if it has never been run.
+        /// </summary>
         public bool? LatestTaskRunPassed
         {
             get
@@ -126,23 +170,14 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
-        public bool IsRunning
-        {
-            get
-            {
-                return ((LatestTaskRunStatus == TaskStatus.Running) || (LatestTaskRunStatus == TaskStatus.RunPending) || (LatestTaskRunStatus == TaskStatus.WaitingForExternalResult));
-            }
-        }
-
-        [XmlAttribute("Timeout")]
-        public int TimeoutSeconds { get; set; }
-
+        /// <summary>
+        /// The exit code of the latest run of this Task. NULL if it has never completed.
+        /// </summary>
         public int? LatestTaskRunExitCode { get; set; }
 
-        // TaskRuns are queried by GUID
-        [XmlArrayItem("Guid")]
-        public List<Guid> TaskRunGuids { get; set; }
-
+        /// <summary>
+        /// The amount of time elapsed while running the latest run of this Task. NULL if it has never started.
+        /// </summary>
         public virtual TimeSpan? LatestTaskRunRunTime
         {
             get
@@ -165,22 +200,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
-        public bool RunByServer
-        {
-            get
-            {
-                return ((Type != TaskType.External) && (Type != TaskType.UWP));
-            }
-        }
-
-        public bool RunByClient
-        {
-            get
-            {
-                return !RunByServer;
-            }
-        }
-
+        /// <summary>
+        /// GUID of the latest run of this Task. NULL if it has never started.
+        /// </summary>
         public Guid? LatestTaskRunGuid
         {
             get
@@ -196,12 +218,66 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// True if the Task is running or queued to run.
+        /// </summary>
+        public bool IsRunning
+        {
+            get
+            {
+                return ((LatestTaskRunStatus == TaskStatus.Running) || (LatestTaskRunStatus == TaskStatus.RunPending) || (LatestTaskRunStatus == TaskStatus.WaitingForExternalResult));
+            }
+        }
+
+        /// <summary>
+        /// The timeout for this Task, in seconds.
+        /// </summary>
+        [XmlAttribute("Timeout")]
+        public int TimeoutSeconds { get; set; }
+
+        /// <summary>
+        /// The GUIDs for all runs of this Task.
+        /// </summary>
+        [XmlArrayItem("Guid")]
+        public List<Guid> TaskRunGuids { get; set; }
+
+        /// <summary>
+        /// True if this Task is run by the server, such as an ExecutableTask.
+        /// </summary>
+        public bool RunByServer
+        {
+            get
+            {
+                return ((Type != TaskType.External) && (Type != TaskType.UWP));
+            }
+        }
+
+        /// <summary>
+        /// True if this Task is run by the client, such as an ExternalTask.
+        /// </summary>
+        public bool RunByClient
+        {
+            get
+            {
+                return !RunByServer;
+            }
+        }
+
+        /// <summary>
+        /// If true, the TaskList running this Task is aborted if this Task fails.
+        /// </summary>
         [XmlAttribute]
         public bool AbortTaskListOnFailed { get; set; }
 
+        /// <summary>
+        /// The number of re-runs the Task automatically attempts if the run fails.
+        /// </summary>
         [XmlAttribute]
         public uint MaxNumberOfRetries { get; set; }
 
+        /// <summary>
+        /// The number of reties so far for this latest run.
+        /// </summary>
         public uint TimesRetried { get; set; }
 
         // XmlSerializer calls these to check if these values are set.
@@ -366,6 +442,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             return base.Equals(obj as TaskBase);
         }
 
+        /// <summary>
+        /// The friendly name of the Task.
+        /// </summary>
         [XmlAttribute("Name")]
         public override string Name
         {
@@ -386,12 +465,19 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Denotes if this Task is run as a background task.
+        /// </summary>
         [XmlIgnore]
         public bool BackgroundTask { get; set; }
 
         private string _testFriendlyName;
     }
 
+    /// <summary>
+    /// An PowerShellTask is a PowerShell Core .ps1 script that is run by the FactoryOrchestratorServer. The exit code of the script determines if the task passed or failed.
+    /// 0 == PASS, all others == FAIL.
+    /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class PowerShellTask : ExecutableTask
@@ -408,6 +494,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             _scriptPath = scriptPath;
         }
 
+        /// <summary>
+        /// The friendly name of the Task.
+        /// </summary>
         [XmlAttribute("Name")]
         public override string Name
         {
@@ -444,6 +533,10 @@ namespace Microsoft.FactoryOrchestrator.Core
         private string _testFriendlyName;
     }
 
+    /// <summary>
+    /// An BatchFile is a .cmd or .bat script that is run by the FactoryOrchestratorServer. The exit code of the script determines if the task passed or failed.
+    /// 0 == PASS, all others == FAIL.
+    /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class BatchFileTask : ExecutableTask
@@ -460,6 +553,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             _scriptPath = scriptPath;
         }
 
+        /// <summary>
+        /// The friendly name of the Task.
+        /// </summary>
         [XmlAttribute("Name")]
         public override string Name
         {
@@ -572,6 +668,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             return base.Equals(obj as TaskBase);
         }
 
+        /// <summary>
+        /// The friendly name of the Task.
+        /// </summary>
         [XmlAttribute("Name")]
         public override string Name
         {
@@ -635,6 +734,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             return base.Equals(obj as ExternalTask);
         }
 
+        /// <summary>
+        /// The friendly name of the Task.
+        /// </summary>
         [XmlAttribute("Name")]
         public override string Name
         {
@@ -690,6 +792,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             Name = name;
         }
 
+        /// <summary>
+        /// The status of the TaskList.
+        /// </summary>
         public TaskStatus TaskListStatus
         {
             get
@@ -725,6 +830,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// True if the TaskList is running or queued to run.
+        /// </summary>
         public bool IsRunning
         {
             get
@@ -803,36 +911,50 @@ namespace Microsoft.FactoryOrchestrator.Core
         public List<TaskBase> BackgroundTasksForXml { get; set; }
 
         /// <summary>
-        /// Tests in the TaskList, tracked by task GUID
+        /// Tasks in the TaskList.
         /// </summary>
         [XmlIgnore]
         public Dictionary<Guid, TaskBase> Tasks { get; set; }
 
         /// <summary>
-        /// Background Tests in the TaskList, tracked by task GUID
+        /// Background Tasks in the TaskList.
         /// </summary>
         [XmlIgnore]
         public Dictionary<Guid, TaskBase> BackgroundTasks { get; set; }
 
+        /// <summary>
+        /// The GUID identifying this TaskList.
+        /// </summary>
         [XmlAttribute]
         public Guid Guid { get; set; }
 
+        /// <summary>
+        /// The name of this TaskList.
+        /// </summary>
         [XmlAttribute]
         public string Name { get; set; }
 
+        /// <summary>
+        /// If true, Tasks in this TaskList are run in parallel. Order is non-deterministic.
+        /// </summary>
         [XmlAttribute]
         public bool RunInParallel { get; set; }
 
+        /// <summary>
+        /// If false, while this TaskList is running no other TaskList may run.
+        /// </summary>
         [XmlAttribute]
         public bool AllowOtherTaskListsToRun { get; set; }
 
+        /// <summary>
+        /// If true, Background Tasks defined in this TaskList are forcibly terminated when the TaskList stops running.
+        /// </summary>
         [XmlAttribute]
         public bool TerminateBackgroundTasksOnCompletion { get; set; }
     }
 
     /// <summary>
-    /// Shared client and server TaskRun class. A TaskRun represents one instance of executing any single FTF task.
-    /// TaskRuns should only be created by the server, hence no public CTOR.
+    /// A TaskRun represents one instance of executing any single Task.
     /// </summary>
     public class TaskRun
     {
@@ -900,22 +1022,79 @@ namespace Microsoft.FactoryOrchestrator.Core
             return copy;
         }
 
+        /// <summary>
+        /// The output of the Task.
+        /// </summary>
         public List<string> TaskOutput { get; set; }
 
+        /// <summary>
+        /// The GUID of the Task which created this run. NULL if this run is not associated with a Task.
+        /// </summary>
         public Guid? OwningTaskGuid { get; set; }
+
+        /// <summary>
+        /// The name of the Task (at the time the run started).
+        /// </summary>
         public string TaskName { get; set; }
+
+        /// <summary>
+        /// The path of the Task (at the time the run started).
+        /// </summary>
         public string TaskPath { get; set; }
+
+        /// <summary>
+        /// The arguments of the Task (at the time the run started).
+        /// </summary>
         public string Arguments { get; set; }
+
+        /// <summary>
+        /// Denotes if this TaskRun is for a background task.
+        /// </summary>
         public bool BackgroundTask { get; set; }
+
+        /// <summary>
+        /// The type of the Task which created this run.
+        /// </summary>
         public TaskType TaskType { get; set; }
+
+        /// <summary>
+        /// The GUID identifying this TaskRun.
+        /// </summary>
         public Guid Guid { get; set; }
+
+        /// <summary>
+        /// The time this run started. NULL if it has never started.
+        /// </summary>
         public DateTime? TimeStarted { get; set; }
+
+        /// <summary>
+        /// The time this run finished. NULL if it has never finished.
+        /// </summary>
         public DateTime? TimeFinished { get; set; }
+
+        /// <summary>
+        /// The status of this run.
+        /// </summary>
         public TaskStatus TaskStatus { get; set; }
+
+        /// <summary>
+        /// The path to the log file for this run. NULL if it is not logged to a file.
+        /// </summary>
         public string LogFilePath { get; set; }
+
+        /// <summary>
+        /// The exit code of this run. NULL if it has not finished.
+        /// </summary>
         public int? ExitCode { get; set; }
+
+        /// <summary>
+        /// The timeout for this run.
+        /// </summary>
         public int TimeoutSeconds { get; set; }
 
+        /// <summary>
+        /// True if this TaskRun is run by the server, such as an ExecutableTask.
+        /// </summary>
         public bool RunByServer
         {
             get
@@ -924,6 +1103,10 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+
+        /// <summary>
+        /// True if this TaskRun is run by the client, such as an ExternalTask.
+        /// </summary>
         public bool RunByClient
         {
             get
@@ -932,6 +1115,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// True if this run is finished executing.
+        /// </summary>
         public bool TaskRunComplete
         {
             get
@@ -949,6 +1135,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// The amount of time this run executed for. NULL if it has never started.
+        /// </summary>
         public virtual TimeSpan? RunTime
         {
             get
@@ -1055,6 +1244,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             TaskLists = new List<TaskList>();
         }
 
+        /// <summary>
+        /// The TaskLists in the XML file.
+        /// </summary>
         [XmlArrayItem("TaskList")]
         public List<TaskList> TaskLists { get; set; }
 
@@ -1129,6 +1321,11 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Loads the TaskLists in a FactoryOrchestratorXML file.
+        /// </summary>
+        /// <param name="filename">The FactoryOrchestratorXML file to load.</param>
+        /// <returns>a FactoryOrchestratorXML object that can then be parsed by the Server.</returns>
         public static FactoryOrchestratorXML Load(string filename)
         {
             FactoryOrchestratorXML xml;
@@ -1239,6 +1436,11 @@ namespace Microsoft.FactoryOrchestrator.Core
             throw new FileNotFoundException("Could not find embedded resource", resourceIdentifier);
         }
 
+        /// <summary>
+        /// Saves a FactoryOrchestratorXML object to the given file. The file is overwritten if it exists.
+        /// </summary>
+        /// <param name="filename">The path of the FactoryOrchestratorXML file you want to create.</param>
+        /// <returns></returns>
         public bool Save(string filename)
         {
             PreSerialize();
@@ -1259,10 +1461,19 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// A helper class containing the bare minimum information about a TaskList. Use to quickly update clients about TaskLists and their statuses.
+    /// A helper class containing basic information about a TaskList. Use to quickly update clients about TaskLists and their statuses.
     /// </summary>
     public class TaskListSummary
     {
+        /// <summary>
+        /// Creates a new TaskListSummary.
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <param name="name"></param>
+        /// <param name="status"></param>
+        /// <param name="runInParallel"></param>
+        /// <param name="allowOtherTaskListsToRun"></param>
+        /// <param name="terminateBackgroundTasksOnCompletion"></param>
         public TaskListSummary(Guid guid, string name, TaskStatus status, bool runInParallel, bool allowOtherTaskListsToRun, bool terminateBackgroundTasksOnCompletion)
         {
             Guid = guid;
@@ -1279,12 +1490,34 @@ namespace Microsoft.FactoryOrchestrator.Core
             return $"Task List {Name} ({Guid}) with Status {Status}";
         }
 
+        /// <summary>
+        /// The GUID identifying the TaskList.
+        /// </summary>
         public Guid Guid { get; set; }
-        public TaskStatus Status { get; set; }
-        public string Name { get; set; }
-        public bool RunInParallel { get; set; }
-        public bool AllowOtherTaskListsToRun { get; set; }
-        public bool TerminateBackgroundTasksOnCompletion { get; set; }
 
+        /// <summary>
+        /// The status of the TaskList.
+        /// </summary>
+        public TaskStatus Status { get; set; }
+
+        /// <summary>
+        /// The name of the TaskList.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// If true, Tasks in this TaskList are run in parallel. Order is non-deterministic.
+        /// </summary>
+        public bool RunInParallel { get; set; }
+
+        /// <summary>
+        /// If false, while this TaskList is running no other TaskList may run.
+        /// </summary>
+        public bool AllowOtherTaskListsToRun { get; set; }
+
+        /// <summary>
+        /// If true, Background Tasks defined in this TaskList are forcibly terminated when the TaskList stops running.
+        /// </summary>
+        public bool TerminateBackgroundTasksOnCompletion { get; set; }
     }
 }

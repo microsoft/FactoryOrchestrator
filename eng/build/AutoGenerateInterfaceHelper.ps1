@@ -10,15 +10,37 @@ Write-Host "Autogenerating $OutputFile from $InterfaceName interface in $Interfa
 $file = Get-Item -Path "$InterfaceFile"
 $interfaceContent = Get-Content $file.FullName
 $inInterface = $false
+$inSummary = $true
 $indent = "    "
 [string]$outputContent = ""
+$currentSummary = @()
 # find the interface, then iterate through the APIs in it
 foreach ($line in $interfaceContent)
 {
     if ($inInterface -eq $true)
     {
-        if ($line -like "*;")
+        if ($line -like "*/// <summary>*")
         {
+            # add to methodSummaries
+            $inSummary = $true
+            $currentSummary += "$line`n"
+        }
+        elseif ($line -like "*///*")
+        {
+            # add to methodSummaries
+            $inSummary = $true
+            $currentSummary += "$line`n"
+        }
+        elseif ($line -like "*;")
+        {
+            $inSummary = $false
+            # write out summary
+            foreach ($summ in $currentSummary)
+            {
+                $outputContent += $summ
+            }
+            $currentSummary.Clear()
+
             # line is an API in the interface, parse it
             $api = $line
             [regex]$rx='\s*(.+)\s(.+)(\(.+);'

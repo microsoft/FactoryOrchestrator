@@ -83,7 +83,7 @@ namespace NETCoreClientSample
         {
             Console.WriteLine($"Copying latest binaries and TaskLists from {testDir} to {destDir} on device...");
 
-            await Client.CopyDirectoryToServer(testDir, destDir);
+            await Client.SendDirectoryToDevice(testDir, destDir);
             return Directory.EnumerateFiles(testDir, "*.xml").ToList();
         }
 
@@ -171,7 +171,7 @@ namespace NETCoreClientSample
         private static async Task CopyLogsFromDUT(string destinationPath)
         {
             var logDir = await Client.GetLogFolder();
-            await Client.CopyDirectoryFromServer(logDir, destinationPath);
+            await Client.GetDirectoryFromDevice(logDir, destinationPath);
 
             Console.WriteLine($"Logs copied to {destinationPath}");
         }
