@@ -3,6 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetName>ClientSample</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
+    <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
