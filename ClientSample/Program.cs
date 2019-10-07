@@ -121,7 +121,7 @@ namespace NETCoreClientSample
                     System.Threading.Thread.Sleep(5000);
 
                     taskList = await Client.QueryTaskList(summary.Guid);
-                    var runningTasks = taskList.Tasks.Values.Where(x => x.IsRunning);
+                    var runningTasks = taskList.Tasks.Where(x => x.IsRunning);
 
                     if (taskList.IsRunning)
                     {
@@ -161,7 +161,7 @@ namespace NETCoreClientSample
                 var taskList = await Client.QueryTaskList(summary.Guid);
                 Console.WriteLine($"---- Results for {taskList.Name} ----");
                 Console.WriteLine($"Overall status: {taskList.TaskListStatus}");
-                foreach (var task in taskList.Tasks.Values)
+                foreach (var task in taskList.Tasks)
                 {
                     Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} with exit code {task.LatestTaskRunExitCode}. Task took {task.LatestTaskRunRunTime.Value.TotalSeconds} seconds.");
                 }

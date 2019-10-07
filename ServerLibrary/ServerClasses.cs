@@ -101,7 +101,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         public TaskManager_Server(string logFolder)
         {
             _startNonParallelTaskRunLock = new SemaphoreSlim(1, 1);
-            KnownTaskLists = new ConcurrentDictionary<Guid, TaskList>();
+            KnownTaskLists = new List<TaskList>();
             RunningTaskListTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new ConcurrentDictionary<Guid, List<TaskRunner>>();
             RunningTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
@@ -244,7 +244,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 var task = GetTask(taskGuid);
                 if (task != null)
                 {
-                    var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(taskGuid)).DefaultIfEmpty(null).First();
+                    var list = KnownTaskLists.Where(x => x.Tasks.Any(y => y.Guid.Equals(taskGuid))).DefaultIfEmpty(null).First();
                     run = new TaskRun_Server(task, LogFolder, list.Guid);
                 }
                 else
@@ -342,7 +342,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     var maybeTAEF = CheckForTAEFTest(dll);
                     if (maybeTAEF != null)
                     {
-                        tests.Tasks.Add(maybeTAEF.Guid, maybeTAEF);
+                        tests.Tasks.Add(maybeTAEF);
                     }
                 }
                 catch (Exception)
@@ -351,34 +351,34 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
             });
 
-            // Assume every .exe is a valid console task
+            // Assume every file found is a valid task
             foreach (var exe in exes)
             {
                 var task = new ExecutableTask(exe);
-                tests.Tasks.Add(task.Guid, task);
+                tests.Tasks.Add(task);
             }
 
             foreach (var cmd in cmds)
             {
                 var task = new BatchFileTask(cmd);
-                tests.Tasks.Add(task.Guid, task);
+                tests.Tasks.Add(task);
             }
 
             foreach (var bat in bats)
             {
                 var task = new BatchFileTask(bat);
-                tests.Tasks.Add(task.Guid, task);
+                tests.Tasks.Add(task);
             }
 
             foreach (var ps1 in ps1s)
             {
                 var task = new PowerShellTask(ps1);
-                tests.Tasks.Add(task.Guid, task);
+                tests.Tasks.Add(task);
             }
 
             lock (KnownTaskListLock)
             {
-                KnownTaskLists.TryAdd(tests.Guid, tests);
+                KnownTaskLists.Add(tests);
             }
 
             // Update XML for state tracking (this locks KnownTaskListLock)
@@ -395,7 +395,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (KnownTaskLists.Count > 0)
                 {
-                    xml.TaskLists = KnownTaskLists.Values.ToList();
+                    xml.TaskLists = KnownTaskLists;
                 }
                 else
                 {
@@ -420,9 +420,10 @@ namespace Microsoft.FactoryOrchestrator.Server
             
             FactoryOrchestratorXML xml = new FactoryOrchestratorXML();
 
-            if (KnownTaskLists.ContainsKey(guid))
+            var index = KnownTaskLists.FindIndex(x => x.Guid == guid);
+            if (index > -1)
             {
-                xml.TaskLists.Add(KnownTaskLists[guid]);
+                xml.TaskLists.Add(KnownTaskLists[index]);
             }
             else
             {
@@ -449,27 +450,27 @@ namespace Microsoft.FactoryOrchestrator.Server
                 foreach (var list in xml.TaskLists)
                 {
                     // Update "running" Tasks, as their state is unknown
-                    var badStateTasks = list.Tasks.Values.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
+                    var badStateTasks = list.Tasks.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
                     foreach (var task in badStateTasks)
                     {
                         task.LatestTaskRunStatus = TaskStatus.Unknown;
                     }
-                    badStateTasks = list.BackgroundTasks.Values.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
+                    badStateTasks = list.BackgroundTasks.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
                     foreach (var task in badStateTasks)
                     {
                         task.LatestTaskRunStatus = TaskStatus.Unknown;
                     }
 
-                    if (KnownTaskLists.ContainsKey(list.Guid))
-                    {
-                        // Overwrite existing tasklist
-                        KnownTaskLists[list.Guid] = list;
 
-                        // todo: logging
+                    var index = KnownTaskLists.FindIndex(x => x.Guid == list.Guid);
+                    if (index > -1)
+                    {
+                        // todo: consider this an error?
+                        KnownTaskLists[index] = list;
                     }
                     else
                     {
-                        KnownTaskLists.TryAdd(list.Guid, list);
+                        KnownTaskLists.Add(list);
                     }
                 }
             }
@@ -490,8 +491,12 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 // Abort() gracefully returns if the guid is invalid
                 AbortTaskList(listToDelete);
-                TaskList removedList;
-                removed = KnownTaskLists.TryRemove(listToDelete, out removedList);   
+                var index = KnownTaskLists.FindIndex(x => x.Guid == listToDelete);
+                if (index > -1)
+                {
+                    KnownTaskLists.RemoveAt(index);
+                    removed = true;
+                }
             }
 
             // Update XML for state tracking
@@ -502,27 +507,22 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskBase GetTask(Guid testGuid)
         {
-            var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(testGuid)).First();
-            if (list == null)
+            foreach (var list in KnownTaskLists)
             {
-                return null;
+                var index = list.Tasks.FindIndex(y => y.Guid.Equals(testGuid));
+                if (index != -1)
+                {
+                    return list.Tasks[index];
+                }
             }
 
-            TaskBase task;
-            if (list.Tasks.TryGetValue(testGuid, out task))
-            {
-                return task;
-            }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         public TaskList GetTaskList(Guid guid)
         {
-            TaskList list = null;
-            if (KnownTaskLists.TryGetValue(guid, out list))
+            TaskList list = KnownTaskLists.Find(x => x.Guid == guid);
+            if (list != null)
             {
                 return list;
             }
@@ -534,21 +534,22 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public List<Guid> GetTaskListGuids()
         {
-            return KnownTaskLists.Keys.ToList();
+            return KnownTaskLists.Select(x => x.Guid).ToList();
         }
 
         public TaskList CreateTaskListFromTaskList(TaskList taskList)
         {
             lock (KnownTaskListLock)
             {
-                try
+                if (KnownTaskLists.Exists(x => x.Guid == taskList.Guid))
                 {
-                    KnownTaskLists.TryAdd(taskList.Guid, taskList);
+                    return null;
+
+                    // TODO: Logging
                 }
-                catch (ArgumentException)
+                else
                 {
-                    // list already exists
-                    return KnownTaskLists[taskList.Guid];
+                    KnownTaskLists.Add(taskList);
                 }
             }
 
@@ -576,7 +577,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     // Kill all background tasks
                     if (terminateBackgroundTasks)
                     {
-                        Parallel.ForEach(RunningBackgroundTasks.Values.SelectMany(x => x), (bgRunner) =>
+                        Parallel.ForEach(RunningBackgroundTasks.SelectMany(x => x.Value), (bgRunner) =>
                         {
                             bgRunner.StopTask();
                         });
@@ -585,7 +586,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     }
 
                     // Reset all tests
-                    foreach (var task in KnownTaskLists.Values.SelectMany(x => x.Tasks.Values))
+                    foreach (var task in KnownTaskLists.SelectMany(x => x.Tasks))
                     {
                         task.Reset(preserveLogs);
                     }
@@ -669,7 +670,8 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             lock (KnownTaskListLock)
             {
-                if (KnownTaskLists.ContainsKey(taskList.Guid))
+                var index = KnownTaskLists.FindIndex(x => x.Guid == taskList.Guid);
+                if (index > -1)
                 {
                     lock (RunningTaskListLock)
                     {
@@ -680,7 +682,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         }
                         else
                         {
-                            KnownTaskLists[taskList.Guid] = taskList;
+                            KnownTaskLists[index] = taskList;
                             return true;
                         }
                     }
@@ -704,7 +706,8 @@ namespace Microsoft.FactoryOrchestrator.Server
             lock (KnownTaskListLock)
             {
                 // Find list this task in it
-                var taskList = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(updatedTest.Guid)).DefaultIfEmpty(null).First();
+                int taskIndex = -1;
+                var taskList = KnownTaskLists.First(x => (taskIndex = x.Tasks.FindIndex(y => y.Guid.Equals(updatedTest.Guid))) != -1);
 
                 if (taskList == null)
                 {
@@ -721,7 +724,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         }
                         else
                         {
-                            taskList.Tasks[updatedTest.Guid] = updatedTest;
+                            taskList.Tasks[taskIndex] = updatedTest;
                         }
                     }
                 }
@@ -745,10 +748,10 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public bool RunTaskList(Guid TaskListGuidToRun, int startIndex = 0)
         {
-            TaskList list = null;
+            TaskList list = KnownTaskLists.Find(x => x.Guid == TaskListGuidToRun);
 
             // Check if task list is valid
-            if (!KnownTaskLists.TryGetValue(TaskListGuidToRun, out list))
+            if (list == null)
             {
                 return false;
             }
@@ -763,7 +766,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 // Create testrun for all background tasks in the list
                 List<Guid> backgroundTaskRunGuids = new List<Guid>();
-                foreach (var task in list.BackgroundTasks.Values)
+                foreach (var task in list.BackgroundTasks)
                 {
                     backgroundTaskRunGuids.Add(task.CreateTaskRun(LogFolder, TaskListGuidToRun));
                 }
@@ -773,8 +776,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                 var tasks = list.Tasks.ToList();
                 for (int i = startIndex; i < tasks.Count; i++)
                 {
-                    tasks[i].Value.TimesRetried = 0;
-                    taskRunGuids.Add(tasks[i].Value.CreateTaskRun(LogFolder, TaskListGuidToRun));
+                    tasks[i].TimesRetried = 0;
+                    taskRunGuids.Add(tasks[i].CreateTaskRun(LogFolder, TaskListGuidToRun));
                 }
 
                 // Update XML for state tracking.
@@ -1063,7 +1066,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     CancellationTokenSource removed;
                     RunningTaskListTokens.TryRemove(taskListToCancel, out removed);
 
-                    var taskRunGuids = KnownTaskLists[taskListToCancel].Tasks.Values.Select(x => x.LatestTaskRunGuid);
+                    var taskRunGuids = KnownTaskLists.Find(x => x.Guid == taskListToCancel).Tasks.Select(x => x.LatestTaskRunGuid);
                     if (taskRunGuids != null)
                     {
                         foreach (var guid in taskRunGuids)
@@ -1127,7 +1130,9 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskRun RunTask(Guid taskGuid)
         {
-            var list = KnownTaskLists.Values.Where(x => x.Tasks.ContainsKey(taskGuid)).DefaultIfEmpty(null).First();
+            // Find list this task in it
+            int taskIndex = -1;
+            var list = KnownTaskLists.First(x => (taskIndex = x.Tasks.FindIndex(y => y.Guid.Equals(taskGuid))) != -1);
 
             if (list == null)
             {
@@ -1143,7 +1148,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 return null;
             }
 
-            var task = list.Tasks[taskGuid];
+            var task = list.Tasks[taskIndex];
             lock (task.TaskLock)
             {
                 task.TimesRetried = 0;
@@ -1226,7 +1231,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-        private ConcurrentDictionary<Guid, TaskList> KnownTaskLists;
+        private List<TaskList> KnownTaskLists;
         private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskListTokens;
         private ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskRunTokens;
         private ConcurrentDictionary<Guid, List<TaskRunner>> RunningBackgroundTasks;
@@ -1256,7 +1261,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 else
                 {
                     // Check if a running TaskList doesn't allow a other TaskLists to run
-                    return !KnownTaskLists.Values.Any(x => (x.TaskListStatus == TaskStatus.Running) && (x.AllowOtherTaskListsToRun == false));
+                    return !KnownTaskLists.Any(x => (x.TaskListStatus == TaskStatus.Running) && (x.AllowOtherTaskListsToRun == false));
                 }
             }
         }

@@ -768,10 +768,8 @@ namespace Microsoft.FactoryOrchestrator.Core
         [JsonConstructor]
         internal TaskList()
         {
-            Tasks = new Dictionary<Guid, TaskBase>();
-            TasksForXml = new List<TaskBase>();
-            BackgroundTasks = new Dictionary<Guid, TaskBase>();
-            BackgroundTasksForXml = new List<TaskBase>();
+            Tasks = new List<TaskBase>();
+            BackgroundTasks = new List<TaskBase>();
             RunInParallel = false;
             AllowOtherTaskListsToRun = false;
             TerminateBackgroundTasksOnCompletion = true;
@@ -799,27 +797,27 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             get
             {
-                if (Tasks.Values.All(x => x.LatestTaskRunPassed == true))
+                if (Tasks.All(x => x.LatestTaskRunPassed == true))
                 {
                     return TaskStatus.Passed;
                 }
-                else if (Tasks.Values.All(x => x.LatestTaskRunStatus == TaskStatus.RunPending))
+                else if (Tasks.All(x => x.LatestTaskRunStatus == TaskStatus.RunPending))
                 {
                     return TaskStatus.RunPending;
                 }
-                else if (Tasks.Values.Any(x => x.LatestTaskRunStatus == TaskStatus.Aborted))
+                else if (Tasks.Any(x => x.LatestTaskRunStatus == TaskStatus.Aborted))
                 {
                     return TaskStatus.Aborted;
                 }
-                else if (Tasks.Values.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.RunPending) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
+                else if (Tasks.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.RunPending) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
                 {
                     return TaskStatus.Running;
                 }
-                else if (Tasks.Values.Any(x => x.LatestTaskRunStatus == TaskStatus.Unknown))
+                else if (Tasks.Any(x => x.LatestTaskRunStatus == TaskStatus.Unknown))
                 {
                     return TaskStatus.Unknown;
                 }
-                else if (Tasks.Values.Any(x => (x.LatestTaskRunPassed != null) && ((bool)x.LatestTaskRunPassed == false)))
+                else if (Tasks.Any(x => (x.LatestTaskRunPassed != null) && ((bool)x.LatestTaskRunPassed == false)))
                 {
                     return TaskStatus.Failed;
                 }
@@ -888,39 +886,31 @@ namespace Microsoft.FactoryOrchestrator.Core
             return BackgroundTasks.Count > 0;
         }
 
-        public bool ShouldSerializeBackgroundTasksForXml()
+        public bool ShouldSerializeBackgroundTasks()
         {
             return BackgroundTasks.Count > 0;
         }
 
+        public bool ShouldSerializeTasks()
+        {
+            return Tasks.Count > 0;
+        }
+
         /// <summary>
-        /// XML serializer can't serialize Dictionaries. Use a list instead for XML.
+        /// The Tasks in the TaskList.
         /// </summary>
         [XmlArrayItem("Task")]
         [XmlArray("Tasks")]
-        [JsonIgnore]
-        public List<TaskBase> TasksForXml { get; set; }
+        public List<TaskBase> Tasks { get; set; }
 
-
-        /// <summary>
-        /// XML serializer can't serialize Dictionaries. Use a list instead for XML.
-        /// </summary>
-        [XmlArrayItem("Task")]
-        [XmlArray("BackgroundTasks")]
-        [JsonIgnore]
-        public List<TaskBase> BackgroundTasksForXml { get; set; }
-
-        /// <summary>
-        /// Tasks in the TaskList.
-        /// </summary>
-        [XmlIgnore]
-        public Dictionary<Guid, TaskBase> Tasks { get; set; }
 
         /// <summary>
         /// Background Tasks in the TaskList.
         /// </summary>
-        [XmlIgnore]
-        public Dictionary<Guid, TaskBase> BackgroundTasks { get; set; }
+        [XmlArrayItem("Task")]
+        [XmlArray("BackgroundTasks")]
+        [JsonIgnore]
+        public List<TaskBase> BackgroundTasks { get; set; }
 
         /// <summary>
         /// The GUID identifying this TaskList.
@@ -1263,17 +1253,15 @@ namespace Microsoft.FactoryOrchestrator.Core
                     list.Guid = Guid.NewGuid();
                 }
 
-                foreach (var task in list.TasksForXml)
+                foreach (var task in list.Tasks)
                 {
                     if (task.Guid == Guid.Empty)
                     {
                         task.Guid = Guid.NewGuid();
                     }
-
-                    list.Tasks.Add(task.Guid, task);
                 }
 
-                foreach (var bgtask in list.BackgroundTasksForXml)
+                foreach (var bgtask in list.BackgroundTasks)
                 {
                     // Validate background tasks meet requirements
                     if ((bgtask.Type != TaskType.ConsoleExe) && (bgtask.Type != TaskType.PowerShell) && (bgtask.Type != TaskType.BatchFile))
@@ -1297,27 +1285,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                     }
 
                     (bgtask as ExecutableTask).BackgroundTask = true;
-                    list.BackgroundTasks.Add(bgtask.Guid, bgtask);
                 }
-
-                // clear xml lists
-                list.TasksForXml = new List<TaskBase>();
-                list.BackgroundTasksForXml = new List<TaskBase>();
-            }
-        }
-
-
-        /// <summary>
-        /// Create TestsForXml List.
-        /// </summary>
-        private void PreSerialize()
-        {
-            foreach (var list in TaskLists)
-            {
-                list.TasksForXml = new List<TaskBase>();
-                list.TasksForXml.AddRange(list.Tasks.Values);
-                list.BackgroundTasksForXml = new List<TaskBase>();
-                list.BackgroundTasksForXml.AddRange(list.BackgroundTasks.Values);
             }
         }
 
@@ -1443,8 +1411,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns></returns>
         public bool Save(string filename)
         {
-            PreSerialize();
-
             var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
             using (XmlWriter writer = XmlWriter.Create(filename, xmlWriterSettings))
             {

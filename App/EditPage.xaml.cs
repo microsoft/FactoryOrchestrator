@@ -51,10 +51,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             TerminateCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
             UpdateHeader();
 
-            TasksCollection = new ObservableCollection<TaskBase>(activeList.Tasks.Values);
+            TasksCollection = new ObservableCollection<TaskBase>(activeList.Tasks);
             TaskListView.ItemsSource = TasksCollection;
 
-            BackgroundTasksCollection = new ObservableCollection<TaskBase>(activeList.BackgroundTasks.Values);
+            BackgroundTasksCollection = new ObservableCollection<TaskBase>(activeList.BackgroundTasks);
             BgTaskListView.ItemsSource = BackgroundTasksCollection;
 
             if (BackgroundTasksCollection.Count > 0)
@@ -498,15 +498,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void SaveTaskList()
         {
-            activeList.Tasks = new Dictionary<Guid, TaskBase>();
-            activeList.BackgroundTasks = new Dictionary<Guid, TaskBase>();
+            activeList.Tasks = new List<TaskBase>();
+            activeList.BackgroundTasks = new List<TaskBase>();
             foreach (var task in TasksCollection)
             {
-                activeList.Tasks.Add(task.Guid, task);
+                activeList.Tasks.Add(task);
             }
             foreach (var task in BackgroundTasksCollection)
             {
-                activeList.BackgroundTasks.Add(task.Guid, task);
+                activeList.BackgroundTasks.Add(task);
             }
 
             if (isNewList)

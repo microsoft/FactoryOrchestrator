@@ -80,7 +80,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TaskList list = (TaskList)e.Result;
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                 {
-                    var listArray = list.Tasks.Values.ToArray();
+                    var listArray = list.Tasks.ToArray();
                     for (int i = 0; i < listArray.Length; i++)
                     {
                         try
@@ -384,9 +384,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void ResumeListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            var newStatus = await Client.QueryTaskList(guid);
-            var lastTask = newStatus.Tasks.Values.Where(x => x.LatestTaskRunStatus == TaskStatus.Aborted).DefaultIfEmpty(null).FirstOrDefault();
-            var index = newStatus.Tasks.Keys.ToList().IndexOf(lastTask.Guid);
+            var newList = await Client.QueryTaskList(guid);
+            var lastTask = newList.Tasks.Where(x => x.LatestTaskRunStatus == TaskStatus.Aborted).DefaultIfEmpty(null).FirstOrDefault();
+            var index = newList.Tasks.FindIndex(x => x.Guid.Equals(lastTask.Guid));
             _ = Client.RunTaskList(guid, index);
         }
 

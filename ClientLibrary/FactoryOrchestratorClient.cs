@@ -176,12 +176,16 @@ namespace Microsoft.FactoryOrchestrator.Client
             await RunExecutable(@"%systemroot%\system32\shutdown.exe", $"/r /t {secondsUntilReboot}", null);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected virtual async Task WriteFileAsync(string file, byte[] data)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             File.WriteAllBytes(file, data);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected virtual async Task<byte[]> ReadFileAsync(string file)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             return File.ReadAllBytes(file);
         }
