@@ -43,6 +43,7 @@ steps:
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x86_MsBuild.log;Verbosity=Detailed'
     platform: 'x86'
     configuration: '$(BuildConfiguration)'
+    createLogFile: true
     clean: false
     maximumCpuCount: true
 
@@ -52,6 +53,7 @@ steps:
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x64_MsBuild.log;Verbosity=Detailed'
     platform: 'x64'
     configuration: '$(BuildConfiguration)'
+    createLogFile: true
     clean: false
     maximumCpuCount: true
 
@@ -61,6 +63,7 @@ steps:
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_arm_MsBuild.log;Verbosity=Detailed'
     platform: 'ARM'
     configuration: '$(BuildConfiguration)'
+    createLogFile: true
     clean: false
     maximumCpuCount: true
 
