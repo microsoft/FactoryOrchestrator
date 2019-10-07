@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		StartAppDebug.cmd = StartAppDebug.cmd
 		StartSampleDebug.cmd = StartSampleDebug.cmd
 		StartServiceDebug.cmd = StartServiceDebug.cmd
+		eng\build\UpdateCientSampleForWSK.ps1 = eng\build\UpdateCientSampleForWSK.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorServerLibrary", "ServerLibrary\FactoryOrchestratorServerLibrary.csproj", "{3F3AD59B-1E8A-4B01-BAE5-D6DABAF43DE1}"
@@ -46,6 +47,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSample\ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS Licenses", "OSS Licenses", "{AB6C2AD9-125C-4D28-B8F5-3A662F2055BC}"
+	ProjectSection(SolutionItems) = preProject
+		osslicenses\DotNetCore.WindowsService.txt = osslicenses\DotNetCore.WindowsService.txt
+		osslicenses\IpcServiceFramework.txt = osslicenses\IpcServiceFramework.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

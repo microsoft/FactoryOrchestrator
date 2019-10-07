@@ -30,6 +30,16 @@
 				"source": "FactoryOrchestrator.msixbundle.man",
 				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
+				},
+				{
+				"source": "FactoryOrchestrator.ClientLibraries.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
+				"type": "File"
+				},
+				{
+				"source": "FactoryOrchestrator.ClientSampleWSK.man",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
+				"type": "File"
 				}
 			]
 		}
