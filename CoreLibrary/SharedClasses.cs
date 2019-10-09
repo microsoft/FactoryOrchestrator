@@ -909,7 +909,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         [XmlArrayItem("Task")]
         [XmlArray("BackgroundTasks")]
-        [JsonIgnore]
         public List<TaskBase> BackgroundTasks { get; set; }
 
         /// <summary>
