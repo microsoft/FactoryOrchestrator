@@ -20,16 +20,16 @@ foreach ($proj in $projs)
         {
             # Add all the needed references, but for the WSK
             $outputContent += "    <Reference Include=`"FactoryOrchestratorClientLibrary`">`n"
-            $outputContent += "      <HintPath>`$(WSKWorkspaceRoot)\Testing\Development\lib\NETStandard\FactoryOrchestratorClientLibrary.dll</HintPath>`n"
+            $outputContent += "      <HintPath>`$(WSKContentRoot)\Testing\Development\lib\NETStandard\FactoryOrchestratorClientLibrary.dll</HintPath>`n"
             $outputContent += "    </Reference>`n"
             $outputContent += "    <Reference Include=`"FactoryOrchestratorCoreLibrary`">`n"
-            $outputContent += "      <HintPath>`$(WSKWorkspaceRoot)\Testing\Development\lib\NETStandard\FactoryOrchestratorCoreLibrary.dll</HintPath>`n"
+            $outputContent += "      <HintPath>`$(WSKContentRoot)\Testing\Development\lib\NETStandard\FactoryOrchestratorCoreLibrary.dll</HintPath>`n"
             $outputContent += "    </Reference>`n"
             $outputContent += "    <Reference Include=`"IpcServiceFramework.Client`">`n"
-            $outputContent += "      <HintPath>`$(WSKWorkspaceRoot)\Testing\Development\lib\NETStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Client.dll</HintPath>`n"
+            $outputContent += "      <HintPath>`$(WSKContentRoot)\Testing\Development\lib\NETStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Client.dll</HintPath>`n"
             $outputContent += "    </Reference>`n"
             $outputContent += "    <Reference Include=`"IpcServiceFramework.Core`">`n"
-            $outputContent += "      <HintPath>`$(WSKWorkspaceRoot)\Testing\Development\lib\NETStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Core.dll</HintPath>`n"
+            $outputContent += "      <HintPath>`$(WSKContentRoot)\Testing\Development\lib\NETStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Core.dll</HintPath>`n"
             $outputContent += "    </Reference>`n"
 
             $added = $true
