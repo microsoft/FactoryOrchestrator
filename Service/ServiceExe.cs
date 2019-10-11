@@ -1219,13 +1219,21 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private bool LoadOEMCustomizations()
         {
+            RegistryKey mutableKey = null;
             var nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+            try
+            {
+                // OSDATA wont exist on Desktop, so try to open it on it's own
+                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
+            }
+            catch (Exception)
+            { }
 
-            DisableNetworkAccess = (bool)GetValueFromRegistry(null, nonMutableKey, _disableNetworkAccessValue, false);
-            DisableCommandPromptPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableCmdPromptValue, false);
-            DisableFileTransferPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableFileTransferValue, false);
-            DisableUWPAppsPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableUWPAppsValue, false);
-            DisableManageTasklistsPage = (bool)GetValueFromRegistry(null, nonMutableKey, _disableTaskManagerValue, false);
+            DisableNetworkAccess = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableNetworkAccessValue, false);
+            DisableCommandPromptPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableCmdPromptValue, false);
+            DisableFileTransferPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableFileTransferValue, false);
+            DisableUWPAppsPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableUWPAppsValue, false);
+            DisableManageTasklistsPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableTaskManagerValue, false);
 
             return true;
         }
