@@ -36,13 +36,22 @@ namespace FactoryOrchestratorClientSample
         {
             TimeStarted = DateTime.Now;
 
-            ValidateArgs(args);
-            await ConnectToFactoryOrchestrator(Ip);
-            var FOXMLs = await CopyFilesToDUT(TestDir, DestDir);
-            var taskListSummaries = await LoadFactoryOrchestratorXMLs(DestDir, FOXMLs);
-            await ExecuteTaskLists(taskListSummaries);
-            await PrintFinalResult();
-            await CopyLogsFromDUT(LogFolder);
+            try
+            {
+                ValidateArgs(args);
+                await ConnectToFactoryOrchestrator(Ip);
+                // Set system time to accurate value
+                await Client.RunExecutable("cmd.exe", $"/C \"time {DateTime.Now.ToLongTimeString()}\"");
+                var FOXMLs = await CopyFilesToDUT(TestDir, DestDir);
+                var taskListSummaries = await LoadFactoryOrchestratorXMLs(DestDir, FOXMLs);
+                await ExecuteTaskLists(taskListSummaries);
+                await PrintFinalResult();
+                await CopyLogsFromDUT(LogFolder);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Fatal Exeption! {e.HResult} {e.Message}");
+            }
         }
 
         /// <summary>
@@ -95,9 +104,12 @@ namespace FactoryOrchestratorClientSample
         /// <param name="ip">Ip to connect to</param>
         private static async Task ConnectToFactoryOrchestrator(IPAddress ip)
         {
-            // Factory Orchestrator service uses port 45684
-            Client = new FactoryOrchestratorClient(ip, 45684);
-            await Client.Connect();
+            Client = new FactoryOrchestratorClient(ip);
+            while (!await Client.TryConnect())
+            {
+                Console.WriteLine($"Waiting for Factory Orchestrator Service on {ip.ToString()}...");
+                await Task.Delay(2000);
+            }
 
             Console.WriteLine($"Connected to {ip.ToString()}");
         }
@@ -127,13 +139,12 @@ namespace FactoryOrchestratorClientSample
 
             foreach (var xmlFilename in FOXMLs)
             {
-                await Client.LoadTaskListsFromXmlFile(Path.Combine(destDir, xmlFilename));
+                await Client.LoadTaskListsFromXmlFile(Path.Combine(destDir, Path.GetFileName(xmlFilename)));
             }
 
             Console.WriteLine($"{Environment.NewLine}TaskLists:");
 
-            // Sort loaded TaskLists by name
-            var tasklistSummaries = (await Client.GetTaskListSummaries()).OrderBy(x => x.Name);
+            var tasklistSummaries = await Client.GetTaskListSummaries();
             foreach (var summary in tasklistSummaries)
             {
                 Console.WriteLine(summary.ToString());
@@ -158,17 +169,22 @@ namespace FactoryOrchestratorClientSample
                 while (taskList.IsRunning)
                 {
                     System.Threading.Thread.Sleep(5000);
-
                     taskList = await Client.QueryTaskList(summary.Guid);
-                    var runningTasks = taskList.Tasks.Where(x => x.IsRunning);
 
                     if (taskList.IsRunning)
                     {
+                        var runningTasks = taskList.Tasks.Where(x => x.IsRunning);
+
                         Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}---- TaskList {summary.Name} Status: {taskList.TaskListStatus} ----");
                         Console.WriteLine($"---- Running Tasks: ----");
                         foreach (var task in runningTasks)
                         {
-                            Console.WriteLine($"{task.Name}: Running for {(DateTime.Now - task.LatestTaskRunTimeStarted).Value.TotalSeconds} seconds");
+                            Console.Write($"{task.Name}");
+                            if (task.LatestTaskRunRunTime != null)
+                            {
+                                Console.Write($": Running for { (task.LatestTaskRunRunTime).GetValueOrDefault().TotalSeconds} seconds");
+                            }
+                            Console.WriteLine();
                         }
                     }
                 }
@@ -205,7 +221,7 @@ namespace FactoryOrchestratorClientSample
                 Console.WriteLine($"Overall status: {taskList.TaskListStatus}");
                 foreach (var task in taskList.Tasks)
                 {
-                    Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} with exit code {task.LatestTaskRunExitCode}. Task took {task.LatestTaskRunRunTime.Value.TotalSeconds} seconds.");
+                    Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} with exit code {task.LatestTaskRunExitCode.GetValueOrDefault()}. Task took {task.LatestTaskRunRunTime.GetValueOrDefault().TotalSeconds} seconds.");
                 }
             }
         }
