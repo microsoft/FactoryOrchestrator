@@ -288,6 +288,11 @@ namespace Microsoft.FactoryOrchestrator.Core
             return LatestTaskRunTimeStarted.HasValue;
         }
 
+        public bool ShouldSerializeLatestTaskRunStatus()
+        {
+            return LatestTaskRunStatus != TaskStatus.NotRun;
+        }
+
         public bool ShouldSerializeLatestTaskRunTimeFinished()
         {
             return LatestTaskRunTimeFinished.HasValue;
@@ -964,7 +969,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             Guid = Guid.NewGuid();
             OwningTaskGuid = null;
             LogFilePath = null;
-            TaskStatus = TaskStatus.NotRun;
+            TaskStatus = TaskStatus.RunPending;
             TimeFinished = null;
             TimeStarted = null;
             ExitCode = null;
@@ -1455,6 +1460,48 @@ namespace Microsoft.FactoryOrchestrator.Core
             return $"Task List {Name} ({Guid}) with Status {Status}";
         }
 
+        public override int GetHashCode()
+        {
+            return Guid.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as TaskListSummary;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            if (!Guid.Equals(rhs.Guid))
+            {
+                return false;
+            }
+
+            if (!Status.Equals(rhs.Status))
+            {
+                return false;
+            }
+
+            if (!RunInParallel.Equals(rhs.RunInParallel))
+            {
+                return false;
+            }
+
+            if (!AllowOtherTaskListsToRun.Equals(rhs.AllowOtherTaskListsToRun))
+            {
+                return false;
+            }
+
+            if (!TerminateBackgroundTasksOnCompletion.Equals(rhs.TerminateBackgroundTasksOnCompletion))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// The GUID identifying the TaskList.
         /// </summary>
@@ -1484,5 +1531,16 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// If true, Background Tasks defined in this TaskList are forcibly terminated when the TaskList stops running.
         /// </summary>
         public bool TerminateBackgroundTasksOnCompletion { get; set; }
+
+        /// <summary>
+        /// True if the TaskList is running or queued to run.
+        /// </summary>
+        public bool IsRunning
+        {
+            get
+            {
+                return ((Status == TaskStatus.Running) || (Status == TaskStatus.RunPending));
+            }
+        }
     }
 }

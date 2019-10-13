@@ -746,6 +746,20 @@ namespace Microsoft.FactoryOrchestrator.Server
             return TaskRun_Server.UpdateTaskRun(latestTaskRun);
         }
 
+        public bool RunAllTaskLists()
+        {
+            lock(KnownTaskListLock)
+            {
+                foreach (var list in KnownTaskLists)
+                {
+                    RunTaskList(list.Guid);
+                    Thread.Sleep(5);
+                }
+            }
+
+            return true;
+        }
+
         public bool RunTaskList(Guid TaskListGuidToRun, int startIndex = 0)
         {
             TaskList list = KnownTaskLists.Find(x => x.Guid == TaskListGuidToRun);
@@ -828,7 +842,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 catch (OperationCanceledException)
                 {
-                    return;
+                    // Need to mark everything as aborted below
                 }
 
                 usedSem = true;
@@ -856,6 +870,15 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (token.IsCancellationRequested)
             {
+                foreach (var runGuid in item.TaskRunGuids)
+                {
+                    var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
+                    run.TaskStatus = TaskStatus.Aborted;
+                    run.ExitCode = -1;
+                    run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
+                    run.OwningTask.LatestTaskRunExitCode = -1;
+                }
+
                 // Update XML for state tracking. This is only needed if a tasklist was aborted.
                 SaveAllTaskListsToXmlFile(TaskListStateFile);
             }
@@ -1033,7 +1056,11 @@ namespace Microsoft.FactoryOrchestrator.Server
                         AbortTaskList((Guid)taskRun.OwningTaskListGuid);
                     }
                 }
-
+            }
+            else
+            {
+                 taskRun.TaskStatus = TaskStatus.Aborted;
+                 taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
             }
         }
 
@@ -1216,7 +1243,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             var token = new CancellationTokenSource();
             RunningTaskListTokens.TryAdd(workItem.TaskListGuid, token);
             RunningBackgroundTasks.TryAdd(workItem.TaskListGuid, new List<TaskRunner>());
-            Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem, token.Token);
+            Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem);
             t.Start();
         }
 

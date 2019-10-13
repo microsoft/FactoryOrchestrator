@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources>
-        <Flyout x:Name="EditFlyout" x:Key="EditFlyout" LightDismissOverlayMode="On" >
+        <Flyout x:Name="EditFlyout" x:Key="EditFlyout" LightDismissOverlayMode="On">
             <Grid x:Name="FlyoutGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -27,17 +27,17 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="EditFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5" HorizontalAlignment="Center"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Task Name:" Padding="5"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="TestNameBox" Text="" MinWidth="200"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="TestNameBox" Text="" MinWidth="400"/>
                 <TextBlock Grid.Row="2" Grid.Column="0"  x:Name="PathBlock" Text="Task Path:" Padding="5"/>
-                <TextBox Grid.Row="2" Grid.Column="1" x:Name="TaskPathBox" Text="" MinWidth="200"/>
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="TaskPathBox" Text="" MinWidth="400"/>
                 <TextBlock Grid.Row="2" Grid.Column="0" x:Name="AppBlock" Text="App:" Visibility="Collapsed" Padding="5"/>
-                <ComboBox Grid.Row="2" Grid.Column="1" x:Name="AppComboBox" Visibility="Collapsed" MinWidth="200"/>
+                <ComboBox Grid.Row="2" Grid.Column="1" x:Name="AppComboBox" Visibility="Collapsed" MinWidth="400" IsEditable="True"/>
                 <TextBlock Grid.Row="3" Grid.Column="0"  x:Name="ArgumentsBlock" Text="Arguments:" Padding="5"/>
-                <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="200"/>
+                <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="400"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TimeoutBlock" Text="Timeout (seconds):" Padding="5"/>
                 <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged"/>
                 <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" Text="Maximum number of retries:" Padding="5"/>
-                <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="RetryBox_TextChanged"/>
+                <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="400" TextChanged="RetryBox_TextChanged"/>
                 <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" Content="Abort TaskList on Task failure?" IsChecked="False" IsThreeState="False" Padding="5"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.ColumnSpan="2" >
                     <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">

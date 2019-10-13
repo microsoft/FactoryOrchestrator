@@ -220,6 +220,12 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         // Task Execution APIs
         /// <summary>
+        /// Executes all TaskLists in order.
+        /// </summary>
+        /// <returns></returns>
+        bool RunAllTaskLists();
+
+        /// <summary>
         /// Executes a TaskList.
         /// </summary>
         /// <param name="taskListGuid">GUID of the TaskList to run.</param>

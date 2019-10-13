@@ -334,6 +334,20 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Executes all TaskLists in order.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> RunAllTaskLists()
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("Start connection first!");
+            }
+
+            return await _IpcClient.InvokeAsync(x => x.RunAllTaskLists());
+        }
+
+        /// <summary>
         /// Executes a TaskList.
         /// </summary>
         /// <param name="taskListGuid">GUID of the TaskList to run.</param>

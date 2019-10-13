@@ -385,6 +385,14 @@ namespace Microsoft.FactoryOrchestrator.Service
             return updated;
         }
 
+        public bool RunAllTaskLists()
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"Start: RunAllTaskLists");
+            var ran = FOService.Instance.TestExecutionManager.RunAllTaskLists();
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunAllTaskLists");
+            return ran;
+        }
+
         public bool RunTaskList(Guid taskListToRun, int initialTaskIndex)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");

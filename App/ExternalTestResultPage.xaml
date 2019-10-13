@@ -12,6 +12,7 @@
         <TextBlock Text="Action Required: Task result expected by Factory Orchestrator Service" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30"/>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <TextBlock x:Name="TestText"  Text="Task: " HorizontalAlignment="Center" FontSize="30"/>
+            <TextBlock x:Name="PathText"  Text="Path: " HorizontalAlignment="Center" FontSize="30" Visibility="Collapsed"/>
             <TextBlock x:Name="ArgsText"  Text="Arguments: " HorizontalAlignment="Center" FontSize="30"/>
             <TextBlock x:Name="TaskRunText" Text="Task Run: " HorizontalAlignment="Center" FontSize="30"/>
             <Grid HorizontalAlignment="Center">

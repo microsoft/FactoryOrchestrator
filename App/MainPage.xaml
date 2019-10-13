@@ -30,7 +30,7 @@
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button.Flyout>
-                    <Flyout x:Name="ExitFlyout">
+                    <Flyout x:Name="ExitFlyout" Closed="ExitFlyout_Closed">
                         <StackPanel>
                             <TextBlock x:Name="ExitText" TextWrapping="Wrap" Text="Exit Factory Orchestrator?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -53,6 +53,7 @@
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
+                            <ProgressBar x:Name="ShutdownProgessBar" IsIndeterminate="True" Visibility="Collapsed" Margin="10"/>
                         </StackPanel>
                     </Flyout>
                 </Button.Flyout>

@@ -39,6 +39,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             // Append task details to UI
             TestText.Text += taskRun.TaskName;
+            if (taskRun.TaskPath != taskRun.TaskName)
+            {
+                PathText.Text += taskRun.TaskPath;
+                PathText.Visibility = Visibility.Visible;
+            }
+
             ArgsText.Text += taskRun.Arguments;
             TaskRunText.Text += taskRun.Guid.ToString();
 

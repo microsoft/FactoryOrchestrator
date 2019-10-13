@@ -32,7 +32,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             _listUpdateSem = new SemaphoreSlim(1, 1);
-            TaskListCollection = new ObservableCollection<TaskList>();
+            TaskListCollection = new ObservableCollection<TaskListSummary>();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -114,7 +114,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                     else
                     {
-                        var list = await Client.CreateTaskListFromDirectory(path, false);
+                        var list = await Client.CreateTaskListFromDirectory(path, true);
                         if (list == null)
                         {
                             var error = await Client.GetLastServiceError();
@@ -305,34 +305,31 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (taskListSummaries != null)
             {
-                // Add or update TaskLists
-                foreach (var summary in taskListSummaries)
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    var list = TaskListCollection.Where(x => x.Guid == summary.Guid).DefaultIfEmpty(null).FirstOrDefault();
-
-                    if (list == null)
+                    // Add or update TaskLists
+                    for (int i = 0; i < taskListSummaries.Count; i++)
                     {
-                        var newList = await Client.QueryTaskList(summary.Guid);
-                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        try
                         {
-                            TaskListCollection.Add(newList);
-                        });
+                            if (!TaskListCollection[i].Equals(taskListSummaries[i]))
+                            {
+                                TaskListCollection[i] = taskListSummaries[i];
+                            }
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            TaskListCollection.Insert(i, taskListSummaries[i]);
+                        }
                     }
-                }
 
-                // Prune non-existant lists
-                for (int i = 0; i < TaskListCollection.Count; i++)
-                {
-                    var item = TaskListCollection[i];
-                    if (!taskListSummaries.Select(x => x.Guid).Contains(item.Guid))
+                    // Prune existing list
+                    int j = taskListSummaries.Count;
+                    while (TaskListCollection.Count > taskListSummaries.Count)
                     {
-                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                        {
-                            TaskListCollection.RemoveAt(i);
-                        });
-                        i--;
+                        TaskListCollection.RemoveAt(j);
                     }
-                }
+                });
             }
 
         }
@@ -344,10 +341,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;
-            return ((TaskList)((ContentPresenter)(grid.Children[0])).Content).Guid;
+            return ((TaskListSummary)((ContentPresenter)(grid.Children[0])).Content).Guid;
         }
 
-        public ObservableCollection<TaskList> TaskListCollection;
+        public ObservableCollection<TaskListSummary> TaskListCollection;
         private ServerPoller _taskListGuidPoller;
         private SemaphoreSlim _listUpdateSem;
         private Guid _activeGuid;

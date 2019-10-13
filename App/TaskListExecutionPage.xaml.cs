@@ -31,9 +31,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             mainPage = null;
             TaskListCollection = new ObservableCollection<TaskListSummary>();
             ActiveListCollection = new ObservableCollection<TaskBase>();
-#if DEBUG
-            DisablePolling.Visibility = Visibility.Visible;
-#endif
         }
 
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -50,12 +47,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _activeListPoller = new ServerPoller(taskListGuid, typeof(TaskList), Client, 2000);
                 ActiveListCollection.Clear();
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
-#if DEBUG
-                if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
-#endif
+                _activeListPoller.StartPolling();
+            }
+            else
+            {
+                if (_activeListPoller != null)
                 {
-                    _activeListPoller.StartPolling();
+                    _activeListPoller.StopPolling();
+                    _activeListPoller = null;
                 }
+                ActiveListCollection.Clear();
             }
         }
 
@@ -85,7 +86,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         try
                         {
-                            if (ActiveListCollection[i] != listArray[i])
+                            if (!ActiveListCollection[i].Equals(listArray[i]))
                             {
                                 ActiveListCollection[i] = listArray[i];
                             }
@@ -109,9 +110,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         }
                     }
 
-                    for (int i = listArray.Length; i < ActiveListCollection.Count; i++)
+                    int j = listArray.Length;
+                    while (ActiveListCollection.Count > listArray.Length)
                     {
-                        ActiveListCollection.RemoveAt(i);
+                        ActiveListCollection.RemoveAt(j);
                     }
                 });
             }
@@ -122,74 +124,83 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _listUpdateSem.Wait();
 
             var taskListSummaries = e.Result as List<TaskListSummary>;
+            var listsNeedingUpdate = new List<bool>(taskListSummaries.Count);
             if (taskListSummaries != null)
             {
-                // Add or update TaskLists
-                foreach (var summary in taskListSummaries)
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    TaskListSummary existingSummary = null;
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    if (taskListSummaries.Any(x => x.IsRunning))
                     {
-                        var updateNeeded = false;
-                        var guidFound = false;
-                        for (int i = 0; i < TaskListCollection.Count; i++)
+                        RunAllButton.Content = "Abort all";
+                    }
+                    else
+                    {
+                        RunAllButton.Content = "Run all";
+                    }
+
+                    // Add or update TaskLists
+                    for (int i = 0; i < taskListSummaries.Count; i++)
+                    {
+                        bool updated = false;
+                        try
                         {
-                            existingSummary = TaskListCollection[i];
-                            if (existingSummary.Guid == summary.Guid)
+                            if (!TaskListCollection[i].Equals(taskListSummaries[i]))
                             {
-                                // Replace existing summary.
-                                guidFound = true;
+                                TaskListCollection[i].Status = taskListSummaries[i].Status;
+                                TaskListCollection[i].Name = taskListSummaries[i].Name;
+                                TaskListCollection[i].Guid = taskListSummaries[i].Guid;
+                                TaskListCollection[i].AllowOtherTaskListsToRun = taskListSummaries[i].AllowOtherTaskListsToRun;
+                                TaskListCollection[i].RunInParallel = taskListSummaries[i].RunInParallel;
+                                TaskListCollection[i].TerminateBackgroundTasksOnCompletion = taskListSummaries[i].TerminateBackgroundTasksOnCompletion;
 
-                                if (existingSummary.Status != summary.Status)
-                                {
-                                    existingSummary.Status = summary.Status;
-                                    updateNeeded = true;
-                                }
-
-                                break;
+                                updated = true;
                             }
                         }
-
-                        if (!guidFound)
+                        catch (ArgumentOutOfRangeException)
                         {
-                            // Add new summary
-                            TaskListCollection.Add(summary);
-                            existingSummary = summary;
-                            updateNeeded = true;
+                            TaskListCollection.Insert(i, taskListSummaries[i]);
+                            updated = true;
                         }
 
-                        // If this list is new or changed, update button state for this TaskList
-                        if (updateNeeded)
+                        listsNeedingUpdate.Add(updated);
+                    }
+
+                    // Prune existing list
+                    int j = taskListSummaries.Count;
+                    while (TaskListCollection.Count != taskListSummaries.Count)
+                    {
+                        TaskListCollection.RemoveAt(j);
+                    }
+                });
+
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                {
+                    for (int i = 0; (i < listsNeedingUpdate.Count) && (i < TaskListCollection.Count); i++)
+                    {
+                        if (listsNeedingUpdate[i])
                         {
                             // Find the listview item for this tasklist. May need to wait for it to exist.
-                            ListViewItem item;
-                            item = TaskListsView.ContainerFromItem(existingSummary) as ListViewItem;
-                            while (item == null)
-                            {
-                                await Task.Delay(5);
-                                item = TaskListsView.ContainerFromItem(existingSummary) as ListViewItem;
-                            }
+                                ListViewItem item;
+                                item = TaskListsView.ContainerFromItem(TaskListCollection[i]) as ListViewItem;
+                                while (item == null)
+                                {
+                                    await Task.Delay(5);
+                                    item = TaskListsView.ContainerFromItem(TaskListCollection[i]) as ListViewItem;
+                                }
 
-                            await SelectTemplate(existingSummary, item, true);
+                                await SelectTemplate(TaskListCollection[i], item, true);
                         }
-                    });
-                }
-
-                // Prune non-existant lists
-                var guids = taskListSummaries.Select(x => x.Guid);
-                for (int i = 0; i < TaskListCollection.Count; i++)
-                {
-                    var item = TaskListCollection[i];
-                    if (!guids.Contains(item.Guid))
-                    {
-                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                        {
-                            TaskListCollection.RemoveAt(i);
-                        });
-                        i--;
                     }
-                }
+                });
             }
+
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                if ((_activeListPoller != null) && (TaskListsView.SelectedIndex != -1) && (TaskListCollection[TaskListsView.SelectedIndex].Guid != _activeListPoller.PollingGuid))
+                {
+                    TaskListsView_SelectionChanged(null, null);
+                }
+            });
 
             _listUpdateSem.Release();
         }
@@ -282,26 +293,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 // Get the backing grid, disable all buttons
                 var contentGrid = item.ContentTemplateRoot as Grid;
-                ToolTip t = new ToolTip();
-                t.Content = "Disabled due to other running TaskList";
-                ToolTipService.SetToolTip(contentGrid, t);
                 var button = contentGrid.FindName("RestartListButton") as Button;
                 if (button != null)
                 {
                     button.IsEnabled = false;
-                    ToolTipService.SetToolTip(button, t);
                 }
                 button = contentGrid.FindName("RunListButton") as Button;
                 if (button != null)
                 {
                     button.IsEnabled = false;
-                    ToolTipService.SetToolTip(button, t);
                 }
                 button = contentGrid.FindName("ResumeListButton") as Button;
                 if (button != null)
                 {
                     button.IsEnabled = false;
-                    ToolTipService.SetToolTip(button, t);
                 }
             }
         }
@@ -315,12 +320,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (_activeListPoller != null)
             {
-#if DEBUG
-                if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
-#endif
-                {
-                    _activeListPoller.StartPolling();
-                }
+                _activeListPoller.StartPolling();
             }
 
             if (_taskListGuidPoller == null)
@@ -329,12 +329,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidAndStatusAsync;
             }
 
-#if DEBUG
-            if ((DisablePolling.IsChecked != null) && (bool)(!DisablePolling.IsChecked))
-#endif
-            {
-                _taskListGuidPoller.StartPolling();
-            }
+            _taskListGuidPoller.StartPolling();
 
             if (_selectedTaskList != -1)
             {
@@ -352,25 +347,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _taskListGuidPoller.StopPolling();
         }
 
-        private void DisablePolling_Click(object sender, RoutedEventArgs e)
+        private void RunAllButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((DisablePolling.IsChecked != null) && (bool)(DisablePolling.IsChecked))
+            if (RunAllButton.Content.ToString().Contains("Run", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (_activeListPoller != null)
-                {
-                    _activeListPoller.StopPolling();
-                }
-
-                _taskListGuidPoller.StopPolling();
+                _ = Client.RunAllTaskLists();
             }
             else
             {
-                if (_activeListPoller != null)
-                {
-                    _activeListPoller.StartPolling();
-                }
-
-                _taskListGuidPoller.StartPolling();
+                _ = Client.AbortAll();
             }
         }
 

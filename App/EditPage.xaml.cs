@@ -67,6 +67,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             listEdited = false;
+
+
+            var style = new Style(typeof(FlyoutPresenter));
+            style.Setters.Add(new Setter(FlyoutPresenter.MinWidthProperty, Window.Current.CoreWindow.Bounds.Width));
+            style.Setters.Add(new Setter(FlyoutPresenter.MinHeightProperty, Window.Current.CoreWindow.Bounds.Height));
+            EditFlyout.SetValue(Flyout.FlyoutPresenterStyleProperty, style);
         }
 
         private void UpdateHeader()
@@ -128,7 +134,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ConfigureFlyout(activeTask.Type, true);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
             {
-                Placement = FlyoutPlacementMode.Full,
+                Placement = FlyoutPlacementMode.Auto,
                 ShowMode = FlyoutShowMode.Standard
             });
         }
@@ -151,7 +157,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ConfigureFlyout(activeTask.Type);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
             {
-                Placement = FlyoutPlacementMode.Full,
+                Placement = FlyoutPlacementMode.Auto,
                 ShowMode = FlyoutShowMode.Standard
             });
         }
@@ -230,8 +236,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     task.Arguments = ArgumentsBox.Text;
                     break;
                 case TaskType.UWP:
-                    var uwpTest = activeTask as UWPTask;
-                    uwpTest.Path = AppComboBox.SelectedItem.ToString();
+                    var uwpTask = activeTask as UWPTask;
+                    uwpTask.Path = AppComboBox.SelectedItem.ToString();
+                    uwpTask.Arguments = ArgumentsBox.Text;
                     break;
             }
 
@@ -264,7 +271,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private void ConfigureFlyout(TaskType testType, bool isBg = false)
+        private async void ConfigureFlyout(TaskType testType, bool isBg = false)
         {
             activeTaskType = testType;
             if (isBg)
@@ -307,6 +314,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     case TaskType.UWP:
                         var uwpTest = activeTask as UWPTask;
                         AppComboBox.SelectedItem = uwpTest.Path;
+
+                        if (AppComboBox.SelectedIndex == -1)
+                        {
+                            var itemlist = await Client.GetInstalledApps();
+                            if (!itemlist.Contains(uwpTest.Path))
+                            {
+                                itemlist.Add(uwpTest.Path);
+                            }
+
+                            AppComboBox.ItemsSource = itemlist;
+                            AppComboBox.SelectedItem = uwpTest.Path;
+                        }
+
                         EditFlyoutTextHeader.Text = $"Editing UWP Task";
                         break;
                     case TaskType.External:
@@ -384,6 +404,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Visible;
                     AppComboBox.Visibility = Visibility.Collapsed;
                     AppBlock.Visibility = Visibility.Collapsed;
+                    ArgumentsBlock.Text = "Arguments:";
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     break;
@@ -392,8 +413,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Collapsed;
                     AppComboBox.Visibility = Visibility.Visible;
                     AppBlock.Visibility = Visibility.Visible;
-                    ArgumentsBlock.Visibility = Visibility.Collapsed;
-                    ArgumentsBox.Visibility = Visibility.Collapsed;
+                    ArgumentsBlock.Text = "Arguments (NOT passed to app, reference only):";
+                    ArgumentsBlock.Visibility = Visibility.Visible;
+                    ArgumentsBox.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -402,47 +424,47 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             activeTask = null;
             ConfigureFlyout(TaskType.ConsoleExe);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
 
         private void NewTAEFButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
             ConfigureFlyout(TaskType.TAEFDll);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
 
         private void NewUWPButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
             ConfigureFlyout(TaskType.UWP);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
 
         private void NewExternalButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
             ConfigureFlyout(TaskType.External);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
         private void NewBackgroundButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
             ConfigureFlyout(TaskType.ConsoleExe, true);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
         private void NewPSButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
             ConfigureFlyout(TaskType.PowerShell);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
 
         private void NewCMDButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
             ConfigureFlyout(TaskType.BatchFile);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Full });
+            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
 
         private void CancelEdit_Click(object sender, RoutedEventArgs e)

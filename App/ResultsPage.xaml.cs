@@ -159,17 +159,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             TestHeader.Text = _test.Name;
             TaskGuid.Text = _test.Guid.ToString();
+            
+            if (_test.Path != null)
+            {
+                TaskPath.Text = _test.Path;
+            }
+            else
+            {
+                TaskPath.Text = "";
+            }
 
             if (_test.Arguments != null)
             {
                 Args.Text = _test.Arguments.ToString();
-                Args.Visibility = Visibility.Visible;
-                ArgsConst.Visibility = Visibility.Visible;
             }
             else
             {
-                Args.Visibility = Visibility.Collapsed;
-                ArgsConst.Visibility = Visibility.Collapsed;
+                Args.Text = "";
             }
         }
 

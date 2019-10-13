@@ -112,10 +112,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Task Lists" Grid.Column="0" Grid.Row="0" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <TextBlock Text="Task Lists" Grid.Column="0" Grid.Row="0" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+            <Button x:Name="RunAllButton" Content="Run all"  AutomationProperties.Name="Run all task lists" Click="RunAllButton_Click"/>
+        </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" >
             <TextBlock Text="Tasks" Style="{StaticResource TitleTextBlockStyle}"/>
-            <CheckBox x:Name="DisablePolling" Content="DisablePolling" Margin="10,0" IsChecked="False" Checked="DisablePolling_Click"  Unchecked="DisablePolling_Click" Visibility="Collapsed"/>
         </StackPanel>
 
         <!-- Uses TaskListItemTemplate defined in page resources -->
@@ -124,7 +126,7 @@
         <ScrollViewer x:Name="TestsScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" >
             <Grid x:Name="TestsScrollGrid">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="420" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <ListView x:Name="TestsView" Grid.Column="0" Grid.Row="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" SelectionChanged="TestsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

@@ -222,7 +222,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FactoryOrchestrator
                             // Only allow one external run at a time though
                             var run = await Client.QueryTaskRun((Guid)evnt.Guid);
-                            if (!run.TaskRunComplete)
+                            if (run != null && !run.TaskRunComplete)
                             {
                                 await DoExternalAppTaskRunAsync(run);
                             }

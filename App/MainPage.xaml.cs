@@ -84,13 +84,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void On_ContentFrameNavigated(object sender, NavigationEventArgs e)
         {
-            //if (ContentFrame.SourcePageType == typeof(SettingsPage))
-            //{
-            //    // SettingsItem is not part of NavView.MenuItems, and doesn't have a Tag.
-            //    NavView.SelectedItem = (NavigationViewItem)NavView.SettingsItem;
-            //    NavView.Header = "Settings";
-            //}
-            //else
             if(ContentFrame.SourcePageType != null)
             {
                 var item = navViewPages.FirstOrDefault(p => (p.Page == e.SourcePageType));
@@ -111,11 +104,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            if (args.IsSettingsInvoked)
-            {
-                NavView_Navigate("settings", args.RecommendedNavigationTransitionInfo);
-            }
-            else if (args.InvokedItemContainer != null)
+            if (args.InvokedItemContainer != null)
             {
                 var navItemTag = args.InvokedItemContainer.Tag.ToString();
                 NavView_Navigate(navItemTag, args.RecommendedNavigationTransitionInfo);
@@ -125,22 +114,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void NavView_Navigate(string navItemTag, NavigationTransitionInfo recommendedNavigationTransitionInfo, NavigationEventArgs e = null)
         {
             ((App)Application.Current).MainPageLastNavTag = lastNavTag = navItemTag;
-
             Type page = null;
-            
-            //if (navItemTag == "settings")
-            //{
-            //    page = typeof(SettingsPage);
-            //}
-            //else
-            {
-                var pageMap = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag));
+            var pageMap = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag));
 
-                if (pageMap.Enabled)
-                {
-                    // Dont navigate unless the page is enabled
-                    page = pageMap.Page;
-                }
+            if (pageMap.Enabled)
+            {
+                // Dont navigate unless the page is enabled
+                page = pageMap.Page;
             }
              
             // Get the page type before navigation so you can prevent duplicate entries in the backstack.
@@ -160,11 +140,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void ConfirmReboot_Click(object sender, RoutedEventArgs e)
         {
             Client.RebootDevice(5);
+            ShutdownProgessBar.Visibility = Visibility.Visible;
+            ConfirmReboot.IsEnabled = false;
+            ConfirmShutdown.IsEnabled = false;
+            ConfirmExit.IsEnabled = false;
         }
 
         private void ConfirmShutdown_Click(object sender, RoutedEventArgs e)
         {
             Client.ShutdownDevice(5);
+            ShutdownProgessBar.Visibility = Visibility.Visible;
+            ConfirmReboot.IsEnabled = false;
+            ConfirmShutdown.IsEnabled = false;
+            ConfirmExit.IsEnabled = false;
         }
         private async void NetworkFlyout_Opening(object sender, object e)
         {
@@ -178,6 +166,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     IsTextSelectionEnabled = true
                 });
             }
+        }
+        private void ExitFlyout_Closed(object sender, object e)
+        {
+            ConfirmExit.IsEnabled = true;
+            ConfirmReboot.IsEnabled = true;
+            ConfirmShutdown.IsEnabled = true;
+            ShutdownProgessBar.Visibility = Visibility.Collapsed;
         }
 
         private async Task<List<Tuple<string, string>>> GetIpAddresses()

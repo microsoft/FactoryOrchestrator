@@ -44,18 +44,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
                 else
                 {
+                    var ipStr = ((App)Application.Current).Client.IpAddress.ToString();
                     ((App)Application.Current).Client = null;
-                    ShowConnectFailure();
+                    ShowConnectFailure(ipStr);
                 }
             }
         }
 
-        private async void ShowConnectFailure()
+        private async void ShowConnectFailure(string ipStr)
         {
             ContentDialog failedConnectDialog = new ContentDialog
             {
                 Title = "Unable to connect to target IP",
-                Content = $"Could not connect to {((App)Application.Current).Client.IpAddress}.\n\nCheck that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.",
+                Content = $"Could not connect to {ipStr}.\n\nCheck that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.",
                 CloseButtonText = "Ok"
             };
 
