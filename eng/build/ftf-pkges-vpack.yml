@@ -298,6 +298,14 @@ steps:
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
+- task: CopyFiles@2
+  displayName: 'Copy XSD to Client Libraries'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\CoreLibrary'
+    Contents: 'FactoryOrchestratorXML.xsd'
+    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
