@@ -1444,7 +1444,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             else if (ActiveTaskRun.TaskType == TaskType.PowerShell)
             {
                 startInfo.FileName = "pwsh.exe";
-                startInfo.Arguments += $"-f \"{ActiveTaskRun.TaskPath}\" ";
+                startInfo.Arguments += $"-NonInteractive -NoProfile -File \"{ActiveTaskRun.TaskPath}\" ";
             }
             else if (ActiveTaskRun.TaskType == TaskType.BatchFile)
             {
