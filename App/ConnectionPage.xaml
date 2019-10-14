@@ -62,6 +62,7 @@
                 <Button Grid.Row="0" Grid.Column="4" x:Name="ConnectButton" Margin="1" VerticalAlignment="Center" Content="Connect" Click="ConnectButton_Click" IsEnabled="False"/>
             </Grid>
             <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Right">
+                <Button x:Name="ValidateXMLButton" Content="Validate FactoryOrchestratorXML" Margin="5" Click="ValidateXMLButton_Click"/>
                 <Button x:Name="AboutButton"  Content="About Factory Orchestrator" Margin="5" Click="AboutButton_Click"/>
             </StackPanel>
         </Grid>

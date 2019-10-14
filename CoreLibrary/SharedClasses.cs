@@ -12,6 +12,34 @@ using System.Threading.Tasks;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    public static class Exception_Extensions
+    {
+        public static string AllExceptionsToString(this Exception ex)
+        {
+            string ret = "";
+            var exc = ex;
+            while (exc != null)
+            {
+                if (ret.Length > 0)
+                {
+                    ret += " -> ";
+                }
+                if (exc.Message != null)
+                {
+                    ret += $"{exc.GetType().ToString()}:{exc.Message}";
+                }
+                else
+                {
+                    ret += $"{exc.GetType().ToString()}";
+                }
+
+                exc = exc.InnerException;
+            }
+
+            return ret;
+        }
+    }
+
     /// <summary>
     /// The status of a Task or TaskList.
     /// </summary>
