@@ -6,6 +6,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.Storage;
+using Windows.UI.Xaml.Input;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -86,6 +87,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
             else if (!(bool)LocalDeviceCheckBox.IsChecked)
             {
                 ConnectButton.IsEnabled = false;
+            }
+        }
+
+        private void IpTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (!String.IsNullOrWhiteSpace(IpTextBox.Text))
+                {
+                    ConnectButton_Click(null, null);
+                }
             }
         }
 

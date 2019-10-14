@@ -20,6 +20,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -39,7 +40,8 @@
                 <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" Text="Maximum number of retries:" Padding="5"/>
                 <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="400" TextChanged="RetryBox_TextChanged"/>
                 <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" Content="Abort TaskList on Task failure?" IsChecked="False" IsThreeState="False" Padding="5"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.ColumnSpan="2" >
+                <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="BgTaskBox" Content="Add as Background Task?" IsChecked="False" IsThreeState="False" Padding="5" Click="BgTaskBox_Click"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.ColumnSpan="2" >
                     <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
                         <SymbolIcon Symbol="Cancel"/>
                     </Button>
@@ -106,11 +108,10 @@
                 <Button x:Name="NewTAEFButton" Content="New TAEF Task" Click="NewTAEFButton_Click"/>
                 <Button x:Name="NewUWPButton" Content="New UWP App Task" Click="NewUWPButton_Click"/>
                 <Button x:Name="NewExternalButton" Content="New External Task" Click="NewExternalButton_Click"/>
-                <Button x:Name="NewBackgroundButton" Content="New Background Task" Click="NewBackgroundButton_Click"/>
             </StackPanel>
         </StackPanel>
 
-        <TextBlock x:Name="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="BackgroundTasks:" Visibility="Collapsed"/>
+        <TextBlock x:Name="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="Background Tasks:" Visibility="Collapsed"/>
         <ListView x:Name="BgTaskListView" Grid.Row="4"  Grid.Column="1" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">

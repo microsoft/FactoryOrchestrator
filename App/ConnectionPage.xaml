@@ -56,7 +56,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="IP Address:" x:Name="IpText"/>
-                <TextBox Grid.Row="0" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="IpTextBox_TextChanged" InputScope="Number" AutomationProperties.LabeledBy="{Binding ElementName=IpText}"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="IpTextBox_TextChanged" InputScope="Number" KeyDown="IpTextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="OR" Margin="10"/>
                 <CheckBox Grid.Row="0" Grid.Column="3"  x:Name="LocalDeviceCheckBox" Content="Local Device" VerticalAlignment="Center" Margin="0,0,5,0" Unchecked="LocalDeviceCheckBox_Click" Checked="LocalDeviceCheckBox_Click" IsChecked="False"/>
                 <Button Grid.Row="0" Grid.Column="4" x:Name="ConnectButton" Margin="1" VerticalAlignment="Center" Content="Connect" Click="ConnectButton_Click" IsEnabled="False"/>

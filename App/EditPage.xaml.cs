@@ -164,6 +164,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private TaskBase CreateTestFromFlyout(TaskType testType)
         {
+            activeTaskIsNowBg = false;
             if (activeTask == null)
             {
                 activeTaskIndex = -1;
@@ -242,6 +243,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     break;
             }
 
+            switch (testType)
+            {
+                case TaskType.ConsoleExe:
+                case TaskType.BatchFile:
+                case TaskType.PowerShell:
+                    var task = activeTask as ExecutableTask;
+                    task.BackgroundTask = (bool)BgTaskBox.IsChecked;
+                    if (task.BackgroundTask)
+                    {
+                        activeTaskIsNowBg = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
             activeTask.AbortTaskListOnFailed = (bool)AbortOnFailBox.IsChecked;
 
             return activeTask;
@@ -271,31 +288,31 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private async void ConfigureFlyout(TaskType testType, bool isBg = false)
+        private void BgTaskBox_Click(object sender, RoutedEventArgs e)
         {
-            activeTaskType = testType;
-            if (isBg)
+            if ((bool)BgTaskBox.IsChecked)
             {
-                activeTaskIsBg = true;
-                TimeoutBlock.Visibility = Visibility.Collapsed;
-                TimeoutBox.Visibility = Visibility.Collapsed;
-                RetryBox.Visibility = Visibility.Collapsed;
-                RetryBlock.Visibility = Visibility.Collapsed;
+                TimeoutBox.IsEnabled = false;
+                RetryBox.IsEnabled = false;
+                AbortOnFailBox.IsEnabled = false;
+                TimeoutBox.Text = "-1";
+                RetryBox.Text = "0";
             }
             else
             {
-                TimeoutBlock.Visibility = Visibility.Visible;
-                TimeoutBox.Visibility = Visibility.Visible;
-                RetryBox.Visibility = Visibility.Visible;
-                RetryBlock.Visibility = Visibility.Visible;
+                TimeoutBox.IsEnabled = true;
+                RetryBox.IsEnabled = true;
+                AbortOnFailBox.IsEnabled = true;
             }
+        }
+
+        private async void ConfigureFlyout(TaskType testType, bool editingBgTask = false)
+        {
+            activeTaskType = testType;
+            activeTaskWasBg = editingBgTask;
 
             if (activeTask != null)
             {
-                if (isBg)
-                {
-                    EditFlyoutTextHeader.Text = $"Editing Background Task";
-                }
                 TestNameBox.Text = activeTask.Name;
                 TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
                 RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
@@ -306,10 +323,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         var exeTest = activeTask as ExecutableTask;
                         TaskPathBox.Text = exeTest.Path;
                         ArgumentsBox.Text = exeTest.Arguments;
-                        if (!isBg)
-                        {
-                            EditFlyoutTextHeader.Text = $"Editing Executable Task";
-                        }
+                        EditFlyoutTextHeader.Text = $"Editing Executable Task";
+                        BgTaskBox.IsChecked = exeTest.BackgroundTask;
                         break;
                     case TaskType.UWP:
                         var uwpTest = activeTask as UWPTask;
@@ -346,44 +361,39 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         TaskPathBox.Text = script.Path;
                         ArgumentsBox.Text = script.Arguments;
                         EditFlyoutTextHeader.Text = $"Editing PowerShell Task";
+                        BgTaskBox.IsChecked = script.BackgroundTask;
                         break;
                     case TaskType.BatchFile:
                         var cmd = activeTask as BatchFileTask;
                         TaskPathBox.Text = cmd.Path;
                         ArgumentsBox.Text = cmd.Arguments;
                         EditFlyoutTextHeader.Text = $"Editing Batch File Task";
+                        BgTaskBox.IsChecked = cmd.BackgroundTask;
                         break;
                 }
             }
             else
             {
-                if (isBg)
+                switch (testType)
                 {
-                    EditFlyoutTextHeader.Text = $"New Background Task";
-                }
-                else
-                {
-                    switch (testType)
-                    {
-                        case TaskType.ConsoleExe:
-                            EditFlyoutTextHeader.Text = $"New Executable Task";
-                            break;
-                        case TaskType.UWP:
-                            EditFlyoutTextHeader.Text = $"New UWP Task";
-                            break;
-                        case TaskType.External:
-                            EditFlyoutTextHeader.Text = $"New External Task";
-                            break;
-                        case TaskType.TAEFDll:
-                            EditFlyoutTextHeader.Text = $"New TAEF Test";
-                            break;
-                        case TaskType.PowerShell:
-                            EditFlyoutTextHeader.Text = $"New PowerShell Task";
-                            break;
-                        case TaskType.BatchFile:
-                            EditFlyoutTextHeader.Text = $"New Batch Task";
-                            break;
-                    }
+                    case TaskType.ConsoleExe:
+                        EditFlyoutTextHeader.Text = $"New Executable Task";
+                        break;
+                    case TaskType.UWP:
+                        EditFlyoutTextHeader.Text = $"New UWP Task";
+                        break;
+                    case TaskType.External:
+                        EditFlyoutTextHeader.Text = $"New External Task";
+                        break;
+                    case TaskType.TAEFDll:
+                        EditFlyoutTextHeader.Text = $"New TAEF Test";
+                        break;
+                    case TaskType.PowerShell:
+                        EditFlyoutTextHeader.Text = $"New PowerShell Task";
+                        break;
+                    case TaskType.BatchFile:
+                        EditFlyoutTextHeader.Text = $"New Batch Task";
+                        break;
                 }
 
                 var boxes = FlyoutGrid.Children.Where(x => x.GetType() == typeof(TextBox));
@@ -397,7 +407,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             switch (testType)
             {
                 case TaskType.ConsoleExe:
-                case TaskType.External:
                 case TaskType.PowerShell:
                 case TaskType.BatchFile:
                     PathBlock.Visibility = Visibility.Visible;
@@ -407,6 +416,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ArgumentsBlock.Text = "Arguments:";
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
+                    BgTaskBox.Visibility = Visibility.Visible;
+                    break;
+                case TaskType.External:
+                case TaskType.TAEFDll:
+                    PathBlock.Visibility = Visibility.Visible;
+                    TaskPathBox.Visibility = Visibility.Visible;
+                    AppComboBox.Visibility = Visibility.Collapsed;
+                    AppBlock.Visibility = Visibility.Collapsed;
+                    ArgumentsBlock.Text = "Arguments:";
+                    ArgumentsBlock.Visibility = Visibility.Visible;
+                    ArgumentsBox.Visibility = Visibility.Visible;
+                    BgTaskBox.Visibility = Visibility.Collapsed;
                     break;
                 case TaskType.UWP:
                     PathBlock.Visibility = Visibility.Collapsed;
@@ -416,6 +437,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ArgumentsBlock.Text = "Arguments (NOT passed to app, reference only):";
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
+                    BgTaskBox.Visibility = Visibility.Collapsed;
                     break;
             }
         }
@@ -447,12 +469,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ConfigureFlyout(TaskType.External);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
         }
-        private void NewBackgroundButton_Click(object sender, RoutedEventArgs e)
-        {
-            activeTask = null;
-            ConfigureFlyout(TaskType.ConsoleExe, true);
-            EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Auto });
-        }
         private void NewPSButton_Click(object sender, RoutedEventArgs e)
         {
             activeTask = null;
@@ -480,41 +496,59 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (activeTask != null)
             {
-                if (activeTaskIndex == -1)
+                if (activeTaskIsNowBg)
                 {
-                    if (activeTaskIsBg)
+                    if (activeTaskWasBg && activeTaskIndex >= 0)
+                    {
+                        BackgroundTasksCollection[activeTaskIndex] = activeTask;
+                    }
+                    else if (!activeTaskWasBg && activeTaskIndex >= 0)
                     {
                         BackgroundTasksCollection.Add(activeTask);
+                        TasksCollection.RemoveAt(activeTaskIndex);
+                    }
+                    else
+                    {
+                        BackgroundTasksCollection.Add(activeTask);
+                    }
+                }
+                else
+                {
+                    if (activeTaskWasBg && activeTaskIndex >= 0)
+                    {
+                        TasksCollection.Add(activeTask);
+                        BackgroundTasksCollection.RemoveAt(activeTaskIndex);
+                    }
+                    else if (!activeTaskWasBg && activeTaskIndex >= 0)
+                    {
+                        TasksCollection[activeTaskIndex] = activeTask;
                     }
                     else
                     {
                         TasksCollection.Add(activeTask);
                     }
                 }
-                else
-                {
-                    if (activeTaskIsBg)
-                    {
 
-                        BackgroundTasksCollection[activeTaskIndex] = activeTask;
-                    }
-                    else
-                    {
-                        TasksCollection[activeTaskIndex] = activeTask;
-                    }
-                }
+                listEdited = true;
             }
 
             if (BackgroundTasksCollection.Count > 0)
             {
                 BgTasksHeader.Visibility = Visibility.Visible;
             }
+            else
+            {
+                BgTasksHeader.Visibility = Visibility.Collapsed;
+            }
             if (TasksCollection.Count > 0)
             {
                 TasksHeader.Visibility = Visibility.Visible;
             }
+            else
+            {
+                TasksHeader.Visibility = Visibility.Collapsed;
+            }
 
-            listEdited = true;
             EditFlyout.Hide();
         }
 
@@ -598,7 +632,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private TaskBase activeTask;
         private TaskType activeTaskType;
         private int activeTaskIndex;
-        private bool activeTaskIsBg;
+        private bool activeTaskWasBg;
+        private bool activeTaskIsNowBg;
         private bool isNewList;
         private bool listEdited;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
