@@ -27,6 +27,7 @@ namespace Microsoft.FactoryOrchestrator.Service
     {
         public static IIpcServiceHost ipcHost;
         public static ServiceProvider ipcSvcProvider;
+        public static readonly string ServiceLogFolder = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "FactoryOrchestrator");
 
         public static void Main(string[] args)
         {
@@ -237,7 +238,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListSummaries");
+            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListSummaries");
             return ret;
         }
 
@@ -321,6 +322,26 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
             var updated = FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
+
+            if (updated)
+            {
+                // Set new value in registry
+                RegistryKey mutableKey = null;
+                try
+                {
+                    // OSDATA wont exist on Desktop, so try to open it on it's own
+                    mutableKey = FOService.Instance.OpenOrCreateRegKey(FOService.RegKeyType.Mutable);
+                }
+                catch (Exception)
+                {
+                    mutableKey = null;
+                }
+
+                RegistryKey nonMutableKey = FOService.Instance.OpenOrCreateRegKey(FOService.RegKeyType.NonMutable);
+                FOService.Instance.SetValueInRegistry(mutableKey, nonMutableKey, FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
+
+            }
+
             FOService.Instance.ServiceLogger.LogDebug($"Finish: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
             return updated;
         }
@@ -601,7 +622,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
     public class FOService : IMicroService
     {
-        enum RegKeyType
+        internal enum RegKeyType
         {
             NonMutable,
             Mutable,
@@ -627,6 +648,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
         private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
+        internal readonly string _logFolderValue = @"LogFolder";
+
+        // Default log folder path
+        private readonly string _defaultLogFolder = Path.Combine(FOServiceExe.ServiceLogFolder, "Logs");
 
         // Default paths in testcontent directory for user tasklists
         private readonly string _firstBootStateDefaultPath = @"U:\TestContent\InitialTaskLists.xml";
@@ -651,6 +676,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableManageTasklistsPage { get; private set; }
         public bool DisableFileTransferPage { get; private set; }
         public bool DisableNetworkAccess { get; private set; }
+        public string TaskManagerLogFolder { get; private set; }
 
         /// <summary>
         /// FactoryOrchestratorService singleton
@@ -700,17 +726,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceEvents = new Dictionary<ulong, ServiceEvent>();
                     LastEventIndex = 0;
                     LastEventTime = DateTime.MinValue;
-
-                    if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
-                    {
-                        // Save logs to DATA if on a WCOS system
-                        _taskExecutionManager = new TaskManager_Server(@"U:\FactoryOrchestratorLogs");
-                    }
-                    else
-                    {
-                        // Otherwise save them next to the FactoryOrchestratorService.exe
-                        _taskExecutionManager = new TaskManager_Server(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "FactoryOrchestratorLogs")); ;
-                    }
                 }
                 else
                 {
@@ -898,10 +913,35 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Executes server required tasks that should run on first boot (of FactoryOrchestrator) or every boot.
         /// </summary>
         /// <returns></returns>
-        public bool ExecuteServerBootTasks()
+        public void ExecuteServerBootTasks()
         {
+            LoadOEMCustomizations();
+
+            // Now that we know the log folder, we can create the TaskManager instance
+            try
+            {
+                Directory.CreateDirectory(FOServiceExe.ServiceLogFolder);
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Could not create {FOServiceExe.ServiceLogFolder} directory! {e.Message}");
+                Stop();
+            }
+            try
+            {
+                Directory.CreateDirectory(TaskManagerLogFolder);
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Could not create {TaskManagerLogFolder} directory! {e.Message}");
+                Stop();
+            }
+
+
+            _taskExecutionManager = new TaskManager_Server(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
+
             // Enable local loopback every boot.
-            return LoadOEMCustomizations() && EnableUWPLocalLoopback();
+            EnableUWPLocalLoopback();
         }
 
         /// <summary>
@@ -1134,10 +1174,36 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
 
         /// <summary>
+        /// Opens a registry key.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal RegistryKey OpenOrCreateRegKey(RegKeyType type)
+        {
+            RegistryKey key = null;
+            switch (type)
+            {
+                case RegKeyType.Mutable:
+                    key = Registry.LocalMachine.CreateSubKey(_mutableServiceRegKey, true);
+                    break;
+                case RegKeyType.NonMutable:
+                    key = Registry.LocalMachine.CreateSubKey(_nonMutableServiceRegKey, true);
+                    break;
+                case RegKeyType.Volatile:
+                    key = Registry.LocalMachine.CreateSubKey(_volatileServiceRegKey, true, RegistryOptions.Volatile);
+                    break;
+                default:
+                    break;
+            }
+
+            return key;
+        }
+
+        /// <summary>
         /// Checks the given mutable and non-mutable registry keys for a given value. Mutable is always checked first.
         /// </summary>
         /// <returns>The value if it exists.</returns>
-        private object GetValueFromRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object defaultValue = null)
+        internal object GetValueFromRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object defaultValue = null)
         {
             object ret = null;
 
@@ -1171,7 +1237,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <summary>
         /// Sets a given value in the registry. The mutable location is used if it exists.
         /// </summary>
-        private void SetValueInRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object value, RegistryValueKind valueKind)
+        internal void SetValueInRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object value, RegistryValueKind valueKind)
         {
             if (mutableKey != null)
             {
@@ -1225,6 +1291,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             return success;
         }
 
+        /// <summary>
+        /// Loads OEM customizations. Still check in HKLM\System for desktop though.
+        /// </summary>
+        /// <returns></returns>
         private bool LoadOEMCustomizations()
         {
             RegistryKey mutableKey = null;
@@ -1242,6 +1312,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             DisableFileTransferPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableFileTransferValue, false);
             DisableUWPAppsPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableUWPAppsValue, false);
             DisableManageTasklistsPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableTaskManagerValue, false);
+            TaskManagerLogFolder = (string)GetValueFromRegistry(mutableKey, nonMutableKey, _logFolderValue, _defaultLogFolder);
 
             return true;
         }
@@ -1280,57 +1351,5 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             return run;
         }
-
-        private RegistryKey OpenOrCreateRegKey(RegKeyType type)
-        {
-            RegistryKey key = null;
-            switch (type)
-            {
-                case RegKeyType.Mutable:
-                    key = Registry.LocalMachine.CreateSubKey(_mutableServiceRegKey, true);
-                    break;
-                case RegKeyType.NonMutable:
-                    key = Registry.LocalMachine.CreateSubKey(_nonMutableServiceRegKey, true);
-                    break;
-                case RegKeyType.Volatile:
-                    key = Registry.LocalMachine.CreateSubKey(_volatileServiceRegKey, true, RegistryOptions.Volatile);
-                    break;
-                default:
-                    break;
-            }
-
-            return key;
-        }
-
-        // Firewall is configured in FactoryOrchestratorServiceTemplate.wm.xml Windows Manifest file
-        //private bool AddFirewallRules()
-        //{
-        //    try
-        //    {
-        //        if (_foKey == null)
-        //        {
-        //            OpenOrCreateRegKey();
-        //        }
-
-        //        var value = (int)_foKey.GetValue(_firewallValue, 0);
-
-        //        if (value == 0)
-        //        {
-        //            // Run firewall commands
-        //       //     netsh advfirewall firewall add rule name = FactoryOrchestratorService_tcp_in program =< Path to FactoryOrchestratorService.exe > protocol = tcp dir =in enable = yes action = allow profile =public,private,domain
-
-        //     //netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_out program =< Path to FactoryOrchestratorService.exe> protocol= tcp dir=out enable= yes action= allow profile=public,private,domain
-
-        //            _foKey.SetValue(_firewallValue, 1, RegistryValueKind.DWord);
-        //            return true;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        ServiceLogger.LogError($"Unable to create FactoryOrchestratorService firewall rules! You may not be able to use the FactoryOrchestrator UWP app over the network ({e.Message})");
-        //    }
-
-        //    return false;
-        //}
     }
 }

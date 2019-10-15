@@ -11,7 +11,6 @@ namespace Microsoft.FactoryOrchestrator.Service
     {
         // Log to file next to the service binary
         private static readonly String _logName = "FactoryOrchestratorService.log";
-        private static String _logPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, _logName);
         private static StreamWriter _logStream = null;
         private static uint _logCount = 0;
         private static object _logLock = new object();
@@ -22,22 +21,18 @@ namespace Microsoft.FactoryOrchestrator.Service
             lock (_logLock)
             {
                 _logCount++;
+                String _logPath = Path.Combine(FOServiceExe.ServiceLogFolder, _logName);
+
                 if (_logStream == null)
                 {
                     try
                     {
+                        Directory.CreateDirectory(FOServiceExe.ServiceLogFolder);
                         _logStream = new StreamWriter(_logPath, true);
                     }
-                    catch (System.IO.IOException)
+                    catch (Exception)
                     {
-                        // We are likely on a state separated system and trying to save the log on a write protected partition, check by looking for OSData env var
-                        if (Environment.GetEnvironmentVariable("OSDataDrive") != null)
-                        {
-                            // Try again, saving to the DATA partition
-                            _logPath = Path.Combine(@"U:\FactoryOrchestratorLogs", _logName);
-                            Directory.CreateDirectory(@"U:\FactoryOrchestratorLogs");
-                            _logStream = new StreamWriter(_logPath, true);
-                        }
+                        Console.Error.WriteLine($"Could not create log file at {_logPath}");
                     }
                 }
             }
@@ -51,9 +46,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                 _logCount--;
                 if (_logCount == 0)
                 {
-                    _logStream.Close();
-                    _logStream.Dispose();
-                    _logStream = null;
+                    if (_logStream != null)
+                    {
+                        _logStream.Close();
+                        _logStream.Dispose();
+                        _logStream = null;
+                    }
                 }
             }
         }
@@ -63,8 +61,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Synchronize to ensure messages are printed in order
             lock (_logLock)
             {
-                _logStream.WriteLine(message);
-                _logStream.Flush();
+                if (_logStream != null)
+                {
+                    _logStream.WriteLine(message);
+                    _logStream.Flush();
+                }
             }
         }
     }

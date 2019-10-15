@@ -69,14 +69,14 @@ namespace Microsoft.FactoryOrchestrator.Server
 
     public class TaskManager_Server
     {
-        public TaskManager_Server(string logFolder)
+        public TaskManager_Server(string logFolder, string taskListStateFile)
         {
             _startNonParallelTaskRunLock = new SemaphoreSlim(1, 1);
             KnownTaskLists = new List<TaskList>();
             RunningTaskListTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new ConcurrentDictionary<Guid, List<TaskRunner>>();
             RunningTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
-            TaskListStateFile = Path.Combine(logFolder, "FactoryOrchestratorKnownTaskLists.xml");
+            TaskListStateFile = taskListStateFile;
             SetLogFolder(logFolder, false);
         }
 
@@ -119,20 +119,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                             Directory.CreateDirectory(newLogFolder);
                         }
 
-                        var newStateFilePath = Path.Combine(newLogFolder, "FactoryOrchestratorKnownTaskLists.xml");
-
-                        if (!moveFiles)
-                        {
-                            // Move state file if needed
-                            if (File.Exists(TaskListStateFile))
-                            {
-                                File.Move(TaskListStateFile, newStateFilePath);
-                            }
-                        }
-
                         // Update paths
                         _logFolder = newLogFolder;
-                        TaskListStateFile = newStateFilePath;
                     }
                 }
 
