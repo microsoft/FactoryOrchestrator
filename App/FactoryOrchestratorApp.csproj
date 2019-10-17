@@ -109,6 +109,7 @@
     <Compile Include="AppsPage.xaml.cs">
       <DependentUpon>AppsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TaskListViewSelector.cs" />
     <Compile Include="ConsolePage.xaml.cs">
       <DependentUpon>ConsolePage.xaml</DependentUpon>
     </Compile>

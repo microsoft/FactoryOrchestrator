@@ -3,6 +3,7 @@ using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -312,14 +313,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         try
                         {
-                            if (!TaskListCollection[i].Equals(taskListSummaries[i]))
+                            if (i == TaskListCollection.Count)
+                            {
+                                TaskListCollection.Insert(i, taskListSummaries[i]);
+                            }
+                            else if (!TaskListCollection[i].Equals(taskListSummaries[i]))
                             {
                                 TaskListCollection[i] = taskListSummaries[i];
                             }
                         }
-                        catch (ArgumentOutOfRangeException)
+                        catch (ArgumentOutOfRangeException ex)
                         {
-                            TaskListCollection.Insert(i, taskListSummaries[i]);
+                            Debug.WriteLine(ex.AllExceptionsToString());
                         }
                     }
 

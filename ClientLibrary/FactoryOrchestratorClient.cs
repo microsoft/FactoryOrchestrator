@@ -73,7 +73,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="clientFilename">Path on client PC to the file to copy.</param>
         /// <param name="serverFilename">Path on device running Factory Orchestrator Service where the file will be saved.</param>
-        public async Task SendFileToDevice(string clientFilename, string serverFilename)
+        public async Task<long> SendFileToDevice(string clientFilename, string serverFilename)
         {
             if (!File.Exists(clientFilename))
             {
@@ -82,6 +82,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             var bytes = await ReadFileAsync(clientFilename);
             await _IpcClient.InvokeAsync(x => x.SendFile(serverFilename, bytes));
+            return bytes.Length;
         }
 
         /// <summary>
@@ -89,13 +90,14 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="serverFilename">Path on device running Factory Orchestrator Service to the file to copy.</param>
         /// <param name="clientFilename">Path on client PC where the file will be saved.</param>
-        public async Task GetFileFromDevice(string serverFilename, string clientFilename)
+        public async Task<long> GetFileFromDevice(string serverFilename, string clientFilename)
         {
             // Create target folder, if needed.
             Directory.CreateDirectory(Path.GetDirectoryName(clientFilename));
 
             var bytes = await _IpcClient.InvokeAsync(x => x.GetFile(serverFilename));
             await WriteFileAsync(clientFilename, bytes);
+            return bytes.Length;
         }
 
         /// <summary>
@@ -103,11 +105,11 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="serverDirectory">Path on device running Factory Orchestrator Service to the folder to copy.</param>
         /// <param name="clientDirectory">Path on client PC where the folder will be saved.</param>
-        public async Task GetDirectoryFromDevice(string serverDirectory, string clientDirectory)
+        public async Task<long> GetDirectoryFromDevice(string serverDirectory, string clientDirectory)
         {
             var files = await _IpcClient.InvokeAsync(x => x.EnumerateFiles(serverDirectory, false));
             var dirs = await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(serverDirectory, false));
-
+            long bytesReceived = 0;
             if (!Directory.Exists(clientDirectory))
             {
                 Directory.CreateDirectory(clientDirectory);
@@ -116,7 +118,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             foreach (var file in files)
             {
                 var filename = Path.GetFileName(file);
-                await GetFileFromDevice(file, Path.Combine(clientDirectory, filename));
+                bytesReceived += await GetFileFromDevice(file, Path.Combine(clientDirectory, filename));
             }
             foreach (var dir in dirs)
             {
@@ -128,8 +130,10 @@ namespace Microsoft.FactoryOrchestrator.Client
                     Directory.CreateDirectory(clientsubDir);
                 }
 
-                await GetDirectoryFromDevice(dir, clientsubDir);
+                bytesReceived += await GetDirectoryFromDevice(dir, clientsubDir);
             }
+
+            return bytesReceived;
         }
 
         /// <summary>
@@ -137,8 +141,9 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="clientDirectory">Path on client PC to the folder to copy.</param>
         /// <param name="serverDirectory">Path on device running Factory Orchestrator Service where the folder will be saved.</param>
-        public async Task SendDirectoryToDevice(string clientDirectory, string serverDirectory)
+        public async Task<long> SendDirectoryToDevice(string clientDirectory, string serverDirectory)
         {
+            long bytesSent = 0;
             if (!Directory.Exists(clientDirectory))
             {
                 throw new DirectoryNotFoundException($"{clientDirectory} does not exist!");
@@ -149,13 +154,15 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             foreach (var file in files)
             {
-                await SendFileToDevice(file, Path.Combine(serverDirectory, Path.GetFileName(file)));
+                bytesSent += await SendFileToDevice(file, Path.Combine(serverDirectory, Path.GetFileName(file)));
             }
 
             foreach (var dir in dirs)
             {
-                await SendDirectoryToDevice(dir, Path.Combine(serverDirectory, new DirectoryInfo(dir).Name));
+                bytesSent += await SendDirectoryToDevice(dir, Path.Combine(serverDirectory, new DirectoryInfo(dir).Name));
             }
+
+            return bytesSent;
         }
 
         /// <summary>

@@ -1482,6 +1482,19 @@ namespace Microsoft.FactoryOrchestrator.Core
             TerminateBackgroundTasksOnCompletion = terminateBackgroundTasksOnCompletion;
         }
 
+        private TaskListSummary()
+        {}
+
+        public TaskListSummary(TaskListSummary summary)
+        {
+            this.Status = summary.Status;
+            this.Name = summary.Name;
+            this.Guid = summary.Guid;
+            this.AllowOtherTaskListsToRun = summary.AllowOtherTaskListsToRun;
+            this.RunInParallel = summary.RunInParallel;
+            this.TerminateBackgroundTasksOnCompletion = summary.TerminateBackgroundTasksOnCompletion;
+        }
+
         public override string ToString()
         {
             // Accessible name.

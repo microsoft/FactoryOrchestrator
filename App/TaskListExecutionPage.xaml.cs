@@ -10,10 +10,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using Windows.Security.Authentication.Web.Provider;
-using Windows.Storage;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+using Windows.UI.Core;
+using System.Diagnostics;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -26,10 +24,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
-            _listUpdateSem = new SemaphoreSlim(1, 1);
+            _taskListUpdateSem = new SemaphoreSlim(1, 1);
+            _activeListUpdateSem = new SemaphoreSlim(1, 1);
+            _uiSem = new SemaphoreSlim(1, 1);
+            _activListUiSem = new SemaphoreSlim(1, 1);
             _selectedTaskList = -1;
+            _selectedTaskListGuid = null;
+            _previousTaskLists = new List<TaskListSummary>();
             mainPage = null;
-            TaskListCollection = new ObservableCollection<TaskListSummary>();
+            TaskListCollection = new ObservableCollection<TaskListSummaryWithTemplate>();
             ActiveListCollection = new ObservableCollection<TaskBase>();
         }
 
@@ -37,14 +40,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (TaskListsView.SelectedItem != null)
             {
-                Guid taskListGuid = ((TaskListSummary)TaskListsView.SelectedItem).Guid;
+                _selectedTaskListGuid = ((TaskListSummaryWithTemplate)TaskListsView.SelectedItem).Summary.Guid;
                 _selectedTaskList = TaskListsView.SelectedIndex;
 
                 if (_activeListPoller != null)
                 {
                     _activeListPoller.StopPolling();
                 }
-                _activeListPoller = new ServerPoller(taskListGuid, typeof(TaskList), Client, 2000);
+                _activeListPoller = new ServerPoller(_selectedTaskListGuid, typeof(TaskList), Client, 2000);
                 ActiveListCollection.Clear();
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
                 _activeListPoller.StartPolling();
@@ -76,238 +79,233 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void OnUpdatedTaskListAsync(object source, ServerPollerEventArgs e)
         {
+            _activeListUpdateSem.Wait();
+            Debug.WriteLine("OnUpdatedTaskListAsync");
             if (e.Result != null)
             {
                 TaskList list = (TaskList)e.Result;
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    var listArray = list.Tasks.ToArray();
-                    for (int i = 0; i < listArray.Length; i++)
+                    _activListUiSem.Wait();
+                    try
                     {
-                        try
+                        Debug.WriteLine("OnUpdatedTaskListAsync UI thread");
+
+                        var listArray = list.Tasks.ToArray();
+                        for (int i = 0; i < listArray.Length; i++)
                         {
-                            if (!ActiveListCollection[i].Equals(listArray[i]))
+                            try
                             {
-                                ActiveListCollection[i] = listArray[i];
+                                if (i == ActiveListCollection.Count)
+                                {
+                                    ActiveListCollection.Insert(i, listArray[i]);
+                                }
+                                else if (!ActiveListCollection[i].Equals(listArray[i]))
+                                {
+                                    ActiveListCollection[i] = listArray[i];
+                                }
+                            }
+                            catch (ArgumentOutOfRangeException ex)
+                            {
+                                Debug.WriteLine(ex.AllExceptionsToString());
+                            }
+
+                            // Show retry button if tasklist is no longer running and the task failed
+                            if (((list.TaskListStatus != TaskStatus.Running) && (list.TaskListStatus != TaskStatus.RunPending)) && (ActiveListCollection[i].LatestTaskRunPassed != null) && (ActiveListCollection[i].LatestTaskRunPassed == false))
+                            {
+                                // TODO: BUG:23733404 Move to a view selector like the TaskListsView
+                                ListViewItem item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
+                                while (item == null)
+                                {
+                                    await Task.Delay(5);
+                                    item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
+                                }
+
+                                item.ContentTemplate = this.Resources["RetryTaskBaseTemplate"] as DataTemplate;
                             }
                         }
-                        catch (ArgumentOutOfRangeException)
-                        {
-                            ActiveListCollection.Insert(i, listArray[i]);
-                        }
 
-                        // Show retry button if tasklist is no longer running and the task failed
-                        if (((list.TaskListStatus != TaskStatus.Running) && (list.TaskListStatus != TaskStatus.RunPending)) && (ActiveListCollection[i].LatestTaskRunPassed != null) && (ActiveListCollection[i].LatestTaskRunPassed == false))
+                        int j = listArray.Length;
+                        while (ActiveListCollection.Count > listArray.Length)
                         {
-                            ListViewItem item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
-                            while (item == null)
-                            {
-                                await Task.Delay(5);
-                                item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
-                            }
-
-                            item.ContentTemplate = this.Resources["RetryTaskBaseTemplate"] as DataTemplate;
+                            ActiveListCollection.RemoveAt(j);
                         }
                     }
-
-                    int j = listArray.Length;
-                    while (ActiveListCollection.Count > listArray.Length)
+                    catch (Exception ex)
                     {
-                        ActiveListCollection.RemoveAt(j);
+                        Debug.WriteLine(ex.AllExceptionsToString());
+                    }
+                    finally
+                    {
+                        Debug.WriteLine("OnUpdatedTaskListAsync UI thread done");
+                        _activListUiSem.Release();
                     }
                 });
+
+                Debug.WriteLine("OnUpdatedTaskListAsync done");
+                _activeListUpdateSem.Release();
             }
         }
 
         private async void OnUpdatedTaskListGuidAndStatusAsync(object source, ServerPollerEventArgs e)
         {
-            _listUpdateSem.Wait();
+            _taskListUpdateSem.Wait();
+            Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync");
 
-            var taskListSummaries = e.Result as List<TaskListSummary>;
-            var listsNeedingUpdate = new List<bool>(taskListSummaries.Count);
-            if (taskListSummaries != null)
+            // Get the new TaskLists
+            var newTaskLists = e.Result as List<TaskListSummary>;
+
+            // Do as much as possible before needing to use the UI thread.
+
+            var changedLists = new List<TaskListSummary>();
+            int previousCount = _previousTaskLists.Count;
+            int newCount = newTaskLists.Count;
+
+            // Find the Lists that no longer exist since we last polled
+            var removedLists = _previousTaskLists.Select(x => x.Guid).Except(newTaskLists.Select(y => y.Guid)).ToList();
+            int removedCount = removedLists.Count;
+            var ListIndexRemoved = new List<bool>(previousCount);
+            var selectedTemplate = new List<TaskListViewTemplate>(newCount);
+
+            try
             {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                if ((newCount == previousCount) && (newCount == 0))
                 {
-                    if (taskListSummaries.Any(x => x.IsRunning))
-                    {
-                        RunAllButton.Content = "Abort all";
-                    }
-                    else
-                    {
-                        RunAllButton.Content = "Run all";
-                    }
+                    return;
+                }
 
-                    // Add or update TaskLists
-                    for (int i = 0; i < taskListSummaries.Count; i++)
+                // Find the index of the removed lists
+                if (removedCount > 0)
+                {
+                    for (int i = 0; i < previousCount; i++)
                     {
-                        bool updated = false;
-                        try
+                        if (removedLists.Contains(_previousTaskLists[i].Guid))
                         {
-                            if (!TaskListCollection[i].Equals(taskListSummaries[i]))
-                            {
-                                TaskListCollection[i].Status = taskListSummaries[i].Status;
-                                TaskListCollection[i].Name = taskListSummaries[i].Name;
-                                TaskListCollection[i].Guid = taskListSummaries[i].Guid;
-                                TaskListCollection[i].AllowOtherTaskListsToRun = taskListSummaries[i].AllowOtherTaskListsToRun;
-                                TaskListCollection[i].RunInParallel = taskListSummaries[i].RunInParallel;
-                                TaskListCollection[i].TerminateBackgroundTasksOnCompletion = taskListSummaries[i].TerminateBackgroundTasksOnCompletion;
+                            ListIndexRemoved.Add(true);
+                        }
+                        else
+                        {
+                            ListIndexRemoved.Add(false);
+                        }
+                    }
+                }
 
-                                updated = true;
+                // Compute the desired template
+                foreach (var item in newTaskLists)
+                {
+                    switch (item.Status)
+                    {
+                        case TaskStatus.Running:
+                            selectedTemplate.Add(TaskListViewTemplate.Running);
+                            break;
+                        case TaskStatus.Aborted:
+
+                            if (item.RunInParallel)
+                            {
+                                selectedTemplate.Add(TaskListViewTemplate.Completed);
+                            }
+                            else
+                            {
+                                selectedTemplate.Add(TaskListViewTemplate.Paused);
+                            }
+                            break;
+                        case TaskStatus.Passed:
+                        case TaskStatus.Failed:
+                            selectedTemplate.Add(TaskListViewTemplate.Completed);
+                            break;
+                        default:
+                            selectedTemplate.Add(TaskListViewTemplate.NotRun);
+                            break;
+                    }
+                }
+
+                // Iterate through the listview items, removing old ones & updating the rest
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    _uiSem.Wait();
+                    Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync UI thread");
+                    try
+                    {
+                        if (newTaskLists.Any(x => x.IsRunning))
+                        {
+                            RunAllButton.Content = "Abort all";
+                        }
+                        else
+                        {
+                            RunAllButton.Content = "Run all";
+                        }
+
+                        if (newCount == 0)
+                        {
+                            TaskListCollection.Clear();
+                            return;
+                        }
+
+                    // Remove deleted lists
+                    if (removedCount > 0)
+                        {
+                            for (int i = 0; i < TaskListCollection.Count; i++)
+                            {
+                                if (ListIndexRemoved[i] == true)
+                                {
+                                    TaskListCollection.RemoveAt(i);
+                                }
+                            }
+
+                        // Wait for collection to be in good state
+                        // it can get out of sync when removing a lot of items
+                        while (TaskListCollection.Count != previousCount - removedCount)
+                            {
+                                await Task.Delay(7);
                             }
                         }
-                        catch (ArgumentOutOfRangeException)
+                        Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync UI thread removals done");
+
+                        for (int i = 0; i < newCount; i++)
                         {
-                            TaskListCollection.Insert(i, taskListSummaries[i]);
-                            updated = true;
-                        }
-
-                        listsNeedingUpdate.Add(updated);
-                    }
-
-                    // Prune existing list
-                    int j = taskListSummaries.Count;
-                    while (TaskListCollection.Count != taskListSummaries.Count)
-                    {
-                        TaskListCollection.RemoveAt(j);
-                    }
-                });
-
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                {
-                    for (int i = 0; (i < listsNeedingUpdate.Count) && (i < TaskListCollection.Count); i++)
-                    {
-                        if (listsNeedingUpdate[i])
-                        {
-                            // Find the listview item for this tasklist. May need to wait for it to exist.
-                                ListViewItem item;
-                                item = TaskListsView.ContainerFromItem(TaskListCollection[i]) as ListViewItem;
-                                while (item == null)
+                            if (i < previousCount)
+                            {
+                                if (!TaskListCollection[i].Summary.Equals(newTaskLists[i]))
                                 {
-                                    await Task.Delay(5);
-                                    item = TaskListsView.ContainerFromItem(TaskListCollection[i]) as ListViewItem;
-                                }
+                                    // If anything changed, create a new object so the Template Selector is run again.
+                                    TaskListCollection[i] = new TaskListSummaryWithTemplate(new TaskListSummary(newTaskLists[i]), selectedTemplate[i]);
 
-                                await SelectTemplate(TaskListCollection[i], item, true);
+                                    if (_selectedTaskList == i)
+                                    {
+                                        // Set as selected item if it was previously
+                                        TaskListsView.SelectedIndex = i;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                            // add new lists
+                            TaskListCollection.Add(new TaskListSummaryWithTemplate(newTaskLists[i], selectedTemplate[i]));
+                            }
                         }
+                        Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync UI thread done");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex.AllExceptionsToString());
+                    }
+                    finally
+                    {
+                        _uiSem.Release();
                     }
                 });
             }
-
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            catch (Exception ex)
             {
-                if ((_activeListPoller != null) && (TaskListsView.SelectedIndex != -1) && (TaskListCollection[TaskListsView.SelectedIndex].Guid != _activeListPoller.PollingGuid))
-                {
-                    TaskListsView_SelectionChanged(null, null);
-                }
-            });
-
-            _listUpdateSem.Release();
-        }
-
-        private async Task SelectTemplate(TaskListSummary list, ListViewItem item, bool updateOtherLists)
-        {
-            switch (list.Status)
-            {
-                case TaskStatus.Running:
-                    // Another list should never be running, but just in case...
-                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Running"] as DataTemplate;
-                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
-                    {
-                        await DisableOtherTaskLists(list);
-                    }
-                    break;
-                case TaskStatus.Aborted:
-                    if (list.RunInParallel)
-                    {
-                        // "Resuming" doesnt make sense for a parallel list
-                        item.ContentTemplate = this.Resources["TaskListItemTemplate_Completed"] as DataTemplate;
-                    }
-                    else
-                    {
-                        item.ContentTemplate = this.Resources["TaskListItemTemplate_Paused"] as DataTemplate;
-                    }
-
-                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
-                    {
-                        await EnableOtherTaskLists(list);
-                    }
-                    break;
-                case TaskStatus.Passed:
-                case TaskStatus.Failed:
-                    item.ContentTemplate = this.Resources["TaskListItemTemplate_Completed"] as DataTemplate;
-                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
-                    {
-                        await EnableOtherTaskLists(list);
-                    }
-                    break;
-                default:
-                    item.ContentTemplate = this.Resources["TaskListItemTemplate_NotRun"] as DataTemplate;
-                    if (updateOtherLists && !list.AllowOtherTaskListsToRun)
-                    {
-                        await EnableOtherTaskLists(list);
-                    }
-                    break;
+                System.Diagnostics.Debug.WriteLine(ex.AllExceptionsToString());
             }
-        }
-
-        private async Task EnableOtherTaskLists(TaskListSummary existingSummary)
-        {
-            var otherLists = TaskListCollection.Where(x => x.Guid != existingSummary.Guid);
-            foreach (var list in otherLists)
+            finally
             {
-                // Find the listview item for this tasklist. May need to wait for it to exist.
-                ListViewItem item;
-                item = TaskListsView.ContainerFromItem(list) as ListViewItem;
-                while (item == null)
-                {
-                    await Task.Delay(5);
-                    item = TaskListsView.ContainerFromItem(list) as ListViewItem;
-                }
+                Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync done");
 
-                // Set to null to reset template
-                item.ContentTemplate = null;
-
-                await SelectTemplate(list, item, false);
-            }
-        }
-
-        private async Task DisableOtherTaskLists(TaskListSummary existingSummary)
-        {
-            var otherLists = TaskListCollection.Where(x => x.Guid != existingSummary.Guid);
-            foreach (var list in otherLists)
-            {
-                // Find the listview item for this tasklist. May need to wait for it to exist.
-                ListViewItem item;
-                item = TaskListsView.ContainerFromItem(list) as ListViewItem;
-                while (item == null)
-                {
-                    await Task.Delay(5);
-                    item = TaskListsView.ContainerFromItem(list) as ListViewItem;
-                }
-
-                while (item.ContentTemplateRoot == null)
-                {
-                    await Task.Delay(5);
-                }
-
-                // Get the backing grid, disable all buttons
-                var contentGrid = item.ContentTemplateRoot as Grid;
-                var button = contentGrid.FindName("RestartListButton") as Button;
-                if (button != null)
-                {
-                    button.IsEnabled = false;
-                }
-                button = contentGrid.FindName("RunListButton") as Button;
-                if (button != null)
-                {
-                    button.IsEnabled = false;
-                }
-                button = contentGrid.FindName("ResumeListButton") as Button;
-                if (button != null)
-                {
-                    button.IsEnabled = false;
-                }
+                _previousTaskLists = newTaskLists;
+                _taskListUpdateSem.Release();
             }
         }
 
@@ -325,7 +323,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 1000);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 1000, true, 2);
+
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidAndStatusAsync;
             }
 
@@ -397,16 +396,47 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private Guid GetTaskListGuidFromButton(Button button)
         {
-            return (button.DataContext as TaskListSummary).Guid;
+            return (button.DataContext as TaskListSummaryWithTemplate).Summary.Guid;
         }
 
         private Frame mainPage;
         private ServerPoller _activeListPoller;
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
-        private SemaphoreSlim _listUpdateSem;
+        private Guid? _selectedTaskListGuid;
+        private SemaphoreSlim _taskListUpdateSem;
+        private SemaphoreSlim _uiSem;
+        private SemaphoreSlim _activListUiSem;
+        private SemaphoreSlim _activeListUpdateSem;
+        private List<TaskListSummary> _previousTaskLists;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        public ObservableCollection<TaskListSummary> TaskListCollection;
+        public ObservableCollection<TaskListSummaryWithTemplate> TaskListCollection;
         public ObservableCollection<TaskBase> ActiveListCollection;
+    }
+
+    /// <summary>
+    /// Enum for the possible TaskListView DataTemplates.
+    /// </summary>
+    public enum TaskListViewTemplate
+    {
+        Completed,
+        Running,
+        NotRun,
+        Paused
+    }
+
+    /// <summary>
+    /// A basic wrapper class to associate a TaskListSummary with the DataTemplate it should use in the UI.
+    /// </summary>
+    public class TaskListSummaryWithTemplate
+    {
+        public TaskListSummaryWithTemplate(TaskListSummary summary, TaskListViewTemplate template)
+        {
+            Summary = summary;
+            Template = template;
+        }
+
+        public TaskListSummary Summary { get; set; }
+        public TaskListViewTemplate Template { get; set; }
     }
 }

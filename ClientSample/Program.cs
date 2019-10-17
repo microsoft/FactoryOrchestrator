@@ -47,6 +47,9 @@ namespace FactoryOrchestratorClientSample
                 await ExecuteTaskLists(taskListSummaries);
                 await PrintFinalResult();
                 await CopyLogsFromDUT(LogFolder);
+                var TimeFinished = DateTime.Now;
+
+                Console.WriteLine($"Copied test files, ran tests, and gathered logs in {TimeFinished - TimeStarted}");
             }
             catch (Exception e)
             {
@@ -123,8 +126,11 @@ namespace FactoryOrchestratorClientSample
         private static async Task<List<string>> CopyFilesToDUT(string testDir, string destDir)
         {
             Console.WriteLine($"Copying latest binaries and TaskLists from {testDir} to {destDir} on device...");
+            
+            var bytes = await Client.SendDirectoryToDevice(testDir, destDir);
 
-            await Client.SendDirectoryToDevice(testDir, destDir);
+            Console.WriteLine($"Copied {bytes} bytes to the device...");
+
             return Directory.EnumerateFiles(testDir, "*.xml").ToList();
         }
 
@@ -233,9 +239,9 @@ namespace FactoryOrchestratorClientSample
         private static async Task CopyLogsFromDUT(string destinationPath)
         {
             var logDir = await Client.GetLogFolder();
-            await Client.GetDirectoryFromDevice(logDir, destinationPath);
+            var bytes = await Client.GetDirectoryFromDevice(logDir, destinationPath);
 
-            Console.WriteLine($"Logs copied to {destinationPath}");
+            Console.WriteLine($"Logs copied to {destinationPath}. Total size: {bytes} bytes.");
         }
 
         public static FactoryOrchestratorClient Client;

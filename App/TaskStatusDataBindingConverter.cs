@@ -35,11 +35,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             TaskStatus statusEnum;
             // value is the data from the source object.
             TaskBase task = value as TaskBase;
-            TaskListSummary list = value as TaskListSummary;
+            TaskListSummaryWithTemplate list = value as TaskListSummaryWithTemplate;
 
             if (isList)
             {
-                statusEnum = list.Status;
+                statusEnum = list.Summary.Status;
             }
             else
             {

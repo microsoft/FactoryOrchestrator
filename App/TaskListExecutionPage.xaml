@@ -10,15 +10,14 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources>
         <local:TaskStatusDataBindingConverter x:Key="TaskStatusDataBindingConverter"/>
-
-        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_NotRun">
+        <DataTemplate x:DataType="local:TaskListSummaryWithTemplate" x:Key="TaskListItemTemplate_NotRun">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" />
+                    <TextBlock x:Name="TaskListName" Text="{x:Bind Summary.Name}" VerticalAlignment="Center" Margin="10,0" />
                     <TextBlock Text="-" VerticalAlignment="Center" Margin="1,0"  />
                     <TextBlock x:Name="TaskListStatus" Text="{x:Bind Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=list}" VerticalAlignment="Center" Margin="10,0" />
                 </StackPanel>
@@ -29,17 +28,17 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_Running">
+        <DataTemplate x:DataType="local:TaskListSummaryWithTemplate" x:Key="TaskListItemTemplate_Running">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" />
+                    <TextBlock x:Name="TaskListName" Text="{x:Bind Summary.Name}" VerticalAlignment="Center" Margin="10,0" />
                     <TextBlock Text="-" VerticalAlignment="Center" Margin="1,0"  />
                     <TextBlock x:Name="TaskListStatus" Text="{x:Bind Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=list}" VerticalAlignment="Center" Margin="10,0" />
-                </StackPanel>                
+                </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
                     <Button x:Name="PauseListButton" ToolTipService.ToolTip="Pause" Margin="10,0,5,0" Click="PauseListButton_Click" AutomationProperties.Name="pause task list">
                         <SymbolIcon Symbol="Pause"/>
@@ -47,14 +46,14 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_Paused">
+        <DataTemplate x:DataType="local:TaskListSummaryWithTemplate" x:Key="TaskListItemTemplate_Paused">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" />
+                    <TextBlock x:Name="TaskListName" Text="{x:Bind Summary.Name}" VerticalAlignment="Center" Margin="10,0" />
                     <TextBlock Text="-" VerticalAlignment="Center" Margin="1,0"  />
                     <TextBlock x:Name="TaskListStatus" Text="{x:Bind Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=list}" VerticalAlignment="Center" Margin="10,0" />
                 </StackPanel>
@@ -68,14 +67,14 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_Completed">
+        <DataTemplate x:DataType="local:TaskListSummaryWithTemplate" x:Key="TaskListItemTemplate_Completed">
             <Grid x:Name="TaskListItemGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" VerticalAlignment="Center" Margin="10,0" />
+                    <TextBlock x:Name="TaskListName" Text="{x:Bind Summary.Name}" VerticalAlignment="Center" Margin="10,0" />
                     <TextBlock Text="-" VerticalAlignment="Center" Margin="1,0"  />
                     <TextBlock x:Name="TaskListStatus" Text="{x:Bind Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=list}" VerticalAlignment="Center" Margin="10,0" />
                 </StackPanel>
@@ -100,6 +99,11 @@
                 </Button>
             </Grid>
         </DataTemplate>
+        <local:TaskListViewSelector x:Key="TaskListViewSelector"
+                                    Completed="{StaticResource TaskListItemTemplate_Completed}"
+                                    Running="{StaticResource TaskListItemTemplate_Running}"
+                                    NotRun="{StaticResource TaskListItemTemplate_NotRun}"
+                                    Paused="{StaticResource TaskListItemTemplate_Paused}"/>
     </Page.Resources>
     
     <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -121,7 +125,7 @@
         </StackPanel>
 
         <!-- Uses TaskListItemTemplate defined in page resources -->
-        <ListView x:Name="TaskListsView" Grid.Column="0" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <ListView x:Name="TaskListsView" Grid.Column="0" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode = "Single" IsItemClickEnabled = "True" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
         <ScrollViewer x:Name="TestsScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" >
             <Grid x:Name="TestsScrollGrid">
