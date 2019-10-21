@@ -25,12 +25,13 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="maxAdaptiveModifier">If adaptiveInterval is set, this defines the maximum multiplier/divisor that will be applied to the polling interval. For example, if maxAdaptiveModifier=2 and pollingIntervalMs=100, the object would be polled at a rate between 50ms to 200ms. Defaults to 5.</param>
         public ServerPoller(Guid? guidToPoll, Type guidType, FactoryOrchestratorClient client, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 3)
         {
-            _guidToPoll = guidToPoll;
+            PollingGuid = guidToPoll;
             _client = client;
             _pollingInterval = pollingIntervalMs;
             _initialPollingInterval = pollingIntervalMs;
             _pollingIntervalStep = pollingIntervalMs / 10;
-            _previousObj = null;
+            LatestObject = null;
+            _lastEventObject = null;
             _adaptiveInterval = adaptiveInterval;
             _adaptiveModifier = maxAdaptiveModifier;
             _timer = new Timer(GetUpdatedObjectAsync, null, Timeout.Infinite, pollingIntervalMs);
@@ -53,13 +54,13 @@ namespace Microsoft.FactoryOrchestrator.Client
                 // TODO: Logging: check for failure
                 if ((_guidType == typeof(TaskBase)) || (_guidType == typeof(ExecutableTask)) || (_guidType == typeof(UWPTask)) || (_guidType == typeof(TAEFTest)))
                 {
-                    newObj = await _client.QueryTask((Guid)_guidToPoll);
+                    newObj = await _client.QueryTask((Guid)PollingGuid);
                 }
                 else if (_guidType == typeof(TaskList))
                 {
-                    if (_guidToPoll != null)
+                    if (PollingGuid != null)
                     {
-                        newObj = await _client.QueryTaskList((Guid)_guidToPoll);
+                        newObj = await _client.QueryTaskList((Guid)PollingGuid);
                     }
                     else
                     {
@@ -68,18 +69,19 @@ namespace Microsoft.FactoryOrchestrator.Client
                 }
                 else //if (_guidType == typeof(TaskRun))
                 {
-                    newObj = await _client.QueryTaskRun((Guid)_guidToPoll);
+                    newObj = await _client.QueryTaskRun((Guid)PollingGuid);
                 }
 
-                if (((newObj == null) && (_previousObj != null)) || (!newObj.Equals(_previousObj)))
+                if (!_stopped)
                 {
-                    if (!_stopped)
+                    LatestObject = newObj;
+
+                    if (!Equals(newObj, _lastEventObject))
                     {
                         if (_adaptiveInterval)
                         {
                             // Adaptive detects if the invoke method is taking too long. If it is, it increases the poll time by 10% of initial value.
                             // Adaptive also throws away an invoke if it can't get the semaphore. 
-                            // Max change is maxAdaptiveModifier initial interval
                             int newInterval;
                             if (_invokeSem.Wait(0))
                             {
@@ -87,17 +89,16 @@ namespace Microsoft.FactoryOrchestrator.Client
                                 {
                                     OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
                                 }
-                                catch (Exception e)
-                                {
-                                    newInterval = Math.Max(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
-                                }
-                                _previousObj = newObj;
+                                catch (Exception)
+                                {}
+
+                                _lastEventObject = newObj;
                                 _invokeSem.Release();
                                 newInterval = Math.Max(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
                             }
                             else
                             {
-                                newInterval = Math.Max(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+                                newInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
                             }
 
                             if (newInterval != _pollingInterval)
@@ -108,10 +109,14 @@ namespace Microsoft.FactoryOrchestrator.Client
                         }
                         else
                         {
-                            _invokeSem.Wait();
-                            OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
-                            _previousObj = newObj;
-                            _invokeSem.Release();
+                            try
+                            {
+                                // update object seen as it could be changed when the invoke returns
+                                _lastEventObject = newObj;
+                                OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
+                            }
+                            catch (Exception)
+                            {}
                         }
                     }
                 }
@@ -130,8 +135,9 @@ namespace Microsoft.FactoryOrchestrator.Client
             if (_stopped != false)
             {
                 _stopped = false;
+                LatestObject = null;
+                _lastEventObject = null;
                 _timer = new Timer(GetUpdatedObjectAsync, null, 0, _pollingInterval);
-                _previousObj = null;
             }
         }
 
@@ -151,21 +157,20 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Returns the latest object retrieved from the server.
         /// </summary>
-        public object LatestObject => _previousObj;
+        public object LatestObject { get; private set; }
 
         /// <summary>
         /// The GUID of the object you are polling. Can be NULL for some scenarios.
         /// </summary>
-        public Guid? PollingGuid { get => _guidToPoll; }
+        public Guid? PollingGuid { get; }
 
         /// <summary>
         /// If true, the poller is actively polling for updates.
         /// </summary>
         public bool IsPolling { get => !_stopped; }
 
-        private Guid? _guidToPoll;
         private FactoryOrchestratorClient _client;
-        private object _previousObj;
+        private object _lastEventObject;
         private int _pollingInterval;
         private int _initialPollingInterval;
         private int _pollingIntervalStep;

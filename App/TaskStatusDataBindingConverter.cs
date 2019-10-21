@@ -14,14 +14,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             var paramStr = parameter as String;
-            
-            if (paramStr.Equals("task", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ConvertStatus(value, false);
-            }
-            else if (paramStr.Equals("list", StringComparison.InvariantCultureIgnoreCase))
+
+            if (paramStr == null)
             {
                 return ConvertStatus(value, true);
+            }
+            if (paramStr.Equals("TaskBase", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return ConvertStatus(value, false);
             }
             else
             {
@@ -29,17 +29,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private string ConvertStatus(object value, bool isList)
+        private string ConvertStatus(object value, bool isStatus)
         {
             String status = "";
             TaskStatus statusEnum;
             // value is the data from the source object.
             TaskBase task = value as TaskBase;
-            TaskListSummaryWithTemplate list = value as TaskListSummaryWithTemplate;
 
-            if (isList)
+            if (isStatus)
             {
-                statusEnum = list.Summary.Status;
+                statusEnum = (TaskStatus)value;
             }
             else
             {
@@ -50,29 +49,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 case TaskStatus.Passed:
                     status += "✔ Passed";
-                    if ((!isList) && (task.TimesRetried > 0))
+                    if ((!isStatus) && (task.TimesRetried > 0))
                     {
                         status += $" (On retry {task.TimesRetried})";
                     }
-                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
                     break;
                 case TaskStatus.Failed:
                     status += "❌ Failed";
-                    if ((!isList) && (task.TimesRetried > 0))
+                    if ((!isStatus) && (task.TimesRetried > 0))
                     {
                         status += $" (All {task.TimesRetried} retries)";
                     }
-                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
                     break;
                 case TaskStatus.Running:
                     status += "▶ Running";
-                    if ((!isList) && (task.TimesRetried > 0))
+                    if ((!isStatus) && (task.TimesRetried > 0))
                     {
                         status += $" (Retry {task.TimesRetried})";
                     }
@@ -82,14 +81,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     break;
                 case TaskStatus.Aborted:
                     status += "⛔ Aborted";
-                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }
                     break;
                 case TaskStatus.Timeout:
                     status += "⏱ Timed-out";
-                    if ((!isList) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
+                    if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
                         status += $" ({task.TaskRunGuids.Count} total runs)";
                     }

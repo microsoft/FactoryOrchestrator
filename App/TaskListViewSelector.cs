@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -30,32 +29,39 @@ namespace Microsoft.FactoryOrchestrator.UWP
             DataTemplate dataTemplate = null;
             try
             {
-                if (element != null && item != null && item is TaskListSummaryWithTemplate)
+                if (element != null && item != null && item is TaskListSummary)
                 {
-                    var list = item as TaskListSummaryWithTemplate;
-                    if (list != null)
+                    var list = (TaskListSummary)item;
+                    switch (list.Status)
                     {
-                        switch (list.Template)
-                        {
-                            case TaskListViewTemplate.Completed:
+                        case TaskStatus.Running:
+                        case TaskStatus.RunPending:
+                            dataTemplate = Running;
+                            break;
+                        case TaskStatus.Aborted:
+                            if (list.RunInParallel)
+                            {
                                 dataTemplate = Completed;
-                                break;
-                            case TaskListViewTemplate.Running:
-                                dataTemplate = Running;
-                                break;
-                            case TaskListViewTemplate.Paused:
+                            }
+                            else
+                            {
                                 dataTemplate = Paused;
-                                break;
-                            case TaskListViewTemplate.NotRun:
-                                dataTemplate = NotRun;
-                                break;
-                        }
+                            }
+                            break;
+                        case TaskStatus.Passed:
+                        case TaskStatus.Failed:
+                            dataTemplate = Completed;
+                            break;
+                        default:
+                            dataTemplate = NotRun;
+                            break;
                     }
                 }
             }
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e.AllExceptionsToString());
+                dataTemplate = NotRun;
             }
 
             return dataTemplate;

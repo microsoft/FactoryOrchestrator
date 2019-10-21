@@ -172,14 +172,14 @@ namespace FactoryOrchestratorClientSample
 
                 var taskList = await Client.QueryTaskList(summary.Guid);
 
-                while (taskList.IsRunning)
+                while (taskList.IsRunningOrPending)
                 {
                     System.Threading.Thread.Sleep(5000);
                     taskList = await Client.QueryTaskList(summary.Guid);
 
-                    if (taskList.IsRunning)
+                    if (taskList.IsRunningOrPending)
                     {
-                        var runningTasks = taskList.Tasks.Where(x => x.IsRunning);
+                        var runningTasks = taskList.Tasks.Where(x => x.IsRunningOrPending);
 
                         Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}---- TaskList {summary.Name} Status: {taskList.TaskListStatus} ----");
                         Console.WriteLine($"---- Running Tasks: ----");

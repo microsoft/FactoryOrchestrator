@@ -190,7 +190,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
 
-            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + 500);
+            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + _maxLinesPerBlock);
             string text = "";
             bool errorBlock = false;
 
@@ -274,7 +274,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
                 }
 
-                if (OutputStack.Children.Count >= maxBlocks)
+                if (OutputStack.Children.Count >= _maxBlocks)
                 {
                     OutputStack.Children.RemoveAt(0);
                 }
@@ -293,10 +293,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private TaskRun _activeCmdTaskRun;
         private bool _newCmd;
         private int _lastOutput;
-        private int maxBlocks = 400;
         private ServerPoller _taskRunPoller;
         private SemaphoreSlim _cmdSem;
         private SemaphoreSlim _outSem;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+
+        private const int _maxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
+        private const int _maxLinesPerBlock = 500;
     }
 }

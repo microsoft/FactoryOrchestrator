@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.UI.Core;
 using System.Diagnostics;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -24,109 +26,129 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
-            _taskListUpdateSem = new SemaphoreSlim(1, 1);
-            _activeListUpdateSem = new SemaphoreSlim(1, 1);
-            _uiSem = new SemaphoreSlim(1, 1);
-            _activListUiSem = new SemaphoreSlim(1, 1);
             _selectedTaskList = -1;
-            _selectedTaskListGuid = null;
-            _previousTaskLists = new List<TaskListSummary>();
+            _selectedTaskListGuid = Guid.Empty;
             mainPage = null;
-            TaskListCollection = new ObservableCollection<TaskListSummaryWithTemplate>();
-            ActiveListCollection = new ObservableCollection<TaskBase>();
+            TaskListCollection = new ObservableCollection<TaskListSummary>();
+            ActiveListCollection = new ObservableCollection<TaskBaseWithTemplate>();
         }
 
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (TaskListsView.SelectedItem != null)
             {
-                _selectedTaskListGuid = ((TaskListSummaryWithTemplate)TaskListsView.SelectedItem).Summary.Guid;
-                _selectedTaskList = TaskListsView.SelectedIndex;
+                var selectedTaskListGuid = ((TaskListSummary)TaskListsView.SelectedItem).Guid;
 
+                // Selection changed might have been due to updating a template, compare to _selectedTaskList
+                if (_selectedTaskList != TaskListsView.SelectedIndex)
+                {
+                    // New list selected, start over
+                    ActiveListCollection.Clear();
+                    _selectedTaskList = TaskListsView.SelectedIndex;
+                    _selectedTaskListGuid = TaskListCollection[_selectedTaskList].Guid;
+                    // Show loading ring
+                    LoadingTasksRing.IsActive = true;
+                }
+
+                // Keep indicies in sync
+                TaskListsResultsAndButtonsView.SelectedIndex = _selectedTaskList;
+
+                // Create new poller
                 if (_activeListPoller != null)
                 {
                     _activeListPoller.StopPolling();
                 }
-                _activeListPoller = new ServerPoller(_selectedTaskListGuid, typeof(TaskList), Client, 2000);
-                ActiveListCollection.Clear();
+                _activeListPoller = new ServerPoller(selectedTaskListGuid, typeof(TaskList), Client, 2000);
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
                 _activeListPoller.StartPolling();
+
+                // Show Tests
+                ActiveTestsView.Visibility = Visibility.Visible;
             }
             else
             {
+                // Stop polling, hide tasks
                 if (_activeListPoller != null)
                 {
                     _activeListPoller.StopPolling();
                     _activeListPoller = null;
                 }
-                ActiveListCollection.Clear();
+                ActiveTestsView.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void TestsView_SelectionChanged(object sender, RoutedEventArgs e)
+        private void TaskListsResultsAndButtonsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ListView control = (ListView)sender;
-            int index = control.SelectedIndex;
-            if (index != -1)
+            if ((TaskListsResultsAndButtonsView.SelectedIndex != -1) && (_selectedTaskList != TaskListsResultsAndButtonsView.SelectedIndex))
             {
-                TaskBase task = ActiveListCollection[index];
+                // Select the tasklist to trigger TaskListsView_SelectionChanged
+                TaskListsView.SelectedIndex = TaskListsResultsAndButtonsView.SelectedIndex;
+            }
+        }
 
+
+        private void ActiveTestsResultsView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem != null)
+            {
+                var taskWithTemplate = (TaskBaseWithTemplate)(e.ClickedItem);
                 // Navigate from the MainPage frame so this is a "full screen" page
-                mainPage.Navigate(typeof(ResultsPage), task);
+                mainPage.Navigate(typeof(ResultsPage), taskWithTemplate.Task);
                 this.OnNavigatedFrom(null);
             }
         }
 
         private async void OnUpdatedTaskListAsync(object source, ServerPollerEventArgs e)
         {
-            _activeListUpdateSem.Wait();
-            Debug.WriteLine("OnUpdatedTaskListAsync");
             if (e.Result != null)
             {
                 TaskList list = (TaskList)e.Result;
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                var taskArray = list.Tasks.ToArray();
+
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    _activListUiSem.Wait();
                     try
                     {
-                        Debug.WriteLine("OnUpdatedTaskListAsync UI thread");
+                        LoadingTasksRing.IsActive = false;
 
-                        var listArray = list.Tasks.ToArray();
-                        for (int i = 0; i < listArray.Length; i++)
+                        if (taskArray.Length == 0)
                         {
+                            // No Tasks exist, clear everything
+                            ActiveListCollection.Clear();
+                            return;
+                        }
+
+                        for (int i = 0; i < taskArray.Length; i++)
+                        {
+                            // Determine the template to use. Do here since it depends on the status of the list, not only the Task
+                            var newTask = taskArray[i];
+                            var newTemplate = (((list.TaskListStatus != TaskStatus.Running) &&
+                                                    (list.TaskListStatus != TaskStatus.RunPending)) &&
+                                                    (newTask.LatestTaskRunPassed != null) &&
+                                                    (newTask.LatestTaskRunPassed == false)) ? TaskViewTemplate.WithRetryButton : TaskViewTemplate.Normal;
+
+                            // Update the ActiveListCollection
                             try
                             {
                                 if (i == ActiveListCollection.Count)
                                 {
-                                    ActiveListCollection.Insert(i, listArray[i]);
+                                    ActiveListCollection.Insert(i, new TaskBaseWithTemplate(newTask, newTemplate));
                                 }
-                                else if (!ActiveListCollection[i].Equals(listArray[i]))
+                                else if (!ActiveListCollection[i].Task.Equals(newTask))
                                 {
-                                    ActiveListCollection[i] = listArray[i];
+                                    // force template reselection
+                                    ActiveListCollection[i] = new TaskBaseWithTemplate(newTask, newTemplate);
                                 }
                             }
                             catch (ArgumentOutOfRangeException ex)
                             {
                                 Debug.WriteLine(ex.AllExceptionsToString());
                             }
-
-                            // Show retry button if tasklist is no longer running and the task failed
-                            if (((list.TaskListStatus != TaskStatus.Running) && (list.TaskListStatus != TaskStatus.RunPending)) && (ActiveListCollection[i].LatestTaskRunPassed != null) && (ActiveListCollection[i].LatestTaskRunPassed == false))
-                            {
-                                // TODO: BUG:23733404 Move to a view selector like the TaskListsView
-                                ListViewItem item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
-                                while (item == null)
-                                {
-                                    await Task.Delay(5);
-                                    item = ResultsView.ContainerFromItem(ActiveListCollection[i]) as ListViewItem;
-                                }
-
-                                item.ContentTemplate = this.Resources["RetryTaskBaseTemplate"] as DataTemplate;
-                            }
                         }
 
-                        int j = listArray.Length;
-                        while (ActiveListCollection.Count > listArray.Length)
+                        // Prune non-existent Tasks
+                        int j = taskArray.Length;
+                        while (ActiveListCollection.Count > taskArray.Length)
                         {
                             ActiveListCollection.RemoveAt(j);
                         }
@@ -135,98 +157,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         Debug.WriteLine(ex.AllExceptionsToString());
                     }
-                    finally
-                    {
-                        Debug.WriteLine("OnUpdatedTaskListAsync UI thread done");
-                        _activListUiSem.Release();
-                    }
                 });
-
-                Debug.WriteLine("OnUpdatedTaskListAsync done");
-                _activeListUpdateSem.Release();
+            }
+            else
+            {
+                // No Tasks exist, clear everything
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    LoadingTasksRing.IsActive = false;
+                    ActiveListCollection.Clear();
+                });
             }
         }
 
         private async void OnUpdatedTaskListGuidAndStatusAsync(object source, ServerPollerEventArgs e)
         {
-            _taskListUpdateSem.Wait();
-            Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync");
+            var newSummaries = e.Result as List<TaskListSummary>;
 
             // Get the new TaskLists
-            var newTaskLists = e.Result as List<TaskListSummary>;
-
-            // Do as much as possible before needing to use the UI thread.
-
-            var changedLists = new List<TaskListSummary>();
-            int previousCount = _previousTaskLists.Count;
-            int newCount = newTaskLists.Count;
-
-            // Find the Lists that no longer exist since we last polled
-            var removedLists = _previousTaskLists.Select(x => x.Guid).Except(newTaskLists.Select(y => y.Guid)).ToList();
-            int removedCount = removedLists.Count;
-            var ListIndexRemoved = new List<bool>(previousCount);
-            var selectedTemplate = new List<TaskListViewTemplate>(newCount);
-
-            try
+            if (newSummaries != null)
             {
-                if ((newCount == previousCount) && (newCount == 0))
-                {
-                    return;
-                }
+                int newCount = newSummaries.Count;
 
-                // Find the index of the removed lists
-                if (removedCount > 0)
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    for (int i = 0; i < previousCount; i++)
-                    {
-                        if (removedLists.Contains(_previousTaskLists[i].Guid))
-                        {
-                            ListIndexRemoved.Add(true);
-                        }
-                        else
-                        {
-                            ListIndexRemoved.Add(false);
-                        }
-                    }
-                }
-
-                // Compute the desired template
-                foreach (var item in newTaskLists)
-                {
-                    switch (item.Status)
-                    {
-                        case TaskStatus.Running:
-                            selectedTemplate.Add(TaskListViewTemplate.Running);
-                            break;
-                        case TaskStatus.Aborted:
-
-                            if (item.RunInParallel)
-                            {
-                                selectedTemplate.Add(TaskListViewTemplate.Completed);
-                            }
-                            else
-                            {
-                                selectedTemplate.Add(TaskListViewTemplate.Paused);
-                            }
-                            break;
-                        case TaskStatus.Passed:
-                        case TaskStatus.Failed:
-                            selectedTemplate.Add(TaskListViewTemplate.Completed);
-                            break;
-                        default:
-                            selectedTemplate.Add(TaskListViewTemplate.NotRun);
-                            break;
-                    }
-                }
-
-                // Iterate through the listview items, removing old ones & updating the rest
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    _uiSem.Wait();
-                    Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync UI thread");
                     try
                     {
-                        if (newTaskLists.Any(x => x.IsRunning))
+                        if (newSummaries.Any(x => x.IsRunningOrPending))
                         {
                             RunAllButton.Content = "Abort all";
                         }
@@ -237,84 +194,78 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                         if (newCount == 0)
                         {
+                            // No TaskLists exist, clear everything
+                            LoadingTasksRing.IsActive = false;
                             TaskListCollection.Clear();
+                            ActiveListCollection.Clear();
                             return;
                         }
 
-                    // Remove deleted lists
-                    if (removedCount > 0)
+                        bool selectedListFound = false;
+                        for (int i = 0; i < newSummaries.Count; i++)
                         {
-                            for (int i = 0; i < TaskListCollection.Count; i++)
+                            var newSummary = newSummaries[i];
+
+                            if (newSummary.Guid == _selectedTaskListGuid)
                             {
-                                if (ListIndexRemoved[i] == true)
+                                selectedListFound = true;
+                            }
+
+                            // Update the TaskListCollection
+                            if (i == TaskListCollection.Count)
+                            {
+                                TaskListCollection.Insert(i, newSummary);
+                            }
+                            else if (!TaskListCollection[i].Equals(newSummary))
+                            {
+                                // Template reselected automatically
+                                TaskListCollection[i] = newSummary;
+
+                                if (_selectedTaskListGuid == newSummary.Guid)
                                 {
-                                    TaskListCollection.RemoveAt(i);
+                                    // Ensure this list is still selected
+                                    TaskListsView.SelectedIndex = i;
                                 }
                             }
-
-                        // Wait for collection to be in good state
-                        // it can get out of sync when removing a lot of items
-                        while (TaskListCollection.Count != previousCount - removedCount)
-                            {
-                                await Task.Delay(7);
-                            }
                         }
-                        Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync UI thread removals done");
-
-                        for (int i = 0; i < newCount; i++)
+                        
+                        // Prune non-existent Lists
+                        int j = newSummaries.Count;
+                        while (TaskListCollection.Count > newSummaries.Count)
                         {
-                            if (i < previousCount)
-                            {
-                                if (!TaskListCollection[i].Summary.Equals(newTaskLists[i]))
-                                {
-                                    // If anything changed, create a new object so the Template Selector is run again.
-                                    TaskListCollection[i] = new TaskListSummaryWithTemplate(new TaskListSummary(newTaskLists[i]), selectedTemplate[i]);
-
-                                    if (_selectedTaskList == i)
-                                    {
-                                        // Set as selected item if it was previously
-                                        TaskListsView.SelectedIndex = i;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                            // add new lists
-                            TaskListCollection.Add(new TaskListSummaryWithTemplate(newTaskLists[i], selectedTemplate[i]));
-                            }
+                            TaskListCollection.RemoveAt(j);
                         }
-                        Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync UI thread done");
+
+                        if (!selectedListFound)
+                        {
+                            // The selected list was deleted
+                            TaskListsView.SelectedIndex = -1;
+                            ActiveListCollection.Clear();
+                            LoadingTasksRing.IsActive = false;
+                        }
 
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(ex.AllExceptionsToString());
-                    }
-                    finally
-                    {
-                        _uiSem.Release();
+                        Debug.WriteLine(ex.AllExceptionsToString());
                     }
                 });
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(ex.AllExceptionsToString());
-            }
-            finally
-            {
-                Debug.WriteLine("OnUpdatedTaskListGuidAndStatusAsync done");
-
-                _previousTaskLists = newTaskLists;
-                _taskListUpdateSem.Release();
+                // No TaskLists exist, clear everything
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    LoadingTasksRing.IsActive = false;
+                    TaskListCollection.Clear();
+                    ActiveListCollection.Clear();
+                });
             }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             mainPage = (Frame)e.Parameter;
-
-            // TODO: Quality: This is a hack so that if you click on the same task again after returning from the results page the selection is changed
-            //TestsView.SelectedIndex = -1;
 
             if (_activeListPoller != null)
             {
@@ -324,7 +275,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (_taskListGuidPoller == null)
             {
                 _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 1000, true, 2);
-
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidAndStatusAsync;
             }
 
@@ -387,56 +337,51 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void RetryTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var guid = (button.DataContext as TaskBase).Guid;
+            var guid = ((TaskBaseWithTemplate)button.DataContext).Task.Guid;
             _ = Client.RunTask(guid);
         }
 
         /// <summary>
-        /// Given a button associated with a tasklist, returns the tasklist.
+        /// Given a button associated with a tasklist, returns the tasklist guid.
         /// </summary>
         private Guid GetTaskListGuidFromButton(Button button)
         {
-            return (button.DataContext as TaskListSummaryWithTemplate).Summary.Guid;
+            return ((TaskListSummary)button.DataContext).Guid;
         }
 
         private Frame mainPage;
         private ServerPoller _activeListPoller;
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
-        private Guid? _selectedTaskListGuid;
-        private SemaphoreSlim _taskListUpdateSem;
-        private SemaphoreSlim _uiSem;
-        private SemaphoreSlim _activListUiSem;
-        private SemaphoreSlim _activeListUpdateSem;
-        private List<TaskListSummary> _previousTaskLists;
+        private Guid _selectedTaskListGuid;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        public ObservableCollection<TaskListSummaryWithTemplate> TaskListCollection;
-        public ObservableCollection<TaskBase> ActiveListCollection;
+        public ObservableCollection<TaskListSummary> TaskListCollection;
+        public ObservableCollection<TaskBaseWithTemplate> ActiveListCollection;
     }
 
     /// <summary>
-    /// Enum for the possible TaskListView DataTemplates.
+    /// Enum for the possible Task DataTemplates.
     /// </summary>
-    public enum TaskListViewTemplate
+    public enum TaskViewTemplate
     {
-        Completed,
-        Running,
-        NotRun,
-        Paused
+        Normal,
+        WithRetryButton
     }
 
     /// <summary>
-    /// A basic wrapper class to associate a TaskListSummary with the DataTemplate it should use in the UI.
+    /// A basic wrapper struct to associate a Task with the DataTemplate it should use in the UI.
+    /// This is needed since the UI is dependent on the TaskList state, not just the Task.
     /// </summary>
-    public class TaskListSummaryWithTemplate
+    public struct TaskBaseWithTemplate
     {
-        public TaskListSummaryWithTemplate(TaskListSummary summary, TaskListViewTemplate template)
+        public TaskBaseWithTemplate(TaskBase task, TaskViewTemplate template)
         {
-            Summary = summary;
+            Task = task;
             Template = template;
         }
 
-        public TaskListSummary Summary { get; set; }
-        public TaskListViewTemplate Template { get; set; }
+        public TaskBase Task { get; set; }
+
+        public TaskViewTemplate Template { get; set; }
     }
 }

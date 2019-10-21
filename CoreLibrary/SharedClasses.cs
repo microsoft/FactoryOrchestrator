@@ -9,6 +9,8 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -96,7 +98,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     [XmlInclude(typeof(TAEFTest))]
     [XmlInclude(typeof(PowerShellTask))]
     [XmlInclude(typeof(BatchFileTask))]
-    public abstract class TaskBase
+    public abstract class TaskBase : NotifyPropertyChangedBase
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
@@ -141,40 +143,124 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// The type of the Task.
         /// </summary>
         [XmlIgnore]
-        public TaskType Type { get; set; }
+        public TaskType Type
+        {
+            get => _type;
+            set
+            {
+                if (!Equals(value, _type))
+                {
+                    _type = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private TaskType _type;
 
         /// <summary>
         /// The path to the file used for the Task such an Exe.
         /// </summary>
         [XmlAttribute]
-        public string Path { get; set; }
+        public string Path
+        {
+            get => _path;
+            set
+            {
+                if (!Equals(value, _path))
+                {
+                    _path = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _path;
 
         /// <summary>
         /// The arguments passed to the Task.
         /// </summary>
         [XmlAttribute]
-        public string Arguments { get; set; }
+        public string Arguments
+        {
+            get => _arguments;
+            set
+            {
+                if (!Equals(value, _arguments))
+                {
+                    _arguments = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _arguments;
 
         /// <summary>
         /// The GUID identifying the Task.
         /// </summary>
         [XmlAttribute]
-        public Guid Guid { get; set; }
+        public Guid Guid
+        {
+            get => _guid;
+            set
+            {
+                if (!Equals(value, _guid))
+                {
+                    _guid = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private Guid _guid;
 
         /// <summary>
         /// The time the latest run of this Task started. NULL if it has never started.
         /// </summary>
-        public DateTime? LatestTaskRunTimeStarted { get; set; }
+        public DateTime? LatestTaskRunTimeStarted
+        {
+            get => _latestTaskRunTimeStarted;
+            set
+            {
+                if (!Equals(value, _latestTaskRunTimeStarted))
+                {
+                    _latestTaskRunTimeStarted = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private DateTime? _latestTaskRunTimeStarted;
 
         /// <summary>
         /// The time the latest run of this Task finished. NULL if it has never finished.
         /// </summary>
-        public DateTime? LatestTaskRunTimeFinished { get; set; }
+        public DateTime? LatestTaskRunTimeFinished
+        {
+            get => _latestTaskRunTimeFinished;
+            set
+            {
+                if (!Equals(value, _latestTaskRunTimeFinished))
+                {
+                    _latestTaskRunTimeFinished = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private DateTime? _latestTaskRunTimeFinished;
 
         /// <summary>
         /// The status of the latest run of this Task.
         /// </summary>
-        public TaskStatus LatestTaskRunStatus { get; set; }
+        public TaskStatus LatestTaskRunStatus
+        {
+            get => _latestTaskRunStatus;
+            set
+            {
+                if (!Equals(value, _latestTaskRunStatus))
+                {
+                    _latestTaskRunStatus = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private TaskStatus _latestTaskRunStatus;
 
         /// <summary>
         /// True if the latest run of this Task passed. NULL if it has never been run.
@@ -201,7 +287,19 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// The exit code of the latest run of this Task. NULL if it has never completed.
         /// </summary>
-        public int? LatestTaskRunExitCode { get; set; }
+        public int? LatestTaskRunExitCode
+        {
+            get => _latestTaskRunExitCode;
+            set
+            {
+                if (!Equals(value, _latestTaskRunExitCode))
+                {
+                    _latestTaskRunExitCode = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private int? _latestTaskRunExitCode;
 
         /// <summary>
         /// The amount of time elapsed while running the latest run of this Task. NULL if it has never started.
@@ -249,7 +347,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// True if the Task is running or queued to run.
         /// </summary>
-        public bool IsRunning
+        public bool IsRunningOrPending
         {
             get
             {
@@ -261,13 +359,37 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// The timeout for this Task, in seconds.
         /// </summary>
         [XmlAttribute("Timeout")]
-        public int TimeoutSeconds { get; set; }
+        public int TimeoutSeconds
+        {
+            get => _timeoutSeconds;
+            set
+            {
+                if (!Equals(value, _timeoutSeconds))
+                {
+                    _timeoutSeconds = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private int _timeoutSeconds;
 
         /// <summary>
         /// The GUIDs for all runs of this Task.
         /// </summary>
         [XmlArrayItem("Guid")]
-        public List<Guid> TaskRunGuids { get; set; }
+        public List<Guid> TaskRunGuids
+        {
+            get => _taskRunGuids;
+            set
+            {
+                if (!Equals(value, _taskRunGuids))
+                {
+                    _taskRunGuids = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private List<Guid> _taskRunGuids;
 
         /// <summary>
         /// True if this Task is run by the server, such as an ExecutableTask.
@@ -295,18 +417,54 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// If true, the TaskList running this Task is aborted if this Task fails.
         /// </summary>
         [XmlAttribute]
-        public bool AbortTaskListOnFailed { get; set; }
+        public bool AbortTaskListOnFailed
+        {
+            get => _abortTaskListOnFailed;
+            set
+            {
+                if (!Equals(value, _abortTaskListOnFailed))
+                {
+                    _abortTaskListOnFailed = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _abortTaskListOnFailed;
 
         /// <summary>
         /// The number of re-runs the Task automatically attempts if the run fails.
         /// </summary>
         [XmlAttribute]
-        public uint MaxNumberOfRetries { get; set; }
+        public uint MaxNumberOfRetries
+        {
+            get => _maxNumberOfRetries;
+            set
+            {
+                if (!Equals(value, _maxNumberOfRetries))
+                {
+                    _maxNumberOfRetries = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private uint _maxNumberOfRetries;
 
         /// <summary>
         /// The number of reties so far for this latest run.
         /// </summary>
-        public uint TimesRetried { get; set; }
+        public uint TimesRetried
+        {
+            get => _timesRetried;
+            set
+            {
+                if (!Equals(value, _timesRetried))
+                {
+                    _timesRetried = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private uint _timesRetried;
 
         // XmlSerializer calls these to check if these values are set.
         // If not set, don't serialize.
@@ -495,16 +653,28 @@ namespace Microsoft.FactoryOrchestrator.Core
             set
             {
                 _testFriendlyName = value;
+                NotifyPropertyChanged();
             }
         }
+        private string _testFriendlyName;
 
         /// <summary>
         /// Denotes if this Task is run as a background task.
         /// </summary>
         [XmlIgnore]
-        public bool BackgroundTask { get; set; }
-
-        private string _testFriendlyName;
+        public bool BackgroundTask
+        {
+            get => _backgroundTask;
+            set
+            {
+                if (!Equals(value, _backgroundTask))
+                {
+                    _backgroundTask = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _backgroundTask;
     }
 
     /// <summary>
@@ -796,7 +966,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// A TaskList is a grouping of FTF tests. TaskLists are the only object FTF can "Run".
     /// </summary>
-    public class TaskList
+    public class TaskList : NotifyPropertyChangedBase
     {
         [JsonConstructor]
         internal TaskList()
@@ -842,7 +1012,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     return TaskStatus.Aborted;
                 }
-                else if (Tasks.Any(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.RunPending) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult)))
+                else if (Tasks.Any(x => x.IsRunningOrPending))
                 {
                     return TaskStatus.Running;
                 }
@@ -864,7 +1034,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// True if the TaskList is running or queued to run.
         /// </summary>
-        public bool IsRunning
+        public bool IsRunningOrPending
         {
             get
             {
@@ -934,7 +1104,19 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         [XmlArrayItem("Task")]
         [XmlArray("Tasks")]
-        public List<TaskBase> Tasks { get; set; }
+        public List<TaskBase> Tasks
+        {
+            get => _tasks;
+            set
+            {
+                if (!Equals(value, _tasks))
+                {
+                    _tasks = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private List<TaskBase> _tasks;
 
 
         /// <summary>
@@ -942,43 +1124,115 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         [XmlArrayItem("Task")]
         [XmlArray("BackgroundTasks")]
-        public List<TaskBase> BackgroundTasks { get; set; }
+        public List<TaskBase> BackgroundTasks
+        {
+            get => _backgroundTasks;
+            set
+            {
+                if (!Equals(value, _backgroundTasks))
+                {
+                    _backgroundTasks = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private List<TaskBase> _backgroundTasks;
 
         /// <summary>
         /// The GUID identifying this TaskList.
         /// </summary>
         [XmlAttribute]
-        public Guid Guid { get; set; }
+        public Guid Guid
+        {
+            get => _guid;
+            set
+            {
+                if (!Equals(value, _guid))
+                {
+                    _guid = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private Guid _guid;
 
         /// <summary>
         /// The name of this TaskList.
         /// </summary>
         [XmlAttribute]
-        public string Name { get; set; }
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (!Equals(value, _name))
+                {
+                    _name = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _name;
 
         /// <summary>
         /// If true, Tasks in this TaskList are run in parallel. Order is non-deterministic.
         /// </summary>
         [XmlAttribute]
-        public bool RunInParallel { get; set; }
+        public bool RunInParallel
+        {
+            get => _runInParallel;
+            set
+            {
+                if (!Equals(value, _runInParallel))
+                {
+                    _runInParallel = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _runInParallel;
 
         /// <summary>
         /// If false, while this TaskList is running no other TaskList may run.
         /// </summary>
         [XmlAttribute]
-        public bool AllowOtherTaskListsToRun { get; set; }
+        public bool AllowOtherTaskListsToRun
+        {
+            get => _allowOtherTaskListsToRun;
+            set
+            {
+                if (!Equals(value, _allowOtherTaskListsToRun))
+                {
+                    _allowOtherTaskListsToRun = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _allowOtherTaskListsToRun;
 
         /// <summary>
         /// If true, Background Tasks defined in this TaskList are forcibly terminated when the TaskList stops running.
         /// </summary>
         [XmlAttribute]
-        public bool TerminateBackgroundTasksOnCompletion { get; set; }
+        public bool TerminateBackgroundTasksOnCompletion
+        {
+            get => _terminateBackgroundTasksOnCompletion;
+            set
+            {
+                if (!Equals(value, _terminateBackgroundTasksOnCompletion))
+                {
+                    _terminateBackgroundTasksOnCompletion = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _terminateBackgroundTasksOnCompletion;
     }
 
     /// <summary>
     /// A TaskRun represents one instance of executing any single Task.
     /// </summary>
-    public class TaskRun
+    public class TaskRun : NotifyPropertyChangedBase
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
@@ -1047,72 +1301,240 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// The output of the Task.
         /// </summary>
-        public List<string> TaskOutput { get; set; }
+        public List<string> TaskOutput
+        {
+            get => _taskOutput;
+            set
+            {
+                if (!Equals(value, _taskOutput))
+                {
+                    _taskOutput = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private List<string> _taskOutput;
 
         /// <summary>
         /// The GUID of the Task which created this run. NULL if this run is not associated with a Task.
         /// </summary>
-        public Guid? OwningTaskGuid { get; set; }
+        public Guid? OwningTaskGuid
+        {
+            get => _owningTaskGuid;
+            set
+            {
+                if (!Equals(value, _owningTaskGuid))
+                {
+                    _owningTaskGuid = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private Guid? _owningTaskGuid;
 
         /// <summary>
         /// The name of the Task (at the time the run started).
         /// </summary>
-        public string TaskName { get; set; }
+        public string TaskName
+        {
+            get => _taskName;
+            set
+            {
+                if (!Equals(value, _taskName))
+                {
+                    _taskName = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _taskName;
 
         /// <summary>
         /// The path of the Task (at the time the run started).
         /// </summary>
-        public string TaskPath { get; set; }
+        public string TaskPath
+        {
+            get => _taskPath;
+            set
+            {
+                if (!Equals(value, _taskPath))
+                {
+                    _taskPath = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _taskPath;
 
         /// <summary>
         /// The arguments of the Task (at the time the run started).
         /// </summary>
-        public string Arguments { get; set; }
+        public string Arguments
+        {
+            get => _arguments;
+            set
+            {
+                if (!Equals(value, _arguments))
+                {
+                    _arguments = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _arguments;
 
         /// <summary>
         /// Denotes if this TaskRun is for a background task.
         /// </summary>
-        public bool BackgroundTask { get; set; }
+        public bool BackgroundTask
+        {
+            get => _backgroundTask;
+            set
+            {
+                if (!Equals(value, _backgroundTask))
+                {
+                    _backgroundTask = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _backgroundTask;
 
         /// <summary>
         /// The type of the Task which created this run.
         /// </summary>
-        public TaskType TaskType { get; set; }
+        public TaskType TaskType
+        {
+            get => _taskType;
+            set
+            {
+                if (!Equals(value, _taskType))
+                {
+                    _taskType = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private TaskType _taskType;
 
         /// <summary>
         /// The GUID identifying this TaskRun.
         /// </summary>
-        public Guid Guid { get; set; }
+        public Guid Guid
+        {
+            get => _guid;
+            set
+            {
+                if (!Equals(value, _guid))
+                {
+                    _guid = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private Guid _guid;
 
         /// <summary>
         /// The time this run started. NULL if it has never started.
         /// </summary>
-        public DateTime? TimeStarted { get; set; }
+        public DateTime? TimeStarted
+        {
+            get => _timeStarted;
+            set
+            {
+                if (!Equals(value, _timeStarted))
+                {
+                    _timeStarted = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private DateTime? _timeStarted;
 
         /// <summary>
         /// The time this run finished. NULL if it has never finished.
         /// </summary>
-        public DateTime? TimeFinished { get; set; }
+        public DateTime? TimeFinished
+        {
+            get => _timeFinished;
+            set
+            {
+                if (!Equals(value, _timeFinished))
+                {
+                    _timeFinished = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private DateTime? _timeFinished;
 
         /// <summary>
         /// The status of this run.
         /// </summary>
-        public TaskStatus TaskStatus { get; set; }
+        public TaskStatus TaskStatus
+        {
+            get => _taskStatus;
+            set
+            {
+                if (!Equals(value, _taskStatus))
+                {
+                    _taskStatus = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private TaskStatus _taskStatus;
 
         /// <summary>
         /// The path to the log file for this run. NULL if it is not logged to a file.
         /// </summary>
-        public string LogFilePath { get; set; }
+        public string LogFilePath
+        {
+            get => _logFilePath;
+            set
+            {
+                if (!Equals(value, _logFilePath))
+                {
+                    _logFilePath = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private string _logFilePath;
 
         /// <summary>
         /// The exit code of this run. NULL if it has not finished.
         /// </summary>
-        public int? ExitCode { get; set; }
+        public int? ExitCode
+        {
+            get => _exitCode;
+            set
+            {
+                if (!Equals(value, _exitCode))
+                {
+                    _exitCode = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private int? _exitCode;
 
         /// <summary>
         /// The timeout for this run.
         /// </summary>
-        public int TimeoutSeconds { get; set; }
+        public int TimeoutSeconds
+        {
+            get => _timeoutSeconds;
+            set
+            {
+                if (!Equals(value, _timeoutSeconds))
+                {
+                    _timeoutSeconds = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private int _timeoutSeconds;
 
         /// <summary>
         /// True if this TaskRun is run by the server, such as an ExecutableTask.
@@ -1461,7 +1883,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// A helper class containing basic information about a TaskList. Use to quickly update clients about TaskLists and their statuses.
     /// </summary>
-    public class TaskListSummary
+    public struct TaskListSummary
     {
         /// <summary>
         /// Creates a new TaskListSummary.
@@ -1482,9 +1904,6 @@ namespace Microsoft.FactoryOrchestrator.Core
             TerminateBackgroundTasksOnCompletion = terminateBackgroundTasksOnCompletion;
         }
 
-        private TaskListSummary()
-        {}
-
         public TaskListSummary(TaskListSummary summary)
         {
             this.Status = summary.Status;
@@ -1503,19 +1922,19 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         public override int GetHashCode()
         {
-            return Guid.GetHashCode();
+            return Guid.GetHashCode() + Status.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            var rhs = obj as TaskListSummary;
+            var rhs = (TaskListSummary)obj;
 
-            if (rhs == null)
+            if (!Guid.Equals(rhs.Guid))
             {
                 return false;
             }
 
-            if (!Guid.Equals(rhs.Guid))
+            if (!Name.Equals(rhs.Name))
             {
                 return false;
             }
@@ -1576,12 +1995,22 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// True if the TaskList is running or queued to run.
         /// </summary>
-        public bool IsRunning
+        public bool IsRunningOrPending
         {
             get
             {
                 return ((Status == TaskStatus.Running) || (Status == TaskStatus.RunPending));
             }
         }
+    }
+}
+
+public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void NotifyPropertyChanged([CallerMemberName]string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -2033,28 +2033,37 @@ namespace Microsoft.FactoryOrchestrator.Server
             // WARNING: Update LoadTaskRunFromFile() if you change the header format!
             if (LogFilePath != null)
             {
-                _logIndex = 0;
-                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
-                List<string> header = new List<string>();
-
-                if (!BackgroundTask)
+                try
                 {
-                    header.Add(String.Format("Task: {0}", TaskName));
+                    _logIndex = 0;
+                    Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
+                    List<string> header = new List<string>();
+
+                    if (!BackgroundTask)
+                    {
+                        header.Add(String.Format("Task: {0}", TaskName));
+                    }
+                    else
+                    {
+                        header.Add(String.Format("Background Task: {0}", TaskName));
+                    }
+
+                    header.Add(String.Format("Task GUID: {0}", (OwningTaskGuid == null) ? "Not a known Task" : OwningTaskGuid.ToString()));
+                    header.Add(String.Format("TaskRun GUID: {0}", Guid));
+                    header.Add(String.Format("Type: {0}", TaskType));
+                    header.Add(String.Format("Path: {0}", TaskPath));
+                    header.Add(String.Format("Arguments: {0}", Arguments));
+                    header.Add(String.Format("Date/Time run: {0}", (TimeStarted == null) ? "Never Started" : TimeStarted.ToString()));
+                    header.Add(String.Format("--------------- Output --------------"));
+
+                    File.WriteAllLines(LogFilePath, header);
                 }
-                else
+                catch (IOException e)
                 {
-                    header.Add(String.Format("Background Task: {0}", TaskName));
+                    // todo: logging
+                    TaskOutput.Insert(0, $"WARNING: Log File {LogFilePath} could not be created:{Environment.NewLine}{e.AllExceptionsToString()}");
+                    DeleteLogFile();
                 }
-
-                header.Add(String.Format("Task GUID: {0}", (OwningTaskGuid == null) ? "Not a known Task" : OwningTaskGuid.ToString()));
-                header.Add(String.Format("TaskRun GUID: {0}", Guid));
-                header.Add(String.Format("Type: {0}", TaskType));
-                header.Add(String.Format("Path: {0}", TaskPath));
-                header.Add(String.Format("Arguments: {0}", Arguments));
-                header.Add(String.Format("Date/Time run: {0}", (TimeStarted == null) ? "Never Started" : TimeStarted.ToString()));
-                header.Add(String.Format("--------------- Output --------------"));
-
-                File.WriteAllLines(LogFilePath, header);
             }
         }
 
@@ -2064,8 +2073,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (_logIndex != TaskOutput.Count)
                 {
-                    File.AppendAllLines(LogFilePath, TaskOutput.GetRange(_logIndex, TaskOutput.Count - _logIndex));
-                    _logIndex = TaskOutput.Count;
+                    try
+                    {
+                        File.AppendAllLines(LogFilePath, TaskOutput.GetRange(_logIndex, TaskOutput.Count - _logIndex));
+                        _logIndex = TaskOutput.Count;
+                    }
+                    catch (IOException e)
+                    {
+                        // todo: logging
+                        TaskOutput.Insert(0, $"WARNING: Log File {LogFilePath} could not be created:{Environment.NewLine}{e.AllExceptionsToString()}");
+                        DeleteLogFile();
+                    }
                 }
             }
         }
@@ -2078,21 +2096,44 @@ namespace Microsoft.FactoryOrchestrator.Server
             // WARNING: Update LoadTaskRunFromFile() if you change the footer format!
             if (LogFilePath != null)
             {
-                WriteUpdatedLogOutput();
-                var footer = new List<string>();
-                // End output section
-                footer.Add("-------------------------------------");
-                footer.Add($"Result: {TaskStatus}");
-                if (ExitCode != null)
+                try
                 {
-                    footer.Add($"Exit code: {ExitCode}");
-                }
-                if (RunTime != null)
-                {
-                    footer.Add($"Time to complete: {RunTime}");
-                }
+                    WriteUpdatedLogOutput();
+                    var footer = new List<string>();
+                    // End output section
+                    footer.Add("-------------------------------------");
+                    footer.Add($"Result: {TaskStatus}");
+                    if (ExitCode != null)
+                    {
+                        footer.Add($"Exit code: {ExitCode}");
+                    }
+                    if (RunTime != null)
+                    {
+                        footer.Add($"Time to complete: {RunTime}");
+                    }
 
-                File.AppendAllLines(LogFilePath, footer);
+                    File.AppendAllLines(LogFilePath, footer);
+                }
+                catch (IOException e)
+                {
+                    // todo: logging
+                    TaskOutput.Insert(0, $"WARNING: Log File {LogFilePath} could not be created:{Environment.NewLine}{e.AllExceptionsToString()}");
+                    DeleteLogFile();
+                }
+            }
+        }
+
+        private void DeleteLogFile()
+        {
+            if (LogFilePath != null)
+            {
+                try
+                {
+                    File.Delete(LogFilePath);
+                }
+                catch (IOException) { }
+
+                LogFilePath = null;
             }
         }
 
