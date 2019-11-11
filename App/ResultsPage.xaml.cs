@@ -26,14 +26,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Client = ((App)Application.Current).Client;
+
             lastOutput = 0;
             if (e.Parameter != null)
             {
                 _test = (TaskBase)e.Parameter;
                 CreateHeader();
-                _testPoller = new ServerPoller(_test.Guid, typeof(TaskBase), Client, 5000);
-                _testPoller.OnUpdatedObject += OnUpdatedTestAsync;
-                _testPoller.StartPolling();
+                _taskPoller = new ServerPoller(_test.Guid, typeof(TaskBase), 5000);
+                _taskPoller.OnUpdatedObject += OnUpdatedTestAsync;
+                _taskPoller.OnException += ((App)Application.Current).OnServerPollerException;
+                _taskPoller.StartPolling(Client);
                 if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
                 {
                     // Set task status to not run
@@ -53,9 +56,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (_testPoller != null)
+            if (_taskPoller != null)
             {
-                _testPoller.StopPolling();
+                _taskPoller.StopPolling();
             }
             if (_taskRunPoller != null)
             {
@@ -358,7 +361,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         {
                             if (!_taskRunPoller.IsPolling)
                             {
-                                _taskRunPoller.StartPolling();
+                                _taskRunPoller.StartPolling(Client);
                             }
                             return true;
                         }
@@ -368,9 +371,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         }
                     }
 
-                    _taskRunPoller = new ServerPoller((Guid)taskRunGuid, typeof(TaskRun), Client, 1000);
+                    _taskRunPoller = new ServerPoller((Guid)taskRunGuid, typeof(TaskRun), 1000);
                     _taskRunPoller.OnUpdatedObject += OnUpdatedTaskRunAsync;
-                    _taskRunPoller.StartPolling();
+                    _taskRunPoller.OnException += ((App)Application.Current).OnServerPollerException;
+                    _taskRunPoller.StartPolling(Client);
                     return true;
                 }
             }
@@ -415,7 +419,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private TaskBase _test;
         private TaskRun _selectedRun;
         private ServerPoller _taskRunPoller;
-        private ServerPoller _testPoller;
+        private ServerPoller _taskPoller;
         private object _taskRunPollLock = new object();
         private int lastOutput;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;

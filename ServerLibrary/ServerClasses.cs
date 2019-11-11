@@ -1,4 +1,5 @@
 ﻿using Microsoft.FactoryOrchestrator.Core;
+using Microsoft.FactoryOrchestrator.Server;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -14,59 +15,6 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
-    public static class TaskBase_ServerExtensions
-    {
-        public static Guid CreateTaskRun(this TaskBase task, string logFolder)
-        {
-            TaskRun_Server run;
-            lock (task.TaskLock)
-            {
-                run = new TaskRun_Server(task, logFolder);
-                task.TaskRunGuids.Add(run.Guid);
-                task.LatestTaskRunExitCode = null;
-                task.LatestTaskRunStatus = TaskStatus.RunPending;
-                task.LatestTaskRunTimeFinished = null;
-                task.LatestTaskRunTimeStarted = null;
-            }
-            return run.Guid;
-        }
-
-        public static Guid CreateTaskRun(this TaskBase task, string logFolder, Guid taskListGuid)
-        {
-            TaskRun_Server run;
-            lock (task.TaskLock)
-            {
-                run = new TaskRun_Server(task, logFolder, taskListGuid);
-                task.TaskRunGuids.Add(run.Guid);
-                task.LatestTaskRunExitCode = null;
-                task.LatestTaskRunStatus = TaskStatus.RunPending;
-                task.LatestTaskRunTimeFinished = null;
-                task.LatestTaskRunTimeStarted = null;
-            }
-            return run.Guid;
-        }
-
-
-        public static void GetLatestTaskRun(this TaskBase task)
-        {
-            TaskRun_Server.GetTaskRunByGuid(task.TaskRunGuids.Last());
-        }
-
-        public static void Reset(this TaskBase task, bool preserveLogs = true)
-        {
-            lock (task.TaskLock)
-            {
-                task.LatestTaskRunStatus = TaskStatus.NotRun;
-                task.LatestTaskRunExitCode = null;
-                task.LatestTaskRunTimeFinished = null;
-                task.LatestTaskRunTimeStarted = null;
-                task.TaskRunGuids = new List<Guid>();
-            }
-
-            TaskRun_Server.RemoveTaskRunsForTask(task.Guid, preserveLogs);
-        }
-    }
-
     public class TaskManager_Server
     {
         public TaskManager_Server(string logFolder, string taskListStateFile)
@@ -76,15 +24,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             RunningTaskListTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             RunningBackgroundTasks = new ConcurrentDictionary<Guid, List<TaskRunner>>();
             RunningTaskRunTokens = new ConcurrentDictionary<Guid, CancellationTokenSource>();
+            _taskRunMap = new ConcurrentDictionary<Guid, TaskRun_Server>();
+            _taskMapLock = new object();
             TaskListStateFile = taskListStateFile;
             SetLogFolder(logFolder, false);
         }
 
-        public bool SetLogFolder(string newLogFolder, bool moveFiles)
+        public void SetLogFolder(string newLogFolder, bool moveFiles)
         {
             if (newLogFolder == _logFolder)
             {
-                return true;
+                return;
             }
 
             try
@@ -94,7 +44,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     if (IsTaskListRunning)
                     {
-                        throw new TestManagerTaskListRunningException();
+                        throw new FactoryOrchestratorTaskListRunningException();
                     }
 
                     lock (KnownTaskListLock)
@@ -123,12 +73,10 @@ namespace Microsoft.FactoryOrchestrator.Server
                         _logFolder = newLogFolder;
                     }
                 }
-
-                return true;
             }
             catch (Exception e)
             {
-                throw new TestManagerException("Could not move log folder!", null, e);
+                throw new FactoryOrchestratorException("Could not move log folder!", null, e);
             }
         }
 
@@ -168,119 +116,6 @@ namespace Microsoft.FactoryOrchestrator.Server
                     CopyDirectory(subdir.FullName, temppath, copySubDirs);
                 }
             }
-        }
-
-        /// <summary>
-        /// Loads a taskrun log file into a taskrun_server object. This has a very hard dependency on the output format, defined by WriteLogHeader() and WriteLogFooter().
-        /// </summary>
-        /// <param name="filePath">log file to load</param>
-        /// <returns>created taskrun object</returns>
-        public TaskRun_Server LoadTaskRunFromFile(string filePath)
-        {
-            TaskRun_Server run = null;
-
-            try
-            {
-                var lines = File.ReadAllLines(filePath).ToList();
-
-                // At a minimum, the task header must have been written to the log file, check for the start of the output section first.
-                // This will throw an exception if it doesn't exist.
-                var startOutput = lines.First(x => x.StartsWith("---------------"));
-                var taskRunGuid = new Guid(lines.First(x => x.StartsWith("TaskRun GUID:")).Split(' ').Last());
-
-                // Get task guid if it exists
-                Guid taskGuid;
-                try
-                {
-                    taskGuid = new Guid(lines.First(x => x.StartsWith("Task GUID:")).Split(' ').Last());
-                }
-                catch (Exception)
-                {
-                    taskGuid = Guid.Empty;
-                }
-
-                // Create a new TaskRun object representing this TaskRun log file
-                var task = GetTask(taskGuid);
-                if (task != null)
-                {
-                    var list = KnownTaskLists.Where(x => x.Tasks.Any(y => y.Guid.Equals(taskGuid))).DefaultIfEmpty(null).First();
-                    run = new TaskRun_Server(task, LogFolder, list.Guid);
-                }
-                else
-                {
-                    run = TaskRun_Server.CreateTaskRunWithoutTask("", "", filePath, TaskType.External);
-                }
-
-                // Update run based on info in the log file. If a field cant be parsed, use a default
-                if (!TaskRun_Server.UpdateTaskRunGuid(run.Guid, taskRunGuid))
-                {
-                    // The taskrun already exists.
-                    throw new Exception();
-                }
-
-                run.LogFilePath = filePath;
-                run.TaskType = (TaskType)Enum.Parse(typeof(TaskType), lines.First(x => x.StartsWith("Type:")).Substring(6));
-                run.Arguments = lines.First(x => x.StartsWith("Arguments: ")).Substring(11);
-                run.TaskPath = lines.First(x => x.StartsWith("Path: ")).Substring(6);
-
-                try
-                {
-                    run.TimeStarted = DateTime.Parse(lines.Where(x => x.StartsWith("Date/Time run: ")).First().Replace("Date/Time run: ", ""));
-                }
-                catch (Exception)
-                {
-                    run.TimeStarted = null;
-                }
-
-                try
-                {
-                    run.TimeFinished = run.TimeStarted + TimeSpan.Parse(lines.First(x => x.StartsWith("Time to complete:")).Split(' ').Last());
-                }
-                catch (Exception)
-                {
-                    run.TimeFinished = null;
-                }
-
-                try
-                {
-                    run.TaskStatus = (TaskStatus)Enum.Parse(typeof(TaskStatus), lines.First(x => x.StartsWith("Result:")).Split(' ').Last());
-                }
-                catch (Exception)
-                {
-                    run.TaskStatus = TaskStatus.Unknown;
-                }
-
-                try
-                {
-                    run.ExitCode = int.Parse(lines.First(x => x.StartsWith("Exit code:")).Split(' ').Last());
-                }
-                catch (Exception)
-                {
-                    run.ExitCode = null;
-                }
-
-                try
-                {
-                    var endOutput = lines.Last(x => x.StartsWith("---------------"));
-                    var startIndex = lines.IndexOf(startOutput);
-                    var endIndex = lines.IndexOf(endOutput);
-                    run.TaskOutput = lines.GetRange(startIndex + 1, endIndex - startIndex - 1);
-                }
-                catch
-                {
-                    run.TaskOutput = new List<string>();
-                }
-            }
-            catch (Exception)
-            {
-                if (run != null)
-                {
-                    TaskRun_Server.RemoveTaskRun(run.Guid, true);
-                    run = null;
-                }
-            }
-
-            return run;
         }
 
         public TaskList CreateTaskListFromDirectory(String path, bool recursive)
@@ -363,18 +198,18 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (!xml.Save(filename))
                 {
-                    throw new TestManagerException($"Could not save TaskLists to {filename}!");
+                    throw new FactoryOrchestratorException($"Could not save TaskLists to {filename}!");
                 }
             }
 
             return true;
         }
 
-        public bool SaveTaskListToXmlFile(Guid guid, string filename)
+        public void SaveTaskListToXmlFile(Guid guid, string filename)
         {
             if (IsTaskListRunning)
             {
-                throw new TestManagerTaskListRunningException();
+                throw new FactoryOrchestratorTaskListRunningException();
             }
             
             FactoryOrchestratorXML xml = new FactoryOrchestratorXML();
@@ -386,18 +221,20 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                // TODO: Logging
-                return false;
+                throw new FactoryOrchestratorUnkownGuidException(guid, typeof(TaskList));
             }
 
-            return xml.Save(filename);
+            if (!xml.Save(filename))
+            {
+                throw new FactoryOrchestratorException($"Could not save TaskLists to {filename}!");
+            }
         }
 
         public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
             if (IsTaskListRunning)
             {
-                throw new TestManagerTaskListRunningException();
+                throw new FactoryOrchestratorTaskListRunningException();
             }
 
             FactoryOrchestratorXML xml;
@@ -408,18 +245,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 foreach (var list in xml.TaskLists)
                 {
-                    // Update "running" Tasks, as their state is unknown
-                    var badStateTasks = list.Tasks.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
+                    // Mark "running" Tasks as Unknown, as their state is unknown
+                    var badStateTasks = list.Tasks.Where(x => (x.IsRunningOrPending));
                     foreach (var task in badStateTasks)
                     {
                         task.LatestTaskRunStatus = TaskStatus.Unknown;
                     }
-                    badStateTasks = list.BackgroundTasks.Where(x => (x.LatestTaskRunStatus == TaskStatus.Running) || (x.LatestTaskRunStatus == TaskStatus.WaitingForExternalResult) || (x.LatestTaskRunStatus == TaskStatus.RunPending));
+                    badStateTasks = list.BackgroundTasks.Where(x => (x.IsRunningOrPending));
                     foreach (var task in badStateTasks)
                     {
                         task.LatestTaskRunStatus = TaskStatus.Unknown;
                     }
-
 
                     var index = KnownTaskLists.FindIndex(x => x.Guid == list.Guid);
                     if (index > -1)
@@ -443,12 +279,12 @@ namespace Microsoft.FactoryOrchestrator.Server
             return xml.TaskLists.Select(x => x.Guid).ToList();
         }
 
-        public bool DeleteTaskList(Guid listToDelete)
+        public void DeleteTaskList(Guid listToDelete)
         {
             bool removed = false;
             lock (KnownTaskListLock)
             {
-                // Abort() gracefully returns if the guid is invalid
+                // Delete() gracefully returns if the guid is invalid
                 AbortTaskList(listToDelete);
                 var index = KnownTaskLists.FindIndex(x => x.Guid == listToDelete);
                 if (index > -1)
@@ -458,24 +294,25 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
             }
 
-            // Update XML for state tracking
-            SaveAllTaskListsToXmlFile(TaskListStateFile);
-
-            return removed;
+            if (removed)
+            {
+                // Update XML for state tracking
+                SaveAllTaskListsToXmlFile(TaskListStateFile);
+            }
         }
 
-        public TaskBase GetTask(Guid testGuid)
+        public TaskBase GetTask(Guid taskGuid)
         {
             foreach (var list in KnownTaskLists)
             {
-                var index = list.Tasks.FindIndex(y => y.Guid.Equals(testGuid));
+                var index = list.Tasks.FindIndex(y => y.Guid.Equals(taskGuid));
                 if (index != -1)
                 {
                     return list.Tasks[index];
                 }
             }
 
-            return null;
+            throw new Exception($"No Task with guid {taskGuid} exists!");
         }
 
         public TaskList GetTaskList(Guid guid)
@@ -487,7 +324,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                return null;
+                throw new FactoryOrchestratorUnkownGuidException(guid, typeof(TaskList));
             }
         }
 
@@ -502,9 +339,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (KnownTaskLists.Exists(x => x.Guid == taskList.Guid))
                 {
-                    return null;
-
-                    // TODO: Logging
+                    throw new FactoryOrchestratorException($"TaskList with guid {taskList.Guid} already exists!");
                 }
                 else
                 {
@@ -547,7 +382,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     // Reset all tests
                     foreach (var task in KnownTaskLists.SelectMany(x => x.Tasks))
                     {
-                        task.Reset(preserveLogs);
+                        ResetTask(task, preserveLogs);
                     }
 
                     // Delete state file
@@ -570,20 +405,20 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
-            TaskRun_Server taskRun = new TaskRun_Server(maybeTAEF, LogFolder);
+            var taskRun = CreateTaskRunForTask(maybeTAEF, LogFolder);
             TaskRunner runner = new TaskRunner(taskRun);
             bool isTaef = false;
             try
             {
                 if (!runner.CheckIfTaefTest())
                 {
-                    throw new Exception(String.Format("Unable to invoke TE.exe to validate possible TAEF test: {0}", dllToTest));
+                    throw new FactoryOrchestratorException(String.Format("Unable to invoke TE.exe to validate possible TAEF test: {0}", dllToTest));
                 }
                 // Timeout after a second
                 if (!runner.WaitForExit(1000))
                 {
                     runner.StopTask();
-                    throw new Exception(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
+                    throw new FactoryOrchestratorException(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
                 }
 
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
@@ -598,17 +433,16 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
-                    throw new Exception(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", taskRun.ExitCode, dllToTest));
+                    throw new FactoryOrchestratorException(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", taskRun.ExitCode, dllToTest));
                 }
             }
             catch (Exception e)
             {
-                maybeTAEF.Reset(false);
-                throw new Exception(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), e);
+                throw new FactoryOrchestratorException(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), null, e);
             }
 
             // Cleanup task run
-            maybeTAEF.Reset(false);
+            ResetTask(maybeTAEF, false);
 
             if (isTaef)
             {
@@ -620,11 +454,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        public bool UpdateTaskList(TaskList taskList)
+        public void UpdateTaskList(TaskList taskList)
         {
             if (taskList == null)
             {
-                return false;
+                throw new ArgumentNullException();
             }
 
             lock (KnownTaskListLock)
@@ -637,12 +471,11 @@ namespace Microsoft.FactoryOrchestrator.Server
                         // if it is running don't update the tasklist
                         if (RunningTaskListTokens.Keys.Contains(taskList.Guid))
                         {
-                            return false;
+                            throw new FactoryOrchestratorTaskListRunningException(taskList.Guid);
                         }
                         else
                         {
                             KnownTaskLists[index] = taskList;
-                            return true;
                         }
                     }
                 }
@@ -650,15 +483,13 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             // Update XML for state tracking
             SaveAllTaskListsToXmlFile(TaskListStateFile);
-
-            return false;
         }
 
-        public bool UpdateTask(TaskBase updatedTest)
+        public void UpdateTask(TaskBase updatedTest)
         {
             if (updatedTest == null)
             {
-                return false;
+                throw new ArgumentNullException();
             }
 
             // Changing state, lock the task lists
@@ -670,7 +501,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (taskList == null)
                 {
-                    return false;
+                    throw new FactoryOrchestratorUnkownGuidException(updatedTest.Guid, typeof(TaskBase));
                 }
                 else
                 {
@@ -679,7 +510,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         // if it is running don't update the task
                         if (RunningTaskListTokens.Keys.Contains(taskList.Guid))
                         {
-                            return false;
+                            throw new FactoryOrchestratorTaskListRunningException(taskList.Guid);
                         }
                         else
                         {
@@ -691,18 +522,16 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             // Update XML for state tracking
             SaveAllTaskListsToXmlFile(TaskListStateFile);
-
-            return true;
         }
 
-        public bool UpdateTaskRun(TaskRun latestTaskRun)
+        public void UpdateTaskRun(TaskRun latestTaskRun)
         {
             if (latestTaskRun == null)
             {
-                return false;
+                throw new ArgumentNullException();
             }
 
-            return TaskRun_Server.UpdateTaskRun(latestTaskRun);
+            UpdateTaskRunInternal(latestTaskRun);
         }
 
         public bool RunAllTaskLists()
@@ -719,29 +548,29 @@ namespace Microsoft.FactoryOrchestrator.Server
             return true;
         }
 
-        public bool RunTaskList(Guid TaskListGuidToRun, int startIndex = 0)
+        public void RunTaskList(Guid taskListGuidToRun, int startIndex = 0)
         {
-            TaskList list = KnownTaskLists.Find(x => x.Guid == TaskListGuidToRun);
+            TaskList list = KnownTaskLists.Find(x => x.Guid == taskListGuidToRun);
 
             // Check if task list is valid
             if (list == null)
             {
-                return false;
+                throw new FactoryOrchestratorUnkownGuidException(taskListGuidToRun, typeof(TaskList));
             }
 
             // Check if task list is already running or set to be run
             lock (RunningTaskListLock)
             {
-                if (RunningTaskListTokens.ContainsKey(TaskListGuidToRun))
+                if (RunningTaskListTokens.ContainsKey(taskListGuidToRun))
                 {
-                    return false;
+                    throw new FactoryOrchestratorTaskListRunningException(taskListGuidToRun);
                 }
 
                 // Create testrun for all background tasks in the list
                 List<Guid> backgroundTaskRunGuids = new List<Guid>();
                 foreach (var task in list.BackgroundTasks)
                 {
-                    backgroundTaskRunGuids.Add(task.CreateTaskRun(LogFolder, TaskListGuidToRun));
+                    backgroundTaskRunGuids.Add(CreateTaskRunForTask(task, LogFolder, taskListGuidToRun).Guid);
                 }
 
                 // Create taskrun for all tasks in the list
@@ -750,7 +579,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 for (int i = startIndex; i < tasks.Count; i++)
                 {
                     tasks[i].TimesRetried = 0;
-                    taskRunGuids.Add(tasks[i].CreateTaskRun(LogFolder, TaskListGuidToRun));
+                    taskRunGuids.Add(CreateTaskRunForTask(tasks[i], LogFolder, taskListGuidToRun).Guid);
                 }
 
                 // Update XML for state tracking.
@@ -759,13 +588,11 @@ namespace Microsoft.FactoryOrchestrator.Server
                 var workItem = new TaskListWorkItem(list.Guid, backgroundTaskRunGuids, taskRunGuids, list.TerminateBackgroundTasksOnCompletion, list.AllowOtherTaskListsToRun, list.RunInParallel);
                 QueueTaskListWorkItem(workItem);
             }
-
-            return true;
         }
 
-        public bool RunTaskListFromInitial(Guid taskListToRun, int initialTask)
+        public void RunTaskListFromInitial(Guid taskListToRun, int initialTask)
         {
-            return RunTaskList(taskListToRun, initialTask);
+            RunTaskList(taskListToRun, initialTask);
         }
 
         public class TaskListWorkItem
@@ -831,7 +658,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 foreach (var runGuid in item.TaskRunGuids)
                 {
-                    var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
+                    var run = GetTaskRunByGuid(runGuid);
                     run.TaskStatus = TaskStatus.Aborted;
                     run.ExitCode = -1;
                     run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
@@ -849,7 +676,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             // Start all background tasks
             Parallel.ForEach(backgroundTaskRunGuids, (bgRunGuid, state) =>
             {
-                var taskRun = TaskRun_Server.GetTaskRunByGuid(bgRunGuid);
+                var taskRun = GetTaskRunByGuid(bgRunGuid);
                 var testToken = new CancellationTokenSource();
                 StartTest(taskRun, token, taskRunEventHandler, true);
                 RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
@@ -867,7 +694,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 foreach (var runGuid in taskRunGuids)
                 {
-                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
+                    var taskRun = GetTaskRunByGuid(runGuid);
 
                     if (token.IsCancellationRequested)
                     {
@@ -889,7 +716,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 Parallel.ForEach(taskRunGuids, (runGuid) =>
                 {
-                    var taskRun = TaskRun_Server.GetTaskRunByGuid(runGuid);
+                    var taskRun = GetTaskRunByGuid(runGuid);
 
                     if (token.IsCancellationRequested)
                     {
@@ -936,10 +763,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                         runner.OnTestEvent += taskRunEventHandler;
                     }
 
-                    if (!runner.Run())
-                    {
-                        throw new Exception(String.Format("Unable to start TaskRun {0} for task {1}", taskRun.Guid, taskRun.TaskName));
-                    }
+                    // If the process failed to start, the error is logged to the TaskRun output
+                    runner.Run();
                 }
                 else
                 {
@@ -1005,8 +830,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     if (taskRun.OwningTask.TimesRetried < taskRun.OwningTask.MaxNumberOfRetries)
                     {
                         // Re-run the task under a new TaskRun
-                        var newRunGuid = taskRun.OwningTask.CreateTaskRun(LogFolder);
-                        var newRun = TaskRun_Server.GetTaskRunByGuid(newRunGuid);
+                        var newRun = CreateTaskRunForTask(taskRun.OwningTask, LogFolder);
                         taskRun.OwningTask.TimesRetried++;
                         StartTest(newRun, token, taskRunEventHandler);
                     }
@@ -1104,7 +928,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
         {
-            var run = TaskRun_Server.CreateTaskRunWithoutTask(exeFilePath, arguments, logFilePath, TaskType.ConsoleExe);
+            var run = CreateTaskRunWithoutTask(exeFilePath, arguments, logFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
             var token = new CancellationTokenSource();
             StartTest(run, token.Token);
@@ -1122,16 +946,14 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (list == null)
             {
-                // TODO: Logging: log error
-                return null;
+                throw new FactoryOrchestratorUnkownGuidException(taskGuid, typeof(TaskBase));
             }
 
             // If list is running already, fail
             CancellationTokenSource t;
             if (RunningTaskListTokens.TryGetValue(list.Guid, out t))
             {
-                // TODO: Logging: log error
-                return null;
+                throw new FactoryOrchestratorTaskListRunningException(list.Guid);
             }
 
             var task = list.Tasks[taskIndex];
@@ -1140,10 +962,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                 task.TimesRetried = 0;
             }
 
-            var runGuid = task.CreateTaskRun(LogFolder, list.Guid);
-            var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
+            var run = CreateTaskRunForTask(task, LogFolder, list.Guid);
             var runList = new List<Guid>();
-            runList.Add(runGuid);
+            runList.Add(run.Guid);
             TaskListWorkItem workItem;
 
             if (run.BackgroundTask)
@@ -1164,8 +985,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             if (task == null)
             {
-                // TODO: Logging: log error
-                return null;
+                throw new ArgumentNullException();
             }
 
             if (GetTask(task.Guid) != null)
@@ -1177,8 +997,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 task.TimesRetried = 0;
             }
-            var runGuid = task.CreateTaskRun(LogFolder);
-            var run = TaskRun_Server.GetTaskRunByGuid(runGuid);
+            var run = CreateTaskRunForTask(task, LogFolder);
             var token = new CancellationTokenSource();
 
             if (run.BackgroundTask)
@@ -1208,13 +1027,309 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskRun RunApp(string packageFamilyName)
         {
-            var run = TaskRun_Server.CreateTaskRunWithoutTask(packageFamilyName, null, null, TaskType.UWP);
+            var run = CreateTaskRunWithoutTask(packageFamilyName, null, null, TaskType.UWP);
             var token = new CancellationTokenSource();
             RunningTaskRunTokens.TryAdd(run.Guid, token);
             Task t = new Task(() => { StartTest(run, token.Token); });
             t.Start();
 
             return run;
+        }
+
+        public TaskRun_Server CreateTaskRunForTask(TaskBase task, string logFolder)
+        {
+            TaskRun_Server run;
+            lock (task.TaskLock)
+            {
+                run = new TaskRun_Server(task, logFolder);
+
+                // Add to GUID -> TaskRun map
+                lock (_taskMapLock)
+                {
+                    _taskRunMap.TryAdd(run.Guid, run);
+                }
+
+                task.TaskRunGuids.Add(run.Guid);
+                task.LatestTaskRunExitCode = null;
+                task.LatestTaskRunStatus = TaskStatus.RunPending;
+                task.LatestTaskRunTimeFinished = null;
+                task.LatestTaskRunTimeStarted = null;
+            }
+            return run;
+        }
+
+        public TaskRun_Server CreateTaskRunForTask(TaskBase task, string logFolder, Guid taskListGuid)
+        {
+            TaskRun_Server run;
+            lock (task.TaskLock)
+            {
+                run = new TaskRun_Server(task, logFolder, taskListGuid);
+
+                // Add to GUID -> TaskRun map
+                lock (_taskMapLock)
+                {
+                    _taskRunMap.TryAdd(run.Guid, run);
+                }
+
+                task.TaskRunGuids.Add(run.Guid);
+                task.LatestTaskRunExitCode = null;
+                task.LatestTaskRunStatus = TaskStatus.RunPending;
+                task.LatestTaskRunTimeFinished = null;
+                task.LatestTaskRunTimeStarted = null;
+            }
+            return run;
+        }
+
+        private TaskRun_Server CreateTaskRunWithoutTask(string filePath, string arguments, string logFileOrFolder, TaskType type)
+        {
+            var run = new TaskRun_Server(filePath, arguments, logFileOrFolder, type);
+
+            // Add to GUID -> TaskRun map
+            lock (_taskMapLock)
+            {
+                _taskRunMap.TryAdd(run.Guid, run);
+            }
+
+            return run;
+        }
+
+        private void ResetTask(TaskBase task, bool preserveLogs = true)
+        {
+            lock (task.TaskLock)
+            {
+                task.LatestTaskRunStatus = TaskStatus.NotRun;
+                task.LatestTaskRunExitCode = null;
+                task.LatestTaskRunTimeFinished = null;
+                task.LatestTaskRunTimeStarted = null;
+                task.TaskRunGuids = new List<Guid>();
+            }
+
+            RemoveTaskRunsForTask(task.Guid, preserveLogs);
+        }
+
+        public List<Guid> GetTaskRunGuidsByTaskGuid(Guid taskGuid)
+        {
+            return _taskRunMap.Values.Where(x => x.OwningTaskGuid == taskGuid).Select(x => x.Guid).ToList();
+        }
+
+        public TaskRun_Server GetTaskRunByGuid(Guid taskRunGuid)
+        {
+            if (_taskRunMap.ContainsKey(taskRunGuid))
+            {
+                return _taskRunMap[taskRunGuid];
+            }
+            else
+            {
+                var files = Directory.EnumerateFiles(_logFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories);
+                if (files.Count() == 1)
+                {
+                    return LoadTaskRunFromFile(files.First());
+                }
+                else
+                {
+                    throw new FactoryOrchestratorUnkownGuidException(taskRunGuid, typeof(TaskRun));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads a taskrun log file into a taskrun_server object. This has a very hard dependency on the output format, defined by WriteLogHeader() and WriteLogFooter().
+        /// </summary>
+        /// <param name="filePath">log file to load</param>
+        /// <returns>created taskrun object</returns>
+        private TaskRun_Server LoadTaskRunFromFile(string filePath)
+        {
+            TaskRun_Server run = null;
+
+            try
+            {
+                var lines = File.ReadAllLines(filePath).ToList();
+
+                // At a minimum, the task header must have been written to the log file, check for the start of the output section first.
+                // This will throw an exception if it doesn't exist.
+                var startOutput = lines.First(x => x.StartsWith("---------------"));
+                var taskRunGuid = new Guid(lines.First(x => x.StartsWith("TaskRun GUID:")).Split(' ').Last());
+
+                // Get task guid if it exists
+                Guid taskGuid;
+                try
+                {
+                    taskGuid = new Guid(lines.First(x => x.StartsWith("Task GUID:")).Split(' ').Last());
+                }
+                catch (Exception)
+                {
+                    taskGuid = Guid.Empty;
+                }
+
+                // Create a new TaskRun object representing this TaskRun log file
+                var task = GetTask(taskGuid);
+                if (task != null)
+                {
+                    var list = KnownTaskLists.Where(x => x.Tasks.Any(y => y.Guid.Equals(taskGuid))).DefaultIfEmpty(null).First();
+                    run = CreateTaskRunForTask(task, LogFolder, list.Guid);
+                }
+                else
+                {
+                    run = CreateTaskRunWithoutTask("", "", filePath, TaskType.External);
+                }
+
+                // Update run based on info in the log file. If a field cant be parsed, use a default
+                if (!UpdateTaskRunGuid(run.Guid, taskRunGuid))
+                {
+                    // The taskrun already exists.
+                    throw new FactoryOrchestratorException($"TaskRun {run.Guid} could not be loaded from file as it already exists!", run.Guid);
+                }
+
+                run.LogFilePath = filePath;
+                run.TaskType = (TaskType)Enum.Parse(typeof(TaskType), lines.First(x => x.StartsWith("Type:")).Substring(6));
+                run.Arguments = lines.First(x => x.StartsWith("Arguments: ")).Substring(11);
+                run.TaskPath = lines.First(x => x.StartsWith("Path: ")).Substring(6);
+
+                try
+                {
+                    run.TimeStarted = DateTime.Parse(lines.Where(x => x.StartsWith("Date/Time run: ")).First().Replace("Date/Time run: ", ""));
+                }
+                catch (Exception)
+                {
+                    run.TimeStarted = null;
+                }
+
+                try
+                {
+                    run.TimeFinished = run.TimeStarted + TimeSpan.Parse(lines.First(x => x.StartsWith("Time to complete:")).Split(' ').Last());
+                }
+                catch (Exception)
+                {
+                    run.TimeFinished = null;
+                }
+
+                try
+                {
+                    run.TaskStatus = (TaskStatus)Enum.Parse(typeof(TaskStatus), lines.First(x => x.StartsWith("Result:")).Split(' ').Last());
+                }
+                catch (Exception)
+                {
+                    run.TaskStatus = TaskStatus.Unknown;
+                }
+
+                try
+                {
+                    run.ExitCode = int.Parse(lines.First(x => x.StartsWith("Exit code:")).Split(' ').Last());
+                }
+                catch (Exception)
+                {
+                    run.ExitCode = null;
+                }
+
+                try
+                {
+                    var endOutput = lines.Last(x => x.StartsWith("---------------"));
+                    var startIndex = lines.IndexOf(startOutput);
+                    var endIndex = lines.IndexOf(endOutput);
+                    run.TaskOutput = lines.GetRange(startIndex + 1, endIndex - startIndex - 1);
+                }
+                catch
+                {
+                    run.TaskOutput = new List<string>();
+                }
+            }
+            catch (Exception)
+            {
+                if (run != null)
+                {
+                    RemoveTaskRun(run.Guid, true);
+                    run = null;
+                }
+            }
+
+            if (run != null)
+            {
+                // Update it in the map, now that it is fully loaded
+                UpdateTaskRunInternal(run);
+            }
+
+            return run;
+        }
+
+        /// <summary>
+        /// Replaces the Guid for an existing TaskRun with a new Guid
+        /// </summary>
+        /// <param name="oldGuid"></param>
+        /// <param name="newGuid"></param>
+        /// <returns></returns>
+        private bool UpdateTaskRunGuid(Guid oldGuid, Guid newGuid)
+        {
+            lock (_taskMapLock)
+            {
+                TaskRun_Server run;
+                if (!_taskRunMap.TryRemove(oldGuid, out run))
+                {
+                    return false;
+                }
+                run.Guid = newGuid;
+
+                // Fix log path, as it also used the wrong guid.
+                run.SetLogFile(run.LogFilePath.Replace(oldGuid.ToString(), newGuid.ToString()));
+
+                if (!_taskRunMap.TryAdd(run.Guid, run))
+                {
+                    // the guid already exists!
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void RemoveTaskRun(Guid taskRunGuid, bool preserveLogs)
+        {
+            TaskRun_Server taskRun = null;
+            lock (_taskMapLock)
+            {
+                if (_taskRunMap.TryGetValue(taskRunGuid, out taskRun))
+                {
+                    TaskRun_Server removed;
+                    _taskRunMap.TryRemove(taskRunGuid, out removed);
+                    if (!preserveLogs)
+                    {
+                        if (File.Exists(taskRun.LogFilePath))
+                        {
+                            File.Delete(taskRun.LogFilePath);
+                        }
+                    }
+                }
+            }
+        }
+        private void UpdateTaskRunInternal(TaskRun updatedTaskRun)
+        {
+            if (updatedTaskRun == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            lock (_taskMapLock)
+            {
+                if (!_taskRunMap.ContainsKey(updatedTaskRun.Guid))
+                {
+                    throw new FactoryOrchestratorUnkownGuidException(updatedTaskRun.Guid, typeof(TaskRun));
+                }
+
+                var run = _taskRunMap[updatedTaskRun.Guid];
+                run.ExitCode = updatedTaskRun.ExitCode;
+                run.TaskStatus = updatedTaskRun.TaskStatus;
+                run.TimeFinished = updatedTaskRun.TimeFinished;
+                run.TimeStarted = updatedTaskRun.TimeStarted;
+                run.TaskOutput = updatedTaskRun.TaskOutput;
+                run.UpdateOwningTaskFromTaskRun();
+            }
+        }
+
+        public void RemoveTaskRunsForTask(Guid taskGuid, bool preserveLogs)
+        {
+            Parallel.ForEach(GetTaskRunGuidsByTaskGuid(taskGuid), taskRunGuid =>
+            {
+                RemoveTaskRun(taskRunGuid, preserveLogs);
+            });
         }
 
         private List<TaskList> KnownTaskLists;
@@ -1225,6 +1340,13 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly object RunningTaskListLock = new object();
         private readonly SemaphoreSlim _startNonParallelTaskRunLock;
         private string _logFolder;
+
+        /// <summary>
+        /// Tracks all the task runs that have ever occured, mapped by the task run GUID
+        /// </summary>
+        private static ConcurrentDictionary<Guid, TaskRun_Server> _taskRunMap;
+        private static object _taskMapLock;
+
 
         public string LogFolder { get => _logFolder; }
         public string TaskListStateFile { get; private set; }
@@ -1253,25 +1375,6 @@ namespace Microsoft.FactoryOrchestrator.Server
         }
 
         public event TestManagerEventHandler OnTestManagerEvent;
-    }
-
-    public class TestManagerException : Exception
-    {
-        public TestManagerException(string message = null, Guid? guid = null, Exception innerException = null) : base(message, innerException)
-        {
-            Guid = guid;
-        }
-
-        public Guid? Guid { get; }
-    }
-
-    public class TestManagerTaskListRunningException : TestManagerException
-    {
-        public TestManagerTaskListRunningException() : base("Cannot perform operation because one or more TaskLists are actively running!")
-        { }
-
-        public TestManagerTaskListRunningException(Guid guid) : base($"Cannot perform operation because TaskList {guid} is actively running!", guid)
-        { }
     }
 
     public delegate void TestManagerEventHandler(object source, TestManagerEventArgs e);
@@ -1349,7 +1452,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
-                    throw new Exception($"{value} is not a valid file path!");
+                    throw new FileNotFoundException($"{value} is not a valid file path!");
                 }
             }
         }
@@ -1759,124 +1862,6 @@ namespace Microsoft.FactoryOrchestrator.Server
     public class TaskRun_Server : TaskRun
     {
         // TODO: Move taskrunner into taskrun_server
-        static TaskRun_Server()
-        {
-            _taskRunMap = new ConcurrentDictionary<Guid, TaskRun_Server>();
-            _taskMapLock = new object();
-        }
-
-        public static List<Guid> GetTaskRunGuidsByTaskGuid(Guid taskGuid)
-        {
-            return _taskRunMap.Values.Where(x => x.OwningTaskGuid == taskGuid).Select(x => x.Guid).ToList();
-        }
-
-        public static TaskRun_Server GetTaskRunByGuid(Guid taskRunGuid)
-        {
-            if (_taskRunMap.ContainsKey(taskRunGuid))
-            {
-                return _taskRunMap[taskRunGuid];
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Replaces the Guid for an existing TaskRun with a new Guid
-        /// </summary>
-        /// <param name="oldGuid"></param>
-        /// <param name="newGuid"></param>
-        /// <returns></returns>
-        internal static bool UpdateTaskRunGuid(Guid oldGuid, Guid newGuid)
-        {
-            lock (_taskMapLock)
-            {
-                TaskRun_Server run;
-                if (!_taskRunMap.TryRemove(oldGuid, out run))
-                {
-                    return false;
-                }
-                run.Guid = newGuid;
-
-                // Fix log path, as it also used the wrong guid.
-                run.SetLogFile(run.LogFilePath.Replace(oldGuid.ToString(), newGuid.ToString()));
-
-                if (!_taskRunMap.TryAdd(run.Guid, run))
-                {
-                    // the guid already exists!
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public static TaskRun_Server CreateTaskRunWithoutTask(string filePath, string arguments, string logFileOrFolder, TaskType type)
-        {
-            return new TaskRun_Server(filePath, arguments, logFileOrFolder, type);
-        }
-
-        public static void RemoveTaskRun(Guid taskRunGuid, bool preserveLogs)
-        {
-            TaskRun_Server taskRun = null;
-            lock (_taskMapLock)
-            {
-                if (_taskRunMap.TryGetValue(taskRunGuid, out taskRun))
-                {
-                    TaskRun_Server removed;
-                    _taskRunMap.TryRemove(taskRunGuid, out removed);
-                    if (!preserveLogs)
-                    {
-                        if (File.Exists(taskRun.LogFilePath))
-                        {
-                            File.Delete(taskRun.LogFilePath);
-                        }
-                    }
-                }
-            }
-        }
-
-        public static bool UpdateTaskRun(TaskRun updatedTaskRun)
-        {
-            if (updatedTaskRun == null)
-            {
-                return false;
-            }
-
-            lock (_taskMapLock)
-            {
-                if (!_taskRunMap.ContainsKey(updatedTaskRun.Guid))
-                {
-                    return false;
-                }
-
-                var run = _taskRunMap[updatedTaskRun.Guid];
-
-                if (run.TaskRunComplete)
-                {
-                    // TaskRun was marked as finished, don't let it be edited post-completion
-                    return false;
-                }
-
-                run.ExitCode = updatedTaskRun.ExitCode;
-                run.TaskStatus = updatedTaskRun.TaskStatus;
-                run.TimeFinished = updatedTaskRun.TimeFinished;
-                run.TimeStarted = updatedTaskRun.TimeStarted;
-                run.TaskOutput = updatedTaskRun.TaskOutput;
-                run.UpdateOwningTaskFromTaskRun();
-
-                return true;
-            }
-        }
-
-        public static void RemoveTaskRunsForTask(Guid taskGuid, bool preserveLogs)
-        {
-            Parallel.ForEach(GetTaskRunGuidsByTaskGuid(taskGuid), taskRunGuid =>
-            {
-                RemoveTaskRun(taskRunGuid, preserveLogs);
-            });
-        }
 
         // TODO: Quality: The taskrun_server CTORS are convoluted and could be simplified.
 
@@ -1918,7 +1903,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// <param name="taskPath"></param>
         /// <param name="arguments"></param>
         /// <param name="logFileOrPath"></param>
-        private TaskRun_Server(string taskPath, string arguments, string logFileOrPath, TaskType type) : base(null)
+        public TaskRun_Server(string taskPath, string arguments, string logFileOrPath, TaskType type) : base(null)
         {
             // Set values via method args. They weren't set by base Ctor since the owning task is null.
             TaskPath = taskPath;
@@ -1948,43 +1933,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             // If an executable, find the actual path to the file.
             if ((TaskType == TaskType.ConsoleExe) || (TaskType == TaskType.BatchFile))
             {
-                TaskPath = FindFileInPath(TaskPath);
-            }
-
-            // Add to GUID -> TaskRun map
-            lock (_taskMapLock)
-            {
-                _taskRunMap.TryAdd(Guid, this);
+                TaskPath = HelperMethods.FindFileInPath(TaskPath);
             }
         }
 
-        public static string FindFileInPath(string file)
-        {
-            file = Environment.ExpandEnvironmentVariables(file);
-
-            if (!File.Exists(file))
-            {
-                if (Path.GetDirectoryName(file) == String.Empty)
-                {
-                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
-                    {
-                        string path = testPath.Trim();
-                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))
-                        {
-                            return Path.GetFullPath(path);
-                        }
-                    }
-                }
-
-                // No match found, just return the existing path
-                return file;
-            }
-
-            // file is a full path, return it
-            return Path.GetFullPath(file);
-        }
-
-        private void SetLogFile(string logFolder)
+        public void SetLogFile(string logFolder)
         {
             LogFilePath = Path.Combine(logFolder, TaskName, $"Run_{Guid}.log");
         }
@@ -2152,11 +2105,34 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// Index of the last line written to the log file.
         /// </summary>
         private int _logIndex;
-        
-        /// <summary>
-        /// Tracks all the task runs that have ever occured, mapped by the task run GUID
-        /// </summary>
-        private static ConcurrentDictionary<Guid, TaskRun_Server> _taskRunMap;
-        private static object _taskMapLock;
+    }
+
+    public static class HelperMethods
+    {
+        public static string FindFileInPath(string file)
+        {
+            file = Environment.ExpandEnvironmentVariables(file);
+
+            if (!File.Exists(file))
+            {
+                if (Path.GetDirectoryName(file) == String.Empty)
+                {
+                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+                    {
+                        string path = testPath.Trim();
+                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))
+                        {
+                            return Path.GetFullPath(path);
+                        }
+                    }
+                }
+
+                // No match found, just return the existing path
+                return file;
+            }
+
+            // file is a full path, return it
+            return Path.GetFullPath(file);
+        }
     }
 }

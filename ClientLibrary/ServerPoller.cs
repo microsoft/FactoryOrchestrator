@@ -23,10 +23,9 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="pollingIntervalMs">How frequently the polling should be done, in milliseconds. Defaults to 500ms.</param>
         /// <param name="adaptiveInterval">If true, automatically adjust the polling interval for best performance. Defaults to true.</param>
         /// <param name="maxAdaptiveModifier">If adaptiveInterval is set, this defines the maximum multiplier/divisor that will be applied to the polling interval. For example, if maxAdaptiveModifier=2 and pollingIntervalMs=100, the object would be polled at a rate between 50ms to 200ms. Defaults to 5.</param>
-        public ServerPoller(Guid? guidToPoll, Type guidType, FactoryOrchestratorClient client, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 3)
+        public ServerPoller(Guid? guidToPoll, Type guidType, int pollingIntervalMs = 500, bool adaptiveInterval = true, int maxAdaptiveModifier = 3)
         {
             PollingGuid = guidToPoll;
-            _client = client;
             _pollingInterval = pollingIntervalMs;
             _initialPollingInterval = pollingIntervalMs;
             _pollingIntervalStep = pollingIntervalMs / 10;
@@ -38,10 +37,12 @@ namespace Microsoft.FactoryOrchestrator.Client
             _invokeSem = new SemaphoreSlim(1, 1);
             _stopped = true;
             OnUpdatedObject = null;
+            OnException = null;
+            OnlyRaiseOnExceptionEventForConnectionException = false;
 
             if ((guidType != typeof(TaskBase)) && (guidType != typeof(ExecutableTask)) && (guidType != typeof(UWPTask)) && (guidType != typeof(TAEFTest)) && (guidType != typeof(TaskList)) && (guidType != typeof(TaskRun)))
             {
-                throw new Exception("Unsupported guid type to poll!");
+                throw new FactoryOrchestratorException("Unsupported guid type to poll!");
             }
             _guidType = guidType;
         }
@@ -51,40 +52,42 @@ namespace Microsoft.FactoryOrchestrator.Client
             object newObj;
             try
             {
-                // TODO: Logging: check for failure
-                if ((_guidType == typeof(TaskBase)) || (_guidType == typeof(ExecutableTask)) || (_guidType == typeof(UWPTask)) || (_guidType == typeof(TAEFTest)))
+                if (_client.IsConnected)
                 {
-                    newObj = await _client.QueryTask((Guid)PollingGuid);
-                }
-                else if (_guidType == typeof(TaskList))
-                {
-                    if (PollingGuid != null)
+                    // TODO: Logging: check for failure
+                    if ((_guidType == typeof(TaskBase)) || (_guidType == typeof(ExecutableTask)) || (_guidType == typeof(UWPTask)) || (_guidType == typeof(TAEFTest)))
                     {
-                        newObj = await _client.QueryTaskList((Guid)PollingGuid);
+                    	newObj = await _client.QueryTask((Guid)PollingGuid);
                     }
-                    else
+                    else if (_guidType == typeof(TaskList))
                     {
-                        newObj = await _client.GetTaskListSummaries();
-                    }
-                }
-                else //if (_guidType == typeof(TaskRun))
-                {
-                    newObj = await _client.QueryTaskRun((Guid)PollingGuid);
-                }
-
-                if (!_stopped)
-                {
-                    LatestObject = newObj;
-
-                    if (!Equals(newObj, _lastEventObject))
-                    {
-                        if (_adaptiveInterval)
+                    	if (PollingGuid != null)
                         {
-                            // Adaptive detects if the invoke method is taking too long. If it is, it increases the poll time by 10% of initial value.
-                            // Adaptive also throws away an invoke if it can't get the semaphore. 
-                            int newInterval;
-                            if (_invokeSem.Wait(0))
+                        	newObj = await _client.QueryTaskList((Guid)PollingGuid);
+                        }
+                        else
+                        {
+                            newObj = await _client.GetTaskListSummaries();
+                        }
+                    }
+                    else //if (_guidType == typeof(TaskRun))
+                    {
+                    	newObj = await _client.QueryTaskRun((Guid)PollingGuid);
+                    }
+
+                    if (!_stopped)
+                    {
+                    	LatestObject = newObj;
+
+                    	if (!Equals(newObj, _lastEventObject))
+                        {
+                            if (_adaptiveInterval)
                             {
+                                // Adaptive detects if the invoke method is taking too long. If it is, it increases the poll time by 10% of initial value.
+                                // Adaptive also throws away an invoke if it can't get the semaphore. 
+                                int newInterval;
+                                if (_invokeSem.Wait(0))
+                                {
                                 try
                                 {
                                     OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
@@ -92,46 +95,57 @@ namespace Microsoft.FactoryOrchestrator.Client
                                 catch (Exception)
                                 {}
 
-                                _lastEventObject = newObj;
-                                _invokeSem.Release();
-                                newInterval = Math.Max(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
+                                    _lastEventObject = newObj;
+                                    _invokeSem.Release();
+                                    newInterval = Math.Max(_initialPollingInterval / _adaptiveModifier, _pollingInterval - _pollingIntervalStep);
+                                }
+                                else
+                                {
+	                            newInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+                                }
+
+                                if (newInterval != _pollingInterval)
+                                {
+                                    _pollingInterval = newInterval;
+                                    _timer.Change(_pollingInterval, _pollingInterval);
+                                }
                             }
                             else
                             {
-                                newInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+	                            try
+	                            {
+	                                // update object seen as it could be changed when the invoke returns
+	                                _lastEventObject = newObj;
+	                                OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
+	                            }
+	                            catch (Exception)
+	                            {}
                             }
-
-                            if (newInterval != _pollingInterval)
-                            {
-                                _pollingInterval = newInterval;
-                                _timer.Change(_pollingInterval, _pollingInterval);
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                // update object seen as it could be changed when the invoke returns
-                                _lastEventObject = newObj;
-                                OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
-                            }
-                            catch (Exception)
-                            {}
                         }
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // TODO: Logging: Log exception
+                if (!OnlyRaiseOnExceptionEventForConnectionException || e.GetType() != typeof(FactoryOrchestratorConnectionException))
+                {
+                    OnException?.Invoke(this, new ServerPollerExceptionHandlerArgs(e));
+                }
             }
         }
 
         /// <summary>
         /// Starts polling the object.
         /// </summary>
-        public void StartPolling()
+        public void StartPolling(FactoryOrchestratorClient client)
         {
+            _client = client;
+
+            if (!_client.IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
             if (_stopped != false)
             {
                 _stopped = false;
@@ -182,9 +196,20 @@ namespace Microsoft.FactoryOrchestrator.Client
         private int _adaptiveModifier;
 
         /// <summary>
-        /// Event thrown when a new object is received. It is only thrown if the object has changed since last polled.
+        /// Event raised when a new object is received. It is only thrown if the object has changed since last polled.
         /// </summary>
         public event ServerPollerEventHandler OnUpdatedObject;
+
+        /// <summary>
+        /// Event raised when a poll attempt throws an exception.
+        /// </summary>
+        public event ServerPollerExceptionHandler OnException;
+
+        /// <summary>
+        /// If true, OnException only raised when the exception is a FactoryOrchestratorConnectionException.
+        /// Other exceptions are ignored!
+        /// </summary>
+        public bool OnlyRaiseOnExceptionEventForConnectionException { get; set; }
     }
 
     /// <summary>
@@ -208,4 +233,23 @@ namespace Microsoft.FactoryOrchestrator.Client
     }
 
     public delegate void ServerPollerEventHandler(object source, ServerPollerEventArgs e);
+
+    public delegate void ServerPollerExceptionHandler(object source, ServerPollerExceptionHandlerArgs e);
+
+    public class ServerPollerExceptionHandlerArgs : EventArgs
+    {
+        /// <summary>
+        /// Creates a new ServerPollerExceptionArgs instance.
+        /// </summary>
+        /// <param name="exception">Exception from latest poll of the Server.</param>
+        public ServerPollerExceptionHandlerArgs(Exception exception)
+        {
+            Exception = exception;
+        }
+
+        /// <summary>
+        /// The updated object polled on the server.
+        /// </summary>
+        public Exception Exception { get; }
+    }
 }

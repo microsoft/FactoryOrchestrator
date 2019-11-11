@@ -5,16 +5,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.ExtendedExecution;
+using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.Core;
 using Windows.UI.Core.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
@@ -33,11 +36,133 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            this.UnhandledException += UnhandledExceptionHandler;
             MainPageLastNavTag = null;
             uwpRunGuidFromAppsPage = Guid.Empty;
             RunWaitingForResult = null;
             Client = null;
+            connectionFailureSem = new SemaphoreSlim(1,1);
+            pollingFailureSem = new SemaphoreSlim(1,1);
         }
+
+        private void UnhandledExceptionHandler(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            if (e.Exception.GetType() == typeof(FactoryOrchestratorConnectionException))
+            {
+                e.Handled = true;
+                OnConnectionFailure();
+            }
+            else
+            {
+                e.Handled = false;
+            }
+
+            System.Diagnostics.Debug.WriteLine(e.Exception);
+        }
+
+        internal async void OnServerPollerException(object source, ServerPollerExceptionHandlerArgs e)
+        {
+            var poller = source as ServerPoller;
+
+            if (e.Exception.GetType() == typeof(FactoryOrchestratorConnectionException))
+            {
+                OnConnectionFailure();
+            }
+            else if (poller.IsPolling)
+            {
+                pollingFailureSem.Wait();
+                
+                if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
+                {
+                    // Service was likely restarted or the guid was deleted via another Client, stop polling it
+                    poller.StopPolling();
+                }
+
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                {
+                    ContentDialog errorDialog = new ContentDialog()
+                    {
+                        Title = "Polling Exception",
+                        Content = e.Exception.Message + "\r\n\r\nThis can occur when the Factory Orchestrator Service is restarted during an operation.",
+                        PrimaryButtonText = $"Continue"
+                    };
+                    try
+                    {
+                        await errorDialog.ShowAsync();
+                    }
+                    catch (Exception)
+                    {
+                        // TODO: Bug: i think this doesnt work ;)
+                        // System.Exception is thrown if there is already a ContentDialog visible on the screen. Just ignore it
+                    }
+                });
+                
+                pollingFailureSem.Release();
+            }
+
+            System.Diagnostics.Debug.WriteLine(e.Exception);
+        }
+
+        public async void OnConnectionFailure()
+        {
+            connectionFailureSem.Wait();
+            if (!OnConnectionPage && !Client.IsConnected)
+            {
+                IAsyncOperation<ContentDialogResult> resultTask = null;
+
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    StackPanel s = new StackPanel();
+                    s.Children.Add(
+                        new TextBlock()
+                        {
+                            Text = "Cannot reach Factory Orchestrator Service!" + Environment.NewLine + "Attempting to reconnect...",
+                            Margin = new Thickness(10)
+                        });
+
+                    s.Children.Add(
+                        new ProgressBar()
+                        {
+                            IsIndeterminate = true
+                        });
+
+                    ContentDialog errorDialog = new ContentDialog()
+                    {
+                        Title = "Communication Error",
+                        Content = s,
+                        PrimaryButtonText = $"Disconnect from {Client.IpAddress}"
+                    };
+
+                    resultTask = errorDialog.ShowAsync();
+                });
+
+                while (!await Client.TryConnect())
+                {
+                    System.Diagnostics.Debug.WriteLine("Waiting for connection...");
+                    if (resultTask.Status == AsyncStatus.Completed)
+                    {
+                        OnConnectionPage = true;
+
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            var frame = Window.Current.Content as Frame;
+                            frame.Navigate(typeof(ConnectionPage));
+                        });
+
+                        break;
+                    }
+                    else
+                    {
+                        await Task.Delay(500);
+                    }
+                }
+
+                resultTask.Cancel();
+            }
+
+            connectionFailureSem.Release();
+        }
+
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
@@ -47,6 +172,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
             Frame rootFrame = Window.Current.Content as Frame;
+
+            // Prevent the app from suspending
+            // extendedExecutionUnconstrained capability helps with this also
+            // TODO: Performance: Properly handle suspend/resume instead?
+            extendedExecution = new ExtendedExecutionSession();
+            extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
+            _ = extendedExecution.RequestExtensionAsync();
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -74,6 +206,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
                     Client.OnConnected += OnIpcConnected;
+
                     if (await Client.TryConnect())
                     {
                         rootFrame.Navigate(typeof(MainPage), e.Arguments);
@@ -142,37 +275,51 @@ namespace Microsoft.FactoryOrchestrator.UWP
             deferral.Complete();
         }
 
-        private void OnIpcConnected()
+        public void OnIpcConnected()
         {
-            // Prevent the app from suspending
-            // extendedExecutionUnconstrained capability helps with this also
-            // TODO: Performance: Properly handle suspend/resume instead?
-            extendedExecution = new ExtendedExecutionSession();
-            extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
-            _ = extendedExecution.RequestExtensionAsync();
+            // disable so this doesnt fire again
+            Client.OnConnected -= OnIpcConnected;
 
-            // One thread queues events, another dequeues and handles them
-            // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
-            Task.Run(() =>
+            lock (onConnectionLock)
             {
-                while (true)
+                if (Client.IpAddress == lastIp)
                 {
-                    CheckForServiceEvents();
-                    System.Threading.Thread.Sleep(1000);
+                    return;
                 }
-            });
+                else if (lastIp != null)
+                {
+                    // We connected to a new device
+                    lastIp = Client.IpAddress;
+                    return;
+                }
 
-            Task.Run(() =>
-            {
-                while (true)
+                // First connection, do setup. Only runs once!
+                lastIp = Client.IpAddress;
+
+                // One thread queues events, another dequeues and handles them.
+                // Poll every 1 second
+                // TODO: Only start these tasks once, so we can handle new IPC connection correctly. Likely need state cleanup too.
+                Task.Run(async () =>
                 {
-                    HandleServiceEvents();
-                    System.Threading.Thread.Sleep(1000);
-                }
-            });
+                    while (true)
+                    {
+                        await CheckForServiceEvents();
+                        await Task.Delay(1000);
+                    }
+                });
+
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        await HandleServiceEvents();
+                        await Task.Delay(1000);
+                    }
+                });
+            }
         }
 
-        private async void CheckForServiceEvents()
+        private async Task CheckForServiceEvents()
         {
             List<ServiceEvent> newEvents = new List<ServiceEvent>();
 
@@ -187,9 +334,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     newEvents = await Client.GetServiceEvents(lastEventIndex);
                 }
             }
-            catch (Exception)
+            catch (FactoryOrchestratorConnectionException)
             {
-                // TODO: Logging
+                // We might change device or the system might have rebooted, start over
+                eventSeen = false;
+                OnConnectionFailure();
+                while (OnConnectionPage || (!Client.IsConnected))
+                {
+                    await Task.Delay(1000);
+                }
             }
 
             // Handle events in a queue
@@ -197,15 +350,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 eventSeen = true;
                 lastEventIndex = newEvents[newEvents.Count - 1].EventIndex;
-            }
 
-            foreach (var evnt in newEvents)
-            {
-                serviceEventQueue.Enqueue(evnt);
+                foreach (var evnt in newEvents)
+                {
+                    serviceEventQueue.Enqueue(evnt);
+                }
             }
         }
 
-        private async void HandleServiceEvents()
+        private async Task HandleServiceEvents()
         {
             // Handle one event at a time, oldest first
             ServiceEvent evnt;
@@ -221,8 +374,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             // TODO: Performance: this should be in its own thread, so other service events can be handled
                             // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FactoryOrchestrator
                             // Only allow one external run at a time though
-                            var run = await Client.QueryTaskRun((Guid)evnt.Guid);
-                            if (run != null && !run.TaskRunComplete)
+                            TaskRun run = null;
+
+                            while (run == null)
+                            {
+                                try
+                                {
+                                    run = await Client.QueryTaskRun((Guid)evnt.Guid);
+                                }
+                                catch (FactoryOrchestratorUnkownGuidException)
+                                {
+                                    // Run is no longer valid, ignore it
+                                    return;
+                                }
+                                catch (FactoryOrchestratorConnectionException)
+                                {
+                                    OnConnectionFailure();
+                                    while ((OnConnectionPage) || (!Client.IsConnected))
+                                    {
+                                        await Task.Delay(1000);
+                                    }
+                                }
+                            }
+                            if (!run.TaskRunComplete)
                             {
                                 await DoExternalAppTaskRunAsync(run);
                             }
@@ -269,7 +443,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             {
                                 // Just report it as passed, dont show external result UI
                                 RunWaitingForResult.TaskStatus = TaskStatus.Passed;
-                                await Client.UpdateTaskRun(RunWaitingForResult);
+                                bool sent = false;
+                                while (!sent)
+                                {
+                                    try
+                                    {
+                                        await Client.UpdateTaskRun(RunWaitingForResult);
+                                        sent = true;
+                                    }
+                                    catch (FactoryOrchestratorConnectionException)
+                                    {
+                                        OnConnectionFailure();
+                                        while ((OnConnectionPage) || (!Client.IsConnected))
+                                        {
+                                            await Task.Delay(1000);
+                                        }
+                                    }
+                                    catch (FactoryOrchestratorException)
+                                    {
+                                        // Run is no longer valid or was completed ignore it
+                                        sent = true;
+                                    }
+                                }
                                 uwpRunGuidFromAppsPage = Guid.Empty;
                             }
                         }
@@ -299,7 +494,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // This is set by ExternalTestResultPage
             while (!RunWaitingForResult.TaskRunComplete)
             {
-                System.Threading.Thread.Sleep(2000);
+                await Task.Delay(2000);
             }
 
             RunWaitingForResult = null;
@@ -338,17 +533,44 @@ namespace Microsoft.FactoryOrchestrator.UWP
             RunWaitingForResult.TimeFinished = DateTime.Now;
             RunWaitingForResult.TaskStatus = TaskStatus.Failed;
             RunWaitingForResult.ExitCode = -1;
-            await Client.UpdateTaskRun(RunWaitingForResult);
+
+            bool sent = false;
+            while (!sent)
+            {
+                try
+                {
+                    await Client.UpdateTaskRun(RunWaitingForResult);
+                    sent = true;
+                }
+                catch (FactoryOrchestratorConnectionException)
+                {
+                    OnConnectionFailure();
+                    while ((OnConnectionPage) || (!Client.IsConnected))
+                    {
+                        await Task.Delay(1000);
+                    }
+                }
+                catch (FactoryOrchestratorException)
+                {
+                    // Run is no longer valid or was completed ignore it
+                    sent = true;
+                }
+            }
         }
 
         public TaskRun RunWaitingForResult { get; private set; }
         public Guid uwpRunGuidFromAppsPage { get; set; }
         public string MainPageLastNavTag { get; set; }
         public FactoryOrchestratorUWPClient Client { get; set; }
+        public bool OnConnectionPage { get; set; }
 
+        private SemaphoreSlim connectionFailureSem;
+        private SemaphoreSlim pollingFailureSem;
         private bool eventSeen = false;
         private ulong lastEventIndex;
         private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
         private ExtendedExecutionSession extendedExecution = null;
+        private object onConnectionLock = new object();
+        private IPAddress lastIp = null;
     }
 }

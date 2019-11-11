@@ -49,8 +49,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (Client != null)
             {
-                ServiceVersionText.Text = "Service Version: ";
-                ServiceVersionText.Text += await Client.GetServiceVersionString();
+                try
+                {
+                    ServiceVersionText.Text = "Service Version: ";
+                    ServiceVersionText.Text += await Client.GetServiceVersionString();
+                }
+                catch (FactoryOrchestratorConnectionException)
+                {
+                    // Just ignore it
+                }
             }
 
             if (this.Frame.BackStack.First().SourcePageType == typeof(ConnectionPage))

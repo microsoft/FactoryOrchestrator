@@ -20,6 +20,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public ConnectionPage()
         {
             this.InitializeComponent();
+            ((App)Application.Current).Client = null;
+            ((App)Application.Current).OnConnectionPage = true;
         }
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -40,15 +42,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (validIp)
             {
                 ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684);
+                ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                 if (await ((App)Application.Current).Client.TryConnect())
                 {
+                    ((App)Application.Current).OnConnectionPage = false;
                     this.Frame.Navigate(typeof(MainPage));
                 }
                 else
                 {
-                    var ipStr = ((App)Application.Current).Client.IpAddress.ToString();
                     ((App)Application.Current).Client = null;
-                    ShowConnectFailure(ipStr);
+                    ShowConnectFailure(ip.ToString());
                 }
             }
         }

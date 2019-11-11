@@ -21,50 +21,85 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            await _IpcClient.InvokeAsync(x => x.ResetService(preserveLogs , factoryReset ));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.ResetService(preserveLogs , factoryReset ));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         public async Task<List<ServiceEvent>> GetServiceEvents()
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetServiceEvents());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetServiceEvents());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         public async Task<List<ServiceEvent>> GetServiceEvents(DateTime timeLastChecked)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetServiceEvents(timeLastChecked));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetServiceEvents(timeLastChecked));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         public async Task<List<ServiceEvent>> GetServiceEvents(ulong lastEventIndex)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetServiceEvents(lastEventIndex));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         public async Task<ServiceEvent> GetLastServiceError()
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetLastServiceError());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetLastServiceError());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -75,10 +110,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -86,14 +128,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="teExePath">Path to TE.exe</param>
         /// <returns></returns>
-        public async Task<bool> SetTeExePath(string teExePath)
+        public async Task SetTeExePath(string teExePath)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.SetTeExePath(teExePath));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.SetTeExePath(teExePath));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -102,14 +151,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="path">Path to the desired folder.</param>
         /// <param name="moveExistingLogs">If true, existing logs are moved to the new location.</param>
         /// <returns></returns>
-        public async Task<bool> SetLogFolder(string path, bool moveExistingLogs)
+        public async Task SetLogFolder(string path, bool moveExistingLogs)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.SetLogFolder(path, moveExistingLogs));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.SetLogFolder(path, moveExistingLogs));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -120,10 +176,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetLogFolder());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetLogFolder());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -134,10 +197,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetIpAddressesAndNicNames());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetIpAddressesAndNicNames());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -148,10 +218,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetDisabledPages());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetDisabledPages());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -164,10 +241,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.CreateTaskListFromDirectory(path, recursive ));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.CreateTaskListFromDirectory(path, recursive ));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -179,10 +263,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.LoadTaskListsFromXmlFile(filename));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.LoadTaskListsFromXmlFile(filename));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -191,14 +282,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="guid">The GUID of the TaskList you wish to save.</param>
         /// <param name="filename">The path to the FactoryOrchestratorXML file that will be created.</param>
         /// <returns>true on success</returns>
-        public async Task<bool> SaveTaskListToXmlFile(Guid guid, string filename)
+        public async Task SaveTaskListToXmlFile(Guid guid, string filename)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.SaveTaskListToXmlFile(guid, filename));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.SaveTaskListToXmlFile(guid, filename));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -206,14 +304,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="filename">The path to the FactoryOrchestratorXML file that will be created.</param>
         /// <returns>true on success</returns>
-        public async Task<bool> SaveAllTaskListsToXmlFile(string filename)
+        public async Task SaveAllTaskListsToXmlFile(string filename)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.SaveAllTaskListsToXmlFile(filename));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.SaveAllTaskListsToXmlFile(filename));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -225,10 +330,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.CreateTaskListFromTaskList(list));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.CreateTaskListFromTaskList(list));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -239,10 +351,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetTaskListGuids());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetTaskListGuids());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -253,10 +372,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetTaskListSummaries());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetTaskListSummaries());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -268,10 +394,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.QueryTaskList(taskListGuid));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.QueryTaskList(taskListGuid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -279,14 +412,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="listToDelete">The GUID of the TaskList to delete.</param>
         /// <returns>true if it was deleted successfully.</returns>
-        public async Task<bool> DeleteTaskList(Guid listToDelete)
+        public async Task DeleteTaskList(Guid listToDelete)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.DeleteTaskList(listToDelete));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.DeleteTaskList(listToDelete));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -294,14 +434,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="taskList">The updated TaskList.</param>
         /// <returns>true if it was updated successfully.</returns>
-        public async Task<bool> UpdateTaskList(TaskList taskList)
+        public async Task UpdateTaskList(TaskList taskList)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.UpdateTaskList(taskList));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.UpdateTaskList(taskList));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -313,10 +460,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.QueryTask(guid));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.QueryTask(guid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -327,10 +481,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetInstalledApps());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetInstalledApps());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -341,10 +502,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.RunAllTaskLists());
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.RunAllTaskLists());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -353,14 +521,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="taskListGuid">GUID of the TaskList to run.</param>
         /// <param name="initialTask">Index of the Task to start the run from.</param>
         /// <returns></returns>
-        public async Task<bool> RunTaskList(Guid taskListGuid, int initialTask = 0)
+        public async Task RunTaskList(Guid taskListGuid, int initialTask = 0)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.RunTaskList(taskListGuid, initialTask ));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.RunTaskList(taskListGuid, initialTask ));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -370,10 +545,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            await _IpcClient.InvokeAsync(x => x.AbortAll());
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.AbortAll());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -384,10 +566,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            await _IpcClient.InvokeAsync(x => x.AbortTaskList(taskListGuid));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.AbortTaskList(taskListGuid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -398,10 +587,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            await _IpcClient.InvokeAsync(x => x.AbortTaskRun(taskRunGuid));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.AbortTaskRun(taskRunGuid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -414,10 +610,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.RunExecutable(exeFilePath, arguments, logFilePath ));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.RunExecutable(exeFilePath, arguments, logFilePath ));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -429,10 +632,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.RunApp(packageFamilyName));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.RunApp(packageFamilyName));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -444,10 +654,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.RunTask(taskGuid));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.RunTask(taskGuid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -459,10 +676,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.RunTask(task));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.RunTask(task));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -470,14 +694,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="taskRun">The TaskRun to update.</param>
         /// <returns>true if it was updated.</returns>
-        public async Task<bool> UpdateTaskRun(TaskRun taskRun)
+        public async Task UpdateTaskRun(TaskRun taskRun)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.UpdateTaskRun(taskRun));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.UpdateTaskRun(taskRun));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -489,10 +720,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.QueryTaskRun(taskRunGuid));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.QueryTaskRun(taskRunGuid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -504,10 +742,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.GetFile(sourceFilename));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetFile(sourceFilename));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -516,14 +761,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
         /// <returns>true if the file was sucessfully created.</returns>
-        public async Task<bool> SendFile(string targetFilename, byte[] fileData)
+        public async Task SendFile(string targetFilename, byte[] fileData)
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.SendFile(targetFilename, fileData));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.SendFile(targetFilename, fileData));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -534,10 +786,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            await _IpcClient.InvokeAsync(x => x.DeleteFileOrFolder(path));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.DeleteFileOrFolder(path));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -549,10 +808,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            await _IpcClient.InvokeAsync(x => x.MoveFileOrFolder(sourcePath, destinationPath));
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.MoveFileOrFolder(sourcePath, destinationPath));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -565,10 +831,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(path, recursive ));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(path, recursive ));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
         /// <summary>
@@ -581,10 +854,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
-            return await _IpcClient.InvokeAsync(x => x.EnumerateFiles(path, recursive ));
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.EnumerateFiles(path, recursive ));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
         }
 
 

@@ -82,13 +82,6 @@
             <TextBlock Text="Existing TaskLists:" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file."  Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
-        <!--TODO: Quality: It is likely better to add the buttons programmatically in the 3rd Column once they become names-->
-        <!--<ListView x:Name="TaskListsView"  Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{x:Bind TestViewModel.TestData.TaskListGuids, Mode=OneWay}" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
-        <!--SelectionChanged="TaskListsView_SelectionChanged"-->
-        <!--
-            <ListView.Items>
-            </ListView.Items>
-        </ListView>-->
         <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">

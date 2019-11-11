@@ -34,8 +34,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             // Get TaskRun we are reporting results for
             taskRun = ((App)Application.Current).RunWaitingForResult;
-            taskRunPoller = new ServerPoller(taskRun.Guid, typeof(TaskRun), Client, 1000);
+
+            taskRunPoller = new ServerPoller(taskRun.Guid, typeof(TaskRun), 1000);
             taskRunPoller.OnUpdatedObject += OnUpdatedRun;
+            taskRunPoller.OnException += ((App)Application.Current).OnServerPollerException;
 
             // Append task details to UI
             TestText.Text += taskRun.TaskName;

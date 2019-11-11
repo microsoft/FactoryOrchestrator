@@ -58,9 +58,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     _activeListPoller.StopPolling();
                 }
-                _activeListPoller = new ServerPoller(selectedTaskListGuid, typeof(TaskList), Client, 2000);
+                _activeListPoller = new ServerPoller(selectedTaskListGuid, typeof(TaskList), 2000);
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
-                _activeListPoller.StartPolling();
+                _activeListPoller.OnException += ((App)Application.Current).OnServerPollerException;
+                _activeListPoller.StartPolling(Client);
 
                 // Show Tests
                 ActiveTestsView.Visibility = Visibility.Visible;
@@ -236,9 +237,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             TaskListCollection.RemoveAt(j);
                         }
 
-                        if (!selectedListFound)
+                        if (!selectedListFound && _selectedTaskList != -1)
                         {
                             // The selected list was deleted
+                            _selectedTaskList = -1;
+                            _selectedTaskListGuid = Guid.Empty;
+
                             TaskListsView.SelectedIndex = -1;
                             ActiveListCollection.Clear();
                             LoadingTasksRing.IsActive = false;
@@ -265,20 +269,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Client = ((App)Application.Current).Client;
             mainPage = (Frame)e.Parameter;
 
             if (_activeListPoller != null)
             {
-                _activeListPoller.StartPolling();
+                _activeListPoller.StartPolling(Client);
             }
 
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 1000, true, 2);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), 1000, true, 2);
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidAndStatusAsync;
+                _taskListGuidPoller.OnException += ((App)Application.Current).OnServerPollerException;
             }
 
-            _taskListGuidPoller.StartPolling();
+            _taskListGuidPoller.StartPolling(Client);
 
             if (_selectedTaskList != -1)
             {

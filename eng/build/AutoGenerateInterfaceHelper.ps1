@@ -61,12 +61,13 @@ foreach ($line in $interfaceContent)
             }
 
             $outputContent += "`n$indent$indent{"
-            $outputContent += "`n$indent$indent$indent" + "if (!IsConnected)" + "`n$indent$indent$indent" + "{`n$indent$indent$indent$indent" + "throw new InvalidOperationException(`"Start connection first!`");`n$indent$indent$indent}"
-            $outputContent += "`n`n$indent$indent$indent"
+            $outputContent += "`n$indent$indent$indent" + "if (!IsConnected)" + "`n$indent$indent$indent" + "{`n$indent$indent$indent$indent" + "throw new FactoryOrchestratorConnectionException(`"Start connection first!`");`n$indent$indent$indent}"
+            $outputContent += "`n`n$indent$indent$indent" + "try`n$indent$indent$indent{"
+            $outputContent += "`n$indent$indent$indent$indent"
             
             if ($apiRet -eq "void")
             {
-                $outputContent += "await _IpcClient.InvokeAsync(x => x.$apiName"
+                $outputContent += " await _IpcClient.InvokeAsync(x => x.$apiName"
             }
             else
             {
@@ -101,7 +102,12 @@ foreach ($line in $interfaceContent)
                 }
             }
             $outputContent += ");"
-            $outputContent += "`n$indent$indent}`n`n"
+            $outputContent += "`n$indent$indent$indent}`n$indent$indent$indent"
+            $outputContent += "catch (Exception ex)`n$indent$indent$indent{`n$indent$indent$indent$indent"
+            $outputContent += "throw CreateIpcException(ex);`n"
+            $outputContent += "$indent$indent$indent}`n"
+            $outputContent += "$indent$indent}`n`n"
+
         }
         elseif ($line -like "*}*$InterfaceName")
         {

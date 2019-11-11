@@ -105,11 +105,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (result == ContentDialogResult.Primary)
                     {
-                        SaveTaskList();
+                        if (await SaveTaskList())
+                        {
+                            this.Frame.GoBack();
+                        }
+                    }                    
+                    else if (result == ContentDialogResult.Secondary)
+                    {
+                        this.Frame.GoBack();
                     }
                 }
 
-                this.Frame.GoBack();
                 return true;
 
             }
@@ -552,7 +558,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             EditFlyout.Hide();
         }
 
-        private async void SaveTaskList()
+        private async Task<bool> SaveTaskList()
         {
             activeList.Tasks = new List<TaskBase>();
             activeList.BackgroundTasks = new List<TaskBase>();
@@ -565,14 +571,35 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeList.BackgroundTasks.Add(task);
             }
 
-            if (isNewList)
+            try
             {
-                await Client.CreateTaskListFromTaskList(activeList);
+                if (isNewList)
+                {
+                    await Client.CreateTaskListFromTaskList(activeList);
+                }
+                else
+                {
+                    await Client.UpdateTaskList(activeList);
+                }
+
+                return true;
             }
-            else
+            catch (FactoryOrchestratorException ex)
             {
-                await Client.UpdateTaskList(activeList);
+                if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
+                {
+                    ContentDialog failedSaveDialog = new ContentDialog
+                    {
+                        Title = "Failed to save TaskList",
+                        Content = ex.Message,
+                        CloseButtonText = "Ok"
+                    };
+
+                    ContentDialogResult result = await failedSaveDialog.ShowAsync();
+                }
             }
+
+            return false;
         }
 
         private void TaskListView_DropCompleted(UIElement sender, DropCompletedEventArgs args)

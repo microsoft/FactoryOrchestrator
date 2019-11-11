@@ -122,7 +122,6 @@ namespace Microsoft.FactoryOrchestrator.Service
     // Find the FactoryOrchestratorService singleton -> pass call to it
     public class FOCommunicationHandler : IFactoryOrchestratorService
     {
-        // TODO: Logging: Catch exceptions & log them
         public List<ServiceEvent> GetServiceEvents()
         {
             return FOService.Instance.ServiceEvents.Values.ToList();
@@ -158,173 +157,261 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public TaskList CreateTaskListFromDirectory(string path, bool recursive)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path} {recursive}");
-            TaskList tl = null;
-
             try
             {
-                tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, recursive);
+                FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path} {recursive}");
+                TaskList tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, recursive);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path} {recursive}");
+                return tl;
             }
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path} {recursive}");
-            return tl;
         }
 
         public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
-            List<Guid> taskLists = null;
-
             try
             {
-                taskLists = FOService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
+                FOService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
+                List<Guid> taskLists = FOService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
+                return taskLists;
             }
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
-            return taskLists;
         }
 
         public TaskList CreateTaskListFromTaskList(TaskList list)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromTaskList {list.Guid}");
-            var serverList = FOService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromTaskList {list.Guid}");
-            return serverList;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromTaskList {list.Guid}");
+                var serverList = FOService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromTaskList {list.Guid}");
+                return serverList;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
-        public bool SaveTaskListToXmlFile(Guid guid, string filename)
+        public void SaveTaskListToXmlFile(Guid guid, string filename)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
-            var saved = FOService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
-            return saved;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
+                FOService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
-        public bool SaveAllTaskListsToXmlFile(string filename)
+        public void SaveAllTaskListsToXmlFile(string filename)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
-            var saved = FOService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
-            return saved;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
+                if (!FOService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename))
+                {
+                    throw new FactoryOrchestratorException("No TaskLists to save!");
+                }
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public List<Guid> GetTaskListGuids()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuids");
-            var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListGuids");
-            return guids;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuids");
+                var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListGuids");
+                return guids;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public List<TaskListSummary> GetTaskListSummaries()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListSummaries");
-            var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
-            var ret = new List<TaskListSummary>();
-            foreach (var guid in guids)
+            try
             {
-                var list = FOService.Instance.TestExecutionManager.GetTaskList(guid);
-                if (list != null)
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListSummaries");
+                var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
+                var ret = new List<TaskListSummary>();
+                foreach (var guid in guids)
                 {
-                    ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus, list.RunInParallel, list.AllowOtherTaskListsToRun, list.TerminateBackgroundTasksOnCompletion));
+                    var list = FOService.Instance.TestExecutionManager.GetTaskList(guid);
+                    if (list != null)
+                    {
+                        ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus, list.RunInParallel, list.AllowOtherTaskListsToRun, list.TerminateBackgroundTasksOnCompletion));
+                    }
                 }
-            }
 
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListSummaries");
-            return ret;
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListSummaries");
+                return ret;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public TaskList QueryTaskList(Guid taskListGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
-            var list = FOService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskList {taskListGuid}");
-            return list;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
+                var list = FOService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskList {taskListGuid}");
+                return list;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
         public TaskBase QueryTask(Guid taskGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
-            var task = FOService.Instance.TestExecutionManager.GetTask(taskGuid);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
-            return task;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
+                var task = FOService.Instance.TestExecutionManager.GetTask(taskGuid);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
+                return task;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
-        public bool DeleteTaskList(Guid listToDelete)
+        public void DeleteTaskList(Guid listToDelete)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteTaskList {listToDelete}");
-            var deleted = FOService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTaskList {listToDelete}");
-            return deleted;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteTaskList {listToDelete}");
+                FOService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTaskList {listToDelete}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public void ResetService(bool preserveLogs, bool factoryReset)
         {
-            // Kill all processes including bg tasks, delete all state except registry configuration
-            FOService.Instance.TestExecutionManager.Reset(preserveLogs, true);
-
-            if (factoryReset)
-            {
-                // Pause a bit to allow the IPC call to return before we kill it off
-                Task.Run(() => { System.Threading.Thread.Sleep(100); FOService.Instance.Stop(); FOService.Instance.Start(true); });
-            }
-        }
-
-        public bool UpdateTask(TaskBase updatedTask)
-        {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
-            var updated = FOService.Instance.TestExecutionManager.UpdateTask(updatedTask);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
-            return updated;
-        }
-
-        public bool UpdateTaskList(TaskList taskList)
-        {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskList {taskList.Guid}");
-            var updated = FOService.Instance.TestExecutionManager.UpdateTaskList(taskList);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskList {taskList.Guid}");
-            return updated;
-        }
-
-        public bool SetTeExePath(string teExePath)
-        {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
-            bool success = false;
             try
             {
-                TaskRunner.GlobalTeExePath = teExePath;
-                success = true;
+                // Kill all processes including bg tasks, delete all state except registry configuration
+                FOService.Instance.TestExecutionManager.Reset(preserveLogs, true);
+
+                if (factoryReset)
+                {
+                    // Pause a bit to allow the IPC call to return before we kill it off
+                    Task.Run(() => { System.Threading.Thread.Sleep(100); FOService.Instance.Stop(); FOService.Instance.Start(true); });
+                }
             }
-            catch (Exception)
-            {}
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+            
+        }
 
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
+        public void UpdateTask(TaskBase updatedTask)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
+                FOService.Instance.TestExecutionManager.UpdateTask(updatedTask);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
 
-            return success;
+        public void UpdateTaskList(TaskList taskList)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskList {taskList.Guid}");
+                FOService.Instance.TestExecutionManager.UpdateTaskList(taskList);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskList {taskList.Guid}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+        public void SetTeExePath(string teExePath)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
+                TaskRunner.GlobalTeExePath = teExePath;
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public string GetLogFolder()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetLogFolder");
-            var folder = FOService.Instance.TestExecutionManager.LogFolder;
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetLogFolder");
-            return folder;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetLogFolder");
+                var folder = FOService.Instance.TestExecutionManager.LogFolder;
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetLogFolder");
+                return folder;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
-        public bool SetLogFolder(string logFolder, bool moveExistingLogs)
+        public void SetLogFolder(string logFolder, bool moveExistingLogs)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
-            var updated = FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
-
-            if (updated)
+            try
             {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+                FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
+
                 // Set new value in registry
                 RegistryKey mutableKey = null;
                 try
@@ -340,238 +427,365 @@ namespace Microsoft.FactoryOrchestrator.Service
                 RegistryKey nonMutableKey = FOService.Instance.OpenOrCreateRegKey(FOService.RegKeyType.NonMutable);
                 FOService.Instance.SetValueInRegistry(mutableKey, nonMutableKey, FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
 
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
-            return updated;
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public void AbortAll()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
-            FOService.Instance.TestExecutionManager.AbortAll();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
+                FOService.Instance.TestExecutionManager.AbortAll();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public void AbortTaskList(Guid taskListGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskList {taskListGuid}");
-            FOService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskList {taskListGuid}");
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskList {taskListGuid}");
+                FOService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskList {taskListGuid}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
+
         public void AbortTaskRun(Guid taskRunGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskRun {taskRunGuid}");
-            FOService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskRun {taskRunGuid}");
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskRun {taskRunGuid}");
+                FOService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskRun {taskRunGuid}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public string GetServiceVersionString()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
-            var version = FOService.GetServiceVersionString();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
-            return version;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
+                var version = FOService.GetServiceVersionString();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
+                return version;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public TaskRun QueryTaskRun(Guid taskRunGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
-            var run = TaskRun_Server.GetTaskRunByGuid(taskRunGuid);
-            TaskRun ret = null;
-            if (run != null)
+            try
             {
-                ret = run.DeepCopy();
+                FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
+                var run = FOService.Instance.TestExecutionManager.GetTaskRunByGuid(taskRunGuid).DeepCopy();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
+                return run;
             }
-            else
+            catch (Exception e)
             {
-                FOService.Instance.ServiceLogger.LogDebug($"QueryTaskRun {taskRunGuid}, run not known to server, seeing if we can load it from the log file...");
-
-                var files = Directory.EnumerateFiles(FOService.Instance.TestExecutionManager.LogFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories);
-                if (files.Count() == 1)
-                {
-                    ret = FOService.Instance.TestExecutionManager.LoadTaskRunFromFile(files.First());
-                }
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
-            return ret;
         }
 
-        public bool UpdateTaskRun(TaskRun taskRun)
+        public void UpdateTaskRun(TaskRun taskRun)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskRun {taskRun.Guid}");
-            var updated = FOService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
-            return updated;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskRun {taskRun.Guid}");
+                FOService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public bool RunAllTaskLists()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunAllTaskLists");
-            var ran = FOService.Instance.TestExecutionManager.RunAllTaskLists();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunAllTaskLists");
-            return ran;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunAllTaskLists");
+                var ran = FOService.Instance.TestExecutionManager.RunAllTaskLists();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunAllTaskLists");
+                return ran;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
-        public bool RunTaskList(Guid taskListToRun, int initialTaskIndex)
+        public void RunTaskList(Guid taskListToRun, int initialTaskIndex)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
-            var ran = FOService.Instance.TestExecutionManager.RunTaskListFromInitial(taskListToRun, initialTaskIndex);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
-            return ran;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
+                FOService.Instance.TestExecutionManager.RunTaskListFromInitial(taskListToRun, initialTaskIndex);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutable {exeFilePath} {arguments}");
-            var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutable {exeFilePath} {arguments}");
-            return run;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutable {exeFilePath} {arguments}");
+                var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutable {exeFilePath} {arguments}");
+                return run;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public TaskRun RunTask(Guid taskGuid)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {taskGuid}");
-            var run = FOService.Instance.TestExecutionManager.RunTask(taskGuid);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {taskGuid}");
-            return run;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {taskGuid}");
+                var run = FOService.Instance.TestExecutionManager.RunTask(taskGuid);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {taskGuid}");
+                return run;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public TaskRun RunTask(TaskBase task)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {task}");
-            var run = FOService.Instance.TestExecutionManager.RunTask(task);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {task}");
-            return run;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {task}");
+                var run = FOService.Instance.TestExecutionManager.RunTask(task);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {task}");
+                return run;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public TaskRun RunApp(string packageFamilyName)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
-            var run = FOService.Instance.TestExecutionManager.RunApp(packageFamilyName);
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
-            return run;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
+                var run = FOService.Instance.TestExecutionManager.RunApp(packageFamilyName);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
+                return run;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public byte[] GetFile(string sourceFilename)
         {
-            byte[] bytes = null;
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
-
-            if (!File.Exists(sourceFilename))
-            {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile does not exist!"));
-            }
-
             try
             {
+                byte[] bytes = null;
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
+
+                if (!File.Exists(sourceFilename))
+                {
+                    throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
+                }
+
                 bytes = File.ReadAllBytes(sourceFilename);
+
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
+
+                return bytes;
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {sourceFilename} requested by GetFile could not be read! {e.AllExceptionsToString()} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
-
-            return bytes;
         }
 
-        public bool SendFile(string targetFilename, byte[] fileData)
+        public void SendFile(string targetFilename, byte[] fileData)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
 
-            var result = false;
             try
             {
-                // Create target folder, if needed.
-                Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
-                File.WriteAllBytes(targetFilename, fileData);
-                result = true;
+                try
+                {
+                    // Create target folder, if needed.
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
+                    File.WriteAllBytes(targetFilename, fileData);
+                }
+                catch (Exception e)
+                {
+                    throw new FactoryOrchestratorException($"Target file {targetFilename} could not be saved! {e.AllExceptionsToString()} {e.HResult}", null, e);
+                }
+
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"File {targetFilename} for SendFile could not be saved! {e.AllExceptionsToString()} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
-
-            return result;
         }
 
         public void DeleteFileOrFolder(string path)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteFileOrFolder {path}");
-            if (File.Exists(path))
+            try
             {
-                File.Delete(path);
+                FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteFileOrFolder {path}");
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                else if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
+                else
+                {
+                    throw new ArgumentException($"{path} is not a valid file or folder!");
+                }
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
             }
-            else if (Directory.Exists(path))
+            catch (Exception e)
             {
-                Directory.Delete(path, true);
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-            else
-            {
-                throw new ArgumentException($"{path} is not a valid file or folder!");
-            }
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
         }
 
         public void MoveFileOrFolder(string sourcePath, string destinationPath)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: MoveFileOrFolder {sourcePath} {destinationPath}");
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: MoveFileOrFolder {sourcePath} {destinationPath}");
 
-            if (File.Exists(sourcePath))
-            {
-                File.Move(sourcePath, destinationPath);
-            }
-            else if (Directory.Exists(sourcePath))
-            {
-                Directory.Move(sourcePath, destinationPath);
-            }
-            else
-            {
-                throw new ArgumentException($"{sourcePath} is not a valid file or folder!");
-            }
+                if (File.Exists(sourcePath))
+                {
+                    File.Move(sourcePath, destinationPath);
+                }
+                else if (Directory.Exists(sourcePath))
+                {
+                    Directory.Move(sourcePath, destinationPath);
+                }
+                else
+                {
+                    throw new ArgumentException($"{sourcePath} is not a valid file or folder!");
+                }
 
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: MoveFileOrFolder {sourcePath} {destinationPath}");
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: MoveFileOrFolder {sourcePath} {destinationPath}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public List<string> EnumerateDirectories(string path, bool recursive = false)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateDirectories {path}");
-            var dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateDirectories {path}");
-            return dirs;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateDirectories {path}");
+                var dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateDirectories {path}");
+                return dirs;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public List<string> EnumerateFiles(string path, bool recursive = false)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateFiles {path} {recursive}");
-            var files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateFiles {path} {recursive}");
-            return files;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateFiles {path} {recursive}");
+                var files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateFiles {path} {recursive}");
+                return files;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public List<string> GetInstalledApps()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
-            var pkgManager = new PackageManager();
-            // TODO: Bug: This should really check packages for the signed in user
-            var packages = pkgManager.FindPackagesWithPackageTypes(PackageTypes.Main).ToList();
-            var pfns = packages.Select(x => x.Id.FamilyName).ToList();
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
-            return pfns;
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
+                var pkgManager = new PackageManager();
+                // TODO: Bug: This should really check packages for the signed in user
+                var packages = pkgManager.FindPackagesWithPackageTypes(PackageTypes.Main).ToList();
+                var pfns = packages.Select(x => x.Id.FamilyName).ToList();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
+                return pfns;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
 
         public List<Tuple<string, string>> GetIpAddressesAndNicNames()
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: GetIpAddressesAndNicNames");
-            List<Tuple<string, string>> ipAndNic = new List<Tuple<string, string>>();
-
             try
             {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetIpAddressesAndNicNames");
+                List<Tuple<string, string>> ipAndNic = new List<Tuple<string, string>>();
+
                 var interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback);
                 foreach (var iface in interfaces)
                 {
@@ -584,39 +798,48 @@ namespace Microsoft.FactoryOrchestrator.Service
                         }
                     }
                 }
+
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
+                return ipAndNic;
             }
             catch (Exception e)
             {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"GetIpAddressesAndNicNames() failed! {e.AllExceptionsToString()} {e.HResult}"));
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
             }
-
-            FOService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
-            return ipAndNic;
         }
 
         public List<string> GetDisabledPages()
         {
-            List<string> ret = new List<string>();
+            try
+            {
+                List<string> ret = new List<string>();
 
-            if (FOService.Instance.DisableCommandPromptPage)
-            {
-                // values must match "Tag" on MainPage.xaml
-                ret.Add("console");
-            }
-            if (FOService.Instance.DisableUWPAppsPage)
-            {
-                ret.Add("apps");
-            }
-            if (FOService.Instance.DisableManageTasklistsPage)
-            {
-                ret.Add("save");
-            }
-            if (FOService.Instance.DisableFileTransferPage)
-            {
-                ret.Add("files");
-            }
+                if (FOService.Instance.DisableCommandPromptPage)
+                {
+                    // values must match "Tag" on MainPage.xaml
+                    ret.Add("console");
+                }
+                if (FOService.Instance.DisableUWPAppsPage)
+                {
+                    ret.Add("apps");
+                }
+                if (FOService.Instance.DisableManageTasklistsPage)
+                {
+                    ret.Add("save");
+                }
+                if (FOService.Instance.DisableFileTransferPage)
+                {
+                    ret.Add("files");
+                }
 
-            return ret;
+                return ret;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
         }
     }
 
@@ -729,7 +952,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 else
                 {
-                    throw new Exception("FactoryOrchestratorService already created! Only one instance allowed.");
+                    throw new FactoryOrchestratorException("FactoryOrchestratorService already created! Only one instance allowed.");
                 }
             }
         }
@@ -853,16 +1076,23 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Stop()
         {
-            // Disable IPC interface
+            // Disable inter process communication interface
             _ipcCancellationToken.Cancel();
 
             // Abort everything that's running, except persisted background tasks
             TestExecutionManager.AbortAll();
 
             // Update state file
-            TestExecutionManager.SaveAllTaskListsToXmlFile(TestExecutionManager.TaskListStateFile);
+            try
+            {
+                TestExecutionManager.SaveAllTaskListsToXmlFile(TestExecutionManager.TaskListStateFile);
+            }
+            catch (FactoryOrchestratorException e)
+            {
+                ServiceLogger.LogError(e, $"Unable to save TaskLists on service stop!");
+            }
 
-            ServiceLogger.LogDebug("Factory Orchestrator Service Stopped\n");
+            ServiceLogger.LogInformation("Factory Orchestrator Service Stopped.\n");
         }
 
         private void HandleTestManagerEvent(object source, TestManagerEventArgs e)
@@ -1013,14 +1243,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         foreach (var listGuid in firstBootTaskListGuids)
                         {
-                            if (!_taskExecutionManager.RunTaskList(listGuid))
-                            {
-                                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run first boot TaskList {listGuid}"));
-                            }
-                            else
-                            {
-                                ServiceLogger.LogInformation($"Running first boot TaskList {listGuid}...");
-                            }
+                            _taskExecutionManager.RunTaskList(listGuid);
+                            ServiceLogger.LogInformation($"Running first boot TaskList {listGuid}...");
                         }
                     }
                     else
@@ -1086,14 +1310,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                             foreach (var listGuid in everyBootTaskListGuids)
                             {
-                                if (!_taskExecutionManager.RunTaskList(listGuid))
-                                {
-                                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to run every boot TaskList {listGuid}"));
-                                }
-                                else
-                                {
-                                    ServiceLogger.LogInformation($"Running every boot TaskList {listGuid}...");
-                                }
+                                _taskExecutionManager.RunTaskList(listGuid);
+                                ServiceLogger.LogInformation($"Running every boot TaskList {listGuid}...");
                             }
                         }
                         else
@@ -1334,19 +1552,19 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             if (run.TimeStarted == null)
             {
-                throw new Exception($"{process} never started");
+                throw new FactoryOrchestratorException($"{process} never started");
             }
 
             var runner = run.GetOwningTaskRunner();
             if ((runner != null) && (!runner.WaitForExit(5000)))
             {
                 TestExecutionManager.AbortTaskRun(run.Guid);
-                throw new Exception($"{process} did not exit after 5 seconds!");
+                throw new FactoryOrchestratorException($"{process} did not exit after 5 seconds!");
             }
 
             if (run.TaskStatus != TaskStatus.Passed)
             {
-                throw new Exception($"{process} exited with {run.ExitCode}");
+                throw new FactoryOrchestratorException($"{process} exited with {run.ExitCode}");
             }
 
             return run;

@@ -37,7 +37,7 @@ namespace JKang.IpcServiceFramework
             }
             else
             {
-                throw new InvalidOperationException(response.Failure);
+                throw ThrowFailedResposeException(response);
             }
         }
 
@@ -60,7 +60,7 @@ namespace JKang.IpcServiceFramework
             }
             else
             {
-                throw new InvalidOperationException(response.Failure);
+                throw ThrowFailedResposeException(response);
             }
         }
 
@@ -76,7 +76,7 @@ namespace JKang.IpcServiceFramework
             }
             else
             {
-                throw new InvalidOperationException(response.Failure);
+                throw ThrowFailedResposeException(response);
             }
         }
 
@@ -99,10 +99,28 @@ namespace JKang.IpcServiceFramework
             }
             else
             {
-                throw new InvalidOperationException(response.Failure);
+                throw ThrowFailedResposeException(response);
             }
         }
 
+        private Exception ThrowFailedResposeException(IpcResponse response)
+        {
+            // Respose was a failure. Throw the exception if there is one to throw
+            object exception = null;
+            if (response.Data != null)
+            {
+                _converter.TryConvert(response.Data, response.ExceptionType, out exception);
+            }
+
+            if (exception != null)
+            {
+                return (exception as Exception);
+            }
+            else
+            {
+                return new InvalidOperationException(response.Failure);
+            }
+        }
 
         private static IpcRequest GetRequest(Expression exp, MyInterceptor interceptor)
         {

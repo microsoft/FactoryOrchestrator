@@ -36,10 +36,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Client = ((App)Application.Current).Client;
             if ((_taskRunPoller != null) && (!_activeCmdTaskRun.TaskRunComplete))
             {
                 // Only restart polling if the command is still running.
-                _taskRunPoller.StartPolling();
+                _taskRunPoller.StartPolling(Client);
             }
             base.OnNavigatedTo(e);
         }
@@ -55,10 +56,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
+            _cmdSem.Wait();
+
             if (RunButtonIcon.Symbol == Symbol.Stop)
             {
                 _taskRunPoller.StopPolling();
-                _cmdSem.Release();
                 _taskRunPoller = null;
                 await Client.AbortTaskRun(_activeCmdTaskRun.Guid);
                 CommandBox.IsEnabled = true;
@@ -72,6 +74,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     await ExecuteCommand(CommandBox.Text);
                 }
             }
+
+            _cmdSem.Release();
         }
 
         private async void CommandBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -92,9 +96,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private async Task ExecuteCommand(string command)
         {
-            // Prevent another command from running until this one finishes
-            _cmdSem.Wait();
-
             // Update UI
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -121,9 +122,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null);
 
             // Watch for new output
-            _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), Client, 1000);
+            _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), 1000);
             _taskRunPoller.OnUpdatedObject += OnUpdatedCmdStatusAsync;
-            _taskRunPoller.StartPolling();
+            _taskRunPoller.OnException += ((App)Application.Current).OnServerPollerException;
+            _taskRunPoller.StartPolling(Client);
         }
 
         /// <summary>
@@ -143,27 +145,26 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     _taskRunPoller.StopPolling();
                 }
 
-                _outSem.Wait();
                 while (_lastOutput != _activeCmdTaskRun.TaskOutput.Count)
                 {
                     var blocks = PrepareOutput();
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
+                        _outSem.Wait();
                         UpdateOutput(blocks);
+                        _outSem.Release();
                     });
                 }
-                _outSem.Release();
 
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                if (_activeCmdTaskRun.TaskRunComplete)
                 {
-                    if (_activeCmdTaskRun.TaskRunComplete)
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
                         // Allow new commands to run
                         CommandBox.IsEnabled = true;
                         RunButtonIcon.Symbol = Symbol.Play;
-                        _cmdSem.Release();
-                    }
-                });
+                    });
+                }
             }
         }
 

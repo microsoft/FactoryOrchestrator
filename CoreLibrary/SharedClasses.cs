@@ -314,15 +314,13 @@ namespace Microsoft.FactoryOrchestrator.Core
                     {
                         return LatestTaskRunTimeFinished - LatestTaskRunTimeStarted;
                     }
-                    else
+                    else if (LatestTaskRunStatus != TaskStatus.Unknown)
                     {
                         return DateTime.Now - LatestTaskRunTimeStarted;
                     }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
         }
 
@@ -1277,8 +1275,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         public TaskRun DeepCopy()
         {
             TaskRun copy = (TaskRun)this.MemberwiseClone();
-            copy.TaskOutput = new List<string>(this.TaskOutput.Count);
-            copy.TaskOutput.AddRange(this.TaskOutput.GetRange(0, copy.TaskOutput.Capacity));
+            var outputCount = this.TaskOutput.Count;
+            copy.TaskOutput = new List<string>(outputCount);
+            copy.TaskOutput.AddRange(this.TaskOutput.GetRange(0, outputCount));
 
             var stringProps = typeof(TaskRun).GetProperties().Where(x => x.PropertyType == typeof(string));
             foreach (var prop in stringProps)
@@ -1592,15 +1591,13 @@ namespace Microsoft.FactoryOrchestrator.Core
                     {
                         return TimeFinished - TimeStarted;
                     }
-                    else
+                    else if (TaskStatus != TaskStatus.Unknown)
                     {
                         return DateTime.Now - TimeStarted;
                     }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
         }
 

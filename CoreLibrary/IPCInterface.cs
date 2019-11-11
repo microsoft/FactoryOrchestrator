@@ -7,17 +7,17 @@ namespace Microsoft.FactoryOrchestrator.Core
 {
     public enum ServiceEventType
     {
-        NewTaskList = 0,
-        UpdatedTaskList = 1,
-        DeletedTaskList = 2,
-        TaskListStarted = 3,
-        TaskListFinished = 4,
+        //NewTaskList = 0,
+        //UpdatedTaskList = 1,
+        //DeletedTaskList = 2,
+        //TaskListStarted = 3,
+        //TaskListFinished = 4,
         DoneWaitingForExternalTaskRun = 5,
         WaitingForExternalTaskRun = 6,
-        ServiceReset = 7,
+        //ServiceReset = 7,
         ServiceError = 8,
-        ServiceStarted = 9,
-        ServiceStopped = 10,
+        //ServiceStarted = 9,
+        //ServiceStopped = 10,
         Unknown = 11
     }
 
@@ -118,14 +118,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="teExePath">Path to TE.exe</param>
         /// <returns></returns>
-        bool SetTeExePath(string teExePath);
+        void SetTeExePath(string teExePath);
         /// <summary>
         /// Sets the log folder path used by Factory Orchestrator.
         /// </summary>
         /// <param name="path">Path to the desired folder.</param>
         /// <param name="moveExistingLogs">If true, existing logs are moved to the new location.</param>
         /// <returns></returns>
-        bool SetLogFolder(string path, bool moveExistingLogs);
+        void SetLogFolder(string path, bool moveExistingLogs);
         /// <summary>
         /// Gets the log folder path used by Factory Orchestrator.
         /// </summary>
@@ -162,13 +162,13 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="guid">The GUID of the TaskList you wish to save.</param>
         /// <param name="filename">The path to the FactoryOrchestratorXML file that will be created.</param>
         /// <returns>true on success</returns>
-        bool SaveTaskListToXmlFile(Guid guid, string filename);
+        void SaveTaskListToXmlFile(Guid guid, string filename);
         /// <summary>
         /// Saves all TaskLists in the Service to a FactoryOrchestratorXML file.
         /// </summary>
         /// <param name="filename">The path to the FactoryOrchestratorXML file that will be created.</param>
         /// <returns>true on success</returns>
-        bool SaveAllTaskListsToXmlFile(string filename);
+        void SaveAllTaskListsToXmlFile(string filename);
         /// <summary>
         /// Creates a TaskList on the Service by copying a TaskList object provided by the Client.
         /// </summary>
@@ -196,13 +196,13 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="listToDelete">The GUID of the TaskList to delete.</param>
         /// <returns>true if it was deleted successfully.</returns>
-        bool DeleteTaskList(Guid listToDelete);
+        void DeleteTaskList(Guid listToDelete);
         /// <summary>
         /// Updates an existing TaskList on the Service.
         /// </summary>
         /// <param name="taskList">The updated TaskList.</param>
         /// <returns>true if it was updated successfully.</returns>
-        bool UpdateTaskList(TaskList taskList);
+        void UpdateTaskList(TaskList taskList);
 
         // Task APIs
         /// <summary>
@@ -231,7 +231,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="taskListGuid">GUID of the TaskList to run.</param>
         /// <param name="initialTask">Index of the Task to start the run from.</param>
         /// <returns></returns>
-        bool RunTaskList(Guid taskListGuid, int initialTask = 0);
+        void RunTaskList(Guid taskListGuid, int initialTask = 0);
         /// <summary>
         /// Stops all executing Tasks and/or TaskLists.
         /// </summary>
@@ -278,7 +278,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="taskRun">The TaskRun to update.</param>
         /// <returns>true if it was updated.</returns>
-        bool UpdateTaskRun(TaskRun taskRun);
+        void UpdateTaskRun(TaskRun taskRun);
         /// <summary>
         /// Gets a TaskRun object.
         /// </summary>
@@ -299,7 +299,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
         /// <returns>true if the file was sucessfully created.</returns>
-        bool SendFile(string targetFilename, byte[] fileData);
+        void SendFile(string targetFilename, byte[] fileData);
         /// <summary>
         /// Permanently deletes a file or folder. If a folder, all contents are deleted.
         /// </summary>

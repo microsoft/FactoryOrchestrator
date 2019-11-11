@@ -41,11 +41,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             mainPage = (Frame)e.Parameter;
             if (_taskListGuidPoller == null)
             {
-                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), Client, 2000);
+                _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), 2000);
                 _taskListGuidPoller.OnUpdatedObject += OnUpdatedTaskListGuidsAsync;
+                _taskListGuidPoller.OnException += ((App)Application.Current).OnServerPollerException;
             }
 
-            _taskListGuidPoller.StartPolling();
+            _taskListGuidPoller.StartPolling(Client);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -107,26 +108,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     if (_isFileLoad)
                     {
                         var lists = await Client.LoadTaskListsFromXmlFile(path);
-                        if (lists == null)
-                        {
-                            var error = await Client.GetLastServiceError();
-                            ShowLoadFailure(_isFileLoad, path, error);
-                        }
                     }
                     else
                     {
                         var list = await Client.CreateTaskListFromDirectory(path, true);
-                        if (list == null)
-                        {
-                            var error = await Client.GetLastServiceError();
-                            ShowLoadFailure(_isFileLoad, path, error);
-                        }
                     }
 
                 }
-                catch (Exception ex)
+                catch (FactoryOrchestratorException ex)
                 {
-                    ShowLoadFailure(_isFileLoad, path, new ServiceEvent(ServiceEventType.ServiceError, null, "Check that FactoryOrchestratorService is running on DUT" + Environment.NewLine + ex.Message));
+                    if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
+                    {
+                        ShowLoadFailure(_isFileLoad, path, ex.Message);
+                    }
                 }
 
                 LoadProgressBar.Visibility = Visibility.Collapsed;
@@ -134,8 +128,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        ///
-        private async void ShowLoadFailure(bool isFileLoad, string path, ServiceEvent lastError = null)
+        private async void ShowLoadFailure(bool isFileLoad, string path, string error)
         {
             ContentDialog failedLoadDialog = new ContentDialog
             {
@@ -144,9 +137,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 CloseButtonText = "Ok"
             };
 
-            if (lastError != null)
+            if (error != null)
             {
-                failedLoadDialog.Content += lastError.Message;
+                failedLoadDialog.Content += error;
             }
             else
             {
@@ -182,9 +175,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void EditListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            var list = await Client.QueryTaskList(guid);
-            mainPage.Navigate(typeof(EditPage), list);
-            this.OnNavigatedFrom(null);
+            try
+            {
+                var list = await Client.QueryTaskList(guid);
+                mainPage.Navigate(typeof(EditPage), list);
+                this.OnNavigatedFrom(null);
+            }
+            catch (FactoryOrchestratorUnkownGuidException ex)
+            {
+                ContentDialog failedQueryDialog = new ContentDialog
+                {
+                    Title = "Failed to query TaskList for edit",
+                    Content = $"It may have been deleted." + Environment.NewLine + Environment.NewLine + ex.Message,
+                    CloseButtonText = "Ok"
+                };
+
+                ContentDialogResult result = await failedQueryDialog.ShowAsync();
+            }
         }
 
         /// <summary>
@@ -213,29 +220,26 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 var savePath = SaveFlyoutUserPath.Text + ".xml";
                 SaveProgressBar.Width = SaveFlyoutUserPath.ActualWidth - CancelSave.ActualWidth - ConfirmSave.ActualWidth - 30; // 30 == combined margin size
                 SaveProgressBar.Visibility = Visibility.Visible;
-                bool saved = false;
 
                 try
                 {
                     if (SaveAllButton.Flyout.IsOpen)
                     {
-                        saved = await Client.SaveAllTaskListsToXmlFile(savePath);
+                        await Client.SaveAllTaskListsToXmlFile(savePath);
                     }
                     else
                     {
-                        saved = await Client.SaveTaskListToXmlFile(_activeGuid, savePath);
+                        await Client.SaveTaskListToXmlFile(_activeGuid, savePath);
                     }
                 }
-                catch (Exception)
-                {}
-                finally
+                catch (FactoryOrchestratorException ex)
                 {
-                    if (!saved)
+                    if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
                     {
                         ContentDialog failedSaveDialog = new ContentDialog
                         {
                             Title = "Failed to save TaskLists XML file",
-                            Content = saved ? (savePath + Environment.NewLine + Environment.NewLine + "Check the path and try again.") : "No task list(s) found!",
+                            Content = $"{ex.Message}",
                             CloseButtonText = "Ok"
                         };
 

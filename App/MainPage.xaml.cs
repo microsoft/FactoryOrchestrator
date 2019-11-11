@@ -21,8 +21,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
-            //this.NavigationCacheMode = NavigationCacheMode.Disabled;
-
+            Client = ((App)Application.Current).Client;
             // Put ipaddress in header
             Header.Text += Client.IsLocalHost ? " (Local Device)" : $" ({Client.IpAddress.ToString()})";
 
@@ -47,6 +46,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            Client = ((App)Application.Current).Client;
             this.Frame.CacheSize = 3;
             // Hide tabs disabled by OEM Customization
             List<string> disabledPages = await Client.GetDisabledPages();
@@ -84,7 +84,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void On_ContentFrameNavigated(object sender, NavigationEventArgs e)
         {
-            if(ContentFrame.SourcePageType != null)
+            if (ContentFrame.SourcePageType != null)
             {
                 var item = navViewPages.FirstOrDefault(p => (p.Page == e.SourcePageType));
 
@@ -190,7 +190,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ("files", typeof(FileTransferPage), true),
             ("about", typeof(AboutPage), true)
         };
-        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private FactoryOrchestratorUWPClient Client;
     }
 
 }

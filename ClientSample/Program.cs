@@ -2,11 +2,9 @@
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
@@ -17,10 +15,9 @@ namespace FactoryOrchestratorClientSample
     /// </summary>
     class FactoryOrchestratorNETCoreClientSample
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var t = Task.Run(() => RunAsync(args));
-            t.Wait();
+            await RunAsync(args);
         }
 
         /// <summary>

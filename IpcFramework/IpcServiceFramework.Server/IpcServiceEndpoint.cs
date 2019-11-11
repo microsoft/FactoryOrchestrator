@@ -65,6 +65,20 @@ namespace JKang.IpcServiceFramework
                     cancellationToken.ThrowIfCancellationRequested();
 
                     logger?.LogDebug($"[thread {Thread.CurrentThread.ManagedThreadId}] sending response...");
+
+                    // Attempt to serialize the exception, if it fails to serialize, just send the string version
+                    if (!response.Succeed && response.Data != null)
+                    {
+                        try
+                        {
+                            _serializer.SerializeResponse(response);
+                        }
+                        catch (Exception)
+                        {
+                            response = IpcResponse.Fail(response.Failure);
+                        }
+                    }
+
                     await writer.WriteAsync(response, cancellationToken).ConfigureAwait(false);
 
                     logger?.LogDebug($"[thread {Thread.CurrentThread.ManagedThreadId}] done.");
@@ -73,28 +87,15 @@ namespace JKang.IpcServiceFramework
                 {
                     logger?.LogError(ex, ex.Message);
 
-                    // Send the exception and any inner exceptions to the client
-                    var exception = ex;
-                    var message = "";
-                    while (exception != null)
-                    {
-                        message += $"{ex.ToString()}: {ex.Message}";
-                        exception = exception.InnerException;
-                        if (exception != null)
-                        {
-                            message += "\n";
-                        }
-                    }
-
                     try
                     {
                         // If there was an Exception due to a communication issue sending the error message to the client might throw an Exception as well.
                         // If it does, catch & discard it so the service listener thread doesn't crash.
-                        await writer.WriteAsync(IpcResponse.Fail($"Internal server error: {ex.Message}"), cancellationToken).ConfigureAwait(false);
+                        await writer.WriteAsync(IpcResponse.Fail($"{AllExceptionsToString(ex)}"), cancellationToken).ConfigureAwait(false);
                     }
                     catch (Exception)
                     {
-                        logger?.LogError($"Unable to send IPCResponse to client after Exception occurred. Reason: {ex.Message}");
+                        logger?.LogError($"Unable to send IPCResponse to client after Exception occurred. Reason: {AllExceptionsToString(ex)}");
                     }
                 }
             }
@@ -168,9 +169,13 @@ namespace JKang.IpcServiceFramework
                     return IpcResponse.Success(@return);
                 }
             }
+            catch (TargetInvocationException ex)
+            {
+                return IpcResponse.Fail($"{AllExceptionsToString(ex.InnerException)}", ex.InnerException);
+            }
             catch (Exception ex)
             {
-                return IpcResponse.Fail($"Internal server error: {ex.Message}");
+                return IpcResponse.Fail($"Internal server error: {AllExceptionsToString(ex)}", ex);
             }
         }
 
@@ -225,6 +230,31 @@ namespace JKang.IpcServiceFramework
             }
 
             return method;
+        }
+
+        public static string AllExceptionsToString(Exception ex)
+        {
+            string ret = "";
+            var exc = ex;
+            while (exc != null)
+            {
+                if (ret.Length > 0)
+                {
+                    ret += " -> ";
+                }
+                if (exc.Message != null)
+                {
+                    ret += $"{exc.GetType().ToString()}:{exc.Message}";
+                }
+                else
+                {
+                    ret += $"{exc.GetType().ToString()}";
+                }
+
+                exc = exc.InnerException;
+            }
+
+            return ret;
         }
     }
 }

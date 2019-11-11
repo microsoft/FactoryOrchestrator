@@ -34,7 +34,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                 case TaskType.BatchFile:
                     return JsonConvert.DeserializeObject<BatchFileTask>(jo.ToString());
                 default:
-                    throw new Exception("Trying to deserialize an unknown task type!");
+                    throw new FactoryOrchestratorException("Trying to deserialize an unknown task type!");
             }
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     serializer.Serialize(writer, value, typeof(BatchFileTask));
                     break;
                 default:
-                    throw new Exception("Trying to serialize an unknown task type!");
+                    throw new FactoryOrchestratorException("Trying to serialize an unknown task type!");
             }
         }
     }
