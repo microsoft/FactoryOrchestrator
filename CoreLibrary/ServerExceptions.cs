@@ -3,6 +3,9 @@ using System;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    /// <summary>
+    /// A generic Factory Orchestrator exception.
+    /// </summary>
     [JsonObject(MemberSerialization.Fields)]
     public class FactoryOrchestratorException : Exception
     {
@@ -14,6 +17,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         public Guid? Guid { get; }
     }
 
+    /// <summary>
+    /// An exception denoting a running TaskList is preventing the operation from succeeding.
+    /// </summary>
     [JsonObject(MemberSerialization.Fields)]
     public class FactoryOrchestratorTaskListRunningException : FactoryOrchestratorException
     {
@@ -24,6 +30,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         { }
     }
 
+    /// <summary>
+    /// An exception denoting the given GUID is not recognized by Factory Orchestrator.
+    /// </summary>
     [JsonObject(MemberSerialization.Fields)]
     public class FactoryOrchestratorUnkownGuidException : FactoryOrchestratorException
     {

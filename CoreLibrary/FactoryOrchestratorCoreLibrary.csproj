@@ -6,9 +6,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="ClientTemplate\IPCInterfaceHelperTemplate.cs" />

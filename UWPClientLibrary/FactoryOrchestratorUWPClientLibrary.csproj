@@ -23,7 +23,6 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,7 +31,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -42,9 +40,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FactoryOrchestratorUWPClient.cs" />

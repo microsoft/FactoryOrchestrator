@@ -1272,6 +1272,10 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Create a "deep" copy of the TaskRun.
+        /// </summary>
+        /// <returns></returns>
         public TaskRun DeepCopy()
         {
             TaskRun copy = (TaskRun)this.MemberwiseClone();

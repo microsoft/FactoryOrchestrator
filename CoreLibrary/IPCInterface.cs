@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    /// <summary>
+    /// The type of Factory Orchestrator Service event.
+    /// </summary>
     public enum ServiceEventType
     {
         //NewTaskList = 0,
@@ -21,6 +24,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         Unknown = 11
     }
 
+    /// <summary>
+    /// A class containing information about a specific Factory Orchestrator Service event.
+    /// </summary>
     public class ServiceEvent
     {
         [JsonConstructor]
@@ -48,13 +54,25 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
 
+        /// <summary>
+        /// The unique index of the event. Strictly increasing in order.
+        /// </summary>
         [JsonRequired]
         public ulong EventIndex { get => _eventIndex; }
 
+        /// <summary>
+        /// The time of the event.
+        /// </summary>
         public DateTime EventTime { get => _eventTime; }
 
+        /// <summary>
+        /// The type of the event.
+        /// </summary>
         public ServiceEventType ServiceEventType { get => _eventType; }
 
+        /// <summary>
+        /// If not NULL, the object GUID associated with the event.
+        /// </summary>
         public Guid? Guid
         {
             get
@@ -70,6 +88,9 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// The message in the event.
+        /// </summary>
         public String Message { get => _message; }
 
         [JsonRequired]
