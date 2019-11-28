@@ -15,12 +15,24 @@ namespace Microsoft.FactoryOrchestrator.Core
         //DeletedTaskList = 2,
         //TaskListStarted = 3,
         //TaskListFinished = 4,
+        /// <summary>
+        /// External TaskRun is completed.
+        /// </summary>
         DoneWaitingForExternalTaskRun = 5,
+        /// <summary>
+        /// External TaskRun is waiting on an external action.
+        /// </summary>
         WaitingForExternalTaskRun = 6,
         //ServiceReset = 7,
+        /// <summary>
+        /// The Factory Orchestrator Serivce threw an exception.
+        /// </summary>
         ServiceError = 8,
         //ServiceStarted = 9,
         //ServiceStopped = 10,
+        /// <summary>
+        /// An unknown Factory Orchestrator Serivce event occurred.
+        /// </summary>
         Unknown = 11
     }
 
@@ -29,6 +41,9 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// </summary>
     public class ServiceEvent
     {
+        /// <summary>
+        /// JSON Constructor.
+        /// </summary>
         [JsonConstructor]
         public ServiceEvent()
         {
@@ -36,6 +51,12 @@ namespace Microsoft.FactoryOrchestrator.Core
             _eventType = ServiceEventType.Unknown;
         }
 
+        /// <summary>
+        /// Create a new ServiceEvent.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="guid"></param>
+        /// <param name="message"></param>
         public ServiceEvent(ServiceEventType type, Guid? guid, String message)
         {
             _eventIndex = _indexCount++;
@@ -112,7 +133,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// IFOCommunication defines the client <> server communication model.
+    /// IFOCommunication defines the Factory Orchestrator Client-Server communication model.
     /// </summary>
     public interface IFactoryOrchestratorService
     {
@@ -125,9 +146,27 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="preserveLogs">If true, all logs are deleted.</param>
         /// <param name="factoryReset">If true, the service is restarted as if it is first boot.</param>
         void ResetService(bool preserveLogs = false, bool factoryReset = false);
+        /// <summary>
+        /// Gets all Service events.
+        /// </summary>
+        /// <returns>List of all Service events.</returns>
         List<ServiceEvent> GetServiceEvents();
+        /// <summary>
+        /// Get all Service events since given time.
+        /// </summary>
+        /// <param name="timeLastChecked"></param>
+        /// <returns>List of Service events.</returns>
         List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked);
+        /// <summary>
+        /// Get all Service events since given index.
+        /// </summary>
+        /// <param name="lastEventIndex"></param>
+        /// <returns>List of Service events.</returns>
         List<ServiceEvent> GetServiceEvents(ulong lastEventIndex);
+        /// <summary>
+        /// Get last Service error.
+        /// </summary>
+        /// <returns></returns>
         ServiceEvent GetLastServiceError();
         /// <summary>
         /// Returns the version of Factory Orchestrator Service.
@@ -272,6 +311,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="exeFilePath">Full path to the .exe file</param>
         /// <param name="arguments">Arguments to pass to the .exe</param>
+        /// <param name="logFilePath">Optional log file to save the console output to.</param>
         /// <returns>The TaskRun associated with the .exe</returns>
         TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null);
         /// <summary>

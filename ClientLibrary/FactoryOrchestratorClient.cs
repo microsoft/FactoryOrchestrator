@@ -245,7 +245,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Reboot the device running Factory Orchestrator Service. 
         /// </summary>
-        /// <param name="secondsUntilShutdown">How long to delay reboot, in seconds.</param>
+        /// <param name="secondsUntilReboot">How long to delay reboot, in seconds.</param>
         public async void RebootDevice(uint secondsUntilReboot = 0)
         {
             if (!IsConnected)
@@ -278,6 +278,12 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        /// <summary>
+        /// Writes bytes to file.
+        /// </summary>
+        /// <param name="file">File to write.</param>
+        /// <param name="data">Bytes to write to file.</param>
+        /// <returns></returns>
         protected virtual async Task WriteFileAsync(string file, byte[] data)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
@@ -285,6 +291,11 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        /// <summary>
+        /// Read bytes from file.
+        /// </summary>
+        /// <param name="file">File to read.</param>
+        /// <returns></returns>
         protected virtual async Task<byte[]> ReadFileAsync(string file)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
@@ -292,7 +303,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Event raised when Client<=>Service connection is successfully established.
+        /// Event raised when Client-Service connection is successfully established.
         /// </summary>
         public event IPCClientOnConnected OnConnected;
 
@@ -308,7 +319,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// True if the Client<=>Service connection is successfully established.
+        /// True if the Client-Service connection is successfully established.
         /// </summary>
         public bool IsConnected { get; private set; }
 
@@ -330,10 +341,21 @@ namespace Microsoft.FactoryOrchestrator.Client
     /// </summary>
     public delegate void IPCClientOnConnected();
 
+    /// <summary>
+    /// A FactoryOrchestratorConnectionException describes a Factory Orchestrator Client-Server connection issue.
+    /// </summary>
     public class FactoryOrchestratorConnectionException : FactoryOrchestratorException
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="ip">IP address Client is communicating with.</param>
         public FactoryOrchestratorConnectionException(IPAddress ip) : base($"Failed to communicate with Factory Orchestrator Service on {ip}!")
         { }
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="message">Exception text.</param>
         public FactoryOrchestratorConnectionException(string message) : base(message)
         { }
     }

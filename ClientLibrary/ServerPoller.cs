@@ -15,11 +15,10 @@ namespace Microsoft.FactoryOrchestrator.Client
     {
         /// <summary>
         /// Create a new ServerPoller. The ServerPoller is associated with a specific FactoryOrchestratorClient and object you want to poll. The desired object is referred to by its GUID. The GUID can be NULL for TaskRun polling.
-        /// If it is NULL and the guidType is TaskList, List<TaskListSummary> is returned.
+        /// If it is NULL and the guidType is TaskList, a List of TaskListSummary objects is returned.
         /// </summary>
         /// <param name="guidToPoll">GUID of the object you want to poll</param>
         /// <param name="guidType">The type of object that GUID is for</param>
-        /// <param name="client">A connected FactoryOrchestratorClient instance</param>
         /// <param name="pollingIntervalMs">How frequently the polling should be done, in milliseconds. Defaults to 500ms.</param>
         /// <param name="adaptiveInterval">If true, automatically adjust the polling interval for best performance. Defaults to true.</param>
         /// <param name="maxAdaptiveModifier">If adaptiveInterval is set, this defines the maximum multiplier/divisor that will be applied to the polling interval. For example, if maxAdaptiveModifier=2 and pollingIntervalMs=100, the object would be polled at a rate between 50ms to 200ms. Defaults to 5.</param>
@@ -137,6 +136,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Starts polling the object.
         /// </summary>
+        /// <param name="client">The FactoryOrchestratorClient object to use for polling.</param>
         public void StartPolling(FactoryOrchestratorClient client)
         {
             _client = client;
@@ -232,10 +232,23 @@ namespace Microsoft.FactoryOrchestrator.Client
         public object Result { get; }
     }
 
+    /// <summary>
+    /// Event handler delegate for a when a new object has been retrieved from the Server.
+    /// </summary>
+    /// <param name="source">The ServerPoller that retrieved the object.</param>
+    /// <param name="e">The result of the latest poll operation.</param>
     public delegate void ServerPollerEventHandler(object source, ServerPollerEventArgs e);
 
+    /// <summary>
+    /// Event handler delegate for a when the poller hit an exception while polling.
+    /// </summary>
+    /// <param name="source">The ServerPoller that retrieved the object.</param>
+    /// <param name="e">The exception from the latest poll operation.</param>
     public delegate void ServerPollerExceptionHandler(object source, ServerPollerExceptionHandlerArgs e);
 
+    /// <summary>
+    /// Class containing the exception thrown from the latest poll operation.
+    /// </summary>
     public class ServerPollerExceptionHandlerArgs : EventArgs
     {
         /// <summary>

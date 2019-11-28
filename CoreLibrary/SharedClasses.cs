@@ -14,8 +14,16 @@ using System.Runtime.CompilerServices;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    /// <summary>
+    /// Extends the Exception class.
+    /// </summary>
     public static class Exception_Extensions
     {
+        /// <summary>
+        /// Returns a string describing the given Exception including all inner exceptions.
+        /// </summary>
+        /// <param name="ex">The Exception.</param>
+        /// <returns>A string describing the given Exception including all inner exceptions.</returns>
         public static string AllExceptionsToString(this Exception ex)
         {
             string ret = "";
@@ -43,18 +51,45 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// The status of a Task or TaskList.
+    /// The status of a Task, TaskRun, or TaskList.
     /// </summary>
     public enum TaskStatus
     {
+        /// <summary>
+        /// The Task passed with no errors.
+        /// </summary>
         Passed,
+        /// <summary>
+        /// The Task failed.
+        /// </summary>
         Failed,
+        /// <summary>
+        /// The Task was cancelled.
+        /// </summary>
         Aborted,
+        /// <summary>
+        /// The Task hit its timeout and was cancelled.
+        /// </summary>
         Timeout,
+        /// <summary>
+        /// The Task is actively running.
+        /// </summary>
         Running,
+        /// <summary>
+        /// The Task has never been run.
+        /// </summary>
         NotRun,
+        /// <summary>
+        /// The Task is queued to run.
+        /// </summary>
         RunPending,
+        /// <summary>
+        /// The Task is waiting for its result from a client.
+        /// </summary>
         WaitingForExternalResult,
+        /// <summary>
+        /// The Task state is unknown, likely due to a Service error.
+        /// </summary>
         Unknown
     }
 
@@ -63,14 +98,33 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// </summary>
     public enum TaskType
     {
+        /// <summary>
+        /// The Task is a console executable.
+        /// </summary>
         ConsoleExe = 0,
+        /// <summary>
+        /// The Task is a TAEF test.
+        /// </summary>
         TAEFDll = 1,
+        /// <summary>
+        /// The Task is an external task.
+        /// </summary>
         External = 2,
+        /// <summary>
+        /// The Task is a UWP app.
+        /// </summary>
         UWP = 3,
+        /// <summary>
+        /// The Task is a PowerShell Core script.
+        /// </summary>
         PowerShell = 4,
+        /// <summary>
+        /// The Task is a Command Prompt script.
+        /// </summary>
         BatchFile = 5
     }
 
+#pragma warning disable CS1591 //  Missing XML comment for publicly visible type or member
     /// <summary>
     /// Comparer for Task objects
     /// </summary>
@@ -86,6 +140,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             return obj.GetHashCode();
         }
     }
+#pragma warning restore CS1591
 
     /// <summary>
     /// TaskBase is an abstract class representing a generic task. It contains all the details needed to run the task.
@@ -102,7 +157,10 @@ namespace Microsoft.FactoryOrchestrator.Core
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="type">The Task type.</param>
         protected TaskBase(TaskType type)
         {
             Type = type;
@@ -119,6 +177,11 @@ namespace Microsoft.FactoryOrchestrator.Core
             AbortTaskListOnFailed = false;
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="type">The Task type.</param>
+        /// <param name="taskPath">The Task path.</param>
         public TaskBase(string taskPath, TaskType type) : this(type)
         {
             Guid = Guid.NewGuid();
@@ -467,45 +530,94 @@ namespace Microsoft.FactoryOrchestrator.Core
         // XmlSerializer calls these to check if these values are set.
         // If not set, don't serialize.
         // https://docs.microsoft.com/en-us/dotnet/framework/winforms/controls/defining-default-values-with-the-shouldserialize-and-reset-methods
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeLatestTaskRunTimeStarted()
         {
             return LatestTaskRunTimeStarted.HasValue;
         }
 
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeLatestTaskRunStatus()
         {
             return LatestTaskRunStatus != TaskStatus.NotRun;
         }
 
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeLatestTaskRunTimeFinished()
         {
             return LatestTaskRunTimeFinished.HasValue;
         }
 
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeLatestTaskRunExitCode()
         {
             return LatestTaskRunExitCode.HasValue;
         }
+
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeTaskRunGuids()
         {
             return TaskRunGuids.Count > 0;
         }
+
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeTimeoutSeconds()
         {
             return TimeoutSeconds != -1;
         }
+
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeTimesRetried()
         {
             return TimesRetried != 0;
         }
+
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeMaxNumberOfRetries()
         {
             return MaxNumberOfRetries != 0;
         }
+
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeAbortTaskListOnFailed()
         {
             return AbortTaskListOnFailed == true;
         }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskBase;
@@ -563,6 +675,12 @@ namespace Microsoft.FactoryOrchestrator.Core
             return true;
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return -737073652 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
@@ -585,6 +703,10 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         //}
 
+        // TODO: server only
+        /// <summary>
+        /// Lock used by the server when updating values in the Task object. Clients should not use.
+        /// </summary>
         [JsonIgnore]
         [XmlIgnore]
         public object TaskLock;
@@ -604,21 +726,43 @@ namespace Microsoft.FactoryOrchestrator.Core
             BackgroundTask = false;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExecutableTask"/> class.
+        /// </summary>
+        /// <param name="taskPath">The task path.</param>
         public ExecutableTask(String taskPath) : base(taskPath, TaskType.ConsoleExe)
         {
             BackgroundTask = false;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExecutableTask"/> class.
+        /// </summary>
+        /// <param name="taskPath">The Task path.</param>
+        /// <param name="type">The Task type.</param>
         protected ExecutableTask(String taskPath, TaskType type) : base(taskPath, type)
         {
             BackgroundTask = false;
         }
 
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return Name;
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as ExecutableTask;
@@ -690,6 +834,10 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PowerShellTask"/> class.
+        /// </summary>
+        /// <param name="scriptPath">The script path.</param>
         public PowerShellTask(string scriptPath) : base(scriptPath, TaskType.PowerShell)
         {
             _scriptPath = scriptPath;
@@ -718,6 +866,13 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskBase;
@@ -749,6 +904,10 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatchFileTask"/> class.
+        /// </summary>
+        /// <param name="scriptPath">The script path.</param>
         public BatchFileTask(string scriptPath) : base(scriptPath, TaskType.BatchFile)
         {
             _scriptPath = scriptPath;
@@ -777,6 +936,13 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskBase;
@@ -807,10 +973,21 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TAEFTest"/> class.
+        /// </summary>
+        /// <param name="testPath">The test path.</param>
         public TAEFTest(string testPath) : base(testPath, TaskType.TAEFDll)
         {
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskBase;
@@ -837,21 +1014,44 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalTask"/> class.
+        /// </summary>
+        /// <param name="testName">Name of the Task.</param>
         public ExternalTask(String testName) : base(null, TaskType.External)
         {
             _testFriendlyName = testName;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalTask"/> class.
+        /// </summary>
+        /// <param name="taskPath">The task path.</param>
+        /// <param name="testName">Name of the Task.</param>
+        /// <param name="type">The external Task type.</param>
         protected ExternalTask(String taskPath, String testName, TaskType type) : base(taskPath, type)
         {
             _testFriendlyName = testName;
         }
 
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return Name;
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as ExternalTask;
@@ -908,16 +1108,32 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UWPTask"/> class.
+        /// </summary>
+        /// <param name="packageFamilyName">The package family name (PFN).</param>
+        /// <param name="testFriendlyName">A friendly name for the app.</param>
         public UWPTask(string packageFamilyName, string testFriendlyName) : base(packageFamilyName, testFriendlyName, TaskType.UWP)
         {
             _testFriendlyName = testFriendlyName;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UWPTask"/> class.
+        /// </summary>
+        /// <param name="packageFamilyName">The package family name (PFN).</param>
         public UWPTask(string packageFamilyName) : base(packageFamilyName, null, TaskType.UWP)
         {
             _testFriendlyName = packageFamilyName;
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as UWPTask;
@@ -977,6 +1193,11 @@ namespace Microsoft.FactoryOrchestrator.Core
             Name = "";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskList"/> class. Used for editing an existing TaskList.
+        /// </summary>
+        /// <param name="name">The TaskList name.</param>
+        /// <param name="guid">The GUID for the TaskList.</param>
         public TaskList(string name, Guid guid) : this()
         {
             if (guid != null)
@@ -1040,11 +1261,24 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return Name;
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskList;
@@ -1077,21 +1311,39 @@ namespace Microsoft.FactoryOrchestrator.Core
             return true;
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return -2045414129 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
         }
 
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeTerminateBackgroundTasksOnCompletion()
         {
             return BackgroundTasks.Count > 0;
         }
 
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeBackgroundTasks()
         {
             return BackgroundTasks.Count > 0;
         }
 
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
         public bool ShouldSerializeTasks()
         {
             return Tasks.Count > 0;
@@ -1235,7 +1487,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
         // lock on modification & lock on query so that internal state is guaranteed to be consistent at all times
         [JsonConstructor]
-        protected TaskRun()
+        internal TaskRun()
         {
 
         }
@@ -1605,6 +1857,13 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = obj as TaskRun;
@@ -1672,6 +1931,12 @@ namespace Microsoft.FactoryOrchestrator.Core
             return true;
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return -737073652 + EqualityComparer<Guid>.Default.GetHashCode(Guid);
@@ -1679,11 +1944,14 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// This class is used to save & load TaskLists from an XML file.
+    /// This class is used to save and load TaskLists from an XML file.
     /// </summary>
     [XmlRootAttribute(ElementName = "FactoryOrchestratorXML", IsNullable = false)]
     public partial class FactoryOrchestratorXML
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public FactoryOrchestratorXML()
         {
             TaskLists = new List<TaskList>();
@@ -1905,6 +2173,10 @@ namespace Microsoft.FactoryOrchestrator.Core
             TerminateBackgroundTasksOnCompletion = terminateBackgroundTasksOnCompletion;
         }
 
+        /// <summary>
+        /// Creates a new TaskListSummary.
+        /// </summary>
+        /// <param name="summary">The summary to copy from.</param>
         public TaskListSummary(TaskListSummary summary)
         {
             this.Status = summary.Status;
@@ -1915,17 +2187,36 @@ namespace Microsoft.FactoryOrchestrator.Core
             this.TerminateBackgroundTasksOnCompletion = summary.TerminateBackgroundTasksOnCompletion;
         }
 
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             // Accessible name.
             return $"Task List {Name} ({Guid}) with Status {Status}";
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return Guid.GetHashCode() + Status.GetHashCode();
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             var rhs = (TaskListSummary)obj;
@@ -2006,10 +2297,20 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 }
 
+/// <summary>
+/// Abstract class to implement INotifyPropertyChanged
+/// </summary>
 public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged
 {
+    /// <summary>
+    /// Event when a Property changes.
+    /// </summary>
     public event PropertyChangedEventHandler PropertyChanged;
 
+    /// <summary>
+    /// Call when a Property changes.
+    /// </summary>
+    /// <param name="propertyName">Name of the Property that changed.</param>
     protected void NotifyPropertyChanged([CallerMemberName]string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

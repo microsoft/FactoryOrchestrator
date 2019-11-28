@@ -34,6 +34,10 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// Gets all Service events.
+        /// </summary>
+        /// <returns>List of all Service events.</returns>
         public async Task<List<ServiceEvent>> GetServiceEvents()
         {
             if (!IsConnected)
@@ -51,6 +55,11 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// Get all Service events since given time.
+        /// </summary>
+        /// <param name="timeLastChecked"></param>
+        /// <returns>List of Service events.</returns>
         public async Task<List<ServiceEvent>> GetServiceEvents(DateTime timeLastChecked)
         {
             if (!IsConnected)
@@ -68,6 +77,11 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// Get all Service events since given index.
+        /// </summary>
+        /// <param name="lastEventIndex"></param>
+        /// <returns>List of Service events.</returns>
         public async Task<List<ServiceEvent>> GetServiceEvents(ulong lastEventIndex)
         {
             if (!IsConnected)
@@ -85,6 +99,10 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        /// <summary>
+        /// Get last Service error.
+        /// </summary>
+        /// <returns></returns>
         public async Task<ServiceEvent> GetLastServiceError()
         {
             if (!IsConnected)
@@ -605,6 +623,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="exeFilePath">Full path to the .exe file</param>
         /// <param name="arguments">Arguments to pass to the .exe</param>
+        /// <param name="logFilePath">Optional log file to save the console output to.</param>
         /// <returns>The TaskRun associated with the .exe</returns>
         public async Task<TaskRun> RunExecutable(string exeFilePath, string arguments, string logFilePath = null)
         {
