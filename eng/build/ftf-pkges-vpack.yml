@@ -306,6 +306,13 @@ steps:
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
+- task: CopyFiles@2
+  displayName: 'Copy Client documentation to root of drop'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\bin\docfx'
+    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\FactoryOrchestratorDocumentation'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)

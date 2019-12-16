@@ -12,6 +12,12 @@
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="docfx.console" Version="2.47.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
