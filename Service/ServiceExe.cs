@@ -949,6 +949,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceEvents = new Dictionary<ulong, ServiceEvent>();
                     LastEventIndex = 0;
                     LastEventTime = DateTime.MinValue;
+                    DisableCommandPromptPage = false;
+                    DisableUWPAppsPage = false;
+                    DisableManageTasklistsPage = false;
+                    DisableFileTransferPage = false;
+                    DisableNetworkAccess = false;
                 }
                 else
                 {
@@ -1525,12 +1530,50 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception)
             { }
 
-            DisableNetworkAccess = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableNetworkAccessValue, false);
-            DisableCommandPromptPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableCmdPromptValue, false);
-            DisableFileTransferPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableFileTransferValue, false);
-            DisableUWPAppsPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableUWPAppsValue, false);
-            DisableManageTasklistsPage = (bool)GetValueFromRegistry(mutableKey, nonMutableKey, _disableTaskManagerValue, false);
-            TaskManagerLogFolder = (string)GetValueFromRegistry(mutableKey, nonMutableKey, _logFolderValue, _defaultLogFolder);
+            // If a value is set improperly, it will fallback to defaults set in the CTOR.
+            try
+            {
+                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableNetworkAccessValue, false));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableCmdPromptValue, false));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableFileTransferValue, false));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableUWPAppsValue, false));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableTaskManagerValue, false));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                TaskManagerLogFolder = (string)GetValueFromRegistry(mutableKey, nonMutableKey, _logFolderValue, _defaultLogFolder);
+            }
+            catch (Exception)
+            {
+                TaskManagerLogFolder = _defaultLogFolder;
+            }
 
             return true;
         }
