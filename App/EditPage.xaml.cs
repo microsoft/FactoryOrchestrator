@@ -115,6 +115,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         this.Frame.GoBack();
                     }
                 }
+                else
+                {
+                    this.Frame.GoBack();
+                }
 
                 return true;
 
@@ -602,7 +606,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return false;
         }
 
-        private void TaskListView_DropCompleted(UIElement sender, DropCompletedEventArgs args)
+        private void TaskListView_DragCompleted(UIElement sender, DragItemsCompletedEventArgs args)
         {
             listEdited = true;
         }
@@ -613,6 +617,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             var grid = stack.Parent as Grid;
             return ((ContentPresenter)(grid.Children.Where(x => x.GetType() == typeof(ContentPresenter)).First())).Content as TaskBase;
         }
+
         private void ListCheck_Checked(object sender, RoutedEventArgs e)
         {
             activeList.AllowOtherTaskListsToRun = (bool)BlockingCheck.IsChecked;

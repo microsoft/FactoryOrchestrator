@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using static Microsoft.FactoryOrchestrator.Server.HelperMethods;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
@@ -615,7 +616,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             public List<Guid> BackgroundTaskRunGuids;
         }
 
-        private void TaskListWorker(object i, CancellationToken token)
+        private void DoTaskList(object i, CancellationToken token)
         {
             var item = (TaskListWorkItem)i;
             bool usedSem = false;
@@ -963,6 +964,8 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
 
             var run = CreateTaskRunForTask(task, LogFolder, list.Guid);
+
+            // Create a new TaskList to run, with only the specified Task but copy the settings from the existing list
             var runList = new List<Guid>();
             runList.Add(run.Guid);
             TaskListWorkItem workItem;
@@ -1015,13 +1018,14 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-
         private void QueueTaskListWorkItem(TaskListWorkItem workItem)
         {
             var token = new CancellationTokenSource();
             RunningTaskListTokens.TryAdd(workItem.TaskListGuid, token);
             RunningBackgroundTasks.TryAdd(workItem.TaskListGuid, new List<TaskRunner>());
-            Task t = new Task((i) => { TaskListWorker(i, token.Token); }, workItem);
+
+            // PreferFairness ensures the TaskLists are executed in a "First In, First Out" manner.
+            Task t = new Task((i) => { DoTaskList(i, token.Token); }, workItem, TaskCreationOptions.PreferFairness);
             t.Start();
         }
 
@@ -1435,20 +1439,29 @@ namespace Microsoft.FactoryOrchestrator.Server
 
     public class TaskRunner
     {
-        private static string _globalTeExePath = "c:\\taef\\te.exe";
+        private static string _globalTeExePath = "";
         private readonly static string GlobalTeArgs = "";
 
         public static string GlobalTeExePath
         {
             get
             {
-                return _globalTeExePath;
+                if (string.IsNullOrEmpty(_globalTeExePath))
+                {
+                    // Default TAEF (TE.exe) path.
+                    return Environment.ExpandEnvironmentVariables(@"%SystemDrive%\taef\te.exe");
+                }
+                else
+                {
+                    return _globalTeExePath;
+                }
             }
             set
             {
-                if (File.Exists(value))
+                var newPath = Environment.ExpandEnvironmentVariables(value);
+                if (File.Exists(newPath))
                 {
-                    _globalTeExePath = value;
+                    _globalTeExePath = newPath;
                 }
                 else
                 {
@@ -1933,7 +1946,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             // If an executable, find the actual path to the file.
             if ((TaskType == TaskType.ConsoleExe) || (TaskType == TaskType.BatchFile))
             {
-                TaskPath = HelperMethods.FindFileInPath(TaskPath);
+                TaskPath = FindFileInPath(TaskPath);
             }
         }
 
@@ -2111,6 +2124,11 @@ namespace Microsoft.FactoryOrchestrator.Server
     {
         public static string FindFileInPath(string file)
         {
+            if (file == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             file = Environment.ExpandEnvironmentVariables(file);
 
             if (!File.Exists(file))
