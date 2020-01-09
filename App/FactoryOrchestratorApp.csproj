@@ -23,7 +23,6 @@
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxBundle>Never</AppxBundle>
-    <XesUseOneStoreVersioning>true</XesUseOneStoreVersioning>
     <PackageCertificateThumbprint>51BEF46E5163B0F513BACB90EB2E8114627EC366</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
