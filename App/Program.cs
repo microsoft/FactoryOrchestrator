@@ -15,7 +15,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             AppInstance current = null;
 
             var familystring = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily.ToString();
-            if (familystring.Contains("desktop"))
+            if (familystring.ToLowerInvariant().Contains("desktop"))
             {
                 // Always start a new instance when invoked on desktop
                 startNew = true;
