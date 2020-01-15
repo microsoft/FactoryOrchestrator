@@ -208,76 +208,82 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public void SaveTaskListToXmlFile(Guid guid, string filename)
         {
-            if (IsTaskListRunning)
+            lock (RunningTaskListLock)
             {
-                throw new FactoryOrchestratorTaskListRunningException();
-            }
-            
-            FactoryOrchestratorXML xml = new FactoryOrchestratorXML();
+                if (IsTaskListRunning)
+                {
+                    throw new FactoryOrchestratorTaskListRunningException();
+                }
 
-            var index = KnownTaskLists.FindIndex(x => x.Guid == guid);
-            if (index > -1)
-            {
-                xml.TaskLists.Add(KnownTaskLists[index]);
-            }
-            else
-            {
-                throw new FactoryOrchestratorUnkownGuidException(guid, typeof(TaskList));
-            }
+                FactoryOrchestratorXML xml = new FactoryOrchestratorXML();
 
-            if (!xml.Save(filename))
-            {
-                throw new FactoryOrchestratorException($"Could not save TaskLists to {filename}!");
+                var index = KnownTaskLists.FindIndex(x => x.Guid == guid);
+                if (index > -1)
+                {
+                    xml.TaskLists.Add(KnownTaskLists[index]);
+                }
+                else
+                {
+                    throw new FactoryOrchestratorUnkownGuidException(guid, typeof(TaskList));
+                }
+
+                if (!xml.Save(filename))
+                {
+                    throw new FactoryOrchestratorException($"Could not save TaskLists to {filename}!");
+                }
             }
         }
 
         public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
-            if (IsTaskListRunning)
+            lock (RunningTaskListLock)
             {
-                throw new FactoryOrchestratorTaskListRunningException();
-            }
-
-            FactoryOrchestratorXML xml;
-            xml = FactoryOrchestratorXML.Load(filename);
-
-            // Add GUIDs to any TaskBase or TaskList objects that don't have one
-            lock (KnownTaskListLock)
-            {
-                foreach (var list in xml.TaskLists)
+                if (IsTaskListRunning)
                 {
-                    // Mark "running" Tasks as Unknown, as their state is unknown
-                    var badStateTasks = list.Tasks.Where(x => (x.IsRunningOrPending));
-                    foreach (var task in badStateTasks)
-                    {
-                        task.LatestTaskRunStatus = TaskStatus.Unknown;
-                    }
-                    badStateTasks = list.BackgroundTasks.Where(x => (x.IsRunningOrPending));
-                    foreach (var task in badStateTasks)
-                    {
-                        task.LatestTaskRunStatus = TaskStatus.Unknown;
-                    }
+                    throw new FactoryOrchestratorTaskListRunningException();
+                }
 
-                    var index = KnownTaskLists.FindIndex(x => x.Guid == list.Guid);
-                    if (index > -1)
+                FactoryOrchestratorXML xml;
+                xml = FactoryOrchestratorXML.Load(filename);
+
+                // Add GUIDs to any TaskBase or TaskList objects that don't have one
+                lock (KnownTaskListLock)
+                {
+                    foreach (var list in xml.TaskLists)
                     {
-                        // todo: consider this an error?
-                        KnownTaskLists[index] = list;
-                    }
-                    else
-                    {
-                        KnownTaskLists.Add(list);
+                        // Mark "running" Tasks as Unknown, as their state is unknown
+                        var badStateTasks = list.Tasks.Where(x => (x.IsRunningOrPending));
+                        foreach (var task in badStateTasks)
+                        {
+                            task.LatestTaskRunStatus = TaskStatus.Unknown;
+                        }
+                        badStateTasks = list.BackgroundTasks.Where(x => (x.IsRunningOrPending));
+                        foreach (var task in badStateTasks)
+                        {
+                            task.LatestTaskRunStatus = TaskStatus.Unknown;
+                        }
+
+                        var index = KnownTaskLists.FindIndex(x => x.Guid == list.Guid);
+                        if (index > -1)
+                        {
+                            // todo: consider this an error?
+                            KnownTaskLists[index] = list;
+                        }
+                        else
+                        {
+                            KnownTaskLists.Add(list);
+                        }
                     }
                 }
-            }
 
-            // Update XML for state tracking
-            if (filename != TaskListStateFile)
-            {
-                SaveAllTaskListsToXmlFile(TaskListStateFile);
-            }
+                // Update XML for state tracking
+                if (filename != TaskListStateFile)
+                {
+                    SaveAllTaskListsToXmlFile(TaskListStateFile);
+                }
 
-            return xml.TaskLists.Select(x => x.Guid).ToList();
+                return xml.TaskLists.Select(x => x.Guid).ToList();
+            }
         }
 
         public void DeleteTaskList(Guid listToDelete)
@@ -332,6 +338,36 @@ namespace Microsoft.FactoryOrchestrator.Server
         public List<Guid> GetTaskListGuids()
         {
             return KnownTaskLists.Select(x => x.Guid).ToList();
+        }
+
+        public void ReorderTaskLists(List<Guid> newOrder)
+        {
+            lock (KnownTaskListLock)
+            {
+                if (KnownTaskLists.Count != newOrder.Count)
+                {
+                    throw new FactoryOrchestratorException($"Server has {KnownTaskLists.Count} TaskLists but new order has ony {newOrder.Count} GUIDs!");
+                }
+
+                lock (RunningTaskListLock)
+                {
+                    if (IsTaskListRunning)
+                    {
+                        throw new FactoryOrchestratorTaskListRunningException();
+                    }
+
+                    // Find TaskList and place in new order
+                    var newKnownTaskLists = new List<TaskList>(KnownTaskLists.Count);
+                    foreach (var guid in newOrder)
+                    {
+                        var list = GetTaskList(guid);
+                        newKnownTaskLists.Add(list);
+                    }
+
+                    // Replace old list
+                    KnownTaskLists = newKnownTaskLists;
+                }
+            }
         }
 
         public TaskList CreateTaskListFromTaskList(TaskList taskList)
@@ -1354,6 +1390,10 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public string LogFolder { get => _logFolder; }
         public string TaskListStateFile { get; private set; }
+
+        /// <summary>
+        /// True if a TaskList is actively running. Lock RunningTaskListLock first if doing a destructive operation.
+        /// </summary>
         public bool IsTaskListRunning
         {
             get

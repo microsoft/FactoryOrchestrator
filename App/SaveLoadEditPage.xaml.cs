@@ -302,6 +302,39 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         /// <summary>
+        /// Called when the TaskLists are reordered by drag and drop. Sends updated order to the Service.
+        /// </summary>
+        private async void TaskListsView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            try
+            {
+                if (!TaskListCollection.Any(x => x.IsRunningOrPending))
+                {
+                    var newOrder = new List<Guid>();
+                    newOrder.AddRange(TaskListCollection.Select(x => x.Guid));
+                    await Client.ReorderTaskLists(newOrder);
+                }
+                else
+                {
+                    throw new FactoryOrchestratorException("Cannot reorder TaskLists while a TaskList is running!");
+                }
+            }
+            catch (FactoryOrchestratorException ex)
+            {
+                // If it fails, the poller will update the UI to the old order.
+                ContentDialog failedSaveDialog = new ContentDialog
+                {
+                    Title = "Failed to reorder TaskLists",
+                    Content = $"{ex.Message}",
+                    CloseButtonText = "Ok"
+                };
+
+                ContentDialogResult result = await failedSaveDialog.ShowAsync();
+
+            }
+        }
+
+        /// <summary>
         /// Keeps the Known TaskLists in sync with the server.
         /// </summary>
         private async void OnUpdatedTaskListGuidsAsync(object source, ServerPollerEventArgs e)
@@ -340,7 +373,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 });
             }
-
         }
 
         /// <summary>

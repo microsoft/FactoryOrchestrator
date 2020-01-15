@@ -82,7 +82,7 @@
             <TextBlock Text="Existing TaskLists:" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file."  Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
-        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" IsItemClickEnabled="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}">
+        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=TwoWay}" DragItemsCompleted="TaskListsView_DragItemsCompleted">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
@@ -90,11 +90,13 @@
                             <ControlTemplate TargetType="ListViewItem">
                                 <Grid x:Name="ItemGrid" >
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="350" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <ContentPresenter Grid.Column="0" />
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
+                                    <ContentPresenter Grid.Column="1" />
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
                                         <Button x:Name="EditListButton" Margin="10,0,5,0" Click="EditListButton_Click" AutomationProperties.Name="Edit Task List">
                                             <SymbolIcon Symbol="Edit"/>
                                         </Button>

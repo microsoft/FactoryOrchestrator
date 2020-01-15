@@ -470,6 +470,27 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Reorders the TaskLists known to the Service.
+        /// </summary>
+        /// <param name="newOrder">An ordered list of GUIDs corresponding to the TaskList GUIDs known to the Service.</param>
+        public async Task ReorderTaskLists(List<Guid> newOrder)
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.ReorderTaskLists(newOrder));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
         /// Returns the Task object for a given Task GUID.
         /// </summary>
         /// <param name="guid">The Task GUID.</param>

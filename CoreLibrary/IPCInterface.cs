@@ -263,6 +263,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="taskList">The updated TaskList.</param>
         /// <returns>true if it was updated successfully.</returns>
         void UpdateTaskList(TaskList taskList);
+        /// <summary>
+        /// Reorders the TaskLists known to the Service.
+        /// </summary>
+        /// <param name="newOrder">An ordered list of GUIDs corresponding to the TaskList GUIDs known to the Service.</param>
+        void ReorderTaskLists(List<Guid> newOrder);
 
         // Task APIs
         /// <summary>

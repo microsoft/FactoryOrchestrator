@@ -324,6 +324,21 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public void ReorderTaskLists(List<Guid> newOrder)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: ReorderTaskLists {newOrder}");
+                FOService.Instance.TestExecutionManager.ReorderTaskLists(newOrder);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: ReorderTaskLists {newOrder}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
         public void ResetService(bool preserveLogs, bool factoryReset)
         {
             try
