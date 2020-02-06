@@ -382,7 +382,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;
-            return ((TaskListSummary)((ContentPresenter)(grid.Children[0])).Content).Guid;
+            return ((TaskListSummary)((ContentPresenter)(grid.Children.Where(x => x.GetType() == typeof(ContentPresenter)).First())).Content).Guid;
         }
 
         public ObservableCollection<TaskListSummary> TaskListCollection;

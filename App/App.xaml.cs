@@ -38,7 +38,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.Suspending += OnSuspending;
             this.UnhandledException += UnhandledExceptionHandler;
             MainPageLastNavTag = null;
-            uwpRunGuidFromAppsPage = Guid.Empty;
             RunWaitingForResult = null;
             Client = null;
             connectionFailureSem = new SemaphoreSlim(1,1);
@@ -372,8 +371,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         if (Client.IsLocalHost)
                         {
                             // TODO: Performance: this should be in its own thread, so other service events can be handled
-                            // TODO: Bug 21505535: System.Reflection.AmbiguousMatchException in FactoryOrchestrator
-                            // Only allow one external run at a time though
+                            // Only allow one external run at a time
                             TaskRun run = null;
 
                             while (run == null)
@@ -398,7 +396,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             }
                             if (!run.TaskRunComplete)
                             {
-                                await DoExternalAppTaskRunAsync(run);
+                                await HandleExternalTaskRunAsync(run);
                             }
                         }
                         break;
@@ -408,158 +406,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private async Task DoExternalAppTaskRunAsync(TaskRun run)
+        private async Task HandleExternalTaskRunAsync(TaskRun run)
         {
             RunWaitingForResult = run;
-            if (RunWaitingForResult.TaskType == TaskType.UWP)
+            
+            // Navigate to result page
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                // Launch UWP for results using the PFN in saved in the testrun
-                RunWaitingForResult.TaskOutput.Add($"Preparing to launch {RunWaitingForResult.TaskPath} App");
-                var app = await GetAppByPackageFamilyNameAsync(RunWaitingForResult.TaskPath);
-
-                if (app != null)
-                {
-                    // Start taskRun
-                    RunWaitingForResult.TimeStarted = DateTime.Now;
-                    bool launched = false;
-
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        RunWaitingForResult.TaskOutput.Add($"Attempting to launch {app.ToString()}");
-
-                        launched = await app.LaunchAsync();
-
-                        if (launched)
-                        {
-                            RunWaitingForResult.TaskOutput.Add($"{app.DisplayInfo.DisplayName} was launched successfully");
-                            RunWaitingForResult.TaskStatus = TaskStatus.Running;
-
-                            if (RunWaitingForResult.Guid != uwpRunGuidFromAppsPage)
-                            {
-                                // Go to result entry page if this was a task, not an invocation from AppsPage
-                                ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
-                            }
-                            else
-                            {
-                                // Just report it as passed, dont show external result UI
-                                RunWaitingForResult.TaskStatus = TaskStatus.Passed;
-                                bool sent = false;
-                                while (!sent)
-                                {
-                                    try
-                                    {
-                                        await Client.UpdateTaskRun(RunWaitingForResult);
-                                        sent = true;
-                                    }
-                                    catch (FactoryOrchestratorConnectionException)
-                                    {
-                                        OnConnectionFailure();
-                                        while ((OnConnectionPage) || (!Client.IsConnected))
-                                        {
-                                            await Task.Delay(1000);
-                                        }
-                                    }
-                                    catch (FactoryOrchestratorException)
-                                    {
-                                        // Run is no longer valid or was completed ignore it
-                                        sent = true;
-                                    }
-                                }
-                                uwpRunGuidFromAppsPage = Guid.Empty;
-                            }
-                        }
-                        else
-                        {
-                            // Report failure to server
-                            RunWaitingForResult.TaskOutput.Add($"Error: {app.DisplayInfo.DisplayName} was unable to launch");
-                            ReportAppLaunchFailure();
-                        }
-                    });
-                }
-                else
-                {
-                    ReportAppLaunchFailure();
-                }
-            }
-            else // Not a UWP task, just an external task, launch the result page
-            {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
-                });
-            }
+                ((Frame)Window.Current.Content).Navigate(typeof(ExternalTestResultPage));
+            });
 
             // TODO: Performance: Use signaling
             // Block from handing a new system event until the current one is handled
             // This is set by ExternalTestResultPage
             while (!RunWaitingForResult.TaskRunComplete)
             {
-                await Task.Delay(2000);
+                    await Task.Delay(2000);
             }
 
             RunWaitingForResult = null;
         }
 
-        private async Task<AppListEntry> GetAppByPackageFamilyNameAsync(string packageFamilyName)
-        {
-            RunWaitingForResult.TaskOutput.Add($"Looking for installed package with Package Family Name {RunWaitingForResult.TaskPath}");
-
-            var pkgManager = new PackageManager();
-            var pkg = pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, packageFamilyName, PackageTypes.Main).FirstOrDefault();
-            if (pkg == null)
-            {
-                RunWaitingForResult.TaskOutput.Add($"Error: Could not find installed package with Package Family Name {RunWaitingForResult.TaskPath}");
-                return null;
-            }
-
-            var apps = await pkg.GetAppListEntriesAsync();
-            var appToLaunch = apps.FirstOrDefault();
-
-            if (appToLaunch != null)
-            {
-                RunWaitingForResult.TaskOutput.Add($"Found App entry {appToLaunch.DisplayInfo.DisplayName} for {RunWaitingForResult.TaskPath}");
-            }
-            else
-            {
-                RunWaitingForResult.TaskOutput.Add($"Error: {RunWaitingForResult.TaskPath} had no App entry!");
-            }
-
-            return appToLaunch;
-        }
-
-        private async void ReportAppLaunchFailure()
-        {
-            RunWaitingForResult.TaskOutput.Add($"Error: Failed to launch an app for Package Family Name {RunWaitingForResult.TaskPath}");
-            RunWaitingForResult.TimeFinished = DateTime.Now;
-            RunWaitingForResult.TaskStatus = TaskStatus.Failed;
-            RunWaitingForResult.ExitCode = -1;
-
-            bool sent = false;
-            while (!sent)
-            {
-                try
-                {
-                    await Client.UpdateTaskRun(RunWaitingForResult);
-                    sent = true;
-                }
-                catch (FactoryOrchestratorConnectionException)
-                {
-                    OnConnectionFailure();
-                    while ((OnConnectionPage) || (!Client.IsConnected))
-                    {
-                        await Task.Delay(1000);
-                    }
-                }
-                catch (FactoryOrchestratorException)
-                {
-                    // Run is no longer valid or was completed ignore it
-                    sent = true;
-                }
-            }
-        }
-
         public TaskRun RunWaitingForResult { get; private set; }
-        public Guid uwpRunGuidFromAppsPage { get; set; }
         public string MainPageLastNavTag { get; set; }
         public FactoryOrchestratorUWPClient Client { get; set; }
         public bool OnConnectionPage { get; set; }

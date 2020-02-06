@@ -1,5 +1,4 @@
 ﻿using Microsoft.FactoryOrchestrator.Core;
-using Microsoft.FactoryOrchestrator.Server;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -9,10 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using static Microsoft.FactoryOrchestrator.Server.HelperMethods;
+using System.Runtime.InteropServices;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
@@ -174,6 +174,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             lock (KnownTaskListLock)
             {
                 KnownTaskLists.Add(tests);
+                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.NewTaskList, tests.Guid, null));
             }
 
             // Update XML for state tracking (this locks KnownTaskListLock)
@@ -268,10 +269,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                         {
                             // todo: consider this an error?
                             KnownTaskLists[index] = list;
+                            OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.UpdatedTaskList, list.Guid, null));
                         }
                         else
                         {
                             KnownTaskLists.Add(list);
+                            OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.NewTaskList, list.Guid, null));
                         }
                     }
                 }
@@ -303,6 +306,8 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (removed)
             {
+                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.DeletedTaskList, listToDelete, null));
+
                 // Update XML for state tracking
                 SaveAllTaskListsToXmlFile(TaskListStateFile);
             }
@@ -381,6 +386,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 else
                 {
                     KnownTaskLists.Add(taskList);
+                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.NewTaskList, taskList.Guid, null));
                 }
             }
 
@@ -513,6 +519,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         else
                         {
                             KnownTaskLists[index] = taskList;
+                            OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.UpdatedTaskList, taskList.Guid, null));
                         }
                     }
                 }
@@ -677,6 +684,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (!token.IsCancellationRequested)
             {
+                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, TaskStatus.Running));
                 StartTaskRuns(item.TaskListGuid, item.BackgroundTaskRunGuids, item.TaskRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
 
                 // Tests are done! Update the tokens & locks
@@ -689,6 +697,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     _startNonParallelTaskRunLock.Release();
                 }
+
+                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, GetTaskList(item.TaskListGuid).TaskListStatus));
             }
 
             if (token.IsCancellationRequested)
@@ -715,7 +725,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 var taskRun = GetTaskRunByGuid(bgRunGuid);
                 var testToken = new CancellationTokenSource();
-                StartTest(taskRun, token, taskRunEventHandler, true);
+                StartTask(taskRun, token, taskRunEventHandler, true);
                 RunningBackgroundTasks[taskListGuid].Add(taskRun.GetOwningTaskRunner());
                 currentBgTasks.Add(taskRun);
             });
@@ -742,7 +752,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     {
                         var testToken = new CancellationTokenSource();
                         RunningTaskRunTokens.TryAdd(taskRun.Guid, testToken);
-                        StartTest(taskRun, testToken.Token, taskRunEventHandler, false);
+                        StartTask(taskRun, testToken.Token, taskRunEventHandler, false);
 
                         // Update saved state
                         SaveAllTaskListsToXmlFile(TaskListStateFile);
@@ -764,7 +774,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     {
                         var testToken = new CancellationTokenSource();
                         RunningTaskRunTokens.TryAdd(taskRun.Guid, testToken);
-                        StartTest(taskRun, token, taskRunEventHandler);
+                        StartTask(taskRun, token, taskRunEventHandler);
 
                         // Update saved state
                         SaveAllTaskListsToXmlFile(TaskListStateFile);
@@ -785,15 +795,20 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        private void StartTest(TaskRun_Server taskRun, CancellationToken token, TaskRunnerEventHandler taskRunEventHandler = null, bool backgroundTask = false)
+        private void StartTask(TaskRun_Server taskRun, CancellationToken token, TaskRunnerEventHandler taskRunEventHandler = null, bool backgroundTask = false)
         {
             if (!token.IsCancellationRequested)
             {
                 TaskRunner runner = null;
+                Timer externalTimeoutTimer = null;
+                bool waitingForResult = true;
+
+                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunStarted, taskRun.Guid, TaskStatus.RunPending));
 
                 if (taskRun.RunByServer)
                 {
                     runner = new TaskRunner(taskRun);
+                    waitingForResult = false;
 
                     if (taskRunEventHandler != null)
                     {
@@ -805,14 +820,66 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
-                    // Mark the run as started.
-                    taskRun.StartWaitingForExternalResult();
-
                     // Write log file. Unlike an executable Task, we must do this manually.
                     taskRun.WriteLogHeader();
 
-                    // Let the service know we are waiting for a result
-                    OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.WaitingForExternalTaskRunResult, taskRun.Guid));
+                    // Attempt to start the UWP app
+                    if ((taskRun.TaskType == TaskType.UWP) && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)))
+                    {
+                        HttpWebResponse response = null;
+                        bool restFailed = false;
+                        try
+                        {
+                            var s = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(taskRun.TaskPath));
+                            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://127.0.0.1/api/taskmanager/app?appid=" + s);
+                            request.Method = "POST";
+                            response = (HttpWebResponse)request.GetResponse();
+                        }
+                        catch (Exception)
+                        {
+                            restFailed = true;
+                        }
+
+                        if (restFailed || (response.StatusCode != HttpStatusCode.OK))
+                        {
+                            waitingForResult = false;
+                            taskRun.TaskOutput.Add($"Error: Failed to launch AUMID: {taskRun.TaskPath}");
+                            taskRun.TaskOutput.Add($"Error: Device Portal is required for app launch and may not be running on the system.");
+                            taskRun.TaskOutput.Add($"Error: If it is running, the AUMID may be incorrect.");
+                            taskRun.TaskStatus = TaskStatus.Failed;
+                            taskRun.ExitCode = -1;
+                            taskRun.TimeFinished = DateTime.Now;
+                            taskRun.WriteLogFooter();
+                        }
+                        else
+                        {
+                            taskRun.TaskOutput.Add($"Sucessfully launched app with AUMID: {taskRun.TaskPath}");
+                            if (taskRun.OwningTask == null)
+                            {
+                                // App was launched via RunApp(), and is not part of a Task. Complete it.
+                                waitingForResult = false;
+                                taskRun.TaskStatus = TaskStatus.Passed;
+                                taskRun.ExitCode = 0;
+                                taskRun.TimeFinished = DateTime.Now;
+                                taskRun.WriteLogFooter();
+                            }
+                        }
+                    }
+
+                    if (waitingForResult)
+                    {
+                        // Mark the run as started.
+                        taskRun.StartWaitingForExternalResult();
+
+                        // Let the service know we are waiting for a result
+                        OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunStarted, taskRun.Guid, TaskStatus.Running));
+
+                        // Start timeout timer
+                        if (taskRun.TimeoutSeconds > 0)
+                        {
+                            externalTimeoutTimer = new System.Threading.Timer(new TimerCallback(ExternalTaskRunTimeout), taskRun.Guid, taskRun.TimeoutSeconds * 1000, Timeout.Infinite);
+                        }
+                    }
                 }
 
                 // Wait for task to finish, timeout, or be aborted
@@ -835,30 +902,45 @@ namespace Microsoft.FactoryOrchestrator.Server
                     }
                     else
                     {
-                        // If external, mark as Aborted
-                        taskRun.TaskStatus = TaskStatus.Aborted;
-                        taskRun.ExitCode = -1;
+                        lock (taskRun.OwningTask.TaskLock)
+                        {
+                            if (!taskRun.TaskRunComplete)
+                            {
+                                // External, disable timeout, kill process, mark as Aborted
+                                if (externalTimeoutTimer != null)
+                                {
+                                    externalTimeoutTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                                }
+
+                                taskRun.TaskStatus = TaskStatus.Aborted;
+                                KillAppProcess(taskRun);
+                            }
+                        }
                     }
                 }
 
                 if (taskRun.RunByClient)
                 {
                     // Mark the run as finished.
-                    taskRun.EndWaitingForExternalResult();
+                    taskRun.EndWaitingForExternalResult(waitingForResult);
+
+                    // Exit the app (if needed)
+                    if (waitingForResult)
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
+                        {
+                            taskRun.TaskOutput.Add($"Terminated app: {taskRun.TaskPath}");
+                        }
+                    }
 
                     // Write log file. Unlike an executable Task, we must do this manually.
                     taskRun.WriteLogFooter();
 
                     // Let the service know we got a result
-                    if (token.IsCancellationRequested)
-                    {
-                        OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTaskRunAborted, taskRun.Guid));
-                    }
-                    else
-                    {
-                        OnTestManagerEvent?.Invoke(this, new TestManagerEventArgs(TestManagerEventType.ExternalTaskRunFinished, taskRun.Guid));
-                    }
+                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunFinished, taskRun.Guid, taskRun.TaskStatus));
                 }
+
+                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunFinished, taskRun.Guid, taskRun.TaskStatus));
 
                 if ((!token.IsCancellationRequested) && (taskRun.OwningTask != null) && (taskRun.TaskStatus != TaskStatus.Passed) && (!backgroundTask))
                 {
@@ -869,7 +951,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         // Re-run the task under a new TaskRun
                         var newRun = CreateTaskRunForTask(taskRun.OwningTask, LogFolder);
                         taskRun.OwningTask.TimesRetried++;
-                        StartTest(newRun, token, taskRunEventHandler);
+                        StartTask(newRun, token, taskRunEventHandler);
                     }
                     else if (taskRun.OwningTask.AbortTaskListOnFailed)
                     {
@@ -879,9 +961,81 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
+                 taskRun.ExitCode = -1;
                  taskRun.TaskStatus = TaskStatus.Aborted;
                  taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
             }
+        }
+
+        private void ExternalTaskRunTimeout(object state)
+        {
+            // Kill process, mark as timeout
+            TaskRun_Server run = GetTaskRunByGuid((Guid)state);
+
+            lock (run.OwningTask.TaskLock)
+            {
+                if (!run.TaskRunComplete)
+                {
+                    KillAppProcess(run);
+
+                    run.ExitCode = -1;
+                    run.TaskStatus = TaskStatus.Timeout;
+                }
+            }
+        }
+
+        private bool KillAppProcess(TaskRun_Server run)
+        {
+            // Use WDP to find the app package full name
+            string appFullName = "";
+            try
+            {
+                var response = Impersonation.WdpHttpClient.GetAsync(new Uri("http://127.0.0.1/api/app/packagemanager/packages")).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return false;
+                }
+
+                List<string> aumids = new List<string>();
+                var output = response.Content.ReadAsStringAsync().Result;
+                var matches = Regex.Matches(output, "\"PackageFullName\" : \"(.+?)\".+?\"PackageRelativeId\" : \"(.+?)\"");
+                foreach (Match match in matches)
+                {
+                    if (match.Groups[2].Value.Equals(run.TaskPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        appFullName = match.Groups[1].Value;
+                        break;
+                    }
+                }
+            }
+            catch (Exception)
+            { } // Igore WDP errors
+
+            if (String.IsNullOrWhiteSpace(appFullName))
+            {
+                return false;
+            }
+
+            // If the name is found, look for it in the path of all running processes
+            var processes = Process.GetProcesses();
+            foreach (var process in processes)
+            {
+                try
+                {
+                    if (process.MainModule.FileName.ToLowerInvariant().Contains(appFullName.ToLowerInvariant()))
+                    {
+                        // app package full name is in the process path, kill the process and return
+                        process.Kill();
+                        return true;
+                    }
+                }
+                // We might not have permissions for every process
+                catch (Exception)
+                { }
+            }
+
+            return false;
         }
 
         public void AbortAll()
@@ -968,7 +1122,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             var run = CreateTaskRunWithoutTask(exeFilePath, arguments, logFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
             var token = new CancellationTokenSource();
-            StartTest(run, token.Token);
+            StartTask(run, token.Token);
 
             RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
 
@@ -1041,13 +1195,13 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             if (run.BackgroundTask)
             {
-                StartTest(run, token.Token);
+                StartTask(run, token.Token);
                 RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
             }
             else
             {
                 RunningTaskRunTokens.TryAdd(run.Guid, token);
-                Task t = new Task(() => { StartTest(run, token.Token); });
+                Task t = new Task(() => { StartTask(run, token.Token); });
                 t.Start();
             }
 
@@ -1070,7 +1224,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             var run = CreateTaskRunWithoutTask(packageFamilyName, null, null, TaskType.UWP);
             var token = new CancellationTokenSource();
             RunningTaskRunTokens.TryAdd(run.Guid, token);
-            Task t = new Task(() => { StartTest(run, token.Token); });
+            Task t = new Task(() => { StartTask(run, token.Token); });
             t.Start();
 
             return run;
@@ -1418,36 +1572,36 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        public event TestManagerEventHandler OnTestManagerEvent;
+        public event TaskManagerEventHandler OnTaskManagerEvent;
     }
 
-    public delegate void TestManagerEventHandler(object source, TestManagerEventArgs e);
+    public delegate void TaskManagerEventHandler(object source, TaskManagerEventArgs e);
 
-    public enum TestManagerEventType
+    public enum TaskManagerEventType
     {
         NewTaskList,
         UpdatedTaskList,
         DeletedTaskList,
-        TaskListRunStarted,
-        TaskListRunEnded,
-        WaitingForExternalTaskRunResult,
-        ExternalTaskRunFinished,
-        ExternalTaskRunAborted,
-        ExternalTaskRunTimeout,
-        StandaloneTestStarted,
-        StandaloneTestFinished
+        TaskListStarted,
+        TaskListFinished,
+        WaitingForExternalTaskRunStarted,
+        WaitingForExternalTaskRunFinished,
+        TaskRunStarted,
+        TaskRunFinished
     }
 
-    public class TestManagerEventArgs : EventArgs
+    public class TaskManagerEventArgs : EventArgs
     {
-        public TestManagerEventArgs(TestManagerEventType eventType, Guid? guid)
+        public TaskManagerEventArgs(TaskManagerEventType eventType, Guid? guid, TaskStatus? status)
         {
             Event = eventType;
             Guid = guid;
+            Status = status;
         }
 
-        public TestManagerEventType Event { get; }
+        public TaskManagerEventType Event { get; }
         public Guid? Guid { get; }
+        public TaskStatus? Status { get; }
     }
 
     public delegate void TaskRunnerEventHandler(object source, TaskRunnerEventArgs e);
@@ -1635,7 +1789,6 @@ namespace Microsoft.FactoryOrchestrator.Server
                 TaskProcess.Start();
                 IsRunning = true;
             }
-
             catch (Exception e)
             {
                 // Process failed to start. Log the failure.
@@ -1802,36 +1955,38 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             lock (runnerStateLock)
             {
-                // See if you get lucky and the task finishes on its own???
-                if (!TaskProcess.WaitForExit(500))
+                TaskAborted = true;
+                try
                 {
-                    TaskAborted = true;
                     TaskProcess.Kill();
-                    // Wait ten seconds for OnExited to fire
-                    for (int i = 0; i < 100; i++)
-                    {
-                        if (IsRunning)
-                        {
-                            Thread.Sleep(100);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                }
+                catch (Exception)
+                {
+                    // Process likely exited already, just continue
+                }
 
+                // Wait ten seconds for OnExited to fire
+                for (int i = 0; i < 100; i++)
+                {
                     if (IsRunning)
                     {
-                        return false;
+                        Thread.Sleep(100);
                     }
                     else
                     {
-                        return true;
+                        break;
                     }
                 }
-            }
 
-            return true;
+                if (IsRunning)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
         }
 
         public bool WaitForExit()
@@ -2025,9 +2180,14 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// <summary>
         /// Marks an external TaskRun as completed.
         /// </summary>
-        public void EndWaitingForExternalResult()
+        public void EndWaitingForExternalResult(bool waitForResult)
         {
             TimeFinished = DateTime.Now;
+            if (waitForResult)
+            {
+                TaskOutput.Add($"A FactoryOrchestratorClient completed the TaskRun with Status: {TaskStatus}, Exit code: {ExitCode}");
+            }
+
             UpdateOwningTaskFromTaskRun();
         }
 

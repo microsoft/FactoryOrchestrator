@@ -4,7 +4,6 @@ using PeterKottas.DotNetCore.WindowsService;
 using JKang.IpcServiceFramework;
 using System.Net;
 using System.Threading.Tasks;
-using JKang.IpcServiceFramework.Services;
 using System.Collections.Generic;
 using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System;
@@ -13,13 +12,17 @@ using Microsoft.FactoryOrchestrator.Server;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Win32;
-using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using Windows.Management.Deployment;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using JKang.IpcServiceFramework.Tcp;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Security.Principal;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -627,6 +630,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
+
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new FactoryOrchestratorException("RunApp is only supported on Windows!");
+                }
+
                 var run = FOService.Instance.TestExecutionManager.RunApp(packageFamilyName);
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
                 return run;
@@ -775,17 +784,98 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public void InstallApp(string appPackagePath, List<string> dependentPackages = null, string certificateFile = null)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: InstallApp {appPackagePath}");
+
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new FactoryOrchestratorException("InstallApp is only supported on Windows!");
+                }
+
+                // Validate args
+                if (!File.Exists(appPackagePath))
+                {
+                    throw new FileNotFoundException($"{appPackagePath} does not exist!");
+                }
+
+                if ((certificateFile != null) && (!File.Exists(certificateFile)))
+                {
+                    throw new FileNotFoundException($"{certificateFile} does not exist!");
+                }
+
+                List<Uri> dependentPackagesUris = new List<Uri>();
+                if (dependentPackages != null)
+                {
+                    foreach (var dep in dependentPackages)
+                    {
+                        if (!File.Exists(dep))
+                        {
+                            throw new FileNotFoundException($"{dep} does not exist!");
+                        }
+
+                        dependentPackagesUris.Add(new Uri(dep));
+                    }
+                }
+
+                Impersonation.RunActionImpersonated(() =>
+                {
+                    // Install certificate
+                    var trustedPeople = new X509Store(StoreName.TrustedPeople, StoreLocation.CurrentUser);
+                    trustedPeople.Open(OpenFlags.ReadWrite);
+                    trustedPeople.Add(new X509Certificate2(X509Certificate2.CreateFromCertFile(certificateFile)));
+                    trustedPeople.Close();
+
+                    // Install package
+                    var pkgManager = new PackageManager();
+                    var result = pkgManager.AddPackageAsync(new Uri(appPackagePath), dependentPackagesUris, DeploymentOptions.None).AsTask().Result;
+
+                    if (!result.IsRegistered)
+                    {
+                        throw new FactoryOrchestratorException($"Unable to install app {appPackagePath}!", null, new Exception($"Failed with {result.ExtendedErrorCode}: {result.ErrorText}"));
+                    }
+                });
+
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: InstallApp {appPackagePath}");
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
         public List<string> GetInstalledApps()
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
-                var pkgManager = new PackageManager();
-                // TODO: Bug: This should really check packages for the signed in user
-                var packages = pkgManager.FindPackagesWithPackageTypes(PackageTypes.Main).ToList();
-                var pfns = packages.Select(x => x.Id.FamilyName).ToList();
+
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new FactoryOrchestratorException("GetInstalledApps is only supported on Windows!");
+                }
+
+                // Get installed packages on the system
+                var response = Impersonation.WdpHttpClient.GetAsync(new Uri("http://127.0.0.1/api/app/packagemanager/packages")).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new InvalidOperationException("Windows Device Portal must be running to call GetInstalledApps!");
+                }
+
+                List<string> aumids = new List<string>();
+                var output = response.Content.ReadAsStringAsync().Result;
+                var matches = Regex.Matches(output, "\"PackageRelativeId\" : \"(.+?)\"");
+                foreach (Match match in matches)
+                {
+                    aumids.Add(match.Groups[1].Value);
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
-                return pfns;
+                return aumids;
             }
             catch (Exception e)
             {
@@ -1024,7 +1114,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
-            _taskExecutionManager.OnTestManagerEvent += HandleTestManagerEvent;
+            _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
             ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
@@ -1115,22 +1205,16 @@ namespace Microsoft.FactoryOrchestrator.Service
             ServiceLogger.LogInformation("Factory Orchestrator Service Stopped.\n");
         }
 
-        private void HandleTestManagerEvent(object source, TestManagerEventArgs e)
+        private void HandleTaskManagerEvent(object source, TaskManagerEventArgs e)
         {
             ServiceEvent serviceEvent = null;
             switch (e.Event)
             {
-                case TestManagerEventType.WaitingForExternalTaskRunResult:
+                case TaskManagerEventType.WaitingForExternalTaskRunStarted:
                     serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on an external result.");
                     break;
-                case TestManagerEventType.ExternalTaskRunFinished:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} received a result and is finished.");
-                    break;
-                case TestManagerEventType.ExternalTaskRunAborted:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} was aborted by the user.");
-                    break;
-                case TestManagerEventType.ExternalTaskRunTimeout:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} timed-out and is failed.");
+                case TaskManagerEventType.WaitingForExternalTaskRunFinished:
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} received a {e.Status} result and is finished.");
                     break;
                 default:
                     break;

@@ -14,6 +14,10 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.ApplicationModel.Core;
+using System.Threading.Tasks;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using Windows.Devices.PointOfService;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -32,12 +36,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Client = ((App)Application.Current).Client;
+
             // Get TaskRun we are reporting results for
             taskRun = ((App)Application.Current).RunWaitingForResult;
 
             taskRunPoller = new ServerPoller(taskRun.Guid, typeof(TaskRun), 1000);
             taskRunPoller.OnUpdatedObject += OnUpdatedRun;
-            taskRunPoller.OnException += ((App)Application.Current).OnServerPollerException;
+            taskRunPoller.OnException += TaskRunPoller_OnException;
+            taskRunPoller.StartPolling(Client);
 
             // Append task details to UI
             TestText.Text += taskRun.TaskName;
@@ -51,6 +58,25 @@ namespace Microsoft.FactoryOrchestrator.UWP
             TaskRunText.Text += taskRun.Guid.ToString();
 
             base.OnNavigatedTo(e);
+        }
+
+        private void TaskRunPoller_OnException(object source, ServerPollerExceptionHandlerArgs e)
+        {
+            if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
+            {
+                // Run no longer valid, mark as aborted
+                taskRun.TaskStatus = TaskStatus.Aborted;
+
+                _ = CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    ExitPage();
+                });
+            }
+            else
+            {
+                // Call global error handler
+                ((App)Application.Current).OnServerPollerException(source, e);
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -78,7 +104,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (taskRun.TaskRunComplete)
                     {
-                        ExitPage();
+                        _ = CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                            {
+                                ExitPage();
+                            });
                     }
                 }
             }
@@ -116,10 +145,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 taskRun.TaskStatus = result;
                 if (!String.IsNullOrWhiteSpace(CommentBox.Text))
                 {
+                    taskRun.TaskOutput.Add("------- Start Comments -------");
                     foreach (var line in CommentBox.Text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
                     {
                         taskRun.TaskOutput.Add(line);
                     }
+                    taskRun.TaskOutput.Add("------- End Comments -------");
                 }
 
                 if (result != TaskStatus.Aborted)
@@ -131,16 +162,41 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     // Set the exit code
                     taskRun.ExitCode = result == (TaskStatus.Passed) ? 0 : -1;
                 }
+
             }
 
             // Report selected result to server
-            await Client.UpdateTaskRun(taskRun);
+            bool updated = false;
+            while (!updated)
+            {
+                try
+                {
+                    await Client.UpdateTaskRun(taskRun);
+                    updated = true;
+                }
+                catch (FactoryOrchestratorUnkownGuidException)
+                {
+                    // Run no longer valid, mark as aborted
+                    taskRun.TaskStatus = TaskStatus.Aborted;
+                }
+                catch (FactoryOrchestratorConnectionException)
+                {
+                    ((App)Application.Current).OnConnectionFailure();
+                    while ((((App)Application.Current).OnConnectionPage) || (!Client.IsConnected))
+                    {
+                        await Task.Delay(1000);
+                    }
+                }
+            }
 
             ExitPage();
         }
 
         private void ExitPage()
-        {
+        {   
+            // Update App task, so the ServiceEvent code knows we finished
+            ((App)Application.Current).RunWaitingForResult.TaskStatus = taskRun.TaskStatus;
+
             if (this.Frame.CanGoBack)
             {
                 // Return to last page

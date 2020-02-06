@@ -278,10 +278,18 @@ namespace Microsoft.FactoryOrchestrator.Core
         TaskBase QueryTask(Guid guid);
 
         /// <summary>
-        /// Gets the Package Family Name of all installed apps on the OS.
+        /// Gets the AUMIDs of all installed apps on the OS.
         /// </summary>
-        /// <returns>The list of app PFNs.</returns>
+        /// <returns>The list of app AUMIDs.</returns>
         List<string> GetInstalledApps();
+
+        /// <summary>
+        /// Installs an app on the Service's computer.
+        /// </summary>
+        /// <param name="appPackagePath">Path on the Service's computer to the app package (.appx, .appxbundle, .msix, .msixbundle).</param>
+        /// <param name="dependentPackages">List of paths on the Service's computer to the app's dependent packages.</param>
+        /// <param name="certificateFile">Path on the Service's computer to the app's certificate file, if needed. Microsoft Store signed apps do not need a certificate.</param>
+        void InstallApp(string appPackagePath, List<string> dependentPackages = null, string certificateFile = null);
 
         // Task Execution APIs
         /// <summary>

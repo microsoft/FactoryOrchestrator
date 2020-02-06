@@ -11,6 +11,9 @@
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
   </ItemGroup>
 

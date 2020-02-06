@@ -25,6 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.18362.2005" />
     <PackageReference Include="PeterKottas.DotNetCore.WindowsService" Version="2.0.11" />
   </ItemGroup>
 
@@ -32,14 +33,6 @@
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
     <ProjectReference Include="..\IpcFramework\IpcServiceFramework.Server\IpcServiceFramework.Server.csproj" />
     <ProjectReference Include="..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Windows.Foundation.UniversalApiContract">
-      <HintPath Condition="'$(XES_OUTDIR)' == ''">$(ProgramFiles)\Windows Kits\10\References\10.0.17763.0\Windows.Foundation.UniversalApiContract\7.0.0.0\Windows.Foundation.UniversalApiContract.winmd</HintPath>
-      <HintPath Condition="'$(XES_OUTDIR)' != ''">c:\Program Files (x86)\Windows Kits\10\References\10.0.17763.0\Windows.Foundation.UniversalApiContract\7.0.0.0\Windows.Foundation.UniversalApiContract.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

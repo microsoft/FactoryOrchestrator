@@ -25,7 +25,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             // Get installed UWPs
-            var pkgManager = new PackageManager();
             PackageStrings = await Client.GetInstalledApps();
             PackageList.ItemsSource = PackageStrings;
             base.OnNavigatedTo(e);
@@ -33,7 +32,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void PackageList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            ((App)Application.Current).uwpRunGuidFromAppsPage = (await Client.RunApp((string)e.ClickedItem)).Guid;
+            await Client.RunApp((string)e.ClickedItem);
         }
 
         public List<string> PackageStrings { get; private set; }
