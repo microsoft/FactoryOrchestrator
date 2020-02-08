@@ -429,7 +429,7 @@ steps:
     binVersion: Custom
     binVersionOverride: 'Production'
   condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), ne(variables['skipvpack'], 'true')))
-  enabled: true
+  enabled: false
 
 - task: PkgESLateTasks@10
   displayName: 'PkgES Finalize and Cleanup'
