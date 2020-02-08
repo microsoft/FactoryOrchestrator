@@ -115,7 +115,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
 
                 }
-                catch (FactoryOrchestratorException ex)
+                catch (Exception ex)
                 {
                     if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
                     {
@@ -232,7 +232,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         await Client.SaveTaskListToXmlFile(_activeGuid, savePath);
                     }
                 }
-                catch (FactoryOrchestratorException ex)
+                catch (Exception ex)
                 {
                     if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
                     {

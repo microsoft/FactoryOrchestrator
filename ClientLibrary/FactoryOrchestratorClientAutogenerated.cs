@@ -689,9 +689,9 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Runs a UWP app outside of a Task/TaskList.
         /// </summary>
-        /// <param name="packageFamilyName">The Package Family Name of the app to run.</param>
+        /// <param name="aumid">The Application User Model ID (AUMID) of the app to run.</param>
         /// <returns></returns>
-        public async Task<TaskRun> RunApp(string packageFamilyName)
+        public async Task<TaskRun> RunApp(string aumid)
         {
             if (!IsConnected)
             {
@@ -700,7 +700,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                return await _IpcClient.InvokeAsync(x => x.RunApp(packageFamilyName));
+                return await _IpcClient.InvokeAsync(x => x.RunApp(aumid));
             }
             catch (Exception ex)
             {

@@ -45,7 +45,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeList = new TaskList("New TaskList", Guid.NewGuid());
             }
 
-            AppComboBox.ItemsSource = await Client.GetInstalledApps();
+            try
+            {
+                AppComboBox.ItemsSource = await Client.GetInstalledApps();
+            }
+            catch (Exception)
+            {
+                // WDP might not be running, just dont put any apps in the list
+                AppComboBox.ItemsSource = new List<string>();
+            }
+
             ParallelCheck.IsChecked = activeList.RunInParallel;
             BlockingCheck.IsChecked = activeList.AllowOtherTaskListsToRun;
             TerminateCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
@@ -342,7 +351,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                         if (AppComboBox.SelectedIndex == -1)
                         {
-                            var itemlist = await Client.GetInstalledApps();
+                            List<string> itemlist;
+                            try
+                            {
+                                itemlist = await Client.GetInstalledApps();
+                            }
+                            catch (Exception)
+                            {
+                                // WDP might not be running, just dont put any apps in the list
+                                itemlist = new List<string>();
+                            }
+
                             if (!itemlist.Contains(uwpTest.Path))
                             {
                                 itemlist.Add(uwpTest.Path);
@@ -588,7 +607,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 return true;
             }
-            catch (FactoryOrchestratorException ex)
+            catch (Exception ex)
             {
                 if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
                 {

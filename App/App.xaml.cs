@@ -152,7 +152,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                     else
                     {
-                        await Task.Delay(500);
+                        await Task.Delay(100);
                     }
                 }
 

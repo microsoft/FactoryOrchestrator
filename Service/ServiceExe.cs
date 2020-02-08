@@ -163,7 +163,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path} {recursive}");
+
+                path = Environment.ExpandEnvironmentVariables(path);
                 TaskList tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, recursive);
+
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path} {recursive}");
                 return tl;
             }
@@ -179,7 +182,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
+
+                filename = Environment.ExpandEnvironmentVariables(filename);
                 List<Guid> taskLists = FOService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
+
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
                 return taskLists;
             }
@@ -211,7 +217,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
+
+                filename = Environment.ExpandEnvironmentVariables(filename);
                 FOService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
+
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
             }
             catch (Exception e)
@@ -226,10 +235,13 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
+
+                filename = Environment.ExpandEnvironmentVariables(filename);
                 if (!FOService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename))
                 {
                     throw new FactoryOrchestratorException("No TaskLists to save!");
                 }
+
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
             }
             catch (Exception e)
@@ -397,6 +409,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
+                teExePath = Environment.ExpandEnvironmentVariables(teExePath);
                 TaskRunner.GlobalTeExePath = teExePath;
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
             }
@@ -428,6 +441,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+
+                logFolder = Environment.ExpandEnvironmentVariables(logFolder);
                 FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
 
                 // Set new value in registry
@@ -625,19 +640,19 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskRun RunApp(string packageFamilyName)
+        public TaskRun RunApp(string aumid)
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {packageFamilyName}");
+                FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {aumid}");
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     throw new FactoryOrchestratorException("RunApp is only supported on Windows!");
                 }
 
-                var run = FOService.Instance.TestExecutionManager.RunApp(packageFamilyName);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {packageFamilyName}");
+                var run = FOService.Instance.TestExecutionManager.RunApp(aumid);
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {aumid}");
                 return run;
             }
             catch (Exception e)
@@ -654,6 +669,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 byte[] bytes = null;
                 FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
 
+                sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
                 if (!File.Exists(sourceFilename))
                 {
                     throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
@@ -680,6 +696,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 try
                 {
+                    targetFilename = Environment.ExpandEnvironmentVariables(targetFilename);
                     // Create target folder, if needed.
                     Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
                     File.WriteAllBytes(targetFilename, fileData);
@@ -703,6 +720,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteFileOrFolder {path}");
+                
+                path = Environment.ExpandEnvironmentVariables(path);
                 if (File.Exists(path))
                 {
                     File.Delete(path);
@@ -715,6 +734,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     throw new ArgumentException($"{path} is not a valid file or folder!");
                 }
+
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
             }
             catch (Exception e)
@@ -730,6 +750,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: MoveFileOrFolder {sourcePath} {destinationPath}");
 
+                sourcePath = Environment.ExpandEnvironmentVariables(sourcePath);
+                destinationPath = Environment.ExpandEnvironmentVariables(destinationPath);
                 if (File.Exists(sourcePath))
                 {
                     File.Move(sourcePath, destinationPath);
@@ -757,6 +779,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateDirectories {path}");
+                path = Environment.ExpandEnvironmentVariables(path);
                 var dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateDirectories {path}");
                 return dirs;
@@ -773,6 +796,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateFiles {path} {recursive}");
+                path = Environment.ExpandEnvironmentVariables(path);
                 var files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateFiles {path} {recursive}");
                 return files;
@@ -795,6 +819,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException("InstallApp is only supported on Windows!");
                 }
 
+                // Expand any vars
+                appPackagePath = Environment.ExpandEnvironmentVariables(appPackagePath);
+                certificateFile = Environment.ExpandEnvironmentVariables(certificateFile);
+
                 // Validate args
                 if (!File.Exists(appPackagePath))
                 {
@@ -809,8 +837,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 List<Uri> dependentPackagesUris = new List<Uri>();
                 if (dependentPackages != null)
                 {
-                    foreach (var dep in dependentPackages)
+                    for (int i = 0; i < dependentPackages.Count; i++)
                     {
+                        var dep = Environment.ExpandEnvironmentVariables(dependentPackages[i]);
                         if (!File.Exists(dep))
                         {
                             throw new FileNotFoundException($"{dep} does not exist!");

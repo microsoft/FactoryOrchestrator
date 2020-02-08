@@ -90,6 +90,8 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
+                clientFilename = Environment.ExpandEnvironmentVariables(clientFilename);
+
                 if (!File.Exists(clientFilename))
                 {
                     throw new FileNotFoundException($"{clientFilename} does not exist!");
@@ -119,6 +121,8 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
+                clientFilename = Environment.ExpandEnvironmentVariables(clientFilename);
+
                 // Create target folder, if needed.
                 Directory.CreateDirectory(Path.GetDirectoryName(clientFilename));
 
@@ -149,6 +153,8 @@ namespace Microsoft.FactoryOrchestrator.Client
                 var files = await _IpcClient.InvokeAsync(x => x.EnumerateFiles(serverDirectory, false));
                 var dirs = await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(serverDirectory, false));
                 long bytesReceived = 0;
+
+                clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
                 if (!Directory.Exists(clientDirectory))
                 {
                     Directory.CreateDirectory(clientDirectory);
@@ -194,6 +200,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
+                clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
                 if (!Directory.Exists(clientDirectory))
                 {
                     throw new DirectoryNotFoundException($"{clientDirectory} does not exist!");

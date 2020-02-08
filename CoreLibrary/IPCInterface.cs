@@ -330,9 +330,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// Runs a UWP app outside of a Task/TaskList.
         /// </summary>
-        /// <param name="packageFamilyName">The Package Family Name of the app to run.</param>
+        /// <param name="aumid">The Application User Model ID (AUMID) of the app to run.</param>
         /// <returns></returns>
-        TaskRun RunApp(string packageFamilyName);
+        TaskRun RunApp(string aumid);
         /// <summary>
         /// Runs a Task outside of a TaskList.
         /// </summary>

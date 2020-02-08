@@ -1,4 +1,5 @@
 ﻿using Microsoft.FactoryOrchestrator.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel;
@@ -25,8 +26,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             // Get installed UWPs
-            PackageStrings = await Client.GetInstalledApps();
-            PackageList.ItemsSource = PackageStrings;
+            try
+            {
+                PackageStrings = await Client.GetInstalledApps();
+                PackageList.ItemsSource = PackageStrings;
+            }
+            catch (Exception ex)
+            {
+                ContentDialog failedAppsDialog = new ContentDialog
+                {
+                    Title = "Failed to query apps",
+                    Content = ex.Message,
+                    CloseButtonText = "Ok"
+                };
+
+                ContentDialogResult result = await failedAppsDialog.ShowAsync();
+            }
+
             base.OnNavigatedTo(e);
         }
 
