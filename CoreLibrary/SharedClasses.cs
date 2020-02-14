@@ -1517,7 +1517,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 TaskName = owningTask.Name;
                 TaskType = owningTask.Type;
                 TimeoutSeconds = owningTask.TimeoutSeconds;
-                if (TaskType == TaskType.ConsoleExe)
+                if (owningTask as ExecutableTask != null)
                 {
                     BackgroundTask = ((ExecutableTask)owningTask).BackgroundTask;
                 }
@@ -1987,7 +1987,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 foreach (var bgtask in list.BackgroundTasks)
                 {
                     // Validate background tasks meet requirements
-                    if ((bgtask.Type != TaskType.ConsoleExe) && (bgtask.Type != TaskType.PowerShell) && (bgtask.Type != TaskType.BatchFile))
+                    if ((bgtask as ExecutableTask) == null)
                     {
                         throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTask, PowerShellTask, or BatchFileTask!");
                     }
