@@ -57,7 +57,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             ParallelCheck.IsChecked = activeList.RunInParallel;
             BlockingCheck.IsChecked = activeList.AllowOtherTaskListsToRun;
-            TerminateCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
+            TerminateBgTasksCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
             UpdateHeader();
 
             TasksCollection = new ObservableCollection<TaskBase>(activeList.Tasks);
@@ -210,7 +210,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
 
-            activeTask.Name = TestNameBox.Text;
+            if (!String.IsNullOrWhiteSpace(TestNameBox.Text))
+            {
+                activeTask.Name = TestNameBox.Text;
+            }
 
             if (TimeoutBox.Text != "")
             {
@@ -259,6 +262,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     var uwpTask = activeTask as UWPTask;
                     uwpTask.Path = AppComboBox.SelectedItem.ToString();
                     uwpTask.Arguments = ArgumentsBox.Text;
+                    uwpTask.AutoPassedIfLaunched = (bool)AutoPassCheck.IsChecked;
+                    uwpTask.TerminateOnCompleted = (bool)TerminateOnCompleteCheck.IsChecked;
                     break;
             }
 
@@ -325,6 +330,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void AutoPassCheck_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)AutoPassCheck.IsChecked)
+            {
+                TerminateOnCompleteCheck.IsEnabled = false;
+            }
+            else
+            {
+                TerminateOnCompleteCheck.IsEnabled = true;
+            }
+        }
+
         private async void ConfigureFlyout(TaskType testType, bool editingBgTask = false)
         {
             activeTaskType = testType;
@@ -346,8 +363,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         BgTaskBox.IsChecked = exeTest.BackgroundTask;
                         break;
                     case TaskType.UWP:
-                        var uwpTest = activeTask as UWPTask;
-                        AppComboBox.SelectedItem = uwpTest.Path;
+                        var uwpTask = activeTask as UWPTask;
+                        AppComboBox.SelectedItem = uwpTask.Path;
 
                         if (AppComboBox.SelectedIndex == -1)
                         {
@@ -362,14 +379,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                 itemlist = new List<string>();
                             }
 
-                            if (!itemlist.Contains(uwpTest.Path))
+                            if (!itemlist.Contains(uwpTask.Path))
                             {
-                                itemlist.Add(uwpTest.Path);
+                                itemlist.Add(uwpTask.Path);
                             }
 
                             AppComboBox.ItemsSource = itemlist;
-                            AppComboBox.SelectedItem = uwpTest.Path;
+                            AppComboBox.SelectedItem = uwpTask.Path;
                         }
+                        AutoPassCheck.IsChecked = uwpTask.AutoPassedIfLaunched;
+                        TerminateOnCompleteCheck.IsChecked = uwpTask.TerminateOnCompleted;
+                        // Disable Terminate box if needed
+                        AutoPassCheck_Click(null, null);
 
                         EditFlyoutTextHeader.Text = $"Editing UWP Task";
                         break;
@@ -410,6 +431,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         break;
                     case TaskType.UWP:
                         EditFlyoutTextHeader.Text = $"New UWP Task";
+                        AutoPassCheck.IsChecked = false;
+                        TerminateOnCompleteCheck.IsChecked = true;
+                        // Enable Terminate box if needed
+                        AutoPassCheck_Click(null, null);
                         break;
                     case TaskType.External:
                         EditFlyoutTextHeader.Text = $"New External Task";
@@ -446,6 +471,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Visible;
+                    AutoPassCheck.Visibility = Visibility.Collapsed;
+                    TerminateOnCompleteCheck.Visibility = Visibility.Collapsed;
                     break;
                 case TaskType.External:
                 case TaskType.TAEFDll:
@@ -457,6 +484,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Collapsed;
+                    AutoPassCheck.Visibility = Visibility.Collapsed;
+                    TerminateOnCompleteCheck.Visibility = Visibility.Collapsed;
                     break;
                 case TaskType.UWP:
                     PathBlock.Visibility = Visibility.Collapsed;
@@ -467,6 +496,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Collapsed;
+                    AutoPassCheck.Visibility = Visibility.Visible;
+                    TerminateOnCompleteCheck.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -641,7 +672,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             activeList.AllowOtherTaskListsToRun = (bool)BlockingCheck.IsChecked;
             activeList.RunInParallel = (bool)ParallelCheck.IsChecked;
-            activeList.TerminateBackgroundTasksOnCompletion = (bool)TerminateCheck.IsChecked;
+            activeList.TerminateBackgroundTasksOnCompletion = (bool)TerminateBgTasksCheck.IsChecked;
             listEdited = true;
         }
 

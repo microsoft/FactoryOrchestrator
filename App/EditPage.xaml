@@ -21,6 +21,8 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -39,9 +41,11 @@
                 <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged"/>
                 <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" Text="Maximum number of retries:" Padding="5"/>
                 <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="400" TextChanged="RetryBox_TextChanged"/>
-                <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" Content="Abort TaskList on Task failure?" IsChecked="False" IsThreeState="False" Padding="5"/>
-                <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="BgTaskBox" Content="Add as Background Task?" IsChecked="False" IsThreeState="False" Padding="5" Click="BgTaskBox_Click"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.ColumnSpan="2" >
+                <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AutoPassCheck" Content="Auto Pass App on Launch?" IsChecked="False" Visibility="Collapsed" IsThreeState="False" Padding="5" Click="AutoPassCheck_Click"/>
+                <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TerminateOnCompleteCheck" Content="Terminate App on Completion?" IsChecked="True" Visibility="Collapsed" IsThreeState="False" Padding="5"/>
+                <CheckBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" Content="Abort TaskList on Task failure?" IsChecked="False" IsThreeState="False" Padding="5"/>
+                <CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" x:Name="BgTaskBox" Content="Add as Background Task?" IsChecked="False" IsThreeState="False" Padding="5" Click="BgTaskBox_Click"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2" >
                     <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
                         <SymbolIcon Symbol="Cancel"/>
                     </Button>
@@ -96,7 +100,7 @@
             <TextBlock x:Name="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}" Text="TaskList Options:"/>
             <CheckBox x:Name="ParallelCheck" Content="Run Tasks in Parallel?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
             <CheckBox x:Name="BlockingCheck" Content="Allow Other TaskLists to Run?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
-            <CheckBox x:Name="TerminateCheck" Content="Terminate Background Tasks on Completion?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
+            <CheckBox x:Name="TerminateBgTasksCheck" Content="Terminate Background Tasks on Completion?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">

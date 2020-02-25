@@ -802,6 +802,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 TaskRunner runner = null;
                 Timer externalTimeoutTimer = null;
                 bool waitingForResult = true;
+                var UWPTask = taskRun.OwningTask as UWPTask;
 
                 OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunStarted, taskRun.Guid, TaskStatus.RunPending));
 
@@ -871,13 +872,21 @@ namespace Microsoft.FactoryOrchestrator.Server
                         // Mark the run as started.
                         taskRun.StartWaitingForExternalResult();
 
-                        // Let the service know we are waiting for a result
-                        OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunStarted, taskRun.Guid, TaskStatus.Running));
-
-                        // Start timeout timer
-                        if (taskRun.TimeoutSeconds > 0)
+                        if (UWPTask != null && UWPTask.AutoPassedIfLaunched)
                         {
-                            externalTimeoutTimer = new System.Threading.Timer(new TimerCallback(ExternalTaskRunTimeout), taskRun.Guid, taskRun.TimeoutSeconds * 1000, Timeout.Infinite);
+                            taskRun.TaskStatus = TaskStatus.Passed;
+                            taskRun.ExitCode = 0;
+                        }
+                        else
+                        {
+                            // Let the service know we are waiting for a result
+                            OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunStarted, taskRun.Guid, TaskStatus.Running));
+
+                            // Start timeout timer
+                            if (taskRun.TimeoutSeconds > 0)
+                            {
+                                externalTimeoutTimer = new System.Threading.Timer(new TimerCallback(ExternalTaskRunTimeout), taskRun.Guid, taskRun.TimeoutSeconds * 1000, Timeout.Infinite);
+                            }
                         }
                     }
                 }
@@ -907,13 +916,14 @@ namespace Microsoft.FactoryOrchestrator.Server
                             if (!taskRun.TaskRunComplete)
                             {
                                 // External, disable timeout, kill process, mark as Aborted
-                                if (externalTimeoutTimer != null)
-                                {
-                                    externalTimeoutTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                                }
+                                externalTimeoutTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
                                 taskRun.TaskStatus = TaskStatus.Aborted;
-                                KillAppProcess(taskRun);
+
+                                if ((UWPTask != null) && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)))
+                                {
+                                    KillAppProcess(taskRun);
+                                }
                             }
                         }
                     }
@@ -924,10 +934,14 @@ namespace Microsoft.FactoryOrchestrator.Server
                     // Mark the run as finished.
                     taskRun.EndWaitingForExternalResult(waitingForResult);
 
-                    // Exit the app (if needed)
                     if (waitingForResult)
-                    {
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
+                    {   
+                        // disable timeout
+                        externalTimeoutTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+
+                        // Exit the app (if desired)
+                        if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
+                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
                         {
                             taskRun.TaskOutput.Add($"Terminated app: {taskRun.TaskPath}");
                         }

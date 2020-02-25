@@ -1106,6 +1106,8 @@ namespace Microsoft.FactoryOrchestrator.Core
     {
         private UWPTask() : base(null, null, TaskType.UWP)
         {
+            AutoPassedIfLaunched = false;
+            TerminateOnCompleted = true;
         }
 
         /// <summary>
@@ -1116,6 +1118,8 @@ namespace Microsoft.FactoryOrchestrator.Core
         public UWPTask(string packageFamilyName, string testFriendlyName) : base(packageFamilyName, testFriendlyName, TaskType.UWP)
         {
             _testFriendlyName = testFriendlyName;
+            AutoPassedIfLaunched = false;
+            TerminateOnCompleted = true;
         }
 
         /// <summary>
@@ -1125,6 +1129,8 @@ namespace Microsoft.FactoryOrchestrator.Core
         public UWPTask(string packageFamilyName) : base(packageFamilyName, null, TaskType.UWP)
         {
             _testFriendlyName = packageFamilyName;
+            AutoPassedIfLaunched = false;
+            TerminateOnCompleted = true;
         }
 
         /// <summary>
@@ -1173,6 +1179,22 @@ namespace Microsoft.FactoryOrchestrator.Core
                 _testFriendlyName = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this Task is automatically marked as Passed if the app is launched.
+        /// </summary>
+        /// <value>
+        ///   If <c>true</c>, if this UWP app is successfully invoked, the TaskRun is marked as passed; otherwise, if <c>false</c>, the TaskRun must be manually passed via UpdateTaskRun().
+        /// </value>
+        public bool AutoPassedIfLaunched { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this UWP app is terminated when the Task is completed (Passed or Failed). If AutoPassedIfLaunched is <c>true</c>, this value is ignored.
+        /// </summary>
+        /// <value>
+        ///   If <c>true</c>, the app is automatically terminated when the TaskRun is completed.
+        /// </value>
+        public bool TerminateOnCompleted { get; set; }
 
         private string _testFriendlyName;
     }
