@@ -142,6 +142,48 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Returns the version of the Windows OS.
+        /// </summary>
+        /// <returns>string representing the Windows OS version.</returns>
+        public async Task<string> GetOSVersionString()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetOSVersionString());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Returns the version set by the OEM duing WSK Image Customization.
+        /// </summary>
+        /// <returns>string representing the OEM version.</returns>
+        public async Task<string> GetOEMVersionString()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.GetOEMVersionString());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
         /// Sets the path to TE.exe, used to run TAEF tests.
         /// </summary>
         /// <param name="teExePath">Path to TE.exe</param>

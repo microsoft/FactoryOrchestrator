@@ -18,9 +18,6 @@ using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Security.Principal;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 
@@ -521,6 +518,38 @@ namespace Microsoft.FactoryOrchestrator.Service
                 FOService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
                 var version = FOService.GetServiceVersionString();
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
+                return version;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
+        public string GetOSVersionString()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetOSVersionString");
+                var version = FOService.GetOSVersionString();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetOSVersionString");
+                return version;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
+        public string GetOEMVersionString()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetOEMVersionString");
+                var version = FOService.GetOEMVersionString();
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetOEMVersionString");
                 return version;
             }
             catch (Exception e)
@@ -1069,6 +1098,32 @@ namespace Microsoft.FactoryOrchestrator.Service
 #endif
 
             return $"{assemblyVersion} ({description})";
+        }
+
+        /// <summary>
+        /// Returns OS version string.
+        /// </summary>
+        /// <returns></returns>
+        public static string GetOSVersionString()
+        {
+            using (var reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", false))
+            {
+                var version = (string)reg.GetValue("BuildLabEx");
+                return version;
+            }
+        }
+
+        /// <summary>
+        /// Returns OEM version string, set as WCOS OEM Customization.
+        /// </summary>
+        /// <returns></returns>
+        public static string GetOEMVersionString()
+        {
+            using (var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false))
+            {
+                var version = (string)reg.GetValue("OEMVersion");
+                return version;
+            }
         }
 
         public FOService(IMicroServiceController controller, ILogger<FOService> logger)

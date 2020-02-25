@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -21,7 +24,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             Client = ((App)Application.Current).Client;
-            // Put ipaddress in header
+
+            // Put Client ipaddress in header
             Header.Text += Client.IsLocalHost ? " (Local Device)" : $" ({Client.IpAddress.ToString()})";
 
             // If localhost connection, hide file transfer page
@@ -35,6 +39,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 pageMap.Enabled = false;
                 navViewPages.Add(pageMap);
             }
+
+            // Update visible network information every 7 seconds
+            networkTimer = new System.Timers.Timer(7000);
+            networkTimerIndex = 0;
+            ipAddressSem = new SemaphoreSlim(1, 1);
 
             // If there was a previous tab loaded, navigate to it
             lastNavTag = ((App)Application.Current).MainPageLastNavTag;
@@ -64,6 +73,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 }
             }
+
+            // Put OS & OEM versions in the footer
+            OEMVersionHeader.Text = "OEM Version: ";
+            OSVersionHeader.Text = "OS Version: ";
+            try
+            {
+                OSVersionHeader.Text += await Client.GetOSVersionString();
+            }
+            catch (Exception)
+            {
+                OSVersionHeader.Text += $"Could not query OS version!";
+            }
+            try
+            {
+                OEMVersionHeader.Text += await Client.GetOEMVersionString();
+            }
+            catch (Exception)
+            {
+                OEMVersionHeader.Text += $"Could not query OEM version!";
+            }
+
+            // Configure network information update timer
+            await UpdateIpAddresses();
+            networkTimer.Elapsed += NetworkTimer_Elapsed;
+            // Call elapsed to set initial values
+            NetworkTimer_Elapsed(networkTimer, null);
+            networkTimer.Start();
 
             if (lastNavTag == null)
             {
@@ -155,9 +191,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
         private async void NetworkFlyout_Opening(object sender, object e)
         {
-            var tuples = await GetIpAddresses();
+            await UpdateIpAddresses();
+            await ipAddressSem.WaitAsync();
             NetworkStackPanel.Children.Clear();
-            foreach (var ipAndNic in tuples)
+
+            foreach (var ipAndNic in ipAddresses)
             {
                 NetworkStackPanel.Children.Add(new TextBlock()
                 {
@@ -165,6 +203,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     IsTextSelectionEnabled = true
                 });
             }
+
+            ipAddressSem.Release();
         }
         private void ExitFlyout_Closed(object sender, object e)
         {
@@ -174,9 +214,36 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ShutdownProgessBar.Visibility = Visibility.Collapsed;
         }
 
-        private async Task<List<Tuple<string, string>>> GetIpAddresses()
+        private async void NetworkTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            return await Client.GetIpAddressesAndNicNames();
+            await UpdateIpAddresses();
+            await ipAddressSem.WaitAsync();
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (ipAddresses.Count == 0)
+                {
+                    NetworkIp.Text = "";
+                    NetworkName.Text = "";
+                    return;
+                }
+
+                if (ipAddresses.Count <= networkTimerIndex)
+                {
+                    networkTimerIndex = 0;
+                }
+
+                var ipAndName = ipAddresses[networkTimerIndex++];
+                NetworkIp.Text = ipAndName.Item1;
+                NetworkName.Text = ipAndName.Item2;
+            });
+            ipAddressSem.Release();
+        }
+
+        private async Task UpdateIpAddresses()
+        {
+            await ipAddressSem.WaitAsync();
+            ipAddresses = await Client.GetIpAddressesAndNicNames();
+            ipAddressSem.Release();
         }
 
         private string lastNavTag;
@@ -189,7 +256,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ("files", typeof(FileTransferPage), true),
             ("about", typeof(AboutPage), true)
         };
+
         private FactoryOrchestratorUWPClient Client;
+        private System.Timers.Timer networkTimer;
+        private int networkTimerIndex;
+        private List<Tuple<string, string>> ipAddresses;
+        private SemaphoreSlim ipAddressSem;
     }
 
 }

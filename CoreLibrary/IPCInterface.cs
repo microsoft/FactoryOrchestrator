@@ -174,6 +174,16 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns>string representing the Service version.</returns>
         string GetServiceVersionString();
         /// <summary>
+        /// Returns the version of the Windows OS.
+        /// </summary>
+        /// <returns>string representing the Windows OS version.</returns>
+        string GetOSVersionString();
+        /// <summary>
+        /// Returns the version set by the OEM duing WSK Image Customization.
+        /// </summary>
+        /// <returns>string representing the OEM version.</returns>
+        string GetOEMVersionString();
+        /// <summary>
         /// Sets the path to TE.exe, used to run TAEF tests.
         /// </summary>
         /// <param name="teExePath">Path to TE.exe</param>
@@ -196,6 +206,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <returns>A list of IP addresses and the Network Adapter each IP address belongs to.</returns>
         List<Tuple<string, string>> GetIpAddressesAndNicNames();
+
         /// <summary>
         /// Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.
         /// </summary>
