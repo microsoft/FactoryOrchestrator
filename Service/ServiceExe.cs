@@ -983,6 +983,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                     // values must match "Tag" on MainPage.xaml
                     ret.Add("console");
                 }
+                if (FOService.Instance.DisableWindowsDevicePortalPage)
+                {
+                    ret.Add("wdp");
+                }
                 if (FOService.Instance.DisableUWPAppsPage)
                 {
                     ret.Add("apps");
@@ -1031,6 +1035,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
         private readonly string _disableCmdPromptValue = @"DisableCommandPromptPage";
+        private readonly string _disableWindowsDevicePortalValue = @"DisableWindowsDevicePortalPage";
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
         private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
@@ -1058,6 +1063,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
         public bool DisableCommandPromptPage { get; private set; }
+        public bool DisableWindowsDevicePortalPage { get; private set; }
         public bool DisableUWPAppsPage { get; private set; }
         public bool DisableManageTasklistsPage { get; private set; }
         public bool DisableFileTransferPage { get; private set; }
@@ -1139,6 +1145,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     LastEventIndex = 0;
                     LastEventTime = DateTime.MinValue;
                     DisableCommandPromptPage = false;
+                    DisableWindowsDevicePortalPage = false;
                     DisableUWPAppsPage = false;
                     DisableManageTasklistsPage = false;
                     DisableFileTransferPage = false;
@@ -1153,6 +1160,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public TaskManager_Server TestExecutionManager { get => _taskExecutionManager; }
         
+
         /// <summary>
         /// Service start.
         /// </summary>
@@ -1724,6 +1732,13 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableCmdPromptValue, false));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableWindowsDevicePortalValue, false));
             }
             catch (Exception)
             { }

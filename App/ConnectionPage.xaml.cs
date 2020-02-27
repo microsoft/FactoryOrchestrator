@@ -7,6 +7,7 @@ using Windows.UI.Xaml.Controls;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.Storage;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -22,6 +23,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.InitializeComponent();
             ((App)Application.Current).Client = null;
             ((App)Application.Current).OnConnectionPage = true;
+        }
+        
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            lastNavTag = e.Parameter as string;
         }
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -46,7 +52,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (await ((App)Application.Current).Client.TryConnect())
                 {
                     ((App)Application.Current).OnConnectionPage = false;
-                    this.Frame.Navigate(typeof(MainPage));
+                    this.Frame.Navigate(typeof(MainPage), lastNavTag);
                 }
                 else
                 {
@@ -156,5 +162,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
         }
+        private string lastNavTag;
+    
     }
 }

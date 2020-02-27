@@ -56,7 +56,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
 
             IsConnected = true;
-            OnConnected?.Invoke();
+            OnConnected?.Invoke(); 
         }
 
         /// <summary>

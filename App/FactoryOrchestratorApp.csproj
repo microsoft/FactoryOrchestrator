@@ -141,6 +141,9 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WdpPage.xaml.cs">
+      <DependentUpon>WdpPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup Condition="'$(IsTFSBuild)' == 'true'">
     <AppxManifest Include="Package.appxmanifest">
@@ -249,6 +252,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WdpPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

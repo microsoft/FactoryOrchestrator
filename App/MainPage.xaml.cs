@@ -51,9 +51,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // Add handler for ContentFrame navigation.
             ContentFrame.Navigated += On_ContentFrameNavigated;
         }
-
+        
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            lastNavTag = e.Parameter as string;
             Client = ((App)Application.Current).Client;
             this.Frame.CacheSize = 3;
             // Hide tabs disabled by OEM Customization
@@ -101,20 +102,50 @@ namespace Microsoft.FactoryOrchestrator.UWP
             NetworkTimer_Elapsed(networkTimer, null);
             networkTimer.Start();
 
-            if (lastNavTag == null)
+            if (string.IsNullOrEmpty(lastNavTag))
             {
                 // NavView doesn't load any page by default, so load home page.
                 NavView.SelectedItem = NavView.MenuItems[0];
                 ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
             }
-            else
+            else 
             {
                 NavView.SelectedItem = NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == lastNavTag).First();
             }
 
-            NavView_Navigate(lastNavTag, null, e);
+            if (!disabledPages.Any(str => str.Equals(lastNavTag, StringComparison.OrdinalIgnoreCase)))
+            {
+                NavView_Navigate(lastNavTag, null, e);
+            }
+            else
+            {
+
+                ContentDialog failedAppsDialog = new ContentDialog
+                {
+
+                    Title = "Failed to launch " + GetPage(),
+                    Content = "Please enable " + GetPage() + " and try again.",
+                    CloseButtonText = "Ok"
+                };
+
+                ContentDialogResult result = await failedAppsDialog.ShowAsync();    
+            }
 
             base.OnNavigatedTo(e);
+        }
+
+        private string GetPage()
+        {
+            string Page = "";
+            switch (lastNavTag)
+            {   
+                case "wdp":
+                    Page = "Windows Device Portal";
+                    break;
+             default:
+                    break;
+            }
+            return Page;
         }
 
         private void On_ContentFrameNavigated(object sender, NavigationEventArgs e)
@@ -254,6 +285,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ("apps", typeof(AppsPage), true),
             ("save", typeof(SaveLoadEditPage), true),
             ("files", typeof(FileTransferPage), true),
+            ("wdp", typeof(WdpPage), true),
             ("about", typeof(AboutPage), true)
         };
 

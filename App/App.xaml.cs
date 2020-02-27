@@ -58,6 +58,67 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             System.Diagnostics.Debug.WriteLine(e.Exception);
         }
+        
+        protected Frame PreLaunchSetUp()
+        {
+            Frame rootFrame = Window.Current.Content as Frame;
+
+            extendedExecution = new ExtendedExecutionSession();
+            extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
+            _ = extendedExecution.RequestExtensionAsync();
+
+            if (rootFrame == null)
+            {
+                // Create a Frame to act as the navigation context and navigate to the first page
+                rootFrame = new Frame();
+                rootFrame.NavigationFailed += OnNavigationFailed;
+                // Place the frame in the current Window
+                Window.Current.Content = rootFrame;
+                Window.Current.Activate();
+            }
+
+            rootFrame.CacheSize = 4;
+            // Requires confirmAppClose restricted capability
+            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += App_CloseRequestedAsync;
+            return rootFrame;
+        }
+
+        protected override async void OnActivated(IActivatedEventArgs args)
+        {
+            if (args.Kind == ActivationKind.Protocol)
+            {
+                ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
+                var path = eventArgs.Uri.LocalPath;
+                Frame rootFrame = PreLaunchSetUp();
+                if (Client != null)
+                {
+                    if (await Client.TryConnect())
+                    {
+                        rootFrame.Navigate(typeof(MainPage), path);
+                    }
+                }
+                else
+                {
+                    if (rootFrame.Content == null)
+                    {
+                        Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+                        Client.OnConnected += OnIpcConnected;
+
+                        if (await Client.TryConnect())
+                        {
+                            rootFrame.Navigate(typeof(MainPage), path);
+                        }
+                        else
+                        {
+                            Client = null;
+                            rootFrame.Navigate(typeof(ConnectionPage), path);
+                        }
+                    }
+                   
+                }
+
+            }
+        }
 
         internal async void OnServerPollerException(object source, ServerPollerExceptionHandlerArgs e)
         {
@@ -170,34 +231,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <param name="e">Details about the launch request and process.</param>
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
-
-            // Prevent the app from suspending
-            // extendedExecutionUnconstrained capability helps with this also
-            // TODO: Performance: Properly handle suspend/resume instead?
-            extendedExecution = new ExtendedExecutionSession();
-            extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
-            _ = extendedExecution.RequestExtensionAsync();
-
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
-            if (rootFrame == null)
-            {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
-
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                    //TODO: Load state from previously suspended application
-                }
-
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
-            }
-
-            rootFrame.CacheSize = 4;
+            Frame rootFrame = PreLaunchSetUp();
 
             if (e.PrelaunchActivated == false)
             {
@@ -222,9 +256,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
-
-            // Requires confirmAppClose restricted capability
-            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += App_CloseRequestedAsync;
+        
         }
 
         // Ask the user to confirm before quitting, as on Factory it might not be easy to relaunch the app

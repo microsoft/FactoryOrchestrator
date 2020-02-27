@@ -93,6 +93,7 @@
                     <NavigationViewItem Tag="apps" Content="UWP Apps" Icon="AllApps" ToolTipService.ToolTip="Launch a UWP app"/>
                     <NavigationViewItem Tag="save" Content="Manage TaskLists" Icon="Edit" ToolTipService.ToolTip="Create or edit a TaskList"/>
                     <NavigationViewItem Tag="files" Content="Transfer Files" Icon="SyncFolder" ToolTipService.ToolTip="Transfer file to/from connected device"/>
+                    <NavigationViewItem Tag="wdp" Content="Windows Device Portal" Icon="SwitchApps" ToolTipService.ToolTip="Launch Windows Device Portal"/>
                     <NavigationViewItem Tag="about" Content="About Factory Orchestrator" Icon="Help"/>
                 </NavigationView.MenuItems>
                 <Frame x:Name="ContentFrame" IsTabStop="True" Padding="0, 0, 24, 0"/>
