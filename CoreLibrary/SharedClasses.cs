@@ -1186,6 +1186,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <value>
         ///   If <c>true</c>, if this UWP app is successfully invoked, the TaskRun is marked as passed; otherwise, if <c>false</c>, the TaskRun must be manually passed via UpdateTaskRun().
         /// </value>
+        [XmlAttribute]
         public bool AutoPassedIfLaunched { get; set; }
 
         /// <summary>
@@ -1194,6 +1195,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <value>
         ///   If <c>true</c>, the app is automatically terminated when the TaskRun is completed.
         /// </value>
+        [XmlAttribute]
         public bool TerminateOnCompleted { get; set; }
 
         private string _testFriendlyName;

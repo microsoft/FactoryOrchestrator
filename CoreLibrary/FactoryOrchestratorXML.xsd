@@ -28,6 +28,8 @@
     <xs:attribute type="xs:int" name="MaxNumberOfRetries" use="optional"/>
     <xs:attribute type="xs:int" name="Timeout" use="optional"/>
     <xs:attribute type="xs:boolean" name="AbortTaskListOnFailed" use="optional"/>
+    <xs:attribute type="xs:boolean" name="AutoPassIfLaunched" use="optional"/>
+    <xs:attribute type="xs:boolean" name="TerminateOnCompleted" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="TasksType">
