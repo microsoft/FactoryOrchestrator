@@ -302,11 +302,17 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="certificateFile">Path on the Service's computer to the app's certificate file, if needed. Microsoft Store signed apps do not need a certificate.</param>
         void InstallApp(string appPackagePath, List<string> dependentPackages = null, string certificateFile = null);
 
+        /// <summary>
+        /// Enables local loopback on the given UWP app.
+        /// </summary>
+        /// <param name="aumid">The Application User Model ID (AUMID) of the app to enable local loopback on.</param>
+        void EnableLocalLoopbackForApp(string aumid);
+
         // Task Execution APIs
         /// <summary>
         /// Executes all TaskLists in order.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if the TaskLists are successfully queued to run.</returns>
         bool RunAllTaskLists();
 
         /// <summary>

@@ -599,9 +599,30 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Enables local loopback on the given UWP app.
+        /// </summary>
+        /// <param name="aumid">The Application User Model ID (AUMID) of the app to enable local loopback on.</param>
+        public async Task EnableLocalLoopbackForApp(string aumid)
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
+            try
+            {
+                 await _IpcClient.InvokeAsync(x => x.EnableLocalLoopbackForApp(aumid));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
         /// Executes all TaskLists in order.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if the TaskLists are successfully queued to run.</returns>
         public async Task<bool> RunAllTaskLists()
         {
             if (!IsConnected)

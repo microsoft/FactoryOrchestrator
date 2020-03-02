@@ -443,19 +443,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
 
                 // Set new value in registry
-                RegistryKey mutableKey = null;
-                try
-                {
-                    // OSDATA wont exist on Desktop, so try to open it on it's own
-                    mutableKey = FOService.Instance.OpenOrCreateRegKey(FOService.RegKeyType.Mutable);
-                }
-                catch (Exception)
-                {
-                    mutableKey = null;
-                }
-
-                RegistryKey nonMutableKey = FOService.Instance.OpenOrCreateRegKey(FOService.RegKeyType.NonMutable);
-                FOService.Instance.SetValueInRegistry(mutableKey, nonMutableKey, FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
+                FOService.Instance.SetValueInRegistry(FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
             }
@@ -942,6 +930,27 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public void EnableLocalLoopbackForApp(string aumid)
+        {
+            try
+            {
+                var index = aumid.IndexOf('!');
+
+                if (index == -1)
+                {
+                    throw new InvalidDataException("AUMID is not valid!");
+                }
+
+                var pfn = aumid.Substring(0, index);
+                FOService.Instance.EnableLocalLoopbackForApp(pfn, true);
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
         public List<Tuple<string, string>> GetIpAddressesAndNicNames()
         {
             try
@@ -1030,7 +1039,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator\EveryBootTaskStatus";
 
-        private readonly string _loopbackValue = @"UWPLocalLoopbackEnabled";
+        private readonly string _loopbackEnabledValue = @"UWPLocalLoopbackEnabled";
 
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
@@ -1039,6 +1048,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
         private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
+        private readonly string _localLoopbackAppsValue = @"AllowedLocalLoopbackApps";
         internal readonly string _logFolderValue = @"LogFolder";
 
         // Default log folder path
@@ -1059,6 +1069,14 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
         private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
 
+        // PFNs for Factory Orchestrator
+        private readonly string _foAppPfn = "Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe";
+        private readonly string _foDevAppPfn = "Microsoft.FactoryOrchestratorApp.DEV_8wekyb3d8bbwe";
+
+        private RegistryKey _mutableKey;
+        private RegistryKey _nonMutableKey;
+        private RegistryKey _volatileKey;
+
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
@@ -1069,6 +1087,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableFileTransferPage { get; private set; }
         public bool DisableNetworkAccess { get; private set; }
         public string TaskManagerLogFolder { get; private set; }
+        /// <summary>
+        /// List of apps to enable local loopback on.
+        /// </summary>
+        public List<string> LocalLoopbackApps { get; private set; }
 
         /// <summary>
         /// FactoryOrchestratorService singleton
@@ -1150,6 +1172,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     DisableManageTasklistsPage = false;
                     DisableFileTransferPage = false;
                     DisableNetworkAccess = false;
+                    LocalLoopbackApps = new List<string>();
+                    TaskManagerLogFolder = _defaultLogFolder;
                 }
                 else
                 {
@@ -1174,6 +1198,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Start(bool forceUserTaskRerun)
         {
+            System.Threading.Thread.Sleep(15000);
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks();
 
@@ -1214,24 +1239,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private bool LoadFirstBootStateFile(bool force)
         {
-            RegistryKey mutableKey = null;
-            RegistryKey nonMutableKey = null;
             bool loaded = false;
 
             try
             {
-                // OSDATA wont exist on Desktop, so try to open it on it's own
-                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
-            }
-            catch (Exception)
-            { }
-
-            try
-            {
-                // Open non mutable reg key
-                nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
-
-                var firstBootStateLoaded = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStateLoadedValue) as int?;
+                var firstBootStateLoaded = GetValueFromRegistry(_firstBootStateLoadedValue) as int?;
 
                 if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0) || (force))
                 {
@@ -1244,7 +1256,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        firstBootStateTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootStatePathValue) as string;
+                        firstBootStateTaskListPath = GetValueFromRegistry(_firstBootStatePathValue) as string;
                     }
 
                     if (firstBootStateTaskListPath != null)
@@ -1262,7 +1274,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
 
                     loaded = true;
-                    SetValueInRegistry(mutableKey, nonMutableKey, _firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
+                    SetValueInRegistry(_firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
                 }
             }
             catch (Exception e)
@@ -1292,6 +1304,14 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (FactoryOrchestratorException e)
             {
                 ServiceLogger.LogError(e, $"Unable to save TaskLists on service stop!");
+            }
+
+            // Close registry
+            _volatileKey.Close();
+            _nonMutableKey.Close();
+            if (_mutableKey != null)
+            {
+                _mutableKey.Close();
             }
 
             ServiceLogger.LogInformation("Factory Orchestrator Service Stopped.\n");
@@ -1341,6 +1361,37 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public void ExecuteServerBootTasks()
         {
+            // Open Registry Keys
+            try
+            {
+                _mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
+            }
+            catch (Exception)
+            {
+                // OSDATA wont exist on Desktop, just set to NULL if it fails to open
+                _mutableKey = null;
+            }
+
+            try
+            {
+                _nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Could not open NonMutable registry key! {e.Message}");
+                Stop();
+            }
+
+            try
+            {
+                _volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
+            }
+            catch (Exception e)
+            {
+                ServiceLogger.LogError($"Could not open Volatile registry key! {e.Message}");
+                Stop();
+            }
+
             LoadOEMCustomizations();
 
             // Now that we know the log folder, we can create the TaskManager instance
@@ -1376,9 +1427,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public void ExecuteUserBootTasks(bool force)
         {
-            RegistryKey mutableKey = null;
-            RegistryKey nonMutableKey = null;
-            RegistryKey volatileKey = null;
             bool firstBootTasksFailed = false;
             bool everyBootTasksFailed = false;
             bool firstBootTasksExecuted = false;
@@ -1386,21 +1434,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             bool stateFileBackedup = false;
             var logFolder = _taskExecutionManager.LogFolder;
             var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FactoryOrchestratorTempTaskListStateFile");
-            try
-            {
-                // OSDATA wont exist on Desktop, so try to open it on it's own
-                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
-            }
-            catch (Exception)
-            { }
 
             // First Boot tasks
             try
             {
-                // Open remaining reg keys
-                nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
-                volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
-
                 // Backup State File
                 if (File.Exists(_taskExecutionManager.TaskListStateFile))
                 {
@@ -1409,7 +1446,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 stateFileBackedup = true;
 
                 // Check if first boot tasks were already completed
-                var firstBootTasksCompleted = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue) as int?;
+                var firstBootTasksCompleted = GetValueFromRegistry(_firstBootCompleteValue) as int?;
 
                 if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
                 {
@@ -1423,7 +1460,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        firstBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _firstBootTasksPathValue) as string;
+                        firstBootTaskListPath = GetValueFromRegistry(_firstBootTasksPathValue) as string;
                     }
 
                     if (firstBootTaskListPath != null)
@@ -1472,12 +1509,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Every boot tasks
-            if ((stateFileBackedup) && (nonMutableKey != null) && (volatileKey != null))
+            if ((stateFileBackedup) && (_nonMutableKey != null) && (_volatileKey != null))
             {
                 try
                 {
                     // Check if every boot tasks were already completed
-                    var everyBootTasksCompleted = volatileKey.GetValue(_everyBootCompleteValue) as int?;
+                    var everyBootTasksCompleted = _volatileKey.GetValue(_everyBootCompleteValue) as int?;
 
                     if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
                     {
@@ -1490,7 +1527,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         }
                         else
                         {
-                            everyBootTaskListPath = GetValueFromRegistry(mutableKey, nonMutableKey, _everyBootTasksPathValue) as string;
+                            everyBootTaskListPath = GetValueFromRegistry(_everyBootTasksPathValue) as string;
                         }
 
                         if (everyBootTaskListPath != null)
@@ -1547,7 +1584,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation("First boot TaskLists complete.");
                 }
                 
-                SetValueInRegistry(mutableKey, nonMutableKey, _firstBootCompleteValue, 1, RegistryValueKind.DWord);
+                SetValueInRegistry(_firstBootCompleteValue, 1, RegistryValueKind.DWord);
             }
             if (!everyBootTasksFailed)
             {
@@ -1557,20 +1594,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation("Every boot TaskLists complete.");
                 }
 
-                volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
-            }
-
-            if (volatileKey != null)
-            {
-                volatileKey.Close();
-            }
-            if (mutableKey != null)
-            {
-                mutableKey.Close();
-            }
-            if (nonMutableKey != null)
-            {
-                nonMutableKey.Close();
+                _volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
             }
 
             if (firstBootTasksExecuted || everyBootTasksExecuted)
@@ -1617,32 +1641,23 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Checks the given mutable and non-mutable registry keys for a given value. Mutable is always checked first.
         /// </summary>
         /// <returns>The value if it exists.</returns>
-        internal object GetValueFromRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object defaultValue = null)
+        internal object GetValueFromRegistry(string valueName, object defaultValue = null)
         {
             object ret = null;
 
-            if (mutableKey != null)
+            if (_mutableKey != null)
             {
-                if (defaultValue != null)
-                {
-                    ret = mutableKey.GetValue(valueName, defaultValue);
-                }
-                else
-                {
-                    ret = mutableKey.GetValue(valueName);
-                }
+                ret = _mutableKey.GetValue(valueName);
             }
             
-            if ((ret == null) && (nonMutableKey != null))
+            if ((ret == null) && (_nonMutableKey != null))
             {
-                if (defaultValue != null)
-                {
-                    ret = nonMutableKey.GetValue(valueName, defaultValue);
-                }
-                else
-                {
-                    ret = nonMutableKey.GetValue(valueName);
-                }
+                ret = _nonMutableKey.GetValue(valueName);
+            }
+
+            if (ret == null)
+            {
+                ret = defaultValue;
             }
 
             return ret;
@@ -1651,58 +1666,99 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <summary>
         /// Sets a given value in the registry. The mutable location is used if it exists.
         /// </summary>
-        internal void SetValueInRegistry(RegistryKey mutableKey, RegistryKey nonMutableKey, string valueName, object value, RegistryValueKind valueKind)
+        internal void SetValueInRegistry(string valueName, object value, RegistryValueKind valueKind)
         {
-            if (mutableKey != null)
+            if (_mutableKey != null)
             {
-                mutableKey.SetValue(valueName, value, valueKind);
+                _mutableKey.SetValue(valueName, value, valueKind);
             }
-            else if (nonMutableKey != null)
+            else if (_nonMutableKey != null)
             {
-                nonMutableKey.SetValue(valueName, value, valueKind);
+                _nonMutableKey.SetValue(valueName, value, valueKind);
             }
         }
 
         /// <summary>
-        /// Check if UWP local loopback needs to be enabled. Turn it on if so.
+        /// Check if UWP local loopback needs to be enabled. Turn it on if so. Runs every boot to ensure it persists.
         /// </summary>
         /// <returns></returns>
         private bool EnableUWPLocalLoopback()
         {
-
-            bool success = false;
-            RegistryKey volatileKey = null;
-            try
+            bool success = true;
+            var loopbackEnabled = (int)_volatileKey.GetValue(_loopbackEnabledValue, 0);
+            if (loopbackEnabled == 0)
             {
-                volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
+                // Always make sure the Factory Orchestrator apps are allowed
+                ServiceLogger.LogInformation($"Enabling UWP local loopback for {_foAppPfn}...");
 
-                var loopbackEnabled = (int)volatileKey.GetValue(_loopbackValue, 0);
-
-                if (loopbackEnabled == 0)
+                try
                 {
-                    ServiceLogger.LogInformation($"Enabling UWP local loopback...");
-
-                    // Run local loopback command for both "official" and "DEV" apps
-                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe", 5000);
-                    RunProcessViaCmd("checknetisolation", "loopbackexempt -a -n=Microsoft.FactoryOrchestratorApp.DEV_8wekyb3d8bbwe", 5000);
+                    EnableLocalLoopbackForApp(_foAppPfn, false);
+                }
+                catch (Exception e)
+                {
+                    success = false;
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback for {_foAppPfn}! You may not be able to communicate with the Factory Orchestrator Service from {_foAppPfn} ({e.AllExceptionsToString()})"));
                 }
 
-                success = true;
-                volatileKey.SetValue(_loopbackValue, 1, RegistryValueKind.DWord);
-            }
-            catch (Exception e)
-            {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback! You may not be able to use the FactoryOrchestrator UWP app locally ({e.AllExceptionsToString()})"));
-            }
-            finally
-            {
-                if (volatileKey != null)
+                ServiceLogger.LogInformation($"Enabling UWP local loopback for {_foDevAppPfn}...");
+
+                try
                 {
-                    volatileKey.Close();
+                    EnableLocalLoopbackForApp(_foDevAppPfn, false);
                 }
+                catch (Exception e)
+                {
+                    success = false;
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback for {_foDevAppPfn}! You may not be able to communicate with the Factory Orchestrator Service from {_foDevAppPfn} ({e.AllExceptionsToString()})"));
+                }
+
+                // Enable all other allowed apps
+                foreach (var app in LocalLoopbackApps)
+                {
+                    ServiceLogger.LogInformation($"Enabling UWP local loopback for {app}...");
+
+                    try
+                    {
+                        EnableLocalLoopbackForApp(app, false);
+                    }
+                    catch (Exception e)
+                    {
+                        success = false;
+                        LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback for {app}! You may not be able to communicate with the Factory Orchestrator Service from {app} ({e.AllExceptionsToString()})"));
+                    }
+                }
+
+
+                _volatileKey.SetValue(_loopbackEnabledValue, 1, RegistryValueKind.DWord);
             }
 
             return success;
+        }
+
+        /// <summary>
+        /// Enables local loopback for the given UWP app.
+        /// </summary>
+        /// <param name="pfn">The App's PFN.</param>
+        internal void EnableLocalLoopbackForApp(string pfn, bool updateRegistry)
+        {
+            RunProcessViaCmd("checknetisolation", $"loopbackexempt -a -n={pfn}", 5000);
+
+            if (updateRegistry)
+            {
+                if (!LocalLoopbackApps.Contains(pfn))
+                {
+                    LocalLoopbackApps.Add(pfn);
+
+                    var loopbackAppsString = "";
+                    for (int i = 0; i < LocalLoopbackApps.Count; i++)
+                    {
+                        var app = i == LocalLoopbackApps.Count - 1 ? LocalLoopbackApps[i] : $"{LocalLoopbackApps[i]};";
+                        loopbackAppsString += app;
+                    }
+                    SetValueInRegistry(_localLoopbackAppsValue, loopbackAppsString + $"{pfn}", RegistryValueKind.String);
+                }
+            }
         }
 
         /// <summary>
@@ -1711,67 +1767,65 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         private bool LoadOEMCustomizations()
         {
-            RegistryKey mutableKey = null;
-            var nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
-            try
-            {
-                // OSDATA wont exist on Desktop, so try to open it on it's own
-                mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
-            }
-            catch (Exception)
-            { }
-
             // If a value is set improperly, it will fallback to defaults set in the CTOR.
             try
             {
-                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableNetworkAccessValue, false));
+                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue, false));
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableCmdPromptValue, false));
+                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(_disableCmdPromptValue, false));
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableWindowsDevicePortalValue, false));
+                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(_disableFileTransferValue, false));
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableFileTransferValue, false));
+                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(_disableUWPAppsValue, false));
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableUWPAppsValue, false));
+                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(_disableTaskManagerValue, false));
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(mutableKey, nonMutableKey, _disableTaskManagerValue, false));
+                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(_disableWindowsDevicePortalValue, false));
             }
             catch (Exception)
             { }
 
             try
             {
-                TaskManagerLogFolder = (string)GetValueFromRegistry(mutableKey, nonMutableKey, _logFolderValue, _defaultLogFolder);
+                TaskManagerLogFolder = (string)GetValueFromRegistry(_logFolderValue, _defaultLogFolder);
             }
             catch (Exception)
+            { }
+
+            var loopbackAppsString = "";
+            try
             {
-                TaskManagerLogFolder = _defaultLogFolder;
+                loopbackAppsString = (string)GetValueFromRegistry(_localLoopbackAppsValue, "");
             }
+            catch (Exception)
+            { }
+
+            LocalLoopbackApps = loopbackAppsString.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
             return true;
         }
