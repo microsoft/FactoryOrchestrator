@@ -77,11 +77,13 @@
         <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="30,40,30,0" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <TextBlock x:Name="Header" Grid.Row="0" Text="Factory Orchestrator" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
-            <NavigationView x:Name="NavView" Grid.Row="2" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" ItemInvoked="NavView_ItemInvoked">
+            <TextBlock x:Name="BootTaskWarning" Grid.Row="1" Text="⚠ Service is executing Boot tasks, many funtions are disabled until finished or aborted ⚠" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontStyle="Italic" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="Collapsed" Margin="5"/>
+            <NavigationView x:Name="NavView" Grid.Row="3" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" ItemInvoked="NavView_ItemInvoked">
                 <NavigationView.MenuItems>
                     <NavigationViewItem Tag="run" Content="Run TaskLists" Icon="Play"/>
                     <NavigationViewItem Tag="console" ToolTipService.ToolTip="Non-interactive cmd.exe prompt" AutomationProperties.LabeledBy="{Binding ElementName=CommandPromptText}">

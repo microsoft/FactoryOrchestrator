@@ -27,13 +27,19 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// The Factory Orchestrator Serivce threw an exception.
         /// </summary>
-        ServiceError = 8,
-        //ServiceStarted = 9,
-        //ServiceStopped = 10,
+        ServiceError,
+        /// <summary>
+        /// The Factory Orchestrator Serivce is starting. It can now communicate with clients, but boot tasks may not be complete.
+        /// </summary>
+        ServiceStart,
+        /// <summary>
+        /// The Factory Orchestrator Serivce is fully started. Boot tasks are completed.
+        /// </summary>
+        BootTasksComplete,
         /// <summary>
         /// An unknown Factory Orchestrator Serivce event occurred.
         /// </summary>
-        Unknown = 11
+        Unknown
     }
 
     /// <summary>
@@ -206,6 +212,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <returns>A list of IP addresses and the Network Adapter each IP address belongs to.</returns>
         List<Tuple<string, string>> GetIpAddressesAndNicNames();
+        /// <summary>
+        /// Checks if the service is executing boot tasks. While executing boot tasks, many commands cannot be run.
+        /// </summary>
+        /// <returns><c>true</c> is the service is executing boot tasks.</returns>
+        bool IsExecutingBootTasks();
 
         /// <summary>
         /// Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.

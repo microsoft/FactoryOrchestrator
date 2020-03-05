@@ -271,6 +271,27 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Checks if the service is executing boot tasks. While executing boot tasks, many commands cannot be run.
+        /// </summary>
+        /// <returns><c>true</c> is the service is executing boot tasks.</returns>
+        public async Task<bool> IsExecutingBootTasks()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync(x => x.IsExecutingBootTasks());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
         /// Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.
         /// </summary>
         /// <returns>A list of page tags that should be disabled.</returns>

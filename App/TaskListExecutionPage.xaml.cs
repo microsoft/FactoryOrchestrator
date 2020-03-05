@@ -31,10 +31,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _selectedTaskListGuid = Guid.Empty;
             _selectedTaskGuid = Guid.Empty;
             _trackExecution = true;
+            _headerUpdateLock = new object();
             mainPage = null;
             TaskListCollection = new ObservableCollection<TaskListSummary>();
             ActiveListCollection = new ObservableCollection<TaskBaseWithTemplate>();
             ResultsPageEmbedded.IsEmbedded = true;
+            ((App)Application.Current).OnServiceDoneExecutingBootTasks += TaskListExecutionPage_OnServiceDoneExecutingBootTasks;
         }
 
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -335,6 +337,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
             Client = ((App)Application.Current).Client;
             mainPage = (Frame)e.Parameter;
 
+            if (((App)Application.Current).IsServiceExecutingBootTasks)
+            {
+                UpdateHeaders(false);
+            }
+            else
+            {
+                UpdateHeaders(true);
+            }
+
             if (_activeListPoller != null)
             {
                 _activeListPoller.StartPolling(Client);
@@ -355,6 +366,38 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (_trackExecution)
                 {
                     EnsureSelectedIndexVisible(TaskListsView, TaskListsScrollView);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler for boot tasks completing.
+        /// </summary>
+        private async void TaskListExecutionPage_OnServiceDoneExecutingBootTasks()
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                UpdateHeaders(true);
+            });
+        }
+
+        /// <summary>
+        /// Updates headers depending on if boot tasks are executing.
+        /// </summary>
+        /// <param name="bootTasksComplete"></param>
+        private void UpdateHeaders(bool bootTasksComplete)
+        {
+            lock (_headerUpdateLock)
+            {
+                if (bootTasksComplete)
+                {
+                    TaskListsText.Text = "Task Lists";
+                    TasksText.Text = "Tasks";
+                }
+                else
+                {
+                    TaskListsText.Text = "Boot Task Lists";
+                    TasksText.Text = "Boot Tasks";
                 }
             }
         }
@@ -537,6 +580,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private Guid _selectedTaskListGuid;
         private Guid _selectedTaskGuid;
         private bool _trackExecution;
+        private object _headerUpdateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
         public ObservableCollection<TaskListSummary> TaskListCollection;
         public ObservableCollection<TaskBaseWithTemplate> ActiveListCollection;

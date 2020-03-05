@@ -42,6 +42,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             Client = null;
             connectionFailureSem = new SemaphoreSlim(1,1);
             pollingFailureSem = new SemaphoreSlim(1,1);
+            IsServiceExecutingBootTasks = true;
         }
 
         private void UnhandledExceptionHandler(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -397,6 +398,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 switch(evnt.ServiceEventType)
                 {
+                    case ServiceEventType.ServiceStart:
+                        IsServiceExecutingBootTasks = true;
+                        break;
+                    case ServiceEventType.BootTasksComplete:
+                        OnServiceDoneExecutingBootTasks?.Invoke();
+                        IsServiceExecutingBootTasks = false;
+                        break;
                     case ServiceEventType.WaitingForExternalTaskRun:
                         // Check if we are localhost, if so we are the DUT and need to run the UWP task for the server.
                         // If not, do nothing, as we are not the DUT.
@@ -463,6 +471,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public string MainPageLastNavTag { get; set; }
         public FactoryOrchestratorUWPClient Client { get; set; }
         public bool OnConnectionPage { get; set; }
+        /// <summary>
+        /// <c>true if Service is executing boot TaskLists.</c>
+        /// </summary>
+        public bool IsServiceExecutingBootTasks { get; private set; }
+
+        /// <summary>
+        /// Event raised when the Service is done executing boot tasks.
+        /// </summary>
+        public event ServiceDoneExecutingBootTasks OnServiceDoneExecutingBootTasks;
 
         private SemaphoreSlim connectionFailureSem;
         private SemaphoreSlim pollingFailureSem;
@@ -473,4 +490,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private object onConnectionLock = new object();
         private IPAddress lastIp = null;
     }
+
+    /// <summary>
+    /// Signature for OnServiceDoneExecutingBootTasks.
+    /// </summary>
+    public delegate void ServiceDoneExecutingBootTasks();
 }

@@ -24,6 +24,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             Client = ((App)Application.Current).Client;
+            disabledPages = new List<string>();
+            navUpdateSem = new SemaphoreSlim(1, 1);
 
             // Put Client ipaddress in header
             Header.Text += Client.IsLocalHost ? " (Local Device)" : $" ({Client.IpAddress.ToString()})";
@@ -50,15 +52,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             // Add handler for ContentFrame navigation.
             ContentFrame.Navigated += On_ContentFrameNavigated;
+
+            ((App)Application.Current).OnServiceDoneExecutingBootTasks += MainPage_OnServiceDoneExecutingBootTasks;
         }
-        
+
+        private async void MainPage_OnServiceDoneExecutingBootTasks()
+        {
+            await navUpdateSem.WaitAsync();
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                BootTasksDone();
+            });
+            navUpdateSem.Release();
+        }
+
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             lastNavTag = e.Parameter as string;
             Client = ((App)Application.Current).Client;
             this.Frame.CacheSize = 3;
+
+            await navUpdateSem.WaitAsync();
             // Hide tabs disabled by OEM Customization
-            List<string> disabledPages = await Client.GetDisabledPages();
+            disabledPages = await Client.GetDisabledPages();
             foreach (var disabledPage in disabledPages)
             {
                 foreach (NavigationViewItem item in NavView.MenuItems)
@@ -74,6 +90,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 }
             }
+
+            if (((App)Application.Current).IsServiceExecutingBootTasks)
+            {
+                // Disable pages that are disallowed during Boot Tasks
+                BootTaskWarning.Visibility = Visibility.Visible;
+                var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
+                for (int i = 0; i < pagesToDisable.Count(); i++)
+                {
+                    var pageMap = pagesToDisable[i];
+                    var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+                    navViewPages.Remove(pageMap);
+                    pageMap.Enabled = false;
+                    navViewPages.Add(pageMap);
+                    item.IsEnabled = false;
+                }
+            }
+            else
+            {
+                // Enable all pages that are not disabled
+                BootTasksDone();
+            }
+            navUpdateSem.Release();
 
             // Put OS & OEM versions in the footer
             OEMVersionHeader.Text = "OEM Version: ";
@@ -128,10 +166,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     CloseButtonText = "Ok"
                 };
 
-                ContentDialogResult result = await failedAppsDialog.ShowAsync();    
+                ContentDialogResult result = await failedAppsDialog.ShowAsync();
             }
 
             base.OnNavigatedTo(e);
+        }
+
+        /// <summary>
+        /// Call when boot tasks complete. Enables all non-disabled pages.
+        /// </summary>
+        private void BootTasksDone()
+        {
+            BootTaskWarning.Visibility = Visibility.Collapsed;
+
+            var pagesToEnable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == false) && (!disabledPages.Contains(x.Tag))).ToArray();
+            for (int i = 0; i < pagesToEnable.Count(); i++)
+            {
+                var pageMap = pagesToEnable[i];
+                var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+                navViewPages.Remove(pageMap);
+                pageMap.Enabled = true;
+                navViewPages.Add(pageMap);
+                item.IsEnabled = true;
+            }
         }
 
         private string GetPage()
@@ -278,16 +335,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private string lastNavTag;
-        private List<(string Tag, Type Page, bool Enabled)> navViewPages = new List<(string Tag, Type Page, bool Enabled)>
+        private List<(string Tag, Type Page, bool Enabled, bool AllowedDuringBoot)> navViewPages = new List<(string Tag, Type Page, bool Enabled, bool AllowedDuringBoot)>
         {
-            ("run", typeof(TaskListExecutionPage), true),
-            ("console", typeof(ConsolePage), true),
-            ("apps", typeof(AppsPage), true),
-            ("save", typeof(SaveLoadEditPage), true),
-            ("files", typeof(FileTransferPage), true),
-            ("wdp", typeof(WdpPage), true),
-            ("about", typeof(AboutPage), true)
+            ("run", typeof(TaskListExecutionPage), true, true),
+            ("console", typeof(ConsolePage), true, false),
+            ("apps", typeof(AppsPage), true, false),
+            ("save", typeof(SaveLoadEditPage), true, false),
+            ("files", typeof(FileTransferPage), true, false),
+            ("wdp", typeof(WdpPage), true, true),
+            ("about", typeof(AboutPage), true, true)
         };
+        private List<string> disabledPages;
+        private SemaphoreSlim navUpdateSem;
 
         private FactoryOrchestratorUWPClient Client;
         private System.Timers.Timer networkTimer;
