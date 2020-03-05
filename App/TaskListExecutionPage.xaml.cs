@@ -14,6 +14,7 @@ using Windows.UI.Core;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Windows.Foundation;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -28,9 +29,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             _selectedTaskList = -1;
             _selectedTaskListGuid = Guid.Empty;
+            _selectedTaskGuid = Guid.Empty;
+            _trackExecution = true;
             mainPage = null;
             TaskListCollection = new ObservableCollection<TaskListSummary>();
             ActiveListCollection = new ObservableCollection<TaskBaseWithTemplate>();
+            ResultsPageEmbedded.IsEmbedded = true;
         }
 
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -48,6 +52,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     _selectedTaskListGuid = TaskListCollection[_selectedTaskList].Guid;
                     // Show loading ring
                     LoadingTasksRing.IsActive = true;
+
+                    if (_trackExecution)
+                    {
+                        EnsureSelectedIndexVisible(TaskListsView, TaskListsScrollView);
+                    }
                 }
 
                 // Keep indicies in sync
@@ -58,7 +67,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     _activeListPoller.StopPolling();
                 }
-                _activeListPoller = new ServerPoller(selectedTaskListGuid, typeof(TaskList), 2000);
+                _activeListPoller = new ServerPoller(selectedTaskListGuid, typeof(TaskList), 1000);
                 _activeListPoller.OnUpdatedObject += OnUpdatedTaskListAsync;
                 _activeListPoller.OnException += ((App)Application.Current).OnServerPollerException;
                 _activeListPoller.StartPolling(Client);
@@ -106,7 +115,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TaskList list = (TaskList)e.Result;
                 var taskArray = list.Tasks.ToArray();
 
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
                     try
                     {
@@ -147,6 +156,46 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             }
                         }
 
+                        if (_trackExecution)
+                        {
+                            // Show mini window with latest output
+                            var latestTask = taskArray.Where(x => x.LatestTaskRunStatus == TaskStatus.Running).DefaultIfEmpty(null).LastOrDefault();
+                            if (latestTask == null)
+                            {
+                                latestTask = taskArray.Where(x => x.LatestTaskRunStatus == TaskStatus.RunPending).DefaultIfEmpty(null).FirstOrDefault();
+                            }
+
+                            if (latestTask != null)
+                            {
+                                // Select the running task
+                                var item = ActiveListCollection.Where(x => x.Task.Guid == latestTask.Guid).First();
+                                ActiveTestsResultsView.SelectedItem = item;
+                                ActiveTestsView.SelectedItem = item;
+                                FollowOutput = true;
+
+                                // Ensure the running task has changed before updating UI
+                                if (_selectedTaskGuid != latestTask.Guid)
+                                {
+                                    // Prepare result preview
+                                    _selectedTaskGuid = latestTask.Guid;
+                                    await ResultsPageEmbedded.SetupForTask(latestTask);
+                                    // Make result preview visible
+                                    ResultsPreviewScrollView.Visibility = Visibility.Visible;
+                                    ResultsPreviewTaskName.Visibility = Visibility.Visible;
+                                    ResultsPreviewTaskName.Text = latestTask.Name;
+                                    LayoutRoot.RowDefinitions.Last().Height = new GridLength(1, GridUnitType.Star);
+                                    LayoutRoot.RowDefinitions[2].Height = GridLength.Auto;
+                                    EnsureSelectedIndexVisible(ActiveTestsView, TestsScrollView);
+                                }
+                            }
+                            else if (!TaskListCollection.Any(x => (x.Guid != _selectedTaskListGuid) && (x.IsRunningOrPending)))
+                            {
+                                // No more tasks are queued to run. Hide preview.
+                                _selectedTaskGuid = Guid.Empty;
+                                EndTrackExecution();
+                            }
+                        }
+
                         // Prune non-existent Tasks
                         int j = taskArray.Length;
                         while (ActiveListCollection.Count > taskArray.Length)
@@ -173,7 +222,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void OnUpdatedTaskListGuidAndStatusAsync(object source, ServerPollerEventArgs e)
         {
-            var newSummaries = e.Result as List<TaskListSummary>;
+            var newSummaries = (List<TaskListSummary>)e.Result;
 
             // Get the new TaskLists
             if (newSummaries != null)
@@ -202,12 +251,27 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             return;
                         }
 
+                        if (_trackExecution)
+                        {
+                            // Find the latest running list. If none are running find the first run pending list.
+                            var latestList = newSummaries.Where(x => x.Status == TaskStatus.Running).DefaultIfEmpty(new TaskListSummary()).LastOrDefault();
+                            if (latestList.Guid == Guid.Empty)
+                            {
+                                latestList = newSummaries.Where(x => x.Status == TaskStatus.RunPending).DefaultIfEmpty(new TaskListSummary()).FirstOrDefault();
+                            }
+
+                            if (latestList.Guid != Guid.Empty)
+                            {
+                                _selectedTaskListGuid = latestList.Guid;
+                            }
+                        }
+
                         bool selectedListFound = false;
                         for (int i = 0; i < newSummaries.Count; i++)
                         {
                             var newSummary = newSummaries[i];
 
-                            if (newSummary.Guid == _selectedTaskListGuid)
+                            if (newSummary.Guid == _selectedTaskListGuid) 
                             {
                                 selectedListFound = true;
                             }
@@ -221,12 +285,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             {
                                 // Template reselected automatically
                                 TaskListCollection[i] = newSummary;
+                            }
 
-                                if (_selectedTaskListGuid == newSummary.Guid)
-                                {
-                                    // Ensure this list is still selected
-                                    TaskListsView.SelectedIndex = i;
-                                }
+                            // Ensure correct list is selected
+                            if ((_selectedTaskListGuid == newSummary.Guid) && (TaskListsView.SelectedIndex != i))
+                            {
+                                TaskListsView.SelectedIndex = i;
                             }
                         }
                         
@@ -247,7 +311,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             ActiveListCollection.Clear();
                             LoadingTasksRing.IsActive = false;
                         }
-
                     }
                     catch (Exception ex)
                     {
@@ -289,6 +352,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (_selectedTaskList != -1)
             {
                 TaskListsView.SelectedIndex = _selectedTaskList;
+                if (_trackExecution)
+                {
+                    EnsureSelectedIndexVisible(TaskListsView, TaskListsScrollView);
+                }
             }
         }
 
@@ -340,11 +407,52 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             RunListButton_Click(sender, e);
         }
+
         private void RetryTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var guid = ((TaskBaseWithTemplate)button.DataContext).Task.Guid;
             _ = Client.RunTask(guid);
+        }
+
+        private void TrackExecutionCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _trackExecution = (bool)TrackExecutionCheck.IsChecked;
+            if (!_trackExecution)
+            {
+                EndTrackExecution();
+            }
+        }
+
+        /// <summary>
+        /// Ensures the selected index is visible to the user.
+        /// </summary>
+        /// <param name="list">ListView to check.</param>
+        /// <param name="scroller">Scroll view the ListView is a child of.</param>
+        private void EnsureSelectedIndexVisible(ListView list, ScrollViewer scroller)
+        {
+            // Get ListItem
+            var element = list.ContainerFromIndex(list.SelectedIndex) as FrameworkElement;
+            if (element != null)
+            {
+                // Calculate Y distance between list item and top of scroll view
+                var transform = element.TransformToVisual(scroller);
+                var pos = transform.TransformPoint(new Point(0, 0));
+                // Add (or subtract) Y distance. Y can be negative.
+                scroller.ChangeView(null, scroller.VerticalOffset + pos.Y, null);
+            }
+        }
+
+        /// <summary>
+        /// Stops tracking execution, hides results preview.
+        /// </summary>
+        private void EndTrackExecution()
+        {
+            ResultsPreviewScrollView.Visibility = Visibility.Collapsed;
+            ResultsPreviewTaskName.Visibility = Visibility.Collapsed;
+            ResultsPageEmbedded.StopPolling();
+            LayoutRoot.RowDefinitions.Last().Height = new GridLength(0);
+            LayoutRoot.RowDefinitions[2].Height = new GridLength(0);
         }
 
         /// <summary>
@@ -355,14 +463,84 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return ((TaskListSummary)button.DataContext).Guid;
         }
 
+        /// <summary>
+        /// Called when the user interacts with the scroll view.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResultsPreviewScrollView_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            // Stop following output
+            FollowOutput = false;
+
+            if (e.IsIntermediate)
+            {
+                return;
+            }
+
+            if (ResultsPreviewScrollView.ScrollableHeight == ResultsPreviewScrollView.VerticalOffset)
+            {
+                // User scrolled to end, resume following output
+                FollowOutput = true;
+            }
+        }
+
+        /// <summary>
+        /// Temporary handler for scroll event, only used for automated scroll events generated by ResultsPageEmbedded_SizeChanged.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Temporary_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            if (e.IsIntermediate)
+            {
+                return;
+            }
+
+            // Scroll is finished. Allow User to interact with scroll bar again.
+            ResultsPreviewScrollView.ViewChanged -= Temporary_ViewChanged;
+            ResultsPreviewScrollView.ViewChanged -= ResultsPreviewScrollView_ViewChanged;
+            ResultsPreviewScrollView.ViewChanged += ResultsPreviewScrollView_ViewChanged;
+
+            ResultsPreviewScrollView.HorizontalScrollMode = ScrollMode.Enabled;
+            ResultsPreviewScrollView.VerticalScrollMode = ScrollMode.Enabled;
+            ResultsPreviewScrollView.ZoomMode = ZoomMode.Enabled;
+        }
+
+        /// <summary>
+        /// Called when results preview has new output. Scrolls to end of output if FollowOutput is enabled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResultsPageEmbedded_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (FollowOutput)
+            {
+                // Prevent user from interacting with scroll bar.
+                ResultsPreviewScrollView.HorizontalScrollMode = ScrollMode.Disabled;
+                ResultsPreviewScrollView.VerticalScrollMode = ScrollMode.Disabled;
+                ResultsPreviewScrollView.ZoomMode = ZoomMode.Disabled;
+
+                ResultsPreviewScrollView.ViewChanged -= Temporary_ViewChanged;
+                ResultsPreviewScrollView.ViewChanged -= ResultsPreviewScrollView_ViewChanged;
+                ResultsPreviewScrollView.ViewChanged += Temporary_ViewChanged;
+
+                // Auto scroll to end of output
+                ResultsPreviewScrollView.ChangeView(null, ResultsPreviewScrollView.ScrollableHeight, null);
+            }
+        }
+
         private Frame mainPage;
         private ServerPoller _activeListPoller;
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private Guid _selectedTaskListGuid;
+        private Guid _selectedTaskGuid;
+        private bool _trackExecution;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
         public ObservableCollection<TaskListSummary> TaskListCollection;
         public ObservableCollection<TaskBaseWithTemplate> ActiveListCollection;
+        public bool FollowOutput { get; set; }
     }
 
     /// <summary>

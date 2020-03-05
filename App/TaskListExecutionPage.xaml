@@ -112,11 +112,14 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*"/>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="0"/>
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" >
             <TextBlock Text="Task Lists" Grid.Column="0" Grid.Row="0" Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
             <Button x:Name="RunAllButton" Content="Run all"  AutomationProperties.Name="Run all task lists" Click="RunAllButton_Click"/>
+            <CheckBox x:Name="TrackExecutionCheck" Content="Track Execution" ToolTipService.ToolTip="Automatically update UI to follow the running Task(s)" IsChecked="True" IsThreeState="False" Checked="TrackExecutionCheck_Checked" Unchecked="TrackExecutionCheck_Checked" Margin="10, 0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" >
             <TextBlock Text="Tasks" Style="{StaticResource TitleTextBlockStyle}"/>
@@ -147,17 +150,20 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <ProgressRing x:Name="LoadingTasksRing" Grid.ColumnSpan="2" IsActive="False" Width="100" Height="100"/>
-                <ScrollViewer x:Name="ActiveTestsNameScrollView"  ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Disabled" Grid.Column="0">
-                    <ListView x:Name="ActiveTestsView" Grid.Column="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="None" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="local:TaskBaseWithTemplate">
-                                <TextBlock x:Name="TaskName" Text="{x:Bind Task.Name}" ToolTipService.ToolTip="{x:Bind Task.Name}" VerticalAlignment="Center" Margin="10,0" />
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </ScrollViewer>
-                <ListView x:Name="ActiveTestsResultsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource ResultsViewSelector}"  SelectionMode="None" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Right"/>
+                <ListView x:Name="ActiveTestsView" Grid.Column="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:TaskBaseWithTemplate">
+                            <TextBlock x:Name="TaskName" Text="{x:Bind Task.Name}" ToolTipService.ToolTip="{x:Bind Task.Name}" VerticalAlignment="Center" Margin="10,0" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <ListView x:Name="ActiveTestsResultsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource ResultsViewSelector}"  SelectionMode="Single" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Right"/>
             </Grid>
+        </ScrollViewer>
+
+        <TextBlock x:Name="ResultsPreviewTaskName" Margin="0,5" Grid.Row="2" Grid.ColumnSpan="2" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}" IsTextSelectionEnabled="True"/>
+        <ScrollViewer x:Name="ResultsPreviewScrollView"  Margin="0,5" Grid.Row="3" Grid.ColumnSpan="2" Visibility="Collapsed" ViewChanged="ResultsPreviewScrollView_ViewChanged">
+            <local:ResultsPage x:Name="ResultsPageEmbedded" SizeChanged="ResultsPageEmbedded_SizeChanged"/>
         </ScrollViewer>
     </Grid>
 </Page>

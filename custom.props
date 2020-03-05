@@ -3,7 +3,7 @@
   <!-- Set the major and minor build numbers here -->
   <PropertyGroup Label="Version">
      <VersionMajor>2</VersionMajor>
-     <VersionMinor>4</VersionMinor>
+     <VersionMinor>5</VersionMinor>
      <VersionInfoProductName>Factory Orchestrator</VersionInfoProductName>
  </PropertyGroup>
 </Project>

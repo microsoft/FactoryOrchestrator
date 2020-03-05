@@ -78,7 +78,7 @@
             <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Column="1" Grid.Row="6" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Task Output:"/>
-        <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="7" Margin="5">
+        <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="7" Margin="5" ViewChanged="ScrollView_ViewChanged">
             <StackPanel x:Name="OutputStack" VerticalAlignment="Top" Orientation="Vertical" />
         </ScrollViewer>
     </Grid>

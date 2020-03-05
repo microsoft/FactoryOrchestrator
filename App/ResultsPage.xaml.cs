@@ -3,11 +3,14 @@ using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -22,39 +25,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Disabled;
+            _isEmbedded = false;
+            _updateSem = new SemaphoreSlim(1, 1);
+            _taskRunPollLock = new object();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        public async Task SetupForTask(TaskBase task)
         {
             Client = ((App)Application.Current).Client;
+            StopPolling();
+            await ClearOutput();
+            _taskRunPoller = null;
+            _test = task;
+            FollowOutput = true;
 
-            lastOutput = 0;
-            if (e.Parameter != null)
+            if (task != null)
             {
-                _test = (TaskBase)e.Parameter;
-                CreateHeader();
                 _taskPoller = new ServerPoller(_test.Guid, typeof(TaskBase), 5000);
                 _taskPoller.OnUpdatedObject += OnUpdatedTestAsync;
                 _taskPoller.OnException += ((App)Application.Current).OnServerPollerException;
                 _taskPoller.StartPolling(Client);
-                if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
-                {
-                    // Set task status to not run
-                    OverallTestResult.Text = "❔ Not Run";
-                }
-            }
-            else
-            {
-                _test = null;
             }
 
             UpdateTaskRunNav(null);
 
-            BackButton.IsEnabled = this.Frame.CanGoBack;
-            base.OnNavigatedTo(e);
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        public void StopPolling()
         {
             if (_taskPoller != null)
             {
@@ -63,8 +60,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (_taskRunPoller != null)
             {
                 _taskRunPoller.StopPolling();
-                _taskRunPoller = null;
             }
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            await SetupForTask(e.Parameter as TaskBase);
+            BackButton.IsEnabled = this.Frame.CanGoBack;
+            base.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            StopPolling();
         }
 
         private async void OnUpdatedTestAsync(object source, ServerPollerEventArgs e)
@@ -72,7 +80,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _test = (TaskBase)e.Result;
             if ((_test != null) && (_taskRunPoller == null))
             {
-                TryCreateTaskRunPoller(_test.LatestTaskRunGuid);
+                if (_test.LatestTaskRunTimeFinished != null)
+                {
+                    // Test is already finished, don't scroll to end of output
+                    FollowOutput = false;
+                }
+
+                if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
+                {
+                    // Set task status to not run
+                    OverallTestResult.Text = "❔ Not Run";
+                }
             }
             else if (_test.TaskRunGuids.Count == 0)
             {
@@ -80,9 +98,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _taskRunPoller.StopPolling();
                 _selectedRun = null;
                 _taskRunPoller = null;
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                 {
-                    OutputStack.Children.Clear();
+                    await ClearOutput();
                     UpdateTaskRunNav(_selectedRun);
                     TaskRunGuid.Visibility = Visibility.Collapsed;
                     TaskRunGuidConst.Visibility = Visibility.Collapsed;
@@ -107,13 +125,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (_selectedRun == null || newRun.Guid != _selectedRun.Guid)
                 {
-                    // Clear output, update navi
-                    lastOutput = 0;
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                     {
-                        OutputStack.Children.Clear();
+                        await ClearOutput();
                         UpdateTaskRunNav(newRun);
-
                     });
                 }
 
@@ -125,6 +140,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 });
 
 
+                await _updateSem.WaitAsync();
                 while (lastOutput != _selectedRun.TaskOutput.Count)
                 {
                     var blocks = PrepareOutput();
@@ -133,9 +149,30 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         UpdateOutput(blocks);
                     });
                 }
+
+                if (FollowOutput)
+                {
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        // Scroll to end
+                        ScrollView.ViewChanged -= ScrollView_ViewChanged;
+                        ScrollView.ViewChanged -= Temporary_ViewChanged;
+                        ScrollView.ViewChanged += Temporary_ViewChanged;
+                        ScrollView.ChangeView(null, ScrollView.ScrollableHeight, null);
+                    });
+                }
+
+                _updateSem.Release();
             }
         }
 
+        private async Task ClearOutput()
+        {
+            await _updateSem.WaitAsync();
+            lastOutput = 0;
+            OutputStack.Children.Clear();
+            _updateSem.Release();
+        }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
@@ -349,7 +386,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        private bool TryCreateTaskRunPoller(Guid? taskRunGuid)
+        public bool TryCreateTaskRunPoller(Guid? taskRunGuid)
         {
             lock (_taskRunPollLock)
             {
@@ -416,12 +453,73 @@ namespace Microsoft.FactoryOrchestrator.UWP
             TryCreateTaskRunPoller(_test.TaskRunGuids[_test.TaskRunGuids.IndexOf(_selectedRun.Guid) + 1]);
         }
 
+        private void ScrollView_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            FollowOutput = false;
+
+            if (e.IsIntermediate)
+            {
+                return;
+            }
+
+            if (ScrollView.ScrollableHeight == ScrollView.VerticalOffset)
+            {
+                FollowOutput = true;
+            }
+        }
+
+        private void Temporary_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            if (e.IsIntermediate)
+            {
+                return;
+            }
+            ScrollView.ViewChanged -= Temporary_ViewChanged;
+            ScrollView.ViewChanged -= ScrollView_ViewChanged;
+            ScrollView.ViewChanged += ScrollView_ViewChanged;
+
+            ScrollView.HorizontalScrollMode = ScrollMode.Enabled;
+            ScrollView.VerticalScrollMode = ScrollMode.Enabled;
+            ScrollView.ZoomMode = ZoomMode.Enabled;
+        }
+
+        public bool IsEmbedded
+        {
+            get
+            {
+                return _isEmbedded;
+            }
+            set
+            {
+                if (value == true)
+                {
+                    BackButton.Visibility = Visibility.Collapsed;
+                    PreviousRunButton.Visibility = Visibility.Collapsed;
+                    NextRunButton.Visibility = Visibility.Collapsed;
+                    TestHeader.Visibility = Visibility.Collapsed;
+                    _isEmbedded = true;
+                }
+                else
+                {
+                    BackButton.Visibility = Visibility.Visible;
+                    PreviousRunButton.Visibility = Visibility.Visible;
+                    NextRunButton.Visibility = Visibility.Visible;
+                    TestHeader.Visibility = Visibility.Visible;
+                    _isEmbedded = false;
+                }
+            }
+        }
+
+        public bool FollowOutput { get; set; }
+
         private TaskBase _test;
         private TaskRun _selectedRun;
         private ServerPoller _taskRunPoller;
         private ServerPoller _taskPoller;
-        private object _taskRunPollLock = new object();
+        private object _taskRunPollLock;
+        private SemaphoreSlim _updateSem;
         private int lastOutput;
+        private bool _isEmbedded;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }

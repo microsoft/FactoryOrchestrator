@@ -59,7 +59,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             System.Diagnostics.Debug.WriteLine(e.Exception);
         }
         
-        protected Frame PreLaunchSetUp()
+        private Frame PreLaunchSetUp()
         {
             Frame rootFrame = Window.Current.Content as Frame;
 
