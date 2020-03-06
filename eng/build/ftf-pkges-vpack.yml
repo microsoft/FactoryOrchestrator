@@ -92,7 +92,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 -p:PublishSingleFile=true -p:PublishReadyToRun=true --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -102,7 +102,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 -p:PublishSingleFile=true -p:PublishReadyToRun=true --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -112,7 +112,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm -p:PublishSingleFile=true -p:PublishReadyToRun=true --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -122,7 +122,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 -p:PublishSingleFile=true -p:PublishReadyToRun=true --force --verbosity Detailed'
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
