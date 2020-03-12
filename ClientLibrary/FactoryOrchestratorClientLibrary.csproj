@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <TargetName>FactoryOrchestratorClientLibrary</TargetName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -20,8 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="obj\AssemblyInfo.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
     <ProjectReference Include="..\IpcFramework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj" />
   </ItemGroup>
 
+  <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile">
+    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+  </Target>
 </Project>

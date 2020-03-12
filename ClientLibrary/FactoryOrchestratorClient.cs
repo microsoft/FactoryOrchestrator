@@ -3,7 +3,9 @@ using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -39,35 +41,51 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Establishes a connection to the Factory Orchestrator Service.
         /// Throws an exception if it cannot connect.
         /// </summary>
-        public async Task Connect()
+        /// <param name="ignoreVersionMismatch">If true, ignore a Client-Service version mismatch.</param>
+        public async Task Connect(bool ignoreVersionMismatch = false)
         {
             _IpcClient = new IpcServiceClientBuilder<IFactoryOrchestratorService>()
                 .UseTcp(IpAddress, Port)
                 .Build();
 
+            string serviceVersion;
             // Test a command to make sure connection works
             try
             {
-                await _IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+                serviceVersion = await _IpcClient.InvokeAsync(x => x.GetServiceVersionString());
             }
             catch (Exception ex)
             {
                 throw CreateIpcException(ex);
             }
 
+            if (!ignoreVersionMismatch)
+            {
+                // Verify client and service are compatible
+                var clientVersion = GetClientVersionString();
+                var clientMajor = clientVersion.Split('.').First();
+                var serviceMajor = serviceVersion.Split('.').First();
+
+                if (clientMajor != serviceMajor)
+                {
+                    throw new FactoryOrchestratorVersionMismatchException(IpAddress, serviceVersion, clientVersion);
+                }
+            }
+
             IsConnected = true;
-            OnConnected?.Invoke(); 
+            OnConnected?.Invoke();
         }
 
         /// <summary>
         /// Attempts to establish a connection to the Factory Orchestrator Service.
         /// </summary>
+        /// <param name="ignoreVersionMismatch">If true, ignore a Client-Service version mismatch.</param>
         /// <returns>true if it was able to connect.</returns>
-        public async Task<bool> TryConnect()
+        public async Task<bool> TryConnect(bool ignoreVersionMismatch = false)
         {
             try
             {
-                await Connect();
+                await Connect(ignoreVersionMismatch);
                 return true;
             }
             catch (FactoryOrchestratorConnectionException)
@@ -271,6 +289,31 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Gets the build number of FactoryOrchestratorClient.
+        /// </summary>
+        /// <returns></returns>
+        public string GetClientVersionString()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            string assemblyVersion = assembly.GetName().Version.ToString();
+            object[] attributes = assembly.GetCustomAttributes(true);
+
+            string description = "";
+
+            var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
+            if (descrAttr != null)
+            {
+                description = descrAttr.Description;
+            }
+
+#if DEBUG
+            description = "Debug" + description;
+#endif
+
+            return $"{assemblyVersion} ({description})";
+        }
+
+        /// <summary>
         /// Creates a FactoryOrchestratorConnectionException if needed.
         /// </summary>
         private Exception CreateIpcException(Exception ex)
@@ -349,7 +392,7 @@ namespace Microsoft.FactoryOrchestrator.Client
     public delegate void IPCClientOnConnected();
 
     /// <summary>
-    /// A FactoryOrchestratorConnectionException describes a Factory Orchestrator Client-Server connection issue.
+    /// A FactoryOrchestratorConnectionException describes a Factory Orchestrator Client-Service connection issue.
     /// </summary>
     public class FactoryOrchestratorConnectionException : FactoryOrchestratorException
     {
@@ -365,5 +408,38 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="message">Exception text.</param>
         public FactoryOrchestratorConnectionException(string message) : base(message)
         { }
+    }
+
+    /// <summary>
+    /// A FactoryOrchestratorVersionMismatchException is thrown if the Major versions of the Client and Service are incompatable.
+    /// </summary>
+    public class FactoryOrchestratorVersionMismatchException : FactoryOrchestratorException
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
+        /// </summary>
+        /// <param name="ip">The ip address of the Service.</param>
+        /// <param name="serviceVersion">The service version.</param>
+        /// <param name="clientVersion">The client version.</param>
+        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion, string clientVersion) : base($"Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.")
+        {
+            ServiceVersion = serviceVersion;
+            ClientVersion = clientVersion;
+        }
+
+        /// <summary>
+        /// Gets the client version.
+        /// </summary>
+        /// <value>
+        /// The client version.
+        /// </value>
+        public string ClientVersion { get; private set; }
+        /// <summary>
+        /// Gets the service version.
+        /// </summary>
+        /// <value>
+        /// The service version.
+        /// </value>
+        public string ServiceVersion { get; private set; }
     }
 }

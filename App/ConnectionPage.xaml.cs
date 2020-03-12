@@ -48,7 +48,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                 ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                             }
 
-                            if (await ((App)Application.Current).Client.TryConnect())
+                            if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch))
                             {
                                 ((App)Application.Current).OnConnectionPage = false;
                                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -86,7 +86,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684);
                     ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
-                    if (await ((App)Application.Current).Client.TryConnect())
+                    if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch))
                     {
                         ((App)Application.Current).OnConnectionPage = false;
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);

@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <TargetName>ClientSample</TargetName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -16,5 +17,14 @@
   <ItemGroup>
     <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="obj\AssemblyInfo.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile">
+    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+  </Target>
 
 </Project>

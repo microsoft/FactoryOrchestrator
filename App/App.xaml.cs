@@ -43,21 +43,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
             connectionFailureSem = new SemaphoreSlim(1,1);
             pollingFailureSem = new SemaphoreSlim(1,1);
             IsServiceExecutingBootTasks = true;
+            IgnoreVersionMismatch = false;
+            OnConnectionPage = true;
         }
 
         private void UnhandledExceptionHandler(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            if (e.Exception.GetType() == typeof(FactoryOrchestratorConnectionException))
+            var exception = e.Exception;
+            if (exception.GetType() == typeof(FactoryOrchestratorConnectionException))
             {
                 e.Handled = true;
                 OnConnectionFailure();
+            }
+            else if (exception.GetType() == typeof(FactoryOrchestratorVersionMismatchException))
+            {
+                e.Handled = true;
+                _ = OnVersionMismatchFailure((FactoryOrchestratorVersionMismatchException)exception);
             }
             else
             {
                 e.Handled = false;
             }
 
-            System.Diagnostics.Debug.WriteLine(e.Exception);
+            System.Diagnostics.Debug.WriteLine(exception);
         }
         
         private Frame PreLaunchSetUp()
@@ -93,8 +101,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 Frame rootFrame = PreLaunchSetUp();
                 if (Client != null)
                 {
-                    if (await Client.TryConnect())
+                    if (await Client.TryConnect(IgnoreVersionMismatch))
                     {
+                        OnConnectionPage = false;
                         rootFrame.Navigate(typeof(MainPage), path);
                     }
                 }
@@ -105,8 +114,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
                         Client.OnConnected += OnIpcConnected;
 
-                        if (await Client.TryConnect())
+                        if (await Client.TryConnect(IgnoreVersionMismatch))
                         {
+                            OnConnectionPage = false;
                             rootFrame.Navigate(typeof(MainPage), path);
                         }
                         else
@@ -191,30 +201,45 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         Title = "Communication Error",
                         Content = s,
-                        PrimaryButtonText = $"Disconnect from {Client.IpAddress}"
+                        CloseButtonText = $"Disconnect from {Client.IpAddress}"
                     };
 
                     resultTask = errorDialog.ShowAsync();
                 });
 
-                while (!await Client.TryConnect())
+                try
                 {
-                    System.Diagnostics.Debug.WriteLine("Waiting for connection...");
-                    if (resultTask.Status == AsyncStatus.Completed)
+                    while (!await Client.TryConnect(IgnoreVersionMismatch))
                     {
-                        OnConnectionPage = true;
-
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        System.Diagnostics.Debug.WriteLine("Waiting for connection...");
+                        if (resultTask.Status == AsyncStatus.Completed)
                         {
-                            var frame = Window.Current.Content as Frame;
-                            frame.Navigate(typeof(ConnectionPage));
-                        });
+                            OnConnectionPage = true;
 
-                        break;
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                            {
+                                var frame = Window.Current.Content as Frame;
+                                frame.Navigate(typeof(ConnectionPage));
+                            });
+
+                            break;
+                        }
+                        else
+                        {
+                            await Task.Delay(100);
+                        }
                     }
-                    else
+                }
+                catch (FactoryOrchestratorVersionMismatchException ex)
+                {
+                    // The version was matched before, now it isn't. The client device likely changed.
+                    resultTask.Cancel();
+                    // Wait to ensure dialog boxes don't collide and cause crash
+                    await Task.Delay(100);
+                    await OnVersionMismatchFailure(ex, false);
+                    if (IgnoreVersionMismatch)
                     {
-                        await Task.Delay(100);
+                        await Client.TryConnect(IgnoreVersionMismatch);
                     }
                 }
 
@@ -224,6 +249,48 @@ namespace Microsoft.FactoryOrchestrator.UWP
             connectionFailureSem.Release();
         }
 
+        /// <summary>
+        /// Exception handler called when Client and Service versions are mismatched.
+        /// </summary>
+        /// <param name="e">The exception.</param>
+        /// <param name="navigateToConnectionPage">If set to <c>true</c> navigate to connection page if the user chooses to not exit.</param>
+        /// <returns></returns>
+        public async Task OnVersionMismatchFailure(FactoryOrchestratorVersionMismatchException e, bool navigateToConnectionPage = true)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                ContentDialog errorDialog = new ContentDialog()
+                {
+                    Title = "Client-Service Version Mismatch Error",
+                    Content = $"The Client and Service major versions must match!\n" +
+                    $"Client Version: {e.ClientVersion}\n" +
+                    $"Service Version: {e.ServiceVersion}",
+                    CloseButtonText = $"Exit",
+                    PrimaryButtonText = $"Continue (not recommended)",
+                };
+
+                var result = await errorDialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    IgnoreVersionMismatch = true;
+                    if (navigateToConnectionPage)
+                    {
+                        ((Frame)(Window.Current.Content)).Navigate(typeof(ConnectionPage));
+                    }
+                }
+                else
+                {
+                    Application.Current.Exit();
+                }
+            });
+
+            // Wait for the property to be set. Otherwise the user chose to exit.
+            while (IgnoreVersionMismatch == false)
+            {
+                await Task.Delay(50);
+            }
+        }
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
@@ -241,8 +308,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
                     Client.OnConnected += OnIpcConnected;
 
-                    if (await Client.TryConnect())
+                    if (await Client.TryConnect(IgnoreVersionMismatch))
                     {
+                        OnConnectionPage = false;
                         rootFrame.Navigate(typeof(MainPage), e.Arguments);
                     }
                     else
@@ -471,6 +539,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public string MainPageLastNavTag { get; set; }
         public FactoryOrchestratorUWPClient Client { get; set; }
         public bool OnConnectionPage { get; set; }
+        public bool IgnoreVersionMismatch { get; set; }
         /// <summary>
         /// <c>true if Service is executing boot TaskLists.</c>
         /// </summary>

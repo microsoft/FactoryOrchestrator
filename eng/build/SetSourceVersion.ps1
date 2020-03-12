@@ -33,7 +33,8 @@ else
 }
 
 $file = Get-Item -Path "$SrcPath\Properties\AssemblyInfo.cs"
-$tempFile = $env:TEMP + "\" + $file.Name + ".tmp"
+[string]$randString = Get-Random
+$tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
 
 #now load all content of the original file and rewrite modified to the same file
  if ($tfs -eq $true)
