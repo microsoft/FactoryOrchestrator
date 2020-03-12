@@ -1,13 +1,13 @@
 ﻿using Microsoft.FactoryOrchestrator.Core;
-using Microsoft.FactoryOrchestrator.Client;
 using System;
 using System.Net;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.Storage;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
+using System.Threading.Tasks;
+using System.Threading;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -21,13 +21,54 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public ConnectionPage()
         {
             this.InitializeComponent();
-            ((App)Application.Current).Client = null;
+            ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+            ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
             ((App)Application.Current).OnConnectionPage = true;
+            connectionSem = new SemaphoreSlim(1, 1);
         }
         
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             lastNavTag = e.Parameter as string;
+            Task.Run(async ()  =>
+            {
+                // Attempt to connect to localhost every 2 seconds in a background task
+                while (!((App)Application.Current).Client.IsConnected)
+                {
+                    await connectionSem.WaitAsync();
+                    try
+                    {
+                        // Ensure we are not connected, user connection might have succeeded while waiting for semaphore
+                        if (!((App)Application.Current).Client.IsConnected)
+                        {
+                            if (((App)Application.Current).Client.IpAddress != IPAddress.Loopback)
+                            {
+                                // User connection attempted and failed. Recreate Client
+                                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+                                ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
+                            }
+
+                            if (await ((App)Application.Current).Client.TryConnect())
+                            {
+                                ((App)Application.Current).OnConnectionPage = false;
+                                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                {
+                                    this.Frame.Navigate(typeof(MainPage), lastNavTag);
+                                });
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        connectionSem.Release();
+                    }
+
+                    if (!((App)Application.Current).Client.IsConnected)
+                    {
+                        await Task.Delay(2000);
+                    }
+                }
+            });
         }
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -35,29 +76,30 @@ namespace Microsoft.FactoryOrchestrator.UWP
             IPAddress ip = null;
             bool validIp = false;
 
-            if ((bool)LocalDeviceCheckBox.IsChecked)
-            {
-                ip = IPAddress.Loopback;
-                validIp = true;
-            }
-            else
-            {
-                validIp = IPAddress.TryParse(IpTextBox.Text, out ip);
-            }
+            validIp = IPAddress.TryParse(IpTextBox.Text, out ip);
 
             if (validIp)
             {
-                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684);
-                ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
-                if (await ((App)Application.Current).Client.TryConnect())
+                ConnectButton.IsEnabled = false;
+                await connectionSem.WaitAsync();
+                try
                 {
-                    ((App)Application.Current).OnConnectionPage = false;
-                    this.Frame.Navigate(typeof(MainPage), lastNavTag);
+                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684);
+                    ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
+                    if (await ((App)Application.Current).Client.TryConnect())
+                    {
+                        ((App)Application.Current).OnConnectionPage = false;
+                        this.Frame.Navigate(typeof(MainPage), lastNavTag);
+                    }
+                    else
+                    {
+                        ShowConnectFailure(ip.ToString());
+                    }
                 }
-                else
+                finally
                 {
-                    ((App)Application.Current).Client = null;
-                    ShowConnectFailure(ip.ToString());
+                    connectionSem.Release();
+                    ConnectButton.IsEnabled = true;
                 }
             }
         }
@@ -74,28 +116,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _ = await failedConnectDialog.ShowAsync();
         }
 
-        private void LocalDeviceCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            if ((bool)LocalDeviceCheckBox.IsChecked)
-            {
-                IpTextBox.IsEnabled = false;
-                ConnectButton.IsEnabled = true;
-            }
-            else
-            {
-                IpTextBox.IsEnabled = true;
-            }
-        }
-
         private void IpTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if(!string.IsNullOrWhiteSpace(IpTextBox.Text))
             {
                 ConnectButton.IsEnabled = true;
-            }
-            else if (!(bool)LocalDeviceCheckBox.IsChecked)
-            {
-                ConnectButton.IsEnabled = false;
             }
         }
 
@@ -162,7 +187,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
         }
+
         private string lastNavTag;
-    
+        private SemaphoreSlim connectionSem;
     }
 }

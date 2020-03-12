@@ -30,7 +30,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             OnConnected = null;
             _IpcClient = null;
-            IsConnected = true;
+            IsConnected = false;
             IpAddress = host;
             Port = port;
         }
