@@ -21,3 +21,9 @@ steps:
   inputs:
     platform: x86
     configuration: 'Debug'
+
+- task: VSBuild@1
+  displayName: 'Build debug solution **\*.sln Any CPU'
+  inputs:
+    platform: 'Any CPU'
+    configuration: 'Debug'

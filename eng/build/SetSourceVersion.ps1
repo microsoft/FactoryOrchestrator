@@ -5,6 +5,9 @@ Param
 
 $ErrorActionPreference = "stop"
 
+Write-Host "Generating AssemblyInfo.cs for $SrcPath"
+
+
 $buildNumber = $env:TFS_VersionNumber
 $tfs = $false
 
@@ -32,9 +35,13 @@ else
     $tfs = $true
 }
 
+Write-Host "Build number is $buildNumber"
+
 $file = Get-Item -Path "$SrcPath\Properties\AssemblyInfo.cs"
 [string]$randString = Get-Random
 $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+
+Write-Host "Using temp file $tempFile"
 
 #now load all content of the original file and rewrite modified to the same file
  if ($tfs -eq $true)
@@ -52,7 +59,12 @@ else
     %{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }  > $tempFile
 }
 
+Write-Host "Sucessfully modified $tempFile"
+
 $destDir = $file.DirectoryName + "\..\obj\"
 $dir = New-Item -Path $destDir -ItemType Directory -Force
 $destFile = $destDir + $file.Name
+
+Write-Host "Moving $tempFile to $destFile"
 Move-Item $tempFile $destFile -force
+Write-Host "Success!"
