@@ -392,11 +392,11 @@ steps:
     suppressionsFile: 'eng/build/CredScanSuppressions.json'
   condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
   displayName: 'Publish Security Analysis Logs'
   inputs:
     ArtifactName: 'ES_security_and_compliance_task_logs'
-  condition: always()
+  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESSecComp@11
   displayName: 'Security and Compliance Bug Filer with vPack (disabled)'
@@ -407,7 +407,7 @@ steps:
     scanAll: false
     checkInConfigPath: 'eng/build/GitCheckin.json'
     taskLogVerbosity: Detailed
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+  condition: and(succeededOrFailed(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: false
 
 - task: PkgESSecComp@11
@@ -418,7 +418,7 @@ steps:
     bugTags: 'FactoryOrchestrator'
     scanAll: false
     taskLogVerbosity: Detailed
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESFCIBGit@10
   env:
