@@ -58,24 +58,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             _cmdSem.Wait();
 
-            if (RunButtonIcon.Symbol == Symbol.Stop)
+            try
             {
-                _taskRunPoller.StopPolling();
-                _taskRunPoller = null;
-                await Client.AbortTaskRun(_activeCmdTaskRun.Guid);
-                CommandBox.IsEnabled = true;
-                RunButtonIcon.Symbol = Symbol.Play;
-            }
-            else
-            {
-                if (!String.IsNullOrWhiteSpace(CommandBox.Text))
+                if (RunButtonIcon.Symbol == Symbol.Stop)
                 {
-                    // Asynchronously run the command
-                    await ExecuteCommand(CommandBox.Text);
+                    _taskRunPoller.StopPolling();
+                    _taskRunPoller = null;
+                    await Client.AbortTaskRun(_activeCmdTaskRun.Guid);
+                    CommandBox.IsEnabled = true;
+                    RunButtonIcon.Symbol = Symbol.Play;
+                }
+                else
+                {
+                    if (!String.IsNullOrWhiteSpace(CommandBox.Text))
+                    {
+                        // Asynchronously run the command
+                        await ExecuteCommand(CommandBox.Text);
+                    }
                 }
             }
-
-            _cmdSem.Release();
+            finally
+            {
+                _cmdSem.Release();
+            }
         }
 
         private async void CommandBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -151,8 +156,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
                         _outSem.Wait();
-                        UpdateOutput(blocks);
-                        _outSem.Release();
+                        try
+                        {
+                            UpdateOutput(blocks);
+                        }
+                        finally
+                        {
+                            _outSem.Release();
+                        }
                     });
                 }
 
@@ -172,8 +183,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             _outSem.Wait();
-            OutputStack.Children.Clear();
-            _outSem.Release();
+            try
+            {
+                OutputStack.Children.Clear();
+            }
+            finally
+            {
+                _outSem.Release();
+            }
         }
 
 

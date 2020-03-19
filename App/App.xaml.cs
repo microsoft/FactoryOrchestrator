@@ -142,33 +142,37 @@ namespace Microsoft.FactoryOrchestrator.UWP
             else if (poller.IsPolling)
             {
                 pollingFailureSem.Wait();
-                
-                if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
+                try
                 {
-                    // Service was likely restarted or the guid was deleted via another Client, stop polling it
-                    poller.StopPolling();
-                }
+                    if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
+                    {
+                        // Service was likely restarted or the guid was deleted via another Client, stop polling it
+                        poller.StopPolling();
+                    }
 
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    {
+                        ContentDialog errorDialog = new ContentDialog()
+                        {
+                            Title = "Polling Exception",
+                            Content = e.Exception.Message + "\r\n\r\nThis can occur when the Factory Orchestrator Service is restarted during an operation.",
+                            PrimaryButtonText = $"Continue"
+                        };
+                        try
+                        {
+                            await errorDialog.ShowAsync();
+                        }
+                        catch (Exception)
+                        {
+                            // TODO: Bug: i think this doesnt work ;)
+                            // System.Exception is thrown if there is already a ContentDialog visible on the screen. Just ignore it
+                        }
+                    });
+                }
+                finally
                 {
-                    ContentDialog errorDialog = new ContentDialog()
-                    {
-                        Title = "Polling Exception",
-                        Content = e.Exception.Message + "\r\n\r\nThis can occur when the Factory Orchestrator Service is restarted during an operation.",
-                        PrimaryButtonText = $"Continue"
-                    };
-                    try
-                    {
-                        await errorDialog.ShowAsync();
-                    }
-                    catch (Exception)
-                    {
-                        // TODO: Bug: i think this doesnt work ;)
-                        // System.Exception is thrown if there is already a ContentDialog visible on the screen. Just ignore it
-                    }
-                });
-                
-                pollingFailureSem.Release();
+                    pollingFailureSem.Release();
+                }
             }
 
             System.Diagnostics.Debug.WriteLine(e.Exception);
@@ -177,76 +181,81 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public async void OnConnectionFailure()
         {
             connectionFailureSem.Wait();
-            if (!OnConnectionPage && !Client.IsConnected)
+            try
             {
-                IAsyncOperation<ContentDialogResult> resultTask = null;
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                if (!OnConnectionPage && !Client.IsConnected)
                 {
-                    StackPanel s = new StackPanel();
-                    s.Children.Add(
-                        new TextBlock()
-                        {
-                            Text = "Cannot reach Factory Orchestrator Service!" + Environment.NewLine + "Attempting to reconnect...",
-                            Margin = new Thickness(10)
-                        });
+                    IAsyncOperation<ContentDialogResult> resultTask = null;
 
-                    s.Children.Add(
-                        new ProgressBar()
-                        {
-                            IsIndeterminate = true
-                        });
-
-                    ContentDialog errorDialog = new ContentDialog()
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        Title = "Communication Error",
-                        Content = s,
-                        CloseButtonText = $"Disconnect from {Client.IpAddress}"
-                    };
-
-                    resultTask = errorDialog.ShowAsync();
-                });
-
-                try
-                {
-                    while (!await Client.TryConnect(IgnoreVersionMismatch))
-                    {
-                        System.Diagnostics.Debug.WriteLine("Waiting for connection...");
-                        if (resultTask.Status == AsyncStatus.Completed)
-                        {
-                            OnConnectionPage = true;
-
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        StackPanel s = new StackPanel();
+                        s.Children.Add(
+                            new TextBlock()
                             {
-                                var frame = Window.Current.Content as Frame;
-                                frame.Navigate(typeof(ConnectionPage));
+                                Text = "Cannot reach Factory Orchestrator Service!" + Environment.NewLine + "Attempting to reconnect...",
+                                Margin = new Thickness(10)
                             });
 
-                            break;
-                        }
-                        else
+                        s.Children.Add(
+                            new ProgressBar()
+                            {
+                                IsIndeterminate = true
+                            });
+
+                        ContentDialog errorDialog = new ContentDialog()
                         {
-                            await Task.Delay(100);
+                            Title = "Communication Error",
+                            Content = s,
+                            CloseButtonText = $"Disconnect from {Client.IpAddress}"
+                        };
+
+                        resultTask = errorDialog.ShowAsync();
+                    });
+
+                    try
+                    {
+                        while (!await Client.TryConnect(IgnoreVersionMismatch))
+                        {
+                            System.Diagnostics.Debug.WriteLine("Waiting for connection...");
+                            if (resultTask.Status == AsyncStatus.Completed)
+                            {
+                                OnConnectionPage = true;
+
+                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                {
+                                    var frame = Window.Current.Content as Frame;
+                                    frame.Navigate(typeof(ConnectionPage));
+                                });
+
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(100);
+                            }
                         }
                     }
-                }
-                catch (FactoryOrchestratorVersionMismatchException ex)
-                {
-                    // The version was matched before, now it isn't. The client device likely changed.
-                    resultTask.Cancel();
-                    // Wait to ensure dialog boxes don't collide and cause crash
-                    await Task.Delay(100);
-                    await OnVersionMismatchFailure(ex, false);
-                    if (IgnoreVersionMismatch)
+                    catch (FactoryOrchestratorVersionMismatchException ex)
                     {
-                        await Client.TryConnect(IgnoreVersionMismatch);
+                        // The version was matched before, now it isn't. The client device likely changed.
+                        resultTask.Cancel();
+                        // Wait to ensure dialog boxes don't collide and cause crash
+                        await Task.Delay(100);
+                        await OnVersionMismatchFailure(ex, false);
+                        if (IgnoreVersionMismatch)
+                        {
+                            await Client.TryConnect(IgnoreVersionMismatch);
+                        }
                     }
+
+                    resultTask.Cancel();
                 }
-
-                resultTask.Cancel();
             }
-
-            connectionFailureSem.Release();
+            finally
+            {
+                connectionFailureSem.Release();
+            }
         }
 
         /// <summary>

@@ -141,37 +141,48 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
 
                 await _updateSem.WaitAsync();
-                while (lastOutput != _selectedRun.TaskOutput.Count)
+                try
                 {
-                    var blocks = PrepareOutput();
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    while (lastOutput != _selectedRun.TaskOutput.Count)
                     {
-                        UpdateOutput(blocks);
-                    });
-                }
+                        var blocks = PrepareOutput();
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            UpdateOutput(blocks);
+                        });
+                    }
 
-                if (FollowOutput)
+                    if (FollowOutput)
+                    {
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            // Scroll to end
+                            ScrollView.ViewChanged -= ScrollView_ViewChanged;
+                            ScrollView.ViewChanged -= Temporary_ViewChanged;
+                            ScrollView.ViewChanged += Temporary_ViewChanged;
+                            ScrollView.ChangeView(null, ScrollView.ScrollableHeight, null);
+                        });
+                    }
+                }
+                finally
                 {
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        // Scroll to end
-                        ScrollView.ViewChanged -= ScrollView_ViewChanged;
-                        ScrollView.ViewChanged -= Temporary_ViewChanged;
-                        ScrollView.ViewChanged += Temporary_ViewChanged;
-                        ScrollView.ChangeView(null, ScrollView.ScrollableHeight, null);
-                    });
+                    _updateSem.Release();
                 }
-
-                _updateSem.Release();
             }
         }
 
         private async Task ClearOutput()
         {
             await _updateSem.WaitAsync();
-            lastOutput = 0;
-            OutputStack.Children.Clear();
-            _updateSem.Release();
+            try
+            {
+                lastOutput = 0;
+                OutputStack.Children.Clear();
+            }
+            finally
+            {
+                _updateSem.Release();
+            }
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

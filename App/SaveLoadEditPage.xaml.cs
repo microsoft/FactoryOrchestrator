@@ -32,7 +32,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public SaveLoadEditPage()
         {
             this.InitializeComponent();
-            _listUpdateSem = new SemaphoreSlim(1, 1);
+            _resetSem = new SemaphoreSlim(1, 1);
             TaskListCollection = new ObservableCollection<TaskListSummary>();
         }
 
@@ -275,18 +275,30 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 await Task.Run(async () =>
                 {
-                    _listUpdateSem.Wait();
-                    await Client.ResetService(true);
-                    _listUpdateSem.Release();
+                    _resetSem.Wait();
+                    try
+                    {
+                        await Client.ResetService(true);
+                    }
+                    finally
+                    {
+                        _resetSem.Release();
+                    }
                 });
             }
             else if (result == ContentDialogResult.Secondary)
             {
                 await Task.Run(async () =>
                 {
-                    _listUpdateSem.Wait();
-                    await Client.ResetService(true, true);
-                    _listUpdateSem.Release();
+                    _resetSem.Wait();
+                    try
+                    {
+                        await Client.ResetService(true, true);
+                    }
+                    finally
+                    {
+                        _resetSem.Release();
+                    }
                 });
             }
         }
@@ -387,7 +399,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         public ObservableCollection<TaskListSummary> TaskListCollection;
         private ServerPoller _taskListGuidPoller;
-        private SemaphoreSlim _listUpdateSem;
+        private SemaphoreSlim _resetSem;
         private Guid _activeGuid;
         private bool _isFileLoad;
         private Frame mainPage;

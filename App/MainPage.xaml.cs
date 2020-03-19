@@ -59,11 +59,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void MainPage_OnServiceDoneExecutingBootTasks()
         {
             await navUpdateSem.WaitAsync();
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            try
             {
-                BootTasksDone();
-            });
-            navUpdateSem.Release();
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    BootTasksDone();
+                });
+            }
+            finally
+            {
+                navUpdateSem.Release();
+            }
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -73,45 +79,51 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.Frame.CacheSize = 3;
 
             await navUpdateSem.WaitAsync();
-            // Hide tabs disabled by OEM Customization
-            disabledPages = await Client.GetDisabledPages();
-            foreach (var disabledPage in disabledPages)
+            try
             {
-                foreach (NavigationViewItem item in NavView.MenuItems)
+                // Hide tabs disabled by OEM Customization
+                disabledPages = await Client.GetDisabledPages();
+                foreach (var disabledPage in disabledPages)
                 {
-                    if (item.Tag.ToString() == disabledPage)
+                    foreach (NavigationViewItem item in NavView.MenuItems)
                     {
-                        item.Visibility = Visibility.Collapsed;
-                        item.IsEnabled = false;
-                        var pageMap = navViewPages.Where(x => x.Tag == disabledPage).First();
+                        if (item.Tag.ToString() == disabledPage)
+                        {
+                            item.Visibility = Visibility.Collapsed;
+                            item.IsEnabled = false;
+                            var pageMap = navViewPages.Where(x => x.Tag == disabledPage).First();
+                            navViewPages.Remove(pageMap);
+                            pageMap.Enabled = false;
+                            navViewPages.Add(pageMap);
+                        }
+                    }
+                }
+
+                if (((App)Application.Current).IsServiceExecutingBootTasks)
+                {
+                    // Disable pages that are disallowed during Boot Tasks
+                    BootTaskWarning.Visibility = Visibility.Visible;
+                    var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
+                    for (int i = 0; i < pagesToDisable.Count(); i++)
+                    {
+                        var pageMap = pagesToDisable[i];
+                        var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
                         navViewPages.Remove(pageMap);
                         pageMap.Enabled = false;
                         navViewPages.Add(pageMap);
+                        item.IsEnabled = false;
                     }
                 }
-            }
-
-            if (((App)Application.Current).IsServiceExecutingBootTasks)
-            {
-                // Disable pages that are disallowed during Boot Tasks
-                BootTaskWarning.Visibility = Visibility.Visible;
-                var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
-                for (int i = 0; i < pagesToDisable.Count(); i++)
+                else
                 {
-                    var pageMap = pagesToDisable[i];
-                    var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
-                    navViewPages.Remove(pageMap);
-                    pageMap.Enabled = false;
-                    navViewPages.Add(pageMap);
-                    item.IsEnabled = false;
+                    // Enable all pages that are not disabled
+                    BootTasksDone();
                 }
             }
-            else
+            finally
             {
-                // Enable all pages that are not disabled
-                BootTasksDone();
+                navUpdateSem.Release();
             }
-            navUpdateSem.Release();
 
             // Put OS & OEM versions in the footer
             OEMVersionHeader.Text = "OEM Version: ";
@@ -281,18 +293,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             await UpdateIpAddresses();
             await ipAddressSem.WaitAsync();
-            NetworkStackPanel.Children.Clear();
-
-            foreach (var ipAndNic in ipAddresses)
+            try
             {
-                NetworkStackPanel.Children.Add(new TextBlock()
-                {
-                    Text = $"{ipAndNic.Item2} : {ipAndNic.Item1}",
-                    IsTextSelectionEnabled = true
-                });
-            }
+                NetworkStackPanel.Children.Clear();
 
-            ipAddressSem.Release();
+                foreach (var ipAndNic in ipAddresses)
+                {
+                    NetworkStackPanel.Children.Add(new TextBlock()
+                    {
+                        Text = $"{ipAndNic.Item2} : {ipAndNic.Item1}",
+                        IsTextSelectionEnabled = true
+                    });
+                }
+            }
+            finally
+            {
+                ipAddressSem.Release();
+            }
         }
         private void ExitFlyout_Closed(object sender, object e)
         {
@@ -306,32 +323,44 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             await UpdateIpAddresses();
             await ipAddressSem.WaitAsync();
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            try
             {
-                if (ipAddresses.Count == 0)
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    NetworkIp.Text = "";
-                    NetworkName.Text = "";
-                    return;
-                }
+                    if (ipAddresses.Count == 0)
+                    {
+                        NetworkIp.Text = "";
+                        NetworkName.Text = "";
+                        return;
+                    }
 
-                if (ipAddresses.Count <= networkTimerIndex)
-                {
-                    networkTimerIndex = 0;
-                }
+                    if (ipAddresses.Count <= networkTimerIndex)
+                    {
+                        networkTimerIndex = 0;
+                    }
 
-                var ipAndName = ipAddresses[networkTimerIndex++];
-                NetworkIp.Text = ipAndName.Item1;
-                NetworkName.Text = ipAndName.Item2;
-            });
-            ipAddressSem.Release();
+                    var ipAndName = ipAddresses[networkTimerIndex++];
+                    NetworkIp.Text = ipAndName.Item1;
+                    NetworkName.Text = ipAndName.Item2;
+                });
+            }
+            finally
+            {
+                ipAddressSem.Release();
+            }
         }
 
         private async Task UpdateIpAddresses()
         {
             await ipAddressSem.WaitAsync();
-            ipAddresses = await Client.GetIpAddressesAndNicNames();
-            ipAddressSem.Release();
+            try
+            {
+                ipAddresses = await Client.GetIpAddressesAndNicNames();
+            }
+            finally
+            {
+                ipAddressSem.Release();
+            }
         }
 
         private string lastNavTag;

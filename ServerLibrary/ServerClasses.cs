@@ -682,23 +682,34 @@ namespace Microsoft.FactoryOrchestrator.Server
                 usedSem = _startNonParallelTaskRunLock.Wait(0);
             }
 
-            if (!token.IsCancellationRequested)
+            try
             {
-                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, TaskStatus.Running));
-                StartTaskRuns(item.TaskListGuid, item.BackgroundTaskRunGuids, item.TaskRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
-
-                // Tests are done! Update the tokens & locks
-                lock (RunningTaskListLock)
+                if (!token.IsCancellationRequested)
                 {
-                    CancellationTokenSource removed;
-                    RunningTaskListTokens.TryRemove(item.TaskListGuid, out removed);
+                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, TaskStatus.Running));
+                    StartTaskRuns(item.TaskListGuid, item.BackgroundTaskRunGuids, item.TaskRunGuids, token, item.TerminateBackgroundTasksOnCompletion, item.RunListInParallel);
+
+                    // Tests are done! Update the tokens & locks
+                    lock (RunningTaskListLock)
+                    {
+                        CancellationTokenSource removed;
+                        RunningTaskListTokens.TryRemove(item.TaskListGuid, out removed);
+                    }
+                    if (usedSem)
+                    {
+                        _startNonParallelTaskRunLock.Release();
+                        usedSem = false;
+                    }
+
+                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, GetTaskList(item.TaskListGuid).TaskListStatus));
                 }
+            }
+            finally
+            {
                 if (usedSem)
                 {
                     _startNonParallelTaskRunLock.Release();
                 }
-
-                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, GetTaskList(item.TaskListGuid).TaskListStatus));
             }
 
             if (token.IsCancellationRequested)
