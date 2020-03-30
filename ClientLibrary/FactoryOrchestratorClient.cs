@@ -95,6 +95,30 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Copies an app package to the Service and installs it. Requires Windows Device Portal.
+        /// If the app package is already on the Service's computer, use InstallApp() instead.
+        /// </summary>
+        /// <param name="appFilename">Path on the Client's computer to the app package (.appx, .appxbundle, .msix, .msixbundle).</param>
+        /// <param name="dependentPackages">List of paths on the Client's computer to the app's dependent packages.</param>
+        /// <param name="certificateFile">Path on the Client's computer to the app's certificate file, if needed. Microsoft Store signed apps do not need a certificate.</param>
+        public async Task SendAndInstallApp(string appFilename, List<string> dependentPackages = null, string certificateFile = null)
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException("Start connection first!");
+            }
+
+            try
+            {
+                await WDPHelpers.InstallAppWithWDP(appFilename, dependentPackages, certificateFile, IpAddress.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
         /// Copies a file from the client to the device running Factory Orchestrator Service. Creates directories if needed.
         /// </summary>
         /// <param name="clientFilename">Path on client PC to the file to copy.</param>

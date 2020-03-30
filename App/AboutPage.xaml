@@ -27,9 +27,10 @@
             <TextBlock Text="Open Source Software" HorizontalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}"/>
             <TextBlock Text="IpcServiceFramework - Jacques Kang - MIT License - https://github.com/jacqueskang/IpcServiceFramework" HorizontalAlignment="Left"/>
             <TextBlock Text="DotNetCore.WindowsService - Peter Kottas - MIT License - https://github.com/PeterKottas/DotNetCore.WindowsService" HorizontalAlignment="Left"/>
+            <TextBlock Text="WindowsDevicePortalWrapper - Microsoft Corporation and mgurlitz - MIT License - https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard" HorizontalAlignment="Left"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="3" Margin="5">
-            <TextBlock Text="MIT License for IpcServiceFramework and DotNetCore.WindowsService" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
+            <TextBlock Text="MIT License for IpcServiceFramework, DotNetCore.WindowsService, and WindowsDevicePortalWrapper" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
             <TextBlock Text="Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the Software), to deal
 in the Software without restriction, including without limitation the rights

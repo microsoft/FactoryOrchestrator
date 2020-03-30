@@ -300,13 +300,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         TaskBase QueryTask(Guid guid);
 
         /// <summary>
-        /// Gets the AUMIDs of all installed apps on the OS.
+        /// Gets the AUMIDs of all installed apps on the OS. Requires Windows Device Portal.
         /// </summary>
         /// <returns>The list of app AUMIDs.</returns>
         List<string> GetInstalledApps();
 
         /// <summary>
-        /// Installs an app on the Service's computer.
+        /// Installs an app package on the Service's computer. The app package must already be on the Service's computer. Requires Windows Device Portal.
+        /// If the app package is not on the Service's computer already, use SendAndInstallApp() to copy and install it instead.
         /// </summary>
         /// <param name="appPackagePath">Path on the Service's computer to the app package (.appx, .appxbundle, .msix, .msixbundle).</param>
         /// <param name="dependentPackages">List of paths on the Service's computer to the app's dependent packages.</param>
@@ -356,7 +357,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns>The TaskRun associated with the .exe</returns>
         TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null);
         /// <summary>
-        /// Runs a UWP app outside of a Task/TaskList.
+        /// Runs a UWP app outside of a Task/TaskList. Requires Windows Device Portal.
         /// </summary>
         /// <param name="aumid">The Application User Model ID (AUMID) of the app to run.</param>
         /// <returns></returns>

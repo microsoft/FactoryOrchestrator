@@ -13,11 +13,9 @@ using System.Reflection;
 using System.Linq;
 using Microsoft.Win32;
 using System.IO;
-using Windows.Management.Deployment;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 
@@ -964,7 +962,10 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 // Expand any vars
                 appPackagePath = Environment.ExpandEnvironmentVariables(appPackagePath);
-                certificateFile = Environment.ExpandEnvironmentVariables(certificateFile);
+                if (certificateFile != null)
+                {
+                    certificateFile = Environment.ExpandEnvironmentVariables(certificateFile);
+                }
 
                 // Validate args
                 if (!File.Exists(appPackagePath))
@@ -992,23 +993,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                Impersonation.RunActionImpersonated(() =>
-                {
-                    // Install certificate
-                    var trustedPeople = new X509Store(StoreName.TrustedPeople, StoreLocation.CurrentUser);
-                    trustedPeople.Open(OpenFlags.ReadWrite);
-                    trustedPeople.Add(new X509Certificate2(X509Certificate2.CreateFromCertFile(certificateFile)));
-                    trustedPeople.Close();
-
-                    // Install package
-                    var pkgManager = new PackageManager();
-                    var result = pkgManager.AddPackageAsync(new Uri(appPackagePath), dependentPackagesUris, DeploymentOptions.None).AsTask().Result;
-
-                    if (!result.IsRegistered)
-                    {
-                        throw new FactoryOrchestratorException($"Unable to install app {appPackagePath}!", null, new Exception($"Failed with {result.ExtendedErrorCode}: {result.ErrorText}"));
-                    }
-                });
+                WDPHelpers.InstallAppWithWDP(appPackagePath, dependentPackages, certificateFile).Wait();
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: InstallApp {appPackagePath}");
             }
@@ -1031,7 +1016,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Get installed packages on the system
-                var response = Impersonation.WdpHttpClient.GetAsync(new Uri("http://127.0.0.1/api/app/packagemanager/packages")).Result;
+                var response = WDPHelpers.WdpHttpClient.GetAsync(new Uri("http://localhost/api/app/packagemanager/packages")).Result;
 
                 if (!response.IsSuccessStatusCode)
                 {

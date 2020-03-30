@@ -1015,7 +1015,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             string appFullName = "";
             try
             {
-                var response = Impersonation.WdpHttpClient.GetAsync(new Uri("http://127.0.0.1/api/app/packagemanager/packages")).Result;
+                var response = WDPHelpers.WdpHttpClient.GetAsync(new Uri("http://localhost/api/app/packagemanager/packages")).Result;
 
                 if (!response.IsSuccessStatusCode)
                 {
