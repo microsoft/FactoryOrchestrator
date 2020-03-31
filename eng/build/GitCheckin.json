@@ -4,7 +4,8 @@
 			"collection": "microsoft",
 			"project": "OS",
 			"repo": "os",
-			"name": "official/rs_onecore_sigma_dplat_wcos",
+			"name": "official/rs_onecore_sigma_dplat",
+			"completePR": "False",
 			"CheckinFiles": [
 				{
 				"source": "FactoryOrchestrator.Service.x86.man",
@@ -40,13 +41,18 @@
 				"source": "FactoryOrchestrator.ClientSampleWSK.man",
 				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
 				"type": "File"
+				},
+				{
+				"source": "Version.xml",
+				"path": "/onecoreuap/base/manufacturing/FactoryOrchestrator",
+				"type": "File"
 				}
 			]
 		}
 	],
 	"Email": [
 		{
-			"sendTo": "jafriedm;moreill"
+			"sendTo": "jafriedm"
 		}
 	]
 }

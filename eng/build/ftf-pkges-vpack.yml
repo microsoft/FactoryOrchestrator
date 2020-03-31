@@ -423,13 +423,13 @@ steps:
 - task: PkgESFCIBGit@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'Package ES - Submit VPack Manifest to Git'
+  displayName: 'Package ES - Create PR for VPack Manifest to OS Repo'
   inputs:
     configPath: 'eng/build/GitCheckin.json'
     binVersion: Custom
     binVersionOverride: 'Production'
   condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), ne(variables['skipvpack'], 'true')))
-  enabled: false
+  enabled: true
 
 - task: PkgESLateTasks@10
   displayName: 'PkgES Finalize and Cleanup'
