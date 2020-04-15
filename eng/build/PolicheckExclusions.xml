@@ -5,4 +5,9 @@
 
     <!-- The specified file names will be skipped during the scan regardless which folder they are in -->
     <Exclusion Type="FileName">DOCFX.VENDOR.JS</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Core.Tests.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.IntegrationTests.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Client.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Server.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Core.environment.txt</Exclusion>
 </PoliCheckExclusions>
