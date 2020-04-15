@@ -152,15 +152,38 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                     {
+                        var stopPollBox = new CheckBox()
+                        {
+                            IsChecked = false,
+                            Content = "Stop polling this object?"
+                        };
+
+                        var dialogStack = new StackPanel();
+                        dialogStack.Orientation = Orientation.Vertical;
+                        dialogStack.Children.Add(new TextBlock()
+                        {
+                            Text = e.Exception.Message + "\r\n\r\nThis can occur when the Factory Orchestrator Service is restarted during an operation",
+                            TextWrapping = TextWrapping.WrapWholeWords
+                        });
+
+                        if (poller.IsPolling)
+                        {
+                            dialogStack.Children.Add(stopPollBox);
+                        }
+                        
                         ContentDialog errorDialog = new ContentDialog()
                         {
                             Title = "Polling Exception",
-                            Content = e.Exception.Message + "\r\n\r\nThis can occur when the Factory Orchestrator Service is restarted during an operation.",
-                            PrimaryButtonText = $"Continue"
+                            Content = dialogStack,
+                            CloseButtonText = $"Continue"
                         };
                         try
                         {
                             await errorDialog.ShowAsync();
+                            if (stopPollBox.IsChecked == true)
+                            {
+                                poller.StopPolling();
+                            }
                         }
                         catch (Exception)
                         {
@@ -477,10 +500,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     case ServiceEventType.ServiceStart:
                         IsServiceExecutingBootTasks = true;
+                        OnServiceStart?.Invoke();
                         break;
                     case ServiceEventType.BootTasksComplete:
-                        OnServiceDoneExecutingBootTasks?.Invoke();
                         IsServiceExecutingBootTasks = false;
+                        OnServiceDoneExecutingBootTasks?.Invoke();
                         break;
                     case ServiceEventType.WaitingForExternalTaskRun:
                         // Check if we are localhost, if so we are the DUT and need to run the UWP task for the server.
@@ -558,6 +582,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// Event raised when the Service is done executing boot tasks.
         /// </summary>
         public event ServiceDoneExecutingBootTasks OnServiceDoneExecutingBootTasks;
+        /// <summary>
+        /// Event raised when the Service is starting and is executing boot tasks.
+        /// </summary>
+        public event ServiceDoneExecutingBootTasks OnServiceStart;
 
         private SemaphoreSlim connectionFailureSem;
         private SemaphoreSlim pollingFailureSem;

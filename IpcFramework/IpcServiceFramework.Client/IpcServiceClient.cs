@@ -143,8 +143,8 @@ namespace JKang.IpcServiceFramework
                 MethodName = interceptor.LastInvocation.Method.Name,
                 Parameters = interceptor.LastInvocation.Arguments,
 
-                ParameterTypes = interceptor.LastInvocation.Method.GetParameters()
-                              .Select(p => p.ParameterType)
+                ParameterTypeCommaAssemblyNames = interceptor.LastInvocation.Method.GetParameters()
+                              .Select(p => $"{p.ParameterType.FullName},{p.ParameterType.Assembly.GetName().Name}")
                               .ToArray(),
 
 

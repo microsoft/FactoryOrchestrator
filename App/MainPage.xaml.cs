@@ -54,6 +54,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ContentFrame.Navigated += On_ContentFrameNavigated;
 
             ((App)Application.Current).OnServiceDoneExecutingBootTasks += MainPage_OnServiceDoneExecutingBootTasks;
+            ((App)Application.Current).OnServiceStart += MainPage_OnServiceStart;
+        }
+
+        private async void MainPage_OnServiceStart()
+        {
+            await navUpdateSem.WaitAsync();
+            try
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    BootTasksStart();
+                });
+            }
+            finally
+            {
+                navUpdateSem.Release();
+            }
         }
 
         private async void MainPage_OnServiceDoneExecutingBootTasks()
@@ -102,17 +119,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (((App)Application.Current).IsServiceExecutingBootTasks)
                 {
                     // Disable pages that are disallowed during Boot Tasks
-                    BootTaskWarning.Visibility = Visibility.Visible;
-                    var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
-                    for (int i = 0; i < pagesToDisable.Count(); i++)
-                    {
-                        var pageMap = pagesToDisable[i];
-                        var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
-                        navViewPages.Remove(pageMap);
-                        pageMap.Enabled = false;
-                        navViewPages.Add(pageMap);
-                        item.IsEnabled = false;
-                    }
+                    BootTasksStart();
                 }
                 else
                 {
@@ -182,6 +189,24 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             base.OnNavigatedTo(e);
+        }
+
+        /// <summary>
+        /// Call when boot tasks start. Disables pages not allowed during boot.
+        /// </summary>
+        private void BootTasksStart()
+        {
+            BootTaskWarning.Visibility = Visibility.Visible;
+            var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
+            for (int i = 0; i < pagesToDisable.Count(); i++)
+            {
+                var pageMap = pagesToDisable[i];
+                var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+                navViewPages.Remove(pageMap);
+                pageMap.Enabled = false;
+                navViewPages.Add(pageMap);
+                item.IsEnabled = false;
+            }
         }
 
         /// <summary>

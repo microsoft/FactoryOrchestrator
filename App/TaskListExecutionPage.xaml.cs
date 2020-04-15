@@ -37,6 +37,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ActiveListCollection = new ObservableCollection<TaskBaseWithTemplate>();
             ResultsPageEmbedded.IsEmbedded = true;
             ((App)Application.Current).OnServiceDoneExecutingBootTasks += TaskListExecutionPage_OnServiceDoneExecutingBootTasks;
+            ((App)Application.Current).OnServiceStart += TaskListExecutionPage_OnServiceStart;
         }
 
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -328,6 +329,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     LoadingTasksRing.IsActive = false;
                     TaskListCollection.Clear();
                     ActiveListCollection.Clear();
+                    EndTrackExecution();
                 });
             }
         }
@@ -336,6 +338,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             Client = ((App)Application.Current).Client;
             mainPage = (Frame)e.Parameter;
+            EndTrackExecution();
 
             if (((App)Application.Current).IsServiceExecutingBootTasks)
             {
@@ -378,6 +381,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 UpdateHeaders(true);
+            });
+        }
+
+        private async void TaskListExecutionPage_OnServiceStart()
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                UpdateHeaders(false);
             });
         }
 

@@ -211,7 +211,7 @@ namespace JKang.IpcServiceFramework
                                             request.GenericArguments[serviceMethodParameters[parameterIndex].ParameterType.GenericParameterPosition] :
                                             serviceMethodParameters[parameterIndex].ParameterType;
 
-                        if (serviceParameterType == request.ParameterTypes[parameterIndex])
+                        if ($"{serviceParameterType.FullName},{serviceParameterType.Assembly.GetName().Name}" == request.ParameterTypeCommaAssemblyNames[parameterIndex])
                         {
                             parameterTypeMatches++;
                         }

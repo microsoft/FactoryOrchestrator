@@ -28,10 +28,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _isEmbedded = false;
             _updateSem = new SemaphoreSlim(1, 1);
             _taskRunPollLock = new object();
+            _isBootTask = false;
         }
 
         public async Task SetupForTask(TaskBase task)
         {
+            if (((App)Application.Current).IsServiceExecutingBootTasks)
+            {
+                _isBootTask = true;
+            }
+            else
+            {
+                _isBootTask = false;
+            }
+
             Client = ((App)Application.Current).Client;
             StopPolling();
             await ClearOutput();
@@ -43,12 +53,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 _taskPoller = new ServerPoller(_test.Guid, typeof(TaskBase), 5000);
                 _taskPoller.OnUpdatedObject += OnUpdatedTestAsync;
-                _taskPoller.OnException += ((App)Application.Current).OnServerPollerException;
+                _taskPoller.OnException += OnPollingException;
                 _taskPoller.StartPolling(Client);
             }
 
             UpdateTaskRunNav(null);
-
         }
 
         public void StopPolling()
@@ -421,7 +430,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     _taskRunPoller = new ServerPoller((Guid)taskRunGuid, typeof(TaskRun), 1000);
                     _taskRunPoller.OnUpdatedObject += OnUpdatedTaskRunAsync;
-                    _taskRunPoller.OnException += ((App)Application.Current).OnServerPollerException;
+                    _taskRunPoller.OnException += OnPollingException;
                     _taskRunPoller.StartPolling(Client);
                     return true;
                 }
@@ -494,6 +503,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ScrollView.ZoomMode = ZoomMode.Enabled;
         }
 
+        private async void OnPollingException(object source, ServerPollerExceptionHandlerArgs e)
+        {
+            bool handled = false;
+            if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
+            {
+                if (_isBootTask)
+                {
+                    // This was a Boot Task, but Boot Tasks are completed so the GUID is invalid. Ignore exception, stop polling.
+                    if (!await Client.IsExecutingBootTasks())
+                    {
+                        handled = true;
+                        StopPolling();
+                    }
+                }
+            }
+
+            // Pass to global exception handler
+            if (!handled)
+            {
+                ((App)Application.Current).OnServerPollerException(source, e);
+            }
+        }
+
         public bool IsEmbedded
         {
             get
@@ -531,6 +563,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private SemaphoreSlim _updateSem;
         private int lastOutput;
         private bool _isEmbedded;
+        private bool _isBootTask;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
     }
 }
