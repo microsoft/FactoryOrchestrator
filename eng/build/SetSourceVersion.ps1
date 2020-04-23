@@ -1,6 +1,7 @@
 Param
 (
-[string]$SrcPath
+[string]$SrcPath,
+[switch]$MajorMinorOnly
 )
 
 $ErrorActionPreference = "stop"
@@ -28,7 +29,14 @@ if ($buildNumber -eq $null)
         $month = "0" + $month
     }
 
-    $buildNumber = "$majorVersion.$minorVersion." + $date.Year.ToString().SubString(2) + "" + $month + "." + $date.Hour.ToString() + $date.Minute.ToString()
+    if ($MajorMinorOnly)
+    {
+        $buildNumber = "$majorVersion.$minorVersion.0.0"
+    }
+    else
+    {
+        $buildNumber = "$majorVersion.$minorVersion." + $date.Year.ToString().SubString(2) + "" + $month + "." + $date.Hour.ToString() + $date.Minute.ToString()
+    }
 }
 else
 {
@@ -64,7 +72,28 @@ Write-Host "Sucessfully modified $tempFile"
 $destDir = $file.DirectoryName + "\..\obj\"
 $dir = New-Item -Path $destDir -ItemType Directory -Force
 $destFile = $destDir + $file.Name
+$skip = $false
 
-Write-Host "Moving $tempFile to $destFile"
-Move-Item $tempFile $destFile -force
-Write-Host "Success!"
+if (Test-Path $destFile -PathType Leaf)
+{
+    $currentFileContent = Get-Content $destFile
+    $versionStr = $currentFileContent | Where-Object {$_ -like "*AssemblyVersion(*"}
+    if ($null -ne $versionStr)
+    {
+        if ($versionStr -match $buildNumber)
+        {
+            $skip = $true
+        }
+    }
+}
+
+if ($skip -ne $true)
+{
+    Write-Host "Moving $tempFile to $destFile"
+    Move-Item $tempFile $destFile -force
+    Write-Host "Success!"
+}
+else
+{
+    Write-Host "Version did not need updating, it is $buildNumber"
+}
