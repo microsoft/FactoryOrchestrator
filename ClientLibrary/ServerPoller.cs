@@ -106,7 +106,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                                 if (newInterval != _pollingInterval)
                                 {
                                     _pollingInterval = newInterval;
-                                    _timer.Change(_pollingInterval, _pollingInterval);
+                                    _timer?.Change(_pollingInterval, _pollingInterval);
                                 }
                             }
                             else

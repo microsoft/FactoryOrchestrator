@@ -1,4 +1,6 @@
-﻿using Castle.DynamicProxy;
+﻿#if !DISABLE_DYNAMIC_CODE_GENERATION
+using Castle.DynamicProxy;
+#endif
 using JKang.IpcServiceFramework.IO;
 using JKang.IpcServiceFramework.Services;
 using System;
@@ -8,12 +10,16 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace JKang.IpcServiceFramework
 {
     public abstract class IpcServiceClient<TInterface>
         where TInterface : class
     {
+
+#if !DISABLE_DYNAMIC_CODE_GENERATION
         private static readonly ProxyGenerator _proxyGenerator = new ProxyGenerator();
+#endif
         private readonly IIpcMessageSerializer _serializer;
         private readonly IValueConverter _converter;
 
@@ -25,6 +31,44 @@ namespace JKang.IpcServiceFramework
             _converter = converter;
         }
 
+        public async Task<TResult> InvokeAsync<TResult>(IpcRequest request,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            IpcResponse response = await GetResponseAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (response.Succeed)
+            {
+                if (_converter.TryConvert(response.Data, typeof(TResult), out object @return))
+                {
+                    return (TResult)@return;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unable to convert returned value to '{typeof(TResult).Name}'.");
+                }
+            }
+            else
+            {
+                throw ThrowFailedResposeException(response);
+            }
+        }
+
+        public async Task InvokeAsync(IpcRequest request,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            IpcResponse response = await GetResponseAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (response.Succeed)
+            {
+                return;
+            }
+            else
+            {
+                throw ThrowFailedResposeException(response);
+            }
+        }
+
+#if !DISABLE_DYNAMIC_CODE_GENERATION
         public async Task InvokeAsync(Expression<Action<TInterface>> exp,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -103,25 +147,6 @@ namespace JKang.IpcServiceFramework
             }
         }
 
-        private Exception ThrowFailedResposeException(IpcResponse response)
-        {
-            // Respose was a failure. Throw the exception if there is one to throw
-            object exception = null;
-            if (response.Data != null)
-            {
-                _converter.TryConvert(response.Data, response.ExceptionType, out exception);
-            }
-
-            if (exception != null)
-            {
-                return (exception as Exception);
-            }
-            else
-            {
-                return new InvalidOperationException(response.Failure);
-            }
-        }
-
         private static IpcRequest GetRequest(Expression exp, MyInterceptor interceptor)
         {
             if (!(exp is LambdaExpression lamdaExp))
@@ -143,13 +168,37 @@ namespace JKang.IpcServiceFramework
                 MethodName = interceptor.LastInvocation.Method.Name,
                 Parameters = interceptor.LastInvocation.Arguments,
 
-                ParameterTypeCommaAssemblyNames = interceptor.LastInvocation.Method.GetParameters()
-                              .Select(p => $"{p.ParameterType.FullName},{p.ParameterType.Assembly.GetName().Name}")
+                ParameterTypes = interceptor.LastInvocation.Method.GetParameters()
+                              .Select(p => p.ParameterType.FullName)
+                              .ToArray(),
+
+                ParameterAssemblyNames = interceptor.LastInvocation.Method.GetParameters()
+                              .Select(p => p.ParameterType.Assembly.GetName().Name)
                               .ToArray(),
 
 
                 GenericArguments = interceptor.LastInvocation.GenericArguments,
             };
+        }
+#endif
+
+        private Exception ThrowFailedResposeException(IpcResponse response)
+        {
+            // Respose was a failure. Throw the exception if there is one to throw
+            object exception = null;
+            if (response.Data != null)
+            {
+                _converter.TryConvert(response.Data, response.ExceptionType, out exception);
+            }
+
+            if (exception != null)
+            {
+                return (exception as Exception);
+            }
+            else
+            {
+                return new InvalidOperationException(response.Failure);
+            }
         }
 
         protected abstract Task<Stream> ConnectToServerAsync(CancellationToken cancellationToken);
@@ -168,6 +217,7 @@ namespace JKang.IpcServiceFramework
             }
         }
 
+#if !DISABLE_DYNAMIC_CODE_GENERATION
         private class MyInterceptor : IInterceptor
         {
             public IInvocation LastInvocation { get; private set; }
@@ -186,5 +236,6 @@ namespace JKang.IpcServiceFramework
                 invocation.ReturnValue = default(TResult);
             }
         }
+#endif
     }
 }

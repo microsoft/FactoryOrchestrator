@@ -12,7 +12,8 @@ namespace JKang.IpcServiceFramework
         /// <summary>
         /// Gets or sets the types of parameter of the IPC method to call
         /// </summary>
-        public string[] ParameterTypeCommaAssemblyNames { get; set; } = new string[0];
+        public string[] ParameterTypes { get; set; } = new string[0];
+        public string[] ParameterAssemblyNames { get; set; } = new string[0];
 
         public Type[] GenericArguments
         {

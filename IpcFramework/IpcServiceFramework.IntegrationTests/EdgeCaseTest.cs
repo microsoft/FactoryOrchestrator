@@ -38,6 +38,7 @@ namespace JKang.IpcServiceFramework.IntegrationTests
                 .Build();
         }
 
+#if !DISABLE_DYNAMIC_CODE_GENERATION
         [Fact]
         public async Task HugeMessage()
         {
@@ -45,6 +46,7 @@ namespace JKang.IpcServiceFramework.IntegrationTests
             new Random().NextBytes(buffer);
             byte[] result = await _client.InvokeAsync(x => x.ReverseBytes(buffer));
         }
+#endif
 
         public void Dispose()
         {

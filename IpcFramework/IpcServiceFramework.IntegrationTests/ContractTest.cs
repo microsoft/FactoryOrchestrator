@@ -37,6 +37,7 @@ namespace JKang.IpcServiceFramework.IntegrationTests
                 .Build();
         }
 
+#if !DISABLE_DYNAMIC_CODE_GENERATION
         [Theory, AutoData]
         public async Task SimpleType(float a, float b)
         {
@@ -97,6 +98,7 @@ namespace JKang.IpcServiceFramework.IntegrationTests
             long actual = await _client.InvokeAsync(x => x.WaitAsync(500));
             Assert.True(actual >= 450);
         }
+#endif
 
         public void Dispose()
         {

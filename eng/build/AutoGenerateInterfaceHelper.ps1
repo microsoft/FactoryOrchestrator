@@ -67,21 +67,21 @@ foreach ($line in $interfaceContent)
             
             if ($apiRet -eq "void")
             {
-                $outputContent += " await _IpcClient.InvokeAsync(x => x.$apiName"
+                $outputContent += " await _IpcClient.InvokeAsync(CreateIpcRequest(`"$apiName`""
             }
             else
             {
-                $outputContent += "return await _IpcClient.InvokeAsync(x => x.$apiName"
+                $outputContent += "return await _IpcClient.InvokeAsync<$apiRet>(CreateIpcRequest(`"$apiName`""
             }
 
             # Split args, remove default values and variable typesd
             if ($apiArgs -like "()")
             {
-                $outputContent += "$apiArgs"
+                $outputContent += ")"
             }
             else
             {
-                $outputContent += "("
+                $outputContent += ", "
                 $argsSplit = $apiArgs.Split(',')
                 for ($i = 0 ; $i -lt $argsSplit.Count; $i++)
                 {

@@ -2,21 +2,15 @@
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
-using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 namespace Microsoft.FactoryOrchestrator.Client
 {
-
     /// <summary>
     /// A helper class for Factory Orchestrator .NET clients. It wraps the inter-process calls in a more usable manner.
     /// WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
@@ -52,7 +46,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             // Test a command to make sure connection works
             try
             {
-                serviceVersion = await _IpcClient.InvokeAsync(x => x.GetServiceVersionString());
+                serviceVersion = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetServiceVersionString"));
             }
             catch (Exception ex)
             {
@@ -140,7 +134,8 @@ namespace Microsoft.FactoryOrchestrator.Client
                 }
 
                 var bytes = await ReadFileAsync(clientFilename);
-                await _IpcClient.InvokeAsync(x => x.SendFile(serverFilename, bytes));
+                
+                await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", serverFilename, bytes));
                 return bytes.Length;
             }
             catch (Exception ex)
@@ -168,7 +163,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 // Create target folder, if needed.
                 Directory.CreateDirectory(Path.GetDirectoryName(clientFilename));
 
-                var bytes = await _IpcClient.InvokeAsync(x => x.GetFile(serverFilename));
+                var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename));
                 await WriteFileAsync(clientFilename, bytes);
                 return bytes.Length;
             }
@@ -192,8 +187,8 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                var files = await _IpcClient.InvokeAsync(x => x.EnumerateFiles(serverDirectory, false));
-                var dirs = await _IpcClient.InvokeAsync(x => x.EnumerateDirectories(serverDirectory, false));
+                var files = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateFiles", serverDirectory, false));
+                var dirs = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateDirectories", serverDirectory, false));
                 long bytesReceived = 0;
 
                 clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
@@ -335,6 +330,83 @@ namespace Microsoft.FactoryOrchestrator.Client
 #endif
 
             return $"{assemblyVersion} ({description})";
+        }
+
+        /// <summary>
+        /// Creates the IPC request.
+        /// </summary>
+        /// <param name="methodName">Name of the method.</param>
+        /// <param name="args">The arguments to the method.</param>
+        /// <returns>IpcRequest object</returns>
+        private IpcRequest CreateIpcRequest(string methodName, params object[] args)
+        {
+
+            MethodBase method = null;
+
+            // Try to find the matching method based on name and args
+            try
+            {
+                if (args.All(x => x != null))
+                {
+                    method = this.GetType().GetMethod(methodName, args.Select(x => x.GetType()).ToArray());
+                }
+
+                if (method == null)
+                {
+                    method = this.GetType().GetMethod(methodName);
+                }
+            }
+            catch (Exception)
+            {
+                method = null;
+            }
+
+            if (method == null)
+            {
+                // Multiple methods with the same name were found or no method was found, try to find the unique method via stack trace
+                var frame = new StackTrace().GetFrames().Where(x => x.GetMethod()?.Name == methodName);
+
+                if (frame.Count() == 0)
+                {
+                    throw new Exception($"Could not find method with name {methodName}");
+                }
+                if (frame.Count() > 1)
+                {
+                    throw new Exception($"More than one method with name {methodName}");
+                }
+
+                method = frame.First().GetMethod();
+            }
+
+            var parameterTypes = method.GetParameters().Select(x => x.ParameterType);
+
+            var request = new IpcRequest()
+            {
+                MethodName = methodName,
+                Parameters = args,
+                ParameterAssemblyNames = parameterTypes.Select(x => x.Assembly.GetName().Name).ToArray(),
+                ParameterTypes = parameterTypes.Select(x => x.FullName).ToArray(),
+                GenericArguments = method.GetGenericArguments()
+            };
+
+            return request;
+        }
+
+
+        /// <summary>
+        /// Creates the IPC request.
+        /// </summary>
+        /// <param name="methodName">Name of the method. The method is assumed to have no parameters.</param>
+        /// <returns>IpcRequest object</returns>
+        private IpcRequest CreateIpcRequest(string methodName)
+        {
+            return new IpcRequest()
+            {
+                MethodName = methodName,
+                Parameters = new object[0],
+                ParameterAssemblyNames = new string[0],
+                ParameterTypes = new string[0]
+            };
         }
 
         /// <summary>
