@@ -8,13 +8,73 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
-        <TextBlock Text="Action Required: Task result expected by Factory Orchestrator Service" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30"/>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
-            <TextBlock x:Name="TestText"  Text="Task: " HorizontalAlignment="Center" FontSize="30"/>
-            <TextBlock x:Name="PathText"  Text="Path: " HorizontalAlignment="Center" FontSize="30" Visibility="Collapsed"/>
-            <TextBlock x:Name="ArgsText"  Text="Arguments: " HorizontalAlignment="Center" FontSize="30"/>
-            <TextBlock x:Name="TaskRunText" Text="Task Run: " HorizontalAlignment="Center" FontSize="30"/>
+    <Grid Width="Auto" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="12*"/>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="35*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Padding="15">
+            <TextBlock Text="Action Required" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="35" FontWeight="Bold"/>
+            <TextBlock x:Name ="TestText" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="15"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Padding="20">
+            <TextBlock x:Name="MediaProblems" FontSize="20" Visibility="Collapsed" TextWrapping="Wrap"></TextBlock>
+            <Image x:Name ="InstructionalImage" Visibility="Collapsed" Width="500"/>
+            <StackPanel HorizontalAlignment="Center">
+                <RelativePanel>
+                    <MediaPlayerElement x:Name="InstructionalVideo" AutoPlay="True" Width="500">
+                    </MediaPlayerElement>
+                    <StackPanel Orientation="Horizontal" RelativePanel.Below="InstructionalVideo" x:Name="VideoButtonTray" Visibility="Collapsed">
+                        <Button x:Name="InstructionalVideoPause" Click="InstructionalVideoPause_Click" ToolTipService.ToolTip="Pause" AutomationProperties.Name="Pause">
+                            <Button.Content>
+                                <SymbolIcon Symbol="Pause"/>
+                            </Button.Content>
+                        </Button>
+                        <Button x:Name="InstructionalVideoPlay" Click="InstructionalVideoPlay_Click" ToolTipService.ToolTip="Play" AutomationProperties.Name="Play">
+                            <Button.Content>
+                                <SymbolIcon Symbol="Play"/>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                    
+                </RelativePanel>
+            </StackPanel>
+            
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Left" Padding="20" VerticalAlignment="Center" Grid.Row="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="PathTextLabel"  Text="Path" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="20" Visibility="Collapsed" Grid.Row="1" Grid.Column="0" FontWeight="Bold"/>
+                <TextBlock x:Name="PathText" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="20" Visibility="Collapsed" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0"/>
+
+                <TextBlock x:Name="ArgsTextLabel"  Text="Arguments" HorizontalAlignment="Right" FontSize="20" Visibility="Collapsed" Grid.Row="2" Grid.Column="0" FontWeight="Bold"/>
+                <TextBlock x:Name="ArgsText" HorizontalAlignment="Left" FontSize="20" Grid.Row="2" Visibility="Collapsed" Grid.Column="1" Margin="10,0,0,0"/>
+
+                <TextBlock x:Name="TaskRunTextLabel"  Text="Task Run" HorizontalAlignment="Right" Visibility="Collapsed" FontSize="20" Grid.Row="3" Grid.Column="0" FontWeight="Bold"/>
+                <TextBlock x:Name="TaskRunText" HorizontalAlignment="Left" Visibility="Visible" FontSize="20" Grid.Row="3" Grid.Column="1" Margin="10,0,0,0"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="3" Padding ="15" Background="{ThemeResource SystemBaseLowColor}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="CommentBlock" Text="Notes (Optional)" Grid.Column="1" Padding="10" FontSize="25"/>
+                <TextBox x:Name="CommentBox" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="100" AutomationProperties.LabeledBy="{Binding ElementName=CommentBlock}"/>
+            </Grid>
             <Grid HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -22,19 +82,11 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="PassButton" Grid.Column="0" Margin="20" FontSize="50" Content="Pass ✔" Click="PassButton_Click"/>
+                <Button x:Name="PassButton" Grid.Column="0" Margin="20" FontSize="50" Click="PassButton_Click" Content="Pass ✔️"/>
                 <Button x:Name="FailButton" Grid.Column="1" Margin="20" FontSize="50" Content="Fail ❌" Click="FailButton_Click"/>
                 <Button x:Name="AbortButton" Grid.Column="2" Margin="20" FontSize="50" Content="Abort ⛔" Click="AbortButton_Click"/>
             </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                
-                <TextBlock x:Name="CommentBlock" Text="Notes:" Grid.Column="0" Padding="10"/>
-                <TextBox x:Name="CommentBox" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="200" AutomationProperties.LabeledBy="{Binding ElementName=CommentBlock}"/>
-            </Grid>
+            
         </StackPanel>
     </Grid>
 </Page>

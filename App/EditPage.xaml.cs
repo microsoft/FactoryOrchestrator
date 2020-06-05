@@ -393,11 +393,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         AutoPassCheck_Click(null, null);
 
                         EditFlyoutTextHeader.Text = $"Editing UWP Task";
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.External:
                         var externalTest = activeTask as ExternalTask;
                         TaskPathBox.Text = externalTest.Path;
                         ArgumentsBox.Text = externalTest.Arguments;
+                        PathBlock.Text = "Image or Video Path: ";
                         EditFlyoutTextHeader.Text = $"Editing External Task";
                         break;
                     case TaskType.TAEFDll:
@@ -405,6 +407,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         TaskPathBox.Text = taefTest.Path;
                         ArgumentsBox.Text = taefTest.Arguments;
                         EditFlyoutTextHeader.Text = $"Editing TAEF Test";
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.PowerShell:
                         var script = activeTask as PowerShellTask;
@@ -412,6 +415,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         ArgumentsBox.Text = script.Arguments;
                         EditFlyoutTextHeader.Text = $"Editing PowerShell Task";
                         BgTaskBox.IsChecked = script.BackgroundTask;
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.BatchFile:
                         var cmd = activeTask as BatchFileTask;
@@ -419,6 +423,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         ArgumentsBox.Text = cmd.Arguments;
                         EditFlyoutTextHeader.Text = $"Editing Batch File Task";
                         BgTaskBox.IsChecked = cmd.BackgroundTask;
+                        PathBlock.Text = "Path: ";
                         break;
                 }
             }
@@ -428,6 +433,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     case TaskType.ConsoleExe:
                         EditFlyoutTextHeader.Text = $"New Executable Task";
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.UWP:
                         EditFlyoutTextHeader.Text = $"New UWP Task";
@@ -435,18 +441,23 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         TerminateOnCompleteCheck.IsChecked = true;
                         // Enable Terminate box if needed
                         AutoPassCheck_Click(null, null);
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.External:
                         EditFlyoutTextHeader.Text = $"New External Task";
+                        PathBlock.Text = "Image or Video Path: ";
                         break;
                     case TaskType.TAEFDll:
                         EditFlyoutTextHeader.Text = $"New TAEF Test";
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.PowerShell:
                         EditFlyoutTextHeader.Text = $"New PowerShell Task";
+                        PathBlock.Text = "Path: ";
                         break;
                     case TaskType.BatchFile:
                         EditFlyoutTextHeader.Text = $"New Batch Task";
+                        PathBlock.Text = "Path: ";
                         break;
                 }
 

@@ -1,23 +1,20 @@
-﻿using Microsoft.FactoryOrchestrator.Core;
-using Microsoft.FactoryOrchestrator.Client;
+﻿using Microsoft.FactoryOrchestrator.Client;
+using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Windows.ApplicationModel.Core;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
+using Windows.Media;
+using Windows.Media.Core;
+using Windows.Storage;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using Windows.Devices.PointOfService;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -47,19 +44,124 @@ namespace Microsoft.FactoryOrchestrator.UWP
             taskRunPoller.StartPolling(Client);
 
             // Append task details to UI
-            TestText.Text += taskRun.TaskName;
+            string taskRunText = taskRun.TaskName;
+            if (!String.IsNullOrEmpty(taskRunText))
+            {
+                TestText.Text = taskRunText;
+                TestText.Visibility = Visibility.Visible;
+            }
+            
             if (taskRun.TaskPath != taskRun.TaskName)
             {
-                PathText.Text += taskRun.TaskPath;
-                PathText.Visibility = Visibility.Visible;
+                string taskRunPath = taskRun.TaskPath;
+                if (!String.IsNullOrEmpty(taskRunPath)) 
+                {
+                    PathText.Text = taskRunPath;
+                    PathText.Visibility = Visibility.Visible;
+                    PathTextLabel.Visibility = Visibility.Visible;
+                }
+                
+                string mediaPath = taskRun.TaskPath;
+                MediaType mediaType = GetInstructionalMediaType(mediaPath);                                                                    
+                if (mediaType == MediaType.Image)
+                {               
+                    AddSourceToImage(mediaPath, InstructionalImage, MediaProblems);                    
+                }
+                else if (mediaType == MediaType.Video)
+                {                                                         
+                    AddSourceToVideoAndDisplay(mediaPath, InstructionalVideo, MediaProblems);                                                                 
+                }
             }
 
-            ArgsText.Text += taskRun.Arguments;
-            TaskRunText.Text += taskRun.Guid.ToString();
-
+            string argsString = taskRun.Arguments;
+            string taskRunString = taskRun.Guid.ToString();
+            if (!String.IsNullOrEmpty(argsString)) 
+            {
+                ArgsText.Text = argsString;
+                ArgsText.Visibility = Visibility.Visible;
+                ArgsTextLabel.Visibility = Visibility.Visible;
+            }           
+            
+            if (!String.IsNullOrEmpty(taskRunString)) 
+            {
+                TaskRunText.Text = taskRunString;
+                TaskRunText.Visibility = Visibility.Visible;
+                TaskRunTextLabel.Visibility = Visibility.Visible;
+            }
             base.OnNavigatedTo(e);
         }
+   
+        /// <summary>
+        /// Given the file path to the media, it will determine if the file extenstion is one of the supported image file extensions or video file extensions, and return string "image" or "video", respectively
+        /// </summary>
+        /// <param name="mediaPath"></param>
+        /// <returns></returns>
+        private MediaType GetInstructionalMediaType(string mediaPath) 
+        {         
+            // TODO: Import all of the supported extensions from config.json, and store it in a scope outside of this function and page so it doesn't parse a json tree every time this is run
+            
+            // Strip the file path to be just the file extension
+            string mediaType = Path.GetExtension(mediaPath);
 
+            // Check if the path ends in a supported image extension
+            if (SupportedImageExtensions.Any(x => x.Equals(mediaType, StringComparison.OrdinalIgnoreCase))) 
+            {
+                return MediaType.Image;
+            }
+            if (SupportedVideoExtensions.Any(x => x.Equals(mediaType, StringComparison.OrdinalIgnoreCase)))
+            {
+                return MediaType.Video;
+            }
+   
+            return MediaType.None;
+        }
+
+        private async void AddSourceToImage(string devicePath, Image img, TextBlock errorText) 
+        {
+            string desiredName = Path.GetFileName(devicePath);
+
+            try
+            {
+                string newPath = Path.Combine(localFolder.Path, desiredName);
+                await Client.GetFileFromDevice(devicePath, newPath);               
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.UriSource = new Uri(img.BaseUri, newPath);
+                img.Source = bitmapImage;
+                img.Visibility = Visibility.Visible;
+            }
+            catch (Exception addImage)
+            {
+                errorText.Text = addImage.ToString();
+                errorText.Visibility = Visibility.Visible;
+            }
+        }
+        
+        private async void AddSourceToVideoAndDisplay(string devicePath, MediaPlayerElement mediaPlayer, TextBlock errorText) 
+        {
+            if (devicePath != null)
+            {
+                try
+                {
+                    // Create a new file in the current folder.
+                    string desiredName = Path.GetFileName(devicePath);
+                    string newPath = Path.Combine(localFolder.Path, desiredName);
+                    await Client.GetFileFromDevice(devicePath, newPath);                  
+                    StorageFile videoFile = await StorageFile.GetFileFromPathAsync(newPath);
+                    mediaPlayer.Source = MediaSource.CreateFromUri(new Uri(newPath));
+                    mediaPlayer.MediaPlayer.IsLoopingEnabled = true;
+                    mediaPlayer.Visibility = Visibility.Visible;
+                    VideoButtonTray.Visibility = Visibility.Visible;
+                    mediaPlayer.MediaPlayer.Play();
+                }
+                catch(Exception videoException) 
+                {
+                    errorText.Text = videoException.ToString();
+                    errorText.Visibility = Visibility.Visible;
+                }
+            }
+        }
+        
+        
         private void TaskRunPoller_OnException(object source, ServerPollerExceptionHandlerArgs e)
         {
             if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
@@ -86,7 +188,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 taskRunPoller.StopPolling();
                 taskRunPoller = null;
             }
-            base.OnNavigatedFrom(e);
+            InstructionalVideo.MediaPlayer.Dispose();
+            base.OnNavigatedFrom(e);            
         }
 
         /// <summary>
@@ -188,7 +291,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 }
             }
-
             ExitPage();
         }
 
@@ -209,10 +311,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void InstructionalVideoPause_Click(object sender, RoutedEventArgs e)
+        {
+            InstructionalVideo.MediaPlayer.Pause();
+        }
+
+        private void InstructionalVideoPlay_Click(object sender, RoutedEventArgs e)
+        {
+            InstructionalVideo.MediaPlayer.Play();
+        }
+
+        private enum MediaType
+        {
+            Image,
+            Video,
+            None
+        }
+        private readonly StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        // List of all supported image extensions
+        private readonly List<string> SupportedImageExtensions = new List<string> { ".JPG", ".JPE", ".BMP", ".GIF", ".PNG" };
+        // List of all supported video extensions
+        private readonly List<string> SupportedVideoExtensions = new List<string> { ".MP4", ".AVI", ".WMV" };
         private bool testReportReady;
         private TaskRun taskRun;
         private ServerPoller taskRunPoller;
         private object updateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+
+       
     }
 }
