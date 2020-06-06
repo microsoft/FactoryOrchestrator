@@ -406,7 +406,7 @@ steps:
     bugTags: 'FactoryOrchestrator'
     scanAll: false
     checkInConfigPath: 'eng/build/GitCheckin.json'
-    taskLogVerbosity: Detailed
+    taskLogVerbosity: Diagnostic
   condition: and(succeededOrFailed(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: false
 
@@ -417,7 +417,7 @@ steps:
     iterationPath: 'OS'
     bugTags: 'FactoryOrchestrator'
     scanAll: false
-    taskLogVerbosity: Detailed
+    taskLogVerbosity: Diagnostic
   condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESFCIBGit@10
