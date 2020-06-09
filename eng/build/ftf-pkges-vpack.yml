@@ -417,6 +417,8 @@ steps:
     iterationPath: 'OS'
     bugTags: 'FactoryOrchestrator'
     scanAll: false
+    binVersion: Custom
+    binVersionOverride: '1.5.200608006-scNoNative'
     taskLogVerbosity: Diagnostic
   condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
