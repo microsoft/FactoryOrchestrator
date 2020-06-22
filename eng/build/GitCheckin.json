@@ -3,7 +3,7 @@
 		{
 			"collection": "microsoft",
 			"project": "OS",
-			"repo": "os",
+			"repo": "os.2020",
 			"name": "official/rs_onecore_sigma_dplat",
 			"completePR": "False",
 			"CheckinFiles": [
