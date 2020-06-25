@@ -47,7 +47,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     .AddService<IFactoryOrchestratorService, FOCommunicationHandler>();
             });
 
-            // Configure service providers for logger creation and managment
+            // Configure service providers for logger creation and management
             ipcSvcProvider = servicesIpc
                 .AddLogging(builder =>
                 {
@@ -1156,6 +1156,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
+        private readonly string _enableNetworkAccessValue = @"EnableNetworkAccess";
         private readonly string _disableCmdPromptValue = @"DisableCommandPromptPage";
         private readonly string _disableWindowsDevicePortalValue = @"DisableWindowsDevicePortalPage";
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
@@ -1199,6 +1200,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableManageTasklistsPage { get; private set; }
         public bool DisableFileTransferPage { get; private set; }
         public bool DisableNetworkAccess { get; private set; }
+        public bool EnableNetworkAccess { get; private set; }
         public string TaskManagerLogFolder { get; private set; }
         /// <summary>
         /// List of apps to enable local loopback on.
@@ -1285,7 +1287,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     DisableUWPAppsPage = false;
                     DisableManageTasklistsPage = false;
                     DisableFileTransferPage = false;
-                    DisableNetworkAccess = false;
+                    DisableNetworkAccess = true;
+                    EnableNetworkAccess = false;
                     LocalLoopbackApps = new List<string>();
                     TaskManagerLogFolder = _defaultLogFolder;
                     IsExecutingBootTasks = true;
@@ -1313,26 +1316,38 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Start(bool forceUserTaskRerun)
         {
-            System.Threading.Thread.Sleep(15000);
+            bool NetworkAccessEnabled = false;
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks();
-
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
-            if (DisableNetworkAccess)
-            {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684)
-                                                                .Build();
-            }
-            else
+            // Only enable network access if it is explicitly enabled and not explicitly disabled
+            // For security, DisableNetwordAccess overrides EnableNetworkAccess if both are true
+            if (EnableNetworkAccess && !DisableNetworkAccess) 
             {
                 FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684)
                                                                 .Build();
+                NetworkAccessEnabled = true;
+            }
+            else
+            {
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684)
+                                                                .Build();
+                NetworkAccessEnabled = false;
             }
 
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
+            if (NetworkAccessEnabled)
+            {
+                ServiceLogger.LogInformation("Factory Orchestrator service network access is enabled\n");
+            }
+            else 
+            {
+                ServiceLogger.LogInformation("Factory Orchestrator service network access is disabled\n");
+            }
+            
             ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
             LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceStart, null, "Factory Orchestrator Service is executing boot tasks..."));
 
@@ -1889,7 +1904,14 @@ namespace Microsoft.FactoryOrchestrator.Service
             // If a value is set improperly, it will fallback to defaults set in the CTOR.
             try
             {
-                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue, false));
+                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue, true));
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue, false));
             }
             catch (Exception)
             { }
