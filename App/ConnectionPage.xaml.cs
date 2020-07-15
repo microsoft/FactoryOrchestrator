@@ -1,4 +1,7 @@
-﻿using Microsoft.FactoryOrchestrator.Core;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Net;
 using Windows.UI.Xaml;

@@ -1,4 +1,7 @@
-﻿using Microsoft.FactoryOrchestrator.Core;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+using Microsoft.FactoryOrchestrator.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;

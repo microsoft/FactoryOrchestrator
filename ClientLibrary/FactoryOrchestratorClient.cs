@@ -1,4 +1,7 @@
-﻿using JKang.IpcServiceFramework;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+using JKang.IpcServiceFramework;
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;

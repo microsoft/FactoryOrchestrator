@@ -1,4 +1,7 @@
-﻿using Microsoft.FactoryOrchestrator.Client;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+using Microsoft.FactoryOrchestrator.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;

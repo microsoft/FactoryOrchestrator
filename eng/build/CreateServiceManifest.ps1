@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 Param
 (
     [Parameter(Mandatory = $true)][string]$PublishFolder,
