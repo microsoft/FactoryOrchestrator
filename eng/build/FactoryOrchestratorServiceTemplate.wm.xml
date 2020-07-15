@@ -57,13 +57,13 @@
     internalName="FactoryOrchestratorService-In-TCP"
     name="FactoryOrchestratorService_Allow_In_TCP"
     />
-	<regKey keyName="$(hklm.control)\FactoryOrchestrator">
-		<regValue
-		name="EnableNetworkAccess"
-		type="REG_DWORD"
-		value="1"
-		/>
-	</regKey>
+	<regKeys>
+		<regKey keyName="$(hklm.control)\FactoryOrchestrator">
+			<regValue name="EnableNetworkAccess" 
+					  type="REG_DWORD" 
+					  value="1" />
+		</regKey>
+	</regKeys>
   <files>
   </files>
 </identity>
