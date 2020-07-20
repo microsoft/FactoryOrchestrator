@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    >
+  <service
+      description="Factory Orchestrator Service"
+      displayName="Factory Orchestrator Service"
+      errorControl="normal"
+      imagePath="%systemroot%\system32\manufacturing\FactoryOrchestrator\FactoryOrchestratorService.exe action:run"
+      name="FactoryOrchestratorService"
+      objectName="LocalSystem"
+      start="auto"
+      type="win32OwnProcess"
+      >
+    <failureActions resetPeriod="1000">
+      <actions>
+        <action
+            delay="5"
+            type="restartService"
+            />
+        <action
+            delay="5"
+            type="restartService"
+            />
+        <action
+            delay="5"
+            type="restartService"
+            />
+        <action
+            delay="5"
+            type="restartService"
+            />
+      </actions>
+    </failureActions>
+  </service>
+  <firewallRule
+    Protocol="TCP"
+    action="Allow"
+    active="True"
+    binary="%systemroot%\system32\manufacturing\FactoryOrchestrator\FactoryOrchestratorService.exe"
+    desc="Allow outbound TCP traffic from FactoryOrchestratorService"
+    dir="Out"
+    group="FactoryOrchestratorService"
+    internalName="FactoryOrchestratorService-Out-TCP"
+    name="FactoryOrchestratorService_Allow_Out_TCP"
+    />
+  <firewallRule
+    Protocol="TCP"
+    action="Allow"
+    active="True"
+    binary="%systemroot%\system32\manufacturing\FactoryOrchestrator\FactoryOrchestratorService.exe"
+    desc="Allow inbound TCP traffic from FactoryOrchestratorService"
+    dir="In"
+    group="FactoryOrchestratorService"
+    internalName="FactoryOrchestratorService-In-TCP"
+    name="FactoryOrchestratorService_Allow_In_TCP"
+    />
+	<regKeys>
+		<regKey keyName="$(hklm.control)\FactoryOrchestrator">
+			<regValue name="EnableNetworkAccess" 
+					  type="REG_DWORD" 
+					  value="1" />
+		</regKey>
+	</regKeys>
+  <files>
+  </files>
+</identity>

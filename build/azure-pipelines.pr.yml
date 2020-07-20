@@ -1,0 +1,82 @@
+
+
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
+pool:
+  name: Hosted Windows 2019 with VS2019
+  demands:
+  - msbuild
+  - visualstudio
+
+#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+
+pr:
+  branches:
+    include:
+    - '*'  # must quote since "*" is a YAML reserved character; we want a string
+jobs:
+- job: BuildFactoryOrchestrator
+  steps:
+    - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
+      displayName: 'NuGet restore'
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln Any CPU'
+      inputs:
+        platform: 'Any CPU'
+        configuration: 'Debug'
+
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln x86 and all arch AppXPackage'
+      inputs:
+        platform: x86
+        configuration: 'Debug'
+        msbuildArgs: '/p:AppxBundlePlatforms="x86|x64|arm" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
+
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln x64'
+      inputs:
+        platform: x64
+        configuration: 'Debug'
+
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln ARM'
+      inputs:
+        platform: ARM
+        configuration: 'Debug'
+
+- job: RunPoliCheck
+  steps:
+  - task: PoliCheck@1
+    displayName: 'Run Policheck'
+    inputs:
+      inputType: 'Basic'
+      targetType: 'F'
+      targetArgument: '$(Build.SourcesDirectory)'
+      result: 'PoliCheck.xml'
+      #d:\a\1\_sdt\logs\PoliCheck\PoliCheck.xml
+      #copying all from _sdt directory "data folder"
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Agent.BuildDirectory)\_sdt\logs\PoliCheck' #d:\a\1\_sdt
+      contents: '**'
+      targetFolder: $(Build.ArtifactStagingDirectory)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: BuildArtifactStagingDirectoryPoli
+
+- job: RunFxCop
+  steps: 
+  - task: FxCop@2
+    inputs:
+      inputType: 'Basic'
+      targets: '**\*.cs'
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Agent.BuildDirectory)\_sdt\logs\FxCop'
+      contents: '**'
+      targetFolder: $(Build.ArtifactStagingDirectory)
+  - task: PublishBuildArtifacts@1
+    inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: BuildArtifactStagingDirectoryFx
+  
