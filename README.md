@@ -3,7 +3,7 @@
 |  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=master)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)  |   
 
 # Introduction 
-Factory Orchestrator is a tool for built for Original Equipment Maufacturers to aid in the manufacturing of  
+Factory Orchestrator is a tool for built for Original Equipment Maufacturers to aid in the manufacturing of Windows devices.
 Factory Orchestrator consists of the following projects
 ## 1. FactoryOrchestratorCoreLibrary 
 .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
@@ -34,6 +34,7 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
 ## 2. Clone Project
 Visual Studio is recommended for developing
 
