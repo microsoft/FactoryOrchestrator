@@ -1,0 +1,76 @@
+﻿<Page
+    x:Class="Microsoft.FactoryOrchestrator.UWP.FileTransferPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Microsoft.FactoryOrchestrator.UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <Flyout x:Name="ConfirmTransferFlyout" x:Key="ConfirmTransferFlyout">
+            <StackPanel>
+                <TextBlock x:Name="HeaderGet" Text="Copy File from Server to Client?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
+                <TextBlock x:Name="HeaderSend" Text="Copy File from Client to Server?" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5" Visibility="Collapsed"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="SourceFileHeaderGet" Text="Source File (from Server):" FontWeight="Bold" Padding="5,0"/>
+                    <TextBlock x:Name="SourceFileHeaderSend" Text="Source File (from Client):" FontWeight="Bold" Visibility="Collapsed" Padding="5,0"/>
+                    <TextBlock x:Name="SourceFileBody" Text=""/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="TargetFileHeaderGet" Text="Destination (on Client):" FontWeight="Bold" Padding="5,0"/>
+                    <TextBlock x:Name="TargetFileHeaderSend" Text="Destination (on Server):" FontWeight="Bold" Visibility="Collapsed" Padding="5,0"/>
+                    <TextBlock x:Name="TargetFileBody" Text=""/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="CancelCopy" Padding="5" Margin="5" Click="CancelCopy_Click" AutomationProperties.Name="Cancel file copy">
+                        <SymbolIcon Symbol="Cancel"/>
+                    </Button>
+                    <Button x:Name="ConfirmCopy" Padding="5" Margin="5" Click="ConfirmCopy_Click" AutomationProperties.Name="Confirm file copy">
+                        <SymbolIcon Symbol="Copy"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Flyout>
+    </Page.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <HyperlinkButton Content="Windows 10 (Desktop) only: You must allow file system access for this app! Click here for instructions." NavigateUri="https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontWeight="bold"/>
+        <TextBlock x:Name="ClientText" Text="Client File: " Grid.Row="2" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Right" Margin="10,0,0,0" VerticalAlignment="Center"/>
+        <TextBox x:Name="ClientFileTextBox"  Grid.Row="2" Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10,0" AutomationProperties.LabeledBy="{Binding ElementName=ClientText}"/>
+
+        <TextBlock x:Name="ServerText" Text="Server File: " Grid.Row="4" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Right" Margin="10,0,0,0" VerticalAlignment="Center"/>
+        <TextBox x:Name="ServerFileTextBox"  Grid.Row="4" Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10,0" AutomationProperties.LabeledBy="{Binding ElementName=ServerText}"/>
+
+        <StackPanel Grid.Row="6" Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Left">
+            <Button x:Name="SendClientFileButton" Margin="0,0,10,0" Click="SendClientFileButton_Click" FlyoutBase.AttachedFlyout="{StaticResource ConfirmTransferFlyout}" AutomationProperties.LabeledBy="{Binding ElementName=SendText}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE898;"/>
+                    <TextBlock x:Name="SendText" Text="Send Client File to Server" Margin="5,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="GetServerFileButton" Click="GetServerFileButton_Click" FlyoutBase.AttachedFlyout="{StaticResource ConfirmTransferFlyout}" AutomationProperties.LabeledBy="{Binding ElementName=GetText}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE896;"/>
+                    <TextBlock x:Name="GetText" Text="Save Server File to Client" Margin="5,0"/>
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</Page>

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>IpcServiceFramework</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(DisableDynamicCodeGeneration)' == 'true'">
+    <DefineConstants>DISABLE_DYNAMIC_CODE_GENERATION</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(DisableDynamicCodeGeneration)' != 'true'">
+    <PackageReference Include="Castle.Core" Version="4.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IpcServiceFramework.Core\IpcServiceFramework.Core.csproj" />
+  </ItemGroup>
+
+</Project>

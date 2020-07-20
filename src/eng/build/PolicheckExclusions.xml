@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PoliCheckExclusions>
+    <!-- Each of these exclusions is a folder name - if any folder or file starts with "\[name]", it will be skipped -->
+    <Exclusion Type="FolderPathStart">.GIT|.VS|OBJ|.INFRA</Exclusion>
+
+    <!-- The specified file names will be skipped during the scan regardless which folder they are in -->
+    <Exclusion Type="FileName">DOCFX.VENDOR.JS</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Core.Tests.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.IntegrationTests.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Client.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Server.environment.txt</Exclusion>
+    <Exclusion Type="FileName">IpcServiceFramework.Core.environment.txt</Exclusion>
+</PoliCheckExclusions>
