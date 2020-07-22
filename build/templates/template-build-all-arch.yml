@@ -31,6 +31,8 @@ jobs:
         configuration: 'Debug'
 
 - job: RunPoliCheck
+  pool:
+    vmImage: windows-2019
   steps:
   - task: PoliCheck@1
     displayName: 'Run Policheck'
@@ -52,6 +54,8 @@ jobs:
       artifactName: BuildArtifactStagingDirectoryPoli
 
 - job: RunFxCop
+  pool:
+    vmImage: windows-2019
   steps: 
   - task: FxCop@2
     inputs:
