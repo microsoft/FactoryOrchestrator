@@ -14,5 +14,5 @@ trigger:
 pr: none
 
 jobs:
-- template: ./templates/template-build-all-arch.yaml
+- template: templates/template-build-all-arch.yaml
   
