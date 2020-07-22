@@ -1,10 +1,3 @@
-name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
-pool:
-  name: Hosted Windows 2019 with VS2019
-  demands:
-  - msbuild
-  - visualstudio
-  
 jobs:
 - job: BuildFactoryOrchestrator
   steps:
