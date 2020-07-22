@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
-    <ProjectReference Include="..\IpcFramework\IpcServiceFramework.Server\IpcServiceFramework.Server.csproj" />
+    <ProjectReference Include="..\oss\ipcframework\IpcServiceFramework.Server\IpcServiceFramework.Server.csproj" />
     <ProjectReference Include="..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
   </ItemGroup>
 
