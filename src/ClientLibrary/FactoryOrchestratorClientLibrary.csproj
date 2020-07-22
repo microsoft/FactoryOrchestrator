@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
-    <ProjectReference Include="..\IpcFramework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj" />
+    <ProjectReference Include="..\oss\ipcframework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj" />
   </ItemGroup>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true'">
