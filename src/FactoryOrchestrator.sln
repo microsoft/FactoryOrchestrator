@@ -11,28 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorApp", "A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorClientLibrary", "ClientLibrary\FactoryOrchestratorClientLibrary.csproj", "{C5FDA4E1-E631-47B2-BA5F-6558F8506DF7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BC551A63-2CD3-4680-AA7B-2E5BABA1C9CE}"
-	ProjectSection(SolutionItems) = preProject
-		eng\build\AutoGenerateInterfaceHelper.ps1 = eng\build\AutoGenerateInterfaceHelper.ps1
-		eng\build\CreateServiceManifest.ps1 = eng\build\CreateServiceManifest.ps1
-		eng\build\CreateServiceManifestForPkgES.ps1 = eng\build\CreateServiceManifestForPkgES.ps1
-		eng\build\CredScanSuppressions.json = eng\build\CredScanSuppressions.json
-		custom.props = custom.props
-		Directory.Build.props = Directory.Build.props
-		eng\build\FactoryOrchestratorServiceTemplate.wm.xml = eng\build\FactoryOrchestratorServiceTemplate.wm.xml
-		eng\build\ftf-ci-hosted.yml = eng\build\ftf-ci-hosted.yml
-		eng\build\ftf-pkges-vpack.yml = eng\build\ftf-pkges-vpack.yml
-		eng\build\GitCheckin.json = eng\build\GitCheckin.json
-		eng\build\MakeAppxBundle.cmd = eng\build\MakeAppxBundle.cmd
-		eng\build\PolicheckExclusions.xml = eng\build\PolicheckExclusions.xml
-		README.md = README.md
-		eng\build\SetSourceVersion.ps1 = eng\build\SetSourceVersion.ps1
-		StartAppDebug.cmd = StartAppDebug.cmd
-		StartSampleDebug.cmd = StartSampleDebug.cmd
-		StartServiceDebug.cmd = StartServiceDebug.cmd
-		eng\build\UpdateClientSampleForWSK.ps1 = eng\build\UpdateClientSampleForWSK.ps1
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorServerLibrary", "ServerLibrary\FactoryOrchestratorServerLibrary.csproj", "{3F3AD59B-1E8A-4B01-BAE5-D6DABAF43DE1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpcServiceFramework.Client", "oss\ipcframework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj", "{52CEB7ED-27E4-40DF-810F-4971CAF0F55E}"
@@ -55,6 +33,39 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125
 	ProjectSection(SolutionItems) = preProject
 		oss\DotNetCore.WindowsService.txt = oss\DotNetCore.WindowsService.txt
 		oss\IpcServiceFramework.txt = oss\IpcServiceFramework.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A-F7D2-40A1-B311-1416F9CE7A2A}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\AutoGenerateInterfaceHelper.ps1 = ..\build\AutoGenerateInterfaceHelper.ps1
+		..\build\azure-pipelines.pr.yml = ..\build\azure-pipelines.pr.yml
+		..\build\azure-pipelines.release.yml = ..\build\azure-pipelines.release.yml
+		..\build\azure-pipelines.yml = ..\build\azure-pipelines.yml
+		custom.props = custom.props
+		..\build\SetSourceVersion.ps1 = ..\build\SetSourceVersion.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "internal", "internal", "{A33F40C3-2BAD-406E-86BE-DBE33F12BB29}"
+	ProjectSection(SolutionItems) = preProject
+		build\internal\CreateServiceManifest.ps1 = build\internal\CreateServiceManifest.ps1
+		build\internal\CreateServiceManifestForPkgES.ps1 = build\internal\CreateServiceManifestForPkgES.ps1
+		build\internal\FactoryOrchestratorServiceTemplate.wm.xml = build\internal\FactoryOrchestratorServiceTemplate.wm.xml
+		build\internal\ftf-ci-hosted.yml = build\internal\ftf-ci-hosted.yml
+		build\internal\ftf-pkges-vpack.yml = build\internal\ftf-pkges-vpack.yml
+		build\internal\GitCheckin.json = build\internal\GitCheckin.json
+		build\internal\MakeAppxBundle.cmd = build\internal\MakeAppxBundle.cmd
+		build\internal\UpdateClientSampleForWSK.ps1 = build\internal\UpdateClientSampleForWSK.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{B4F05BFC-A45E-4400-814A-12DA0D6FA3D0}"
+	ProjectSection(SolutionItems) = preProject
+		build\CredScanSuppressions.json = build\CredScanSuppressions.json
+		build\PolicheckExclusions.xml = build\PolicheckExclusions.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\templates\template-build-all-arch.yml = ..\build\templates\template-build-all-arch.yml
 	EndProjectSection
 EndProject
 Global
@@ -240,6 +251,9 @@ Global
 		{85F00E28-CD14-4FAD-BD5A-A78B3AE4F57E} = {BB6182E5-4177-44D4-A7E8-2590D00941AE}
 		{75CE917D-7640-4B7C-A25B-5EBCD14FE21D} = {BB6182E5-4177-44D4-A7E8-2590D00941AE}
 		{EC92FDBB-93C1-4F42-ABF6-B4A5D01DD571} = {BB6182E5-4177-44D4-A7E8-2590D00941AE}
+		{A33F40C3-2BAD-406E-86BE-DBE33F12BB29} = {492B979A-F7D2-40A1-B311-1416F9CE7A2A}
+		{B4F05BFC-A45E-4400-814A-12DA0D6FA3D0} = {492B979A-F7D2-40A1-B311-1416F9CE7A2A}
+		{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F} = {492B979A-F7D2-40A1-B311-1416F9CE7A2A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DDE1E8F8-AA02-4732-8297-525697F8BEDA}
