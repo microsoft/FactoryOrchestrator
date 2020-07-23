@@ -23,6 +23,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -45,7 +46,8 @@
                 <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TerminateOnCompleteCheck" Content="Terminate App on Completion?" IsChecked="True" Visibility="Collapsed" IsThreeState="False" Padding="5"/>
                 <CheckBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" Content="Abort TaskList on Task failure?" IsChecked="False" IsThreeState="False" Padding="5"/>
                 <CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" x:Name="BgTaskBox" Content="Add as Background Task?" IsChecked="False" IsThreeState="False" Padding="5" Click="BgTaskBox_Click"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2" >
+                <CheckBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ContainerBox" Content="Run In Container?" IsChecked="False" IsThreeState="False" Padding="5" />
+                <StackPanel Orientation="Horizontal" Grid.Row="11" Grid.ColumnSpan="2" >
                     <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
                         <SymbolIcon Symbol="Cancel"/>
                     </Button>

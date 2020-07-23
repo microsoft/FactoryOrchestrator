@@ -30,6 +30,7 @@
     <xs:attribute type="xs:boolean" name="AbortTaskListOnFailed" use="optional"/>
     <xs:attribute type="xs:boolean" name="AutoPassedIfLaunched" use="optional"/>
     <xs:attribute type="xs:boolean" name="TerminateOnCompleted" use="optional"/>
+    <xs:attribute type="xs:boolean" name="RunInContainer" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="TasksType">

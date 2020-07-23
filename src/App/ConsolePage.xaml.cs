@@ -20,6 +20,7 @@ using Microsoft.FactoryOrchestrator.Core;
 using System.Threading.Tasks;
 using System.Threading;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using Windows.UI.Core;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -35,16 +36,48 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _cmdSem = new SemaphoreSlim(1, 1);
             _outSem = new SemaphoreSlim(1, 1);
             _newCmd = false;
+            ((App)Application.Current).PropertyChanged += ConsolePage_AppPropertyChanged; ;
+        }
+
+        private async void ConsolePage_AppPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("IsContainerRunning", StringComparison.Ordinal))
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (((App)Application.Current).IsContainerRunning)
+                    {
+                        ContainerCheckBox.IsEnabled = true;
+                    }
+                    else
+                    {
+                        ContainerCheckBox.IsEnabled = false;
+                        ContainerCheckBox.IsChecked = false;
+                    }
+                });
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             Client = ((App)Application.Current).Client;
+
             if ((_taskRunPoller != null) && (!_activeCmdTaskRun.TaskRunComplete))
             {
                 // Only restart polling if the command is still running.
                 _taskRunPoller.StartPolling(Client);
             }
+
+            if (((App)Application.Current).IsContainerRunning)
+            {
+                ContainerCheckBox.IsEnabled = true;
+            }
+            else
+            {
+                ContainerCheckBox.IsEnabled = false;
+                ContainerCheckBox.IsChecked = false;
+            }
+
             base.OnNavigatedTo(e);
         }
 
@@ -127,7 +160,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 _taskRunPoller.StopPolling();
             }
-            _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null);
+
+            _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null, (bool)ContainerCheckBox.IsChecked);
 
             // Watch for new output
             _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), 1000);
