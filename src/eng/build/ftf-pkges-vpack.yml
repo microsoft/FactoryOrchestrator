@@ -296,7 +296,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy IPC License to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\osslicenses'
+    SourceFolder: '$(Build.SourcesDirectory)\oss'
     Contents: 'IpcServiceFramework.txt'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
