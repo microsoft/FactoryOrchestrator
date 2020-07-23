@@ -1,0 +1,14 @@
+{
+  "tool": "Credential Scanner",
+  "suppressions": [
+    {
+      "file": "App_TemporaryKey.pfx", 
+      "_justification": "Self Signed APPX certificate file with private key"
+    },
+    {
+      "folder": "ClientLibrary\\obj\\",
+      "_justification": "Object directory"
+    }
+  ]
+
+}

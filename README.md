@@ -1,67 +1,55 @@
+| CI Build   | 
+|----|
+|  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=master)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)  |   
+
 # Introduction 
-Factory Orchestrator
+Factory Orchestrator is a tool for built for Original Equipment Maufacturers to aid in the manufacturing of Windows devices.
+Factory Orchestrator consists of the following projects
+## 1. FactoryOrchestratorCoreLibrary 
+.NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
+## 2.	FactoryOrchestratorServerLibrary
+A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects.
+## 3.	FactoryOrchestratorClientLibrary 
+.NET Standard library containing the client-side FactoryOrchestrator classes. Has helper classes which are optional for all FactoryOrchestrator client projects.
+## 4.	FactoryOrchestratorService 
+.NET Core Executable project for FactoryOrchestratorService.exe, the FactoryOrchestrator server implementation.
+## 5.	FactoryOrchestratorApp 
+.NET UWP app project for FactoryOrchestratorApp.exe, the UWP used to communicate with FactoryOrchestratorService and run UI tests.
+## Open Source Component
+### IpcServiceFramework
+https://github.com/jacqueskang/IpcServiceFramework
+FactoryOrchestrator forks the source of IpcServiceFramework. At this time, we are actively working on integrating our version of IpcServiceFramework the official IpcServiceFramework repo, removing the need for this fork.
 
-Factory Orchestrator consists of the following projects:
-1) FactoryOrchestratorCoreLibrary - A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
-2) FactoryOrchestratorServerLibrary - A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects.
-3) FactoryOrchestratorClientLibrary - A .NET Standard library containing the client-side FactoryOrchestrator classes. Has helper classes which are optional for all FactoryOrchestrator client projects.
-4) FactoryOrchestratorService - A .NET Core Executable project for FactoryOrchestratorService.exe, the FactoryOrchestrator server implementation.
-5) FactoryOrchestratorApp - A .NET UWP app project for FactoryOrchestratorApp.exe, the UWP used to communicate with FactoryOrchestratorService and run UI tests.
+# Contributing
 
-This solution also contains an example .NET executable project which interacts with FactoryOrchestratorService (ClientSample), and a currently private fork of the IpcServiceFramework by Jacques Kang.
+## 1. Accept Contributor Licence Agreement (CLA)
+This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
-# Usage
-FactoryOS images can automatically include the FactoryOrchestrator UWP and Service via the Microsoft.FactoryTestFrameworkUWP_8wekyb3d8bbwe optional AppX and FACTORY_TEST_FRAMEWORK_SERVICE Microsoft Feature.
+When you submit a pull request, a CLA bot will automatically determine whether you need to provide
+a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
+provided by the bot. You will only need to do this once across all repos using our CLA.
 
-If it does not have it installed, or you want to install a new version of the UWP:
-1) Build appx package for target hardware. DO NOT enable .NET Native in the project settings.
-2) Deploy appx and dependencies via Windows Device Portal.
-3) (This only works if device is in State Separation development mode or this is done offline.) Register app to start on first boot by setting HKLM\Software\Microsoft\CoreShell\FactoryOS\DefaultApp to REG_SZ with value:
-"microsoft.factorytestframeworkuwp.dev_8wekyb3d8bbwe!App" for any locally built UWP
-- OR - 
-"microsoft.factorytestframeworkuwp_8wekyb3d8bbwe!App" for any PackageES built UWP
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-If it does not have it installed, or you want to install a new version of the Service:
-1) Publish FactoryOrchestratorService project for the desired architecture using Visual Studio
-2) Copy all files under the publish folder to FactoryOS device
-3) Add firewall rules (only needed for network communication, this is done automatically for the inbox FactoryOS FactoryOrchestratorService):
-netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_in program=<Path to FactoryOrchestratorService.exe> protocol=tcp dir=in enable=yes action=allow profile=public,private,domain
-netsh advfirewall firewall add rule name=FactoryOrchestratorService_tcp_out program=<Path to FactoryOrchestratorService.exe> protocol=tcp dir=out enable=yes action=allow profile=public,private,domain
-4) (If replacing the existing service) Run "sc delete FactoryOrchestratorService" 
-5) (The created service entry only persists if device is in State Separation development mode.) Run "FactoryOrchestratorService.exe action:install name:FactoryOrchestratorService" 
-6) Run "sc start FactoryOrchestratorService"
+## 2. Clone Project
+Visual Studio is recommended for developing
 
-# Sample usage
-An example of the test content folder to use for this is at: \\wexfs\users\jafriedm\oemworkshop_FOcontent\AutomatedTestFlow
+## 3. Address Unsigned Powershell Scripts
+FactoryOrchestrator contains a series of unsigned powershell scripts. Windows security measures prevent unsigned scripts from executing. In order to develop on FactoryOrchestrator, you need to do one of two things.
 
-Args must be in order: <IP ADDRESS> <TEST CONTENT FOLDER WITH FACTORYOCHESTRATORXML FILE(S)> <TARGET FOLDER ON DUT> <TARGET FOLDER ON PC TO SAVE LOGS>
+### Self-sign
+More information on how to do this can be found here: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7
 
-# Build and Test
-When building FactoryOrchestratorApp locally, DevPackage.appxmanifest is used instead of Package.appxmanifest. This causes the app to have a different PFN (Microsoft.FactoryTestFrameworkUWP.DEV_8wekyb3d8bbwe) and display name (Factory Orchestrator (DEV)).
-This is done since you cannot replace the PackageES-built inbox FactoryOrchestratorApp application, as it is installed to the read-only preinstalled partition.
-
-When building with PackageES, the following variables are allowed:
-skipgitsubmit - if true, the vpack manifests are not updated in the OS repo
-skipartifacts - if true, the build artifacts are not published to VSO
-skipmsix - if true, the msixbundle isnt created
-skipvpack - if true, no vPacks are created
-
-# Contribute
-Please do not submit updates to the AssemblyInfo.cs files, they are autogenerated by the build. Run the following from the root of the git repo to prevent them from being tracked by git:
-git update-index --assume-unchanged App/Properties/AssemblyInfo.cs
-git update-index --assume-unchanged Service/Properties/AssemblyInfo.cs
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://www.visualstudio.com/en-us/docs/git/create-a-readme). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
-
-Troubleshooting:
-1.	Restart the apps (WDP -> apps manager, kill FactoryOrchestratorApp then relaunch) and service (cmdd sc stop/start FactoryOrchestratorService) or reboot
-2.	Make sure UWP local loopback is enabled on the device (only needed for on-device communication) with TSHELL or SSH via CheckNetIsolation.exe LoopbackExempt -s. If it isn't set, delete HKLM\System\CurrentControlSet\Control\FactoryOrchestrator\UWPLocalLoopbackEnabled and restart FactoryOrchestratorService.
-3.  Make sure the firewall rules are configured (see Usage)
-
+### Set the Execution Policy to Unrestricted
+This method is not recommended, but is doable. Setting the Execution Policy to Unresricted allows any powershell script to run. 
+Documentation on Execution Policy:
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7
 
 # Open Source Software
 IpcServiceFramework - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
 DotNetCore.WindowsService - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
+
