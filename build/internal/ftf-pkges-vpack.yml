@@ -81,7 +81,7 @@ steps:
 - task: VSTest@1
   displayName: 'Test Assemblies *test*.dll'
   inputs:
-    testAssembly: '$(Build.SourcesDirectory)\**\*test*.dll;-:**\obj\**'
+    testAssembly: '$(Build.SourcesDirectory)\src\**\*test*.dll;-:**\obj\**'
     codeCoverageEnabled: true
     runInParallel: False
     vsTestVersion: latest
@@ -92,7 +92,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -102,7 +102,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -112,7 +112,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -122,7 +122,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -131,7 +131,7 @@ steps:
   displayName: 'Create FactoryOrchestratorService Manifest for VPack'
   inputs:
     targetType: filePath
-    filePath: ./eng/build/CreateServiceManifestForPkgES.ps1
+    filePath: ./build/internal/CreateServiceManifestForPkgES.ps1
     arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryOrchestrator'
     failOnStderr: true
   condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
@@ -179,7 +179,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'Run script MakeAppxBundle.cmd'
   inputs:
-    filename: eng/build/MakeAppxBundle.cmd
+    filename: build/internal/MakeAppxBundle.cmd
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
   enabled: true
 
@@ -296,7 +296,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy IPC License to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\oss'
+    SourceFolder: '$(Build.SourcesDirectory)\src\oss'
     Contents: 'IpcServiceFramework.txt'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
@@ -304,7 +304,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy XSD to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\CoreLibrary'
+    SourceFolder: '$(Build.SourcesDirectory)\src\CoreLibrary'
     Contents: 'FactoryOrchestratorXML.xsd'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
@@ -338,7 +338,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Client Sample to root of drop'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\ClientSample'
+    SourceFolder: '$(Build.SourcesDirectory)\src\ClientSample'
     Contents: |
      **\*.cs
      **\*.csproj
@@ -349,7 +349,7 @@ steps:
   displayName: 'Modify Client Sample for WSK'
   inputs:
     targetType: filePath
-    filePath: ./eng/build/UpdateClientSampleForWSK.ps1
+    filePath: ./build/internal/UpdateClientSampleForWSK.ps1
     arguments: '-ProjectFolder $(XES_DFSDROP)\ClientSampleWSK'
     failOnStderr: true
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
@@ -382,14 +382,14 @@ steps:
   displayName: 'Run PoliCheck'
   inputs:
     targetType: F
-    optionsUEPATH: '$(Build.SourcesDirectory)\eng\build\PolicheckExclusions.xml'
+    optionsUEPATH: '$(Build.SourcesDirectory)\build\config\PolicheckExclusions.xml'
   condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
   displayName: 'Run CredScan'
   inputs:
     debugMode: false
-    suppressionsFile: 'eng/build/CredScanSuppressions.json'
+    suppressionsFile: 'build/config/CredScanSuppressions.json'
   condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
@@ -405,7 +405,7 @@ steps:
     iterationPath: 'OS'
     bugTags: 'FactoryOrchestrator'
     scanAll: false
-    checkInConfigPath: 'eng/build/GitCheckin.json'
+    checkInConfigPath: 'build/internal/GitCheckin.json'
     taskLogVerbosity: Diagnostic
   condition: and(succeededOrFailed(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: false
@@ -427,7 +427,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'Package ES - Create PR for VPack Manifest to OS Repo'
   inputs:
-    configPath: 'eng/build/GitCheckin.json'
+    configPath: 'build/internal/GitCheckin.json'
     binVersion: Custom
     binVersionOverride: 'Production'
   condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), ne(variables['skipvpack'], 'true')))

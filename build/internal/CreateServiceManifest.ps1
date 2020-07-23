@@ -21,12 +21,12 @@ $ns = @{wmxml = "$wmxmlNs"}
 Write-Host "Creating manifest $OutputFile from $PublishFolder"
 
 # Set manifest info
-$rootNode = Select-Xml -Xml $templateXml -XPath "//wmxml:identity" -Namespace $ns | Select -First 1
+$rootNode = Select-Xml -Xml $templateXml -XPath "//wmxml:identity" -Namespace $ns | Select-Object -First 1
 $rootNode.Node.SetAttribute("owner", "$Owner")
 $rootNode.Node.SetAttribute("namespace", "$Namespace")
 $rootNode.Node.SetAttribute("name", "$Name")
 
-$filesNode = Select-Xml -Xml $templateXml -XPath "//wmxml:files" -Namespace $ns | Select -First 1
+$filesNode = Select-Xml -Xml $templateXml -XPath "//wmxml:files" -Namespace $ns | Select-Object -First 1
 
 [System.IO.DirectoryInfo] $PublishDir = $PublishFolder
 $filesToAdd = Get-ChildItem $PublishFolder -Recurse -File
@@ -63,7 +63,7 @@ foreach ($file in $filesToAdd)
     $newElement = $templateXml.CreateElement("file", $wmxmlNs)
     $newElement.SetAttribute("destinationDir", "$fileDestinationDir")
     $newElement.SetAttribute("source", "$source")
-    $node = $filesNode.Node.AppendChild($newElement)
+    $null = $filesNode.Node.AppendChild($newElement)
 	Write-Host "Added $($file.FullName)."
 	Write-Host "---source: $source"
 	Write-Host "---destinationDir: $fileDestinationDir"
