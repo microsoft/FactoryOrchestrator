@@ -39,8 +39,8 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputPath>..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <DocumentationFile>..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
+    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -71,10 +71,10 @@
   </ItemGroup>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile" Condition="'$(IsTFSBuild)' == 'true'">
-    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
   <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile" Condition="'$(IsTFSBuild)' != 'true'">
-    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
+    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
   </Target>
 
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />

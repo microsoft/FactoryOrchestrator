@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+# This script is used to auto-generate the FactoryOrchestratorClient implementation of IFactoryOrchestratorService (IPCInterface.cs)
 Param
 (
     [string]$InterfaceName,
@@ -13,7 +14,6 @@ Write-Host "Autogenerating $OutputFile from $InterfaceName interface in $Interfa
 $file = Get-Item -Path "$InterfaceFile"
 $interfaceContent = Get-Content $file.FullName
 $inInterface = $false
-$inSummary = $true
 $indent = "    "
 [string]$outputContent = ""
 $currentSummary = @()
@@ -25,18 +25,15 @@ foreach ($line in $interfaceContent)
         if ($line -like "*/// <summary>*")
         {
             # add to methodSummaries
-            $inSummary = $true
             $currentSummary += "$line`n"
         }
         elseif ($line -like "*///*")
         {
             # add to methodSummaries
-            $inSummary = $true
             $currentSummary += "$line`n"
         }
         elseif ($line -like "*;")
         {
-            $inSummary = $false
             # write out summary
             foreach ($summ in $currentSummary)
             {

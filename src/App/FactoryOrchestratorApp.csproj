@@ -98,7 +98,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputPath>..\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
@@ -291,17 +291,14 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile" Condition="'$(IsTFSBuild)' == 'true'">
-    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
   <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile" Condition="'$(IsTFSBuild)' != 'true'">
-    <Exec Command="Powershell.exe $(ProjectDir)..\eng\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
+    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
   </Target>
   <Target Name="AfterBuild" Condition="'$(IsTFSBuild)' == 'true'">
     <Copy SourceFiles="$(AppxPackageOutput)" DestinationFolder="$(OutputPath)" />
   </Target>
-  <!-- <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
-    <PostBuildEvent>robocopy /s $(ProjectDir)AppPackages $(ProjectDir)$(OutDir)AppPackages</PostBuildEvent>
-  </PropertyGroup> -->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
