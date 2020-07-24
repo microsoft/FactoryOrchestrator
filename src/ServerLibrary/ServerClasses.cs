@@ -327,7 +327,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
             }
 
-            throw new Exception($"No Task with guid {taskGuid} exists!");
+            return null;
         }
 
         public TaskList GetTaskList(Guid guid)
@@ -720,10 +720,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                 foreach (var runGuid in item.TaskRunGuids)
                 {
                     var run = GetTaskRunByGuid(runGuid);
-                    run.TaskStatus = TaskStatus.Aborted;
-                    run.ExitCode = -1;
-                    run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
-                    run.OwningTask.LatestTaskRunExitCode = -1;
+                    if (!run.TaskRunComplete)
+                    {
+                        run.TaskStatus = TaskStatus.Aborted;
+                        run.ExitCode = -1;
+                        run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
+                        run.OwningTask.LatestTaskRunExitCode = -1;
+                    }
                 }
 
                 // Update XML for state tracking. This is only needed if a tasklist was aborted.
@@ -1126,7 +1129,24 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else if (RunningBackgroundTasks.TryGetValue(taskRunToCancel, out backgroundTasks))
                 {
-                    backgroundTasks[0].StopTask();
+                    // Task is not run by the cluent
+                    var run = GetTaskRunByGuid(taskRunToCancel);
+
+                    if (run.RunByServer)
+                    {
+                        backgroundTasks[0]?.StopTask();
+                    }
+                    else
+                    {
+                        run.TaskStatus = TaskStatus.Aborted;
+                        run.ExitCode = -1;
+                        UpdateTaskRun(run);
+                        if (run.OwningTask != null)
+                        {
+                            run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
+                            run.OwningTask.LatestTaskRunExitCode = -1;
+                        }
+                    }
                     List<TaskRunner> removed;
                     RunningBackgroundTasks.TryRemove(taskRunToCancel, out removed);
                 }
@@ -1137,8 +1157,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (list.Select(x => x.ActiveTaskRunGuid).Contains(taskRunToCancel))
                         {
                             var runner = list.First(x => x.ActiveTaskRunGuid == taskRunToCancel);
-                            runner.StopTask();
-                            list.Remove(runner);
+
+                            if (runner != null)
+                            {
+                                runner.StopTask();
+                                list.Remove(runner);
+                            }
                         }
                     }
                 }
@@ -1209,11 +1233,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                 throw new ArgumentNullException();
             }
 
+            // If this task is associated with an existing TaskList, run it via the TaskList's TaskBase object, so the run is tracked properly
             if (GetTask(task.Guid) != null)
             {
                 return RunTask(task.Guid);
             }
 
+            // The given TaskBase object is not associated with an existing TaskList, but let's run it standalone.
             lock (task.TaskLock)
             {
                 task.TimesRetried = 0;
@@ -1302,7 +1328,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-        private TaskRun_Server CreateTaskRunWithoutTask(string filePath, string arguments, string logFileOrFolder, TaskType type)
+        public TaskRun_Server CreateTaskRunWithoutTask(string filePath, string arguments, string logFileOrFolder, TaskType type)
         {
             var run = new TaskRun_Server(filePath, arguments, logFileOrFolder, type);
 
@@ -1338,7 +1364,9 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             if (_taskRunMap.ContainsKey(taskRunGuid))
             {
-                return _taskRunMap[taskRunGuid];
+                TaskRun_Server run = null;
+                _taskRunMap.TryGetValue(taskRunGuid, out run);
+                return run;
             }
             else
             {
@@ -1536,13 +1564,16 @@ namespace Microsoft.FactoryOrchestrator.Server
                     throw new FactoryOrchestratorUnkownGuidException(updatedTaskRun.Guid, typeof(TaskRun));
                 }
 
-                var run = _taskRunMap[updatedTaskRun.Guid];
-                run.ExitCode = updatedTaskRun.ExitCode;
-                run.TaskStatus = updatedTaskRun.TaskStatus;
-                run.TimeFinished = updatedTaskRun.TimeFinished;
-                run.TimeStarted = updatedTaskRun.TimeStarted;
-                run.TaskOutput = updatedTaskRun.TaskOutput;
-                run.UpdateOwningTaskFromTaskRun();
+                TaskRun_Server run = null;
+                if (_taskRunMap.TryGetValue(updatedTaskRun.Guid, out run))
+                {
+                    run.ExitCode = updatedTaskRun.ExitCode;
+                    run.TaskStatus = updatedTaskRun.TaskStatus;
+                    run.TimeFinished = updatedTaskRun.TimeFinished;
+                    run.TimeStarted = updatedTaskRun.TimeStarted;
+                    run.TaskOutput = updatedTaskRun.TaskOutput;
+                    run.UpdateOwningTaskFromTaskRun();
+                }
             }
         }
 
@@ -1986,6 +2017,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                 TaskAborted = true;
                 try
                 {
+                    // todo: Process.Kill() doesn't terminate child processes. This is most noticable when using the FO app command prompt as it launches cmd.exe /C"<User input>".
+                    // NET Core 3.1 has a Kill(true) method to terminate child processes, but it isn't available in NET Standard, yet. Until then, this will leak processes.
                     TaskProcess.Kill();
                 }
                 catch (Exception)

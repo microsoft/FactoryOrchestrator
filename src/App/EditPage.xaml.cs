@@ -355,6 +355,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TestNameBox.Text = activeTask.Name;
                 TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
                 RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
+                AbortOnFailBox.IsChecked = activeTask.AbortTaskListOnFailed;
 
                 switch (testType)
                 {

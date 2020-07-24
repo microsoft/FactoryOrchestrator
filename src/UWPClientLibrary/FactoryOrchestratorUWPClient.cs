@@ -8,9 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -29,26 +31,94 @@ namespace Microsoft.FactoryOrchestrator.UWP
         { }
 
         /// <summary>
-        /// Overrite read API with UWP equivalent.
+        /// Overrite CreateClientFileReader with UWP equivalent.
         /// </summary>
-        protected override async Task<byte[]> ReadFileAsync(string file)
+        /// <param name="clientFilename">The client filename.</param>
+        /// <returns></returns>
+        protected override Stream CreateClientFileReader(string clientFilename)
         {
-            var buffer = await PathIO.ReadBufferAsync(file);
-            return buffer.ToArray();
+            var file = StorageFile.GetFileFromPathAsync(clientFilename).AsTask().Result;
+            return file.OpenStreamForReadAsync().Result;
         }
-
 
         /// <summary>
-        /// Overrite write API with UWP equivalent.
+        /// Overrite CreateClientFileWriter with UWP equivalent. File is overwitten if it exists.
         /// </summary>
-        protected override async Task WriteFileAsync(string file, byte[] data)
+        /// <param name="clientFilename">The client filename.</param>
+        /// <returns></returns>
+        protected override Stream CreateClientFileWriter(string clientFilename)
         {
-            var folderPath = Path.GetDirectoryName(file);
-            var filename = Path.GetFileName(file);
-            var targetFolder = await StorageFolder.GetFolderFromPathAsync(folderPath);
-            StorageFile targetFile = await targetFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteBytesAsync(targetFile, data);
+            var folderPath = Path.GetDirectoryName(clientFilename);
+            var filename = Path.GetFileName(clientFilename);
+            var targetFolder = StorageFolder.GetFolderFromPathAsync(folderPath).AsTask().Result;
+            StorageFile targetFile = targetFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting).AsTask().Result;
+            return targetFile.OpenStreamForWriteAsync().Result;
         }
 
+        /// <summary>
+        /// Enumerates local directories in a given folder.
+        /// </summary>
+        /// <param name="path">The directory to eumerate.</param>
+        /// <returns></returns>
+        protected override IEnumerable<string> EnumerateLocalDirectories(string path)
+        {
+            var folder = StorageFolder.GetFolderFromPathAsync(path).AsTask().Result;
+            return folder.GetFoldersAsync().AsTask().Result.Select(x => x.Path);
+        }
+
+        /// <summary>
+        /// Enumerates local files in a given folder.
+        /// </summary>
+        /// <param name="path">The directory to eumerate.</param>
+        /// <returns></returns>
+        protected override IEnumerable<string> EnumerateLocalFiles(string path)
+        {
+            var folder = StorageFolder.GetFolderFromPathAsync(path).AsTask().Result;
+            return folder.GetFilesAsync().AsTask().Result.Select(x => x.Path);
+        }
+
+        /// <summary>
+        /// Tries to delete a local file.
+        /// </summary>
+        /// <param name="clientFilename">The file to delete.</param>
+        /// <returns></returns>
+        protected override bool TryDeleteLocalFile(string clientFilename)
+        {
+            try
+            {
+                var file = StorageFile.GetFileFromPathAsync(clientFilename).AsTask().Result;
+                file.DeleteAsync().AsTask().Wait();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Overrite CreateDirectory API with UWP equivalent.
+        /// </summary>
+        /// <param name="path">Directory to create.</param>
+        protected override void CreateDirectory(string path)
+        {
+            StorageFolder parent;
+            var parentPath = Path.GetDirectoryName(path);
+
+            if (parentPath != null)
+            {
+                try
+                {
+                    parent = StorageFolder.GetFolderFromPathAsync(parentPath).AsTask().Result;
+                    path = path.TrimEnd(Path.DirectorySeparatorChar);
+                    path = path.Substring(path.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+                    parent.CreateFolderAsync(path, CreationCollisionOption.OpenIfExists).AsTask().Wait();
+                }
+                catch (FileNotFoundException)
+                {
+                    CreateDirectory(parentPath);
+                }
+            }
+        }
     }
 }

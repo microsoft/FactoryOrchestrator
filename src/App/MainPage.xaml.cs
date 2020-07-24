@@ -36,13 +36,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // If localhost connection, hide file transfer page
             if (Client.IsLocalHost)
             {
-                NavigationViewItem fileItem = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == "files").First();
-                fileItem.Visibility = Visibility.Collapsed;
-                fileItem.IsEnabled = false;
-                var pageMap = navViewPages.Where(x => x.Tag == "files").First();
-                navViewPages.Remove(pageMap);
-                pageMap.Enabled = false;
-                navViewPages.Add(pageMap);
+                HidePage("files");
             }
 
             // Update visible network information every 7 seconds
@@ -105,18 +99,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 disabledPages = await Client.GetDisabledPages();
                 foreach (var disabledPage in disabledPages)
                 {
-                    foreach (NavigationViewItem item in NavView.MenuItems)
-                    {
-                        if (item.Tag.ToString() == disabledPage)
-                        {
-                            item.Visibility = Visibility.Collapsed;
-                            item.IsEnabled = false;
-                            var pageMap = navViewPages.Where(x => x.Tag == disabledPage).First();
-                            navViewPages.Remove(pageMap);
-                            pageMap.Enabled = false;
-                            navViewPages.Add(pageMap);
-                        }
-                    }
+                    HidePage(disabledPage);
                 }
 
                 if (((App)Application.Current).IsServiceExecutingBootTasks)
@@ -203,12 +186,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
             for (int i = 0; i < pagesToDisable.Count(); i++)
             {
-                var pageMap = pagesToDisable[i];
-                var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
-                navViewPages.Remove(pageMap);
-                pageMap.Enabled = false;
-                navViewPages.Add(pageMap);
-                item.IsEnabled = false;
+                HidePage(pagesToDisable[i]);
             }
         }
 
@@ -222,12 +200,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             var pagesToEnable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == false) && (!disabledPages.Contains(x.Tag))).ToArray();
             for (int i = 0; i < pagesToEnable.Count(); i++)
             {
-                var pageMap = pagesToEnable[i];
-                var item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
-                navViewPages.Remove(pageMap);
-                pageMap.Enabled = true;
-                navViewPages.Add(pageMap);
-                item.IsEnabled = true;
+                ShowPage(pagesToEnable[i]);
             }
         }
 
@@ -243,6 +216,36 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     break;
             }
             return Page;
+        }
+
+        private void HidePage(string tag)
+        {
+            HidePage(navViewPages.Where(x => x.Tag == tag).First());
+        }
+
+        private void HidePage((string Tag, Type Page, bool Enabled, bool AllowedDuringBoot) pageMap)
+        {
+            NavigationViewItem item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+            item.Visibility = Visibility.Collapsed;
+            item.IsEnabled = false;
+            navViewPages.Remove(pageMap);
+            pageMap.Enabled = false;
+            navViewPages.Add(pageMap);
+        }
+
+        private void ShowPage(string tag)
+        {
+            ShowPage(navViewPages.Where(x => x.Tag == tag).First());
+        }
+
+        private void ShowPage((string Tag, Type Page, bool Enabled, bool AllowedDuringBoot) pageMap)
+        {
+            NavigationViewItem item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+            item.Visibility = Visibility.Visible;
+            item.IsEnabled = true;
+            navViewPages.Remove(pageMap);
+            pageMap.Enabled = true;
+            navViewPages.Add(pageMap);
         }
 
         private void On_ContentFrameNavigated(object sender, NavigationEventArgs e)
@@ -300,6 +303,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ((App)Application.Current).Exit();
         }
+
         private void ConfirmReboot_Click(object sender, RoutedEventArgs e)
         {
             Client.RebootDevice(5);

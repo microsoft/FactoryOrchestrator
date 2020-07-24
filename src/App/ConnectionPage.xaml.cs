@@ -28,11 +28,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
             ((App)Application.Current).OnConnectionPage = true;
             connectionSem = new SemaphoreSlim(1, 1);
+            localSettings = ApplicationData.Current.LocalSettings;
         }
         
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             lastNavTag = e.Parameter as string;
+            if (localSettings.Values.ContainsKey("lastIp"))
+            {
+                IpTextBox.Text = (string)localSettings.Values["lastIp"];
+                ConnectButton.IsEnabled = true;
+            }
+
             Task.Run(async ()  =>
             {
                 // Attempt to connect to localhost every 2 seconds in a background task
@@ -93,6 +100,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         ((App)Application.Current).OnConnectionPage = false;
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);
+                        localSettings.Values["lastIp"] = IpTextBox.Text;
                     }
                     else
                     {
@@ -193,5 +201,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private string lastNavTag;
         private SemaphoreSlim connectionSem;
+        private ApplicationDataContainer localSettings;
+
     }
 }

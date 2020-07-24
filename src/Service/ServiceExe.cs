@@ -357,6 +357,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
                 var task = FOService.Instance.TestExecutionManager.GetTask(taskGuid);
+                if (task == null)
+                {
+                    throw new Exception($"No Task with guid {taskGuid} exists!");
+                }
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
                 return task;
             }
@@ -432,7 +436,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
                 throw e;
             }
-            
         }
 
         public void UpdateTask(TaskBase updatedTask)
@@ -476,6 +479,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 throw e;
             }
         }
+
         public void SetTeExePath(string teExePath)
         {
             try
@@ -806,20 +810,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public byte[] GetFile(string sourceFilename)
+        public byte[] GetFile(string sourceFilename, long offset, int count)
         {
             try
             {
-                byte[] bytes = null;
                 FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
-
-                sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
-                if (!File.Exists(sourceFilename))
-                {
-                    throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
-                }
-
-                bytes = File.ReadAllBytes(sourceFilename);
+                var bytes = FOService.Instance.GetFile(sourceFilename, offset, count);
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
 
@@ -832,7 +828,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void SendFile(string targetFilename, byte[] fileData)
+        public void SendFile(string targetFilename, byte[] fileData, bool appending = false)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
 
@@ -840,10 +836,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 try
                 {
-                    targetFilename = Environment.ExpandEnvironmentVariables(targetFilename);
-                    // Create target folder, if needed.
-                    Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
-                    File.WriteAllBytes(targetFilename, fileData);
+                     FOService.Instance.SendFile(targetFilename, fileData, appending);
                 }
                 catch (Exception e)
                 {
@@ -876,7 +869,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 else
                 {
-                    throw new ArgumentException($"{path} is not a valid file or folder!");
+                        throw new FileNotFoundException($"{path} is not a valid file or folder!");
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
@@ -906,7 +899,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 else
                 {
-                    throw new ArgumentException($"{sourcePath} is not a valid file or folder!");
+                    throw new FileNotFoundException($"{sourcePath} is not a valid file or folder!");
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: MoveFileOrFolder {sourcePath} {destinationPath}");
@@ -1146,11 +1139,14 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private static FOService _singleton = null;
         private static readonly object _constructorLock = new object();
+        private static readonly object _openedFilesLock = new object();
 
         private TaskManager_Server _taskExecutionManager;
         private IMicroServiceController _controller;
         public ILogger<FOService> ServiceLogger;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
+        private Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
+
         private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator\EveryBootTaskStatus";
@@ -1204,7 +1200,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableFileTransferPage { get; private set; }
         public bool DisableNetworkAccess { get; private set; }
         public bool EnableNetworkAccess { get; private set; }
+        public int ServiceNetworkPort { get; private set; }
+
         public string TaskManagerLogFolder { get; private set; }
+
+
         /// <summary>
         /// List of apps to enable local loopback on.
         /// </summary>
@@ -1277,29 +1277,28 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             lock (_constructorLock)
             {
-                if (_singleton == null)
-                {
-                    _controller = controller;
-                    ServiceLogger = logger;
-                    _singleton = this;
-                    ServiceEvents = new Dictionary<ulong, ServiceEvent>();
-                    LastEventIndex = 0;
-                    LastEventTime = DateTime.MinValue;
-                    DisableCommandPromptPage = false;
-                    DisableWindowsDevicePortalPage = false;
-                    DisableUWPAppsPage = false;
-                    DisableManageTasklistsPage = false;
-                    DisableFileTransferPage = false;
-                    DisableNetworkAccess = true;
-                    EnableNetworkAccess = false;
-                    LocalLoopbackApps = new List<string>();
-                    TaskManagerLogFolder = _defaultLogFolder;
-                    IsExecutingBootTasks = true;
-                }
-                else
+                if (_singleton != null)
                 {
                     throw new FactoryOrchestratorException("FactoryOrchestratorService already created! Only one instance allowed.");
                 }
+
+                _controller = controller;
+                ServiceLogger = logger;
+                _singleton = this;
+                ServiceEvents = new Dictionary<ulong, ServiceEvent>();
+                LastEventIndex = 0;
+                LastEventTime = DateTime.MinValue;
+                DisableCommandPromptPage = false;
+                DisableWindowsDevicePortalPage = false;
+                DisableUWPAppsPage = false;
+                DisableManageTasklistsPage = false;
+                DisableFileTransferPage = false;
+                DisableNetworkAccess = false;
+                LocalLoopbackApps = new List<string>();
+                TaskManagerLogFolder = _defaultLogFolder;
+                IsExecutingBootTasks = true;
+                ServiceNetworkPort = 45684;
+                _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
             }
         }
 
@@ -1473,6 +1472,129 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 LogServiceEvent(serviceEvent);
             }
+        }
+        public void SendFile(string targetFilename, byte[] fileData, bool appending)
+        {
+            targetFilename = Environment.ExpandEnvironmentVariables(targetFilename);
+            // Create target folder, if needed.
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
+
+            // Lock file access lock so the stream can't be disposed mid-write
+            lock (_openedFilesLock)
+            {
+                if (!appending && File.Exists(targetFilename))
+                {
+                    CloseFile(targetFilename);
+                    File.Delete(targetFilename);
+                }
+
+                var tuple = OpenFile(targetFilename);
+                var stream = tuple.stream;
+                stream.Seek(0, SeekOrigin.End);
+                stream.Write(fileData);
+            }
+
+            // If data is less than the standard length, assume the transfer is complete and close the file.
+            if (fileData.Length != Constants.FILE_TRANSFER_CHUNK_SIZE)
+            {
+                CloseFile(targetFilename);
+            }
+        }
+
+
+        public byte[] GetFile(string sourceFilename, long offset, int count)
+        {
+            byte[] bytes = new byte[0];
+
+            sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
+            if (!File.Exists(sourceFilename))
+            {
+                throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
+            }
+
+            if (offset < 0)
+            {
+                bytes = File.ReadAllBytes(sourceFilename);
+            }
+            else
+            {
+                // Lock file access lock so the stream can't be disposed mid-read
+                lock (_openedFilesLock)
+                {
+                    var tuple = OpenFile(sourceFilename);
+
+                    var stream = tuple.stream;
+
+                    if (offset < stream.Length)
+                    {
+                        stream.Seek(offset, SeekOrigin.Begin);
+                        byte[] temp = new byte[count];
+                        var bytesRead = stream.Read(temp, 0, count);
+                        if (bytesRead == count)
+                        {
+                            bytes = temp;
+                        }
+                        else
+                        {
+                            bytes = temp.ToList().GetRange(0, bytesRead).ToArray();
+                        }
+                    }
+                }
+
+                // Check if we hit the end of the file
+                if (bytes.Length != count)
+                {
+                    CloseFile(sourceFilename);
+                }
+            }
+
+            return bytes;
+        }
+        /// <summary>
+        /// Opens the file for reading or writing. It is created if it does not exist. After 1 second the file is closed unless the same file is attempted to be reopened before then.
+        /// </summary>
+        /// <param name="sourceFilename">The file to open.</param>
+        private (Stream stream, System.Threading.Timer timer) OpenFile(string sourceFilename)
+        {
+            lock(_openedFilesLock)
+            {
+                if (_openedFiles.ContainsKey(sourceFilename))
+                {
+                    _openedFiles[sourceFilename].timer.Change(10000, System.Threading.Timeout.Infinite);
+                    return _openedFiles[sourceFilename];
+                }
+                else
+                {
+                    var stream = File.Open(sourceFilename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+                    System.Threading.Timer timer = new System.Threading.Timer(OnFileTimeOut, sourceFilename, 10000, System.Threading.Timeout.Infinite);
+                    var tuple = (stream, timer);
+                    _openedFiles.Add(sourceFilename, tuple);
+                    return tuple;
+                }
+            }
+        }
+
+        private void CloseFile(string sourceFilename)
+        {
+            lock (_openedFilesLock)
+            {
+                if (!_openedFiles.ContainsKey(sourceFilename))
+                {
+                    return;
+                }
+
+                var timer = _openedFiles[sourceFilename].timer;
+                timer.Dispose();
+                var stream = _openedFiles[sourceFilename].stream;
+                stream.Flush();
+                stream.Dispose();
+                _openedFiles.Remove(sourceFilename);
+            }
+        }
+
+        private void OnFileTimeOut(object state)
+        {
+            CloseFile((string)state);
         }
 
         public void LogServiceEvent(ServiceEvent serviceEvent)
