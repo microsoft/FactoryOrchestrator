@@ -126,6 +126,38 @@ steps:
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
+    
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop x86'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop x64'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop ARM'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop ARM64'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PowerShell@2
   displayName: 'Create FactoryOrchestratorService Manifest for VPack'
@@ -294,10 +326,10 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
-  displayName: 'Copy IPC License to Client Libraries'
+  displayName: 'Copy NOTICE to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\oss'
-    Contents: 'IpcServiceFramework.txt'
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
