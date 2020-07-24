@@ -2,8 +2,8 @@
   "tool": "Credential Scanner",
   "suppressions": [
     {
-      "file": "WindowsDev_TemporaryKey.pfx", 
-      "_justification": "APPX certificate file with common Microsoft app dev key"
+      "file": "App_TemporaryKey.pfx", 
+      "_justification": "Self Signed APPX certificate file with private key"
     },
     {
       "folder": "ClientLibrary\\obj\\",
