@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125
 	ProjectSection(SolutionItems) = preProject
 		oss\DotNetCore.WindowsService.txt = oss\DotNetCore.WindowsService.txt
 		oss\IpcServiceFramework.txt = oss\IpcServiceFramework.txt
+		..\NOTICE.txt = ..\NOTICE.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A-F7D2-40A1-B311-1416F9CE7A2A}"
@@ -47,20 +48,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "internal", "internal", "{A33F40C3-2BAD-406E-86BE-DBE33F12BB29}"
 	ProjectSection(SolutionItems) = preProject
-		build\internal\CreateServiceManifest.ps1 = build\internal\CreateServiceManifest.ps1
-		build\internal\CreateServiceManifestForPkgES.ps1 = build\internal\CreateServiceManifestForPkgES.ps1
-		build\internal\FactoryOrchestratorServiceTemplate.wm.xml = build\internal\FactoryOrchestratorServiceTemplate.wm.xml
-		build\internal\ftf-ci-hosted.yml = build\internal\ftf-ci-hosted.yml
-		build\internal\ftf-pkges-vpack.yml = build\internal\ftf-pkges-vpack.yml
-		build\internal\GitCheckin.json = build\internal\GitCheckin.json
-		build\internal\MakeAppxBundle.cmd = build\internal\MakeAppxBundle.cmd
-		build\internal\UpdateClientSampleForWSK.ps1 = build\internal\UpdateClientSampleForWSK.ps1
+		..\build\internal\CreateServiceManifest.ps1 = ..\build\internal\CreateServiceManifest.ps1
+		..\build\internal\CreateServiceManifestForPkgES.ps1 = ..\build\internal\CreateServiceManifestForPkgES.ps1
+		..\build\internal\FactoryOrchestratorServiceTemplate.wm.xml = ..\build\internal\FactoryOrchestratorServiceTemplate.wm.xml
+		..\build\internal\ftf-ci-hosted.yml = ..\build\internal\ftf-ci-hosted.yml
+		..\build\internal\ftf-pkges-vpack.yml = ..\build\internal\ftf-pkges-vpack.yml
+		..\build\internal\GitCheckin.json = ..\build\internal\GitCheckin.json
+		..\build\internal\MakeAppxBundle.cmd = ..\build\internal\MakeAppxBundle.cmd
+		..\build\internal\UpdateClientSampleForWSK.ps1 = ..\build\internal\UpdateClientSampleForWSK.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{B4F05BFC-A45E-4400-814A-12DA0D6FA3D0}"
 	ProjectSection(SolutionItems) = preProject
-		build\CredScanSuppressions.json = build\CredScanSuppressions.json
-		build\PolicheckExclusions.xml = build\PolicheckExclusions.xml
+		..\build\CredScanSuppressions.json = ..\build\CredScanSuppressions.json
+		..\build\PolicheckExclusions.xml = ..\build\PolicheckExclusions.xml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F}"
