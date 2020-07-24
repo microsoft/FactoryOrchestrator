@@ -35,21 +35,37 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## 2. Clone Project
-Visual Studio is recommended for developing
+## 2. Prerequisite steps
+### Install Visual Studio 
+Any variation of Visual Studio (Enterprise, Community) is fine. 
+https://visualstudio.microsoft.com/vs/
+In the installer, make sure you click the checkboxes for .NET Dekstop Development, and Universal Windows Platform Development. 
 
-## 3. Address Unsigned Powershell Scripts
+### Clone the repository
+
+### Enable developer mode on Windows 
+https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development
+
+### Address Unsigned Powershell Scripts
 FactoryOrchestrator contains a series of unsigned powershell scripts. Windows security measures prevent unsigned scripts from executing. In order to develop on FactoryOrchestrator, you need to do one of two things.
 
-### Self-sign
+#### Self-sign
 More information on how to do this can be found here: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7
 
-### Set the Execution Policy to Unrestricted
+#### Set the Execution Policy to Unrestricted
 This method is not recommended, but is doable. Setting the Execution Policy to Unresricted allows any powershell script to run. 
 Documentation on Execution Policy:
 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7
 
-# Open Source Software
+## 3. When Developing
+Run _FactoryOrchestratorApp (Universal Windows)_ and _FactoryOrchestratorService_ in separate Visual Studio App instances. This will allow the app and the service to communicate with each other. 
+Even if you are coding for just the app, you need to run the service so the app has something to connect to.
+
+At the moment, running either piece will cause exceptions to be thrown. This is because they try to access resources specific to FactoryOS (FactoryOrchestrator's intended OS). You can routinely skip over these exceptions or disable them. 
+
+Happy Coding!
+
+# Open Source Software We Use
 IpcServiceFramework - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
 DotNetCore.WindowsService - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
 
