@@ -131,15 +131,32 @@ namespace Microsoft.FactoryOrchestrator.Client
             {
                 clientFilename = Environment.ExpandEnvironmentVariables(clientFilename);
 
-                if (!File.Exists(clientFilename))
+                bool appending = false;
+                long totalBytesRead = 0;
+                byte[] bytes = new byte[Constants.FILE_TRANSFER_CHUNK_SIZE];
+
+                using (var reader = CreateClientFileReader(clientFilename))
                 {
-                    throw new FileNotFoundException($"{clientFilename} does not exist!");
+                    // Read file in chunks from the client and send to the server
+                    var bytesThisRead = reader.Read(bytes, 0, Constants.FILE_TRANSFER_CHUNK_SIZE);
+                    totalBytesRead += bytesThisRead;
+                    while (bytesThisRead > 0)
+                    {
+                        if (bytes.Length > bytesThisRead)
+                        {
+                            bytes = bytes.ToList().GetRange(0, bytesThisRead).ToArray();
+                        }
+
+                        await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", serverFilename, bytes, appending));
+                        appending = true;
+
+                        bytes = new byte[Constants.FILE_TRANSFER_CHUNK_SIZE];
+                        bytesThisRead = reader.Read(bytes, 0, Constants.FILE_TRANSFER_CHUNK_SIZE);
+                        totalBytesRead += bytesThisRead;
+                    }
                 }
 
-                var bytes = await ReadFileAsync(clientFilename);
-                
-                await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", serverFilename, bytes));
-                return bytes.Length;
+                return totalBytesRead;
             }
             catch (Exception ex)
             {
@@ -159,20 +176,64 @@ namespace Microsoft.FactoryOrchestrator.Client
                 throw new FactoryOrchestratorConnectionException("Start connection first!");
             }
 
+            long totalBytesWritten = 0;
+
             try
             {
                 clientFilename = Environment.ExpandEnvironmentVariables(clientFilename);
 
                 // Create target folder, if needed.
-                Directory.CreateDirectory(Path.GetDirectoryName(clientFilename));
+                CreateDirectory(Path.GetDirectoryName(clientFilename));
 
-                var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename));
-                await WriteFileAsync(clientFilename, bytes);
-                return bytes.Length;
+                using (var writer = CreateClientFileWriter(clientFilename))
+                {
+                    // read file in chunks from the server and save to client
+                    var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, 0, Constants.FILE_TRANSFER_CHUNK_SIZE));
+                    totalBytesWritten += bytes.Length;
+                    if (bytes.Length > 0)
+                    {
+                        writer.Write(bytes, 0, bytes.Length);
+                    }
+
+                    while (bytes.Length == Constants.FILE_TRANSFER_CHUNK_SIZE)
+                    {
+                        bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, totalBytesWritten, Constants.FILE_TRANSFER_CHUNK_SIZE));
+                        totalBytesWritten += bytes.Length;
+
+                        if (bytes.Length > 0)
+                        {
+                            writer.Write(bytes, 0, bytes.Length);
+                        }
+                    }
+
+                    writer.Flush();
+                }
+
+                return totalBytesWritten;
             }
             catch (Exception ex)
             {
+                // An exception was thrown, attempt to delete file
+                TryDeleteLocalFile(clientFilename);
                 throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Tries to delete a local file.
+        /// </summary>
+        /// <param name="clientFilename">The file to delete.</param>
+        /// <returns></returns>
+        protected virtual bool TryDeleteLocalFile(string clientFilename)
+        {
+            try
+            {
+                File.Delete(clientFilename);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -195,10 +256,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 long bytesReceived = 0;
 
                 clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
-                if (!Directory.Exists(clientDirectory))
-                {
-                    Directory.CreateDirectory(clientDirectory);
-                }
+                CreateDirectory(clientDirectory);
 
                 foreach (var file in files)
                 {
@@ -209,11 +267,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 {
                     var subDirName = new DirectoryInfo(dir).Name;
                     var clientsubDir = Path.Combine(clientDirectory, subDirName);
-
-                    if (!Directory.Exists(clientsubDir))
-                    {
-                        Directory.CreateDirectory(clientsubDir);
-                    }
+                    CreateDirectory(clientsubDir);
 
                     bytesReceived += await GetDirectoryFromDevice(dir, clientsubDir);
                 }
@@ -241,13 +295,9 @@ namespace Microsoft.FactoryOrchestrator.Client
             try
             {
                 clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
-                if (!Directory.Exists(clientDirectory))
-                {
-                    throw new DirectoryNotFoundException($"{clientDirectory} does not exist!");
-                }
 
-                var files = Directory.EnumerateFiles(clientDirectory);
-                var dirs = Directory.EnumerateDirectories(clientDirectory);
+                var files = EnumerateLocalFiles(clientDirectory);
+                var dirs = EnumerateLocalDirectories(clientDirectory);
                 long bytesSent = 0;
 
                 foreach (var file in files)
@@ -267,6 +317,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 throw CreateIpcException(ex);
             }
         }
+
 
         /// <summary>
         /// Shutdown the device running Factory Orchestrator Service. 
@@ -341,7 +392,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="methodName">Name of the method.</param>
         /// <param name="args">The arguments to the method.</param>
         /// <returns>IpcRequest object</returns>
-        private IpcRequest CreateIpcRequest(string methodName, params object[] args)
+        protected IpcRequest CreateIpcRequest(string methodName, params object[] args)
         {
 
             MethodBase method = null;
@@ -426,29 +477,57 @@ namespace Microsoft.FactoryOrchestrator.Client
             return ex;
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         /// <summary>
-        /// Writes bytes to file.
+        /// Creates a directory on the client.
         /// </summary>
-        /// <param name="file">File to write.</param>
-        /// <param name="data">Bytes to write to file.</param>
+        /// <param name="path">Directory to create.</param>
         /// <returns></returns>
-        protected virtual async Task WriteFileAsync(string file, byte[] data)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        protected virtual void CreateDirectory(string path)
         {
-            File.WriteAllBytes(file, data);
+            if (path != null)
+            {
+                Directory.CreateDirectory(path);
+            }
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         /// <summary>
-        /// Read bytes from file.
+        /// Creates the client file reader.
         /// </summary>
-        /// <param name="file">File to read.</param>
+        /// <param name="clientFilename">The client filename.</param>
         /// <returns></returns>
-        protected virtual async Task<byte[]> ReadFileAsync(string file)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        protected virtual Stream CreateClientFileReader(string clientFilename)
         {
-            return File.ReadAllBytes(file);
+            return File.OpenRead(clientFilename);
+        }
+
+        /// <summary>
+        /// Creates the client file writer. File is overwritten if it exists.
+        /// </summary>
+        /// <param name="clientFilename">The client filename.</param>
+        /// <returns></returns>
+        protected virtual Stream CreateClientFileWriter(string clientFilename)
+        {
+            return File.Create(clientFilename);
+        }
+
+        /// <summary>
+        /// Enumerates local directories in a given folder.
+        /// </summary>
+        /// <param name="path">The directory to eumerate.</param>
+        /// <returns></returns>
+        protected virtual IEnumerable<string> EnumerateLocalDirectories(string path)
+        {
+            return Directory.EnumerateDirectories(path);
+        }
+
+        /// <summary>
+        /// Enumerates local files in a given folder.
+        /// </summary>
+        /// <param name="path">The directory to eumerate.</param>
+        /// <returns></returns>
+        protected virtual IEnumerable<string> EnumerateLocalFiles(string path)
+        {
+            return Directory.EnumerateFiles(path);
         }
 
         /// <summary>
@@ -482,7 +561,10 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         public int Port { get; private set; }
 
-        private IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
+        /// <summary>
+        /// The IPC client used to communicate with the service.
+        /// </summary>
+        protected IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
     }
 
     /// <summary>

@@ -884,11 +884,13 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets all the data in a file on the Service's computer. It is recommended you use FactoryOrchestratorClient::GetFileFromServer instead.
+        /// Gets all the data in a file on the Service's computer. It is recommended you use FactoryOrchestratorClient::GetFileFromDevice instead.
         /// </summary>
         /// <param name="sourceFilename">The path to the file to retrieve.</param>
+        /// <param name="offset">If -1, read the whole file. Otherwise the starting byte to read the file from.</param>
+        /// <param name="count">If offset is -1 this is ignored. Otherwise, the number of bytes to read from the file.</param>
         /// <returns>The bytes in the file.</returns>
-        public async Task<byte[]> GetFile(string sourceFilename)
+        public async Task<byte[]> GetFile(string sourceFilename, long offset = -1, int count = 0)
         {
             if (!IsConnected)
             {
@@ -897,7 +899,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                return await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", sourceFilename));
+                return await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", sourceFilename, offset , count ));
             }
             catch (Exception ex)
             {
@@ -906,12 +908,13 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToServer instead.
+        /// Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToDevice instead.
         /// </summary>
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
+        /// <param name="appendFile">If true, the file is appended to instead of overwritten.</param>
         /// <returns>true if the file was sucessfully created.</returns>
-        public async Task SendFile(string targetFilename, byte[] fileData)
+        public async Task SendFile(string targetFilename, byte[] fileData, bool appendFile = false)
         {
             if (!IsConnected)
             {
@@ -920,7 +923,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", targetFilename, fileData));
+                 await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", targetFilename, fileData, appendFile ));
             }
             catch (Exception ex)
             {
