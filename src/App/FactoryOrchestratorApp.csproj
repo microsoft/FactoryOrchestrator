@@ -159,7 +159,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App_TemporaryKey.pfx" />
+    <None Include="WindowsDev_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\LargeTile.scale-100.png" />
