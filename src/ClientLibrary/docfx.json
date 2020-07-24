@@ -11,7 +11,7 @@
             "ClientSample/**",
             "ServerLibrary/**",
             "Service/**",
-            "IpcFramework/**",
+            "OSS/**",
             "App/**"
           ],
           "src": "../"
@@ -59,7 +59,7 @@
       "_appLogoPath": "images/fologo.png",
       "_appFaviconPath": "images/fologo.png"
     },
-    "dest": "../bin/docfx",
+    "dest": "../../bin/docfx",
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [ "statictoc" ],
