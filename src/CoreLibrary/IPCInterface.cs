@@ -8,6 +8,14 @@ using System.Collections.Generic;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    public static class Constants
+    {
+        /// <summary>
+        /// Chunk size in bytes for file transfers.
+        /// </summary>
+        public const int FILE_TRANSFER_CHUNK_SIZE = 1048576;
+    }
+
     /// <summary>
     /// The type of Factory Orchestrator Service event.
     /// </summary>
@@ -394,18 +402,21 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         // File APIs
         /// <summary>
-        /// Gets all the data in a file on the Service's computer. It is recommended you use FactoryOrchestratorClient::GetFileFromServer instead.
+        /// Gets all the data in a file on the Service's computer. It is recommended you use FactoryOrchestratorClient::GetFileFromDevice instead.
         /// </summary>
         /// <param name="sourceFilename">The path to the file to retrieve.</param>
+        /// <param name="offset">If -1, read the whole file. Otherwise the starting byte to read the file from.</param>
+        /// <param name="count">If offset is -1 this is ignored. Otherwise, the number of bytes to read from the file.</param>
         /// <returns>The bytes in the file.</returns>
-        byte[] GetFile(string sourceFilename);
+        byte[] GetFile(string sourceFilename, long offset = -1, int count = 0);
         /// <summary>
-        /// Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToServer instead.
+        /// Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToDevice instead.
         /// </summary>
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
+        /// <param name="appendFile">If true, the file is appended to instead of overwritten.</param>
         /// <returns>true if the file was sucessfully created.</returns>
-        void SendFile(string targetFilename, byte[] fileData);
+        void SendFile(string targetFilename, byte[] fileData, bool appendFile = false);
         /// <summary>
         /// Permanently deletes a file or folder. If a folder, all contents are deleted.
         /// </summary>
