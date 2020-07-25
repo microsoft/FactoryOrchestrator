@@ -211,6 +211,12 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\NOTICE.txt">
+      <SubType>Designer</SubType>
+      <Link>Properties\NOTICE.txt</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

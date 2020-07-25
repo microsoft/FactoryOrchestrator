@@ -68,6 +68,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 BackButton.Visibility = Visibility.Visible;
             }
 
+            var resourceName = "Microsoft.FactoryOrchestrator.UWP.Properties.NOTICE.txt";
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                if (stream != null)
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        NoticeBlock.Text = reader.ReadToEnd();
+                    }
+                }
+            }
+
             base.OnNavigatedTo(e);
         }
 
