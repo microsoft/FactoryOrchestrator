@@ -66,7 +66,7 @@ Even if you are coding for just the app, you generally need to run the service s
 At the moment, running either the app or service under a debugger will cause exceptions to be thrown related to certain registry keys (ex: GetOEMVersionString()), but all exceptions are caught and will not result in a crash. This is because they try to access registry keys specific to a Microsoft internal product. You can routinely skip over these exceptions when they occur or disable them.
 
 ## 5. Versioning
-Factory Orchestrator uses a slightly modified form of [semver versioning](https://semver.org/). Increment the:
+Factory Orchestrator uses a slightly modified form of [semver versioning](https://semver.org/). All Factory Orchestrator binaries from the same build share the same version; there is no unique client or service version. In the [src/custom.props](src/custom.props) file, increment the:
 
 - MAJOR version when you make incompatible API changes,
 - MINOR version when you add functionality in a backwards compatible manner.
@@ -77,6 +77,14 @@ When the MAJOR version diverges between a Client and Service, Clients will be pr
 
 
 Happy Coding!
+
+# Reporting Security Issues
+Please refer to [SECURITY.md](./SECURITY.md).
+
+# License
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the [MIT License](./LICENSE).
 
 # Open Source Software Acknowledgments
 [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework) - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
