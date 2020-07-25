@@ -135,7 +135,7 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
     TargetFolder: '$(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop x64'
@@ -143,7 +143,7 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
     TargetFolder: $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop ARM'
@@ -151,7 +151,7 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
     TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop ARM64'
@@ -159,7 +159,7 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
     TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: eq(variables['BuildConfiguration'], 'Release')
 
 - task: PowerShell@2
   displayName: 'Create FactoryOrchestratorService Manifest for VPack'
