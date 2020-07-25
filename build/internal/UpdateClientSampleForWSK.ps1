@@ -15,27 +15,54 @@ foreach ($proj in $projs)
     $added = $false
     foreach ($line in $content)
     {
-        if (-not ($line -like "*ProjectReference*Include*"))
+        if (($line -like "*<Target*BeforeBuildPS*") -or ($line -like "*<PropertyGroup*XES_OUTDIR*!=*"))
         {
-            $outputContent += $line + "`n"
+            Write-host "skip $line"
+            $inskip = $true
+            continue
         }
-        elseif ($added -eq $false)
+        elseif ($line -like "*</Target>*")
         {
-            # Add all the needed references, but for the WSK
-            $outputContent += "    <Reference Include=`"FactoryOrchestratorClientLibrary`">`n"
-            $outputContent += "      <HintPath>`..\lib\NetStandard\FactoryOrchestratorClientLibrary.dll</HintPath>`n"
-            $outputContent += "    </Reference>`n"
-            $outputContent += "    <Reference Include=`"FactoryOrchestratorCoreLibrary`">`n"
-            $outputContent += "      <HintPath>`..\lib\NetStandard\FactoryOrchestratorCoreLibrary.dll</HintPath>`n"
-            $outputContent += "    </Reference>`n"
-            $outputContent += "    <Reference Include=`"IpcServiceFramework.Client`">`n"
-            $outputContent += "      <HintPath>`..\lib\NetStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Client.dll</HintPath>`n"
-            $outputContent += "    </Reference>`n"
-            $outputContent += "    <Reference Include=`"IpcServiceFramework.Core`">`n"
-            $outputContent += "      <HintPath>`..\lib\NetStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Core.dll</HintPath>`n"
-            $outputContent += "    </Reference>`n"
+            Write-host "skip $line"
+            $inskip = $false
+            continue
+        }
+        elseif (($line -like "*</PropertyGroup>*") -and $inskip)
+        {
+            Write-host "skip  $line"
+            $inskip = $false
+            continue
+        }
 
-            $added = $true
+        if (-not $inskip)
+        {
+            if ($line -like "*<OutputPath>*")
+            {
+                # fix output path
+                $outputContent += '    <OutputPath>.\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>' + "`n"
+            }
+            elseif (-not ($line -like "*ProjectReference*Include*"))
+            {
+                $outputContent += $line + "`n"
+            }
+            elseif ($added -eq $false)
+            {
+                # Add all the needed references, but for the WSK
+                $outputContent += "    <Reference Include=`"FactoryOrchestratorClientLibrary`">`n"
+                $outputContent += "      <HintPath>`..\lib\NetStandard\FactoryOrchestratorClientLibrary.dll</HintPath>`n"
+                $outputContent += "    </Reference>`n"
+                $outputContent += "    <Reference Include=`"FactoryOrchestratorCoreLibrary`">`n"
+                $outputContent += "      <HintPath>`..\lib\NetStandard\FactoryOrchestratorCoreLibrary.dll</HintPath>`n"
+                $outputContent += "    </Reference>`n"
+                $outputContent += "    <Reference Include=`"IpcServiceFramework.Client`">`n"
+                $outputContent += "      <HintPath>`..\lib\NetStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Client.dll</HintPath>`n"
+                $outputContent += "    </Reference>`n"
+                $outputContent += "    <Reference Include=`"IpcServiceFramework.Core`">`n"
+                $outputContent += "      <HintPath>`..\lib\NetStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Core.dll</HintPath>`n"
+                $outputContent += "    </Reference>`n"
+    
+                $added = $true
+            }
         }
     }
 
