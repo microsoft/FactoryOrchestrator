@@ -17,8 +17,7 @@ A .NET Standard library containing the server-side FactoryOrchestrator classes. 
 C# UWP app project for FactoryOrchestratorApp.exe, the UWP used to manually interact with FactoryOrchestratorService via GUI.
 ## Open Source Components
 ### IpcServiceFramework
-https://github.com/jacqueskang/IpcServiceFramework
-FactoryOrchestrator forks the source of IpcServiceFramework. At this time, we are actively working on integrating our version of IpcServiceFramework with the official IpcServiceFramework repo, removing the need for this fork.
+FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). At this time, we are actively working on integrating our version of IpcServiceFramework with the [official IpcServiceFramework repo](https://github.com/jacqueskang/IpcServiceFramework), removing the need for this fork.
 
 # Contributing
 
@@ -80,7 +79,6 @@ When the MAJOR version diverges between a Client and Service, Clients will be pr
 Happy Coding!
 
 # Open Source Software Acknowledgments
-IpcServiceFramework - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
+[IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework) - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
 
-DotNetCore.WindowsService - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
-
+[DotNetCore.WindowsService](https://github.com/PeterKottas/DotNetCore.WindowsService) - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
