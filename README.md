@@ -38,7 +38,7 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 ### Install Visual Studio 
 Any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/) is fine. In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.17763.0). 
 
-Visual Studio Code is acceptible if you only are making server/service changes.
+Other development environments such as [Visual Studio Code](https://code.visualstudio.com/) are acceptible if you are not making FactoryOrchestratorApp changes.
 
 ### Clone the repository
 
@@ -71,7 +71,7 @@ Factory Orchestrator uses a slightly modified form of [semver versioning](https:
 - MAJOR version when you make incompatible API changes,
 - MINOR version when you add functionality in a backwards compatible manner.
 
-The PATCH version is automatically set by the build, and is based on the date/time the build is run. The PATCH version is only changed when the build is run as part of an Azure DevOps Pipeline or when run in the "Release" configuration locally.
+The PATCH version is automatically set by the build, and is based on the [date/time the build is run](build/SetSourceVersion.ps1). The PATCH version is only changed when the build is run as part of an Azure Pipeline or when run in the "Release" configuration locally.
 
 When the MAJOR version diverges between a Client and Service, Clients will be prevented from connecting to the Service by default. Changing the signiture of any FactoryOrchestratorCoreLibrary class is therefore usually a MAJOR version change and should be done sparingly.
 
