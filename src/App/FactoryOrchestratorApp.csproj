@@ -291,10 +291,10 @@
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile" Condition="'$(IsTFSBuild)' == 'true'">
+  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
-  <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile" Condition="'$(IsTFSBuild)' != 'true'">
+  <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile" Condition="'$(IsTFSBuild)' != 'true' And '$(Configuration)' == 'Debug'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
   </Target>
   <Target Name="AfterBuild" Condition="'$(IsTFSBuild)' == 'true'">
