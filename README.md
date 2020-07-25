@@ -66,7 +66,7 @@ Even if you are coding for just the app, you generally need to run the service s
 At the moment, running either the app or service under a debugger will cause exceptions to be thrown related to certain registry keys (ex: GetOEMVersionString()), but all exceptions are caught and will not result in a crash. This is because they try to access registry keys specific to a Microsoft internal product. You can routinely skip over these exceptions when they occur or disable them.
 
 ## 5. Versioning
-Factory Orchestrator uses a slightly modified form of [https://semver.org/](semver versioning). Increment the:
+Factory Orchestrator uses a slightly modified form of [semver versioning](https://semver.org/). Increment the:
 
 - MAJOR version when you make incompatible API changes,
 - MINOR version when you add functionality in a backwards compatible manner.
