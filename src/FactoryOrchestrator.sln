@@ -38,7 +38,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125
 		oss\cgmanifest.json = oss\cgmanifest.json
 		oss\DotNetCore.WindowsService.txt = oss\DotNetCore.WindowsService.txt
 		oss\IpcServiceFramework.txt = oss\IpcServiceFramework.txt
-		..\NOTICE.txt = ..\NOTICE.txt
 		oss\Pe-Utility.txt = oss\Pe-Utility.txt
 	EndProjectSection
 EndProject
@@ -73,6 +72,19 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\templates\template-build-all-arch.yml = ..\build\templates\template-build-all-arch.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{422A5B26-B858-44D2-9E64-DD88B7B0A1F1}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
+		..\LICENSE = ..\LICENSE
+		..\NOTICE.txt = ..\NOTICE.txt
+		..\README.md = ..\README.md
+		..\SECURITY.md = ..\SECURITY.md
+		..\StartAppDebug.cmd = ..\StartAppDebug.cmd
+		..\StartClientSampleDebug.cmd = ..\StartClientSampleDebug.cmd
+		..\StartServiceDebug.cmd = ..\StartServiceDebug.cmd
 	EndProjectSection
 EndProject
 Global
