@@ -345,9 +345,9 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
-  displayName: 'Copy Client documentation to root of drop'
+  displayName: 'Copy Client documentation to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\bin\docfx'
+    SourceFolder: '$(XES_DFSDROP)\docfx'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries\FactoryOrchestratorDocumentation'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
