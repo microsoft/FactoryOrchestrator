@@ -19,7 +19,7 @@ C# UWP app project for FactoryOrchestratorApp.exe, the UWP used to manually inte
 ### IpcServiceFramework
 FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). At this time, we are actively working on integrating our version of IpcServiceFramework with the [official IpcServiceFramework repo](https://github.com/jacqueskang/IpcServiceFramework), removing the need for this fork.
 ### Pe-Utility
-FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utilityk), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
+FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utility), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
 
 # Contributing
 
