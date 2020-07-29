@@ -25,6 +25,59 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.InitializeComponent();
         }
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (Client.IsLocalHost)
+            {
+                ContainerCheckBox.IsChecked = true;
+                ContainerCheckBox.IsEnabled = false;
+            }
+            else if (((App)Application.Current).IsContainerRunning)
+            {
+                ContainerCheckBox.IsChecked = false;
+            }
+            else
+            {
+                ContainerCheckBox.IsChecked = false;
+                ContainerCheckBox.IsEnabled = false;
+            }
+
+            ((App)Application.Current).PropertyChanged += FileTransferPage_AppPropertyChanged;
+        }
+
+        private async void FileTransferPage_AppPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("IsContainerRunning", StringComparison.Ordinal))
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    if (((App)Application.Current).IsContainerRunning)
+                    {
+                        ContainerCheckBox.IsEnabled = true;
+                    }
+                    else
+                    {
+                        ContainerCheckBox.IsChecked = false;
+                        ContainerCheckBox.IsEnabled = false;
+
+                        if (Client.IsLocalHost && this.Frame.CanGoBack)
+                        {
+                            ContentDialog errorDialog = new ContentDialog
+                            {
+                                Title = "Container is no longer running",
+                                Content = $"Returning to last page",
+                                CloseButtonText = "Ok"
+                            };
+
+                            await errorDialog.ShowAsync();
+
+                            this.Frame.GoBack();
+                        }
+                    }
+                });
+            }
+        }
+
         private void GetServerFileButton_Click(object sender, RoutedEventArgs e)
         {
             if ((!string.IsNullOrWhiteSpace(ServerFileTextBox.Text)) && (!string.IsNullOrWhiteSpace(ClientFileTextBox.Text)))
@@ -105,22 +158,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (isFile)
                     {
-                        await Client.SendFileToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text);
+                        await Client.SendFileToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                     else
                     {
-                        await Client.SendDirectoryToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text);
+                        await Client.SendDirectoryToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                 }
                 else
                 {
                     try
                     {
-                        await Client.GetFileFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text);
+                        await Client.GetFileFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                     catch (FileNotFoundException)
                     {                        
-                        await Client.GetDirectoryFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text);
+                        await Client.GetDirectoryFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                 }
 
@@ -152,6 +205,24 @@ namespace Microsoft.FactoryOrchestrator.UWP
             SendClientFileButton.IsEnabled = true;
             GetServerFileButton.IsEnabled = true;
             TranferRing.IsActive = false;
+        }
+
+        private void ContainerCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)ContainerCheckBox.IsChecked)
+            {
+                ServerText.Text = "Container File/Folder: ";
+                GetText.Text = "Get Container File/Folder";
+                HeaderGet.Text = "Copy from local device to container?";
+                HeaderSend.Text = "Copy from container to local device?";
+            }
+            else
+            {
+                ServerText.Text = "Remote File/Folder: ";
+                GetText.Text = "Get Remote File/Folder";
+                HeaderGet.Text = "Copy from local device to remote device?";
+                HeaderSend.Text = "Copy from remote device to local device?";
+            }
         }
 
         private bool sending;

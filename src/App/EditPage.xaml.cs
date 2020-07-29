@@ -287,6 +287,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             activeTask.AbortTaskListOnFailed = (bool)AbortOnFailBox.IsChecked;
+            activeTask.RunInContainer = (bool)ContainerBox.IsChecked;
 
             return activeTask;
         }
@@ -355,6 +356,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TestNameBox.Text = activeTask.Name;
                 TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
                 RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
+                ContainerBox.IsChecked = activeTask.RunInContainer;
                 AbortOnFailBox.IsChecked = activeTask.AbortTaskListOnFailed;
 
                 switch (testType)
@@ -734,5 +736,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool isNewList;
         private bool listEdited;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+
     }
 }

@@ -21,6 +21,10 @@ using System.Net.NetworkInformation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
+using Microsoft.FactoryOrchestrator.Client;
+using System.Collections.Concurrent;
+using PeterKottas.DotNetCore.WindowsService.Base;
+using System.Security.Cryptography;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -50,7 +54,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     .AddService<IFactoryOrchestratorService, FOCommunicationHandler>();
             });
 
-            // Configure service providers for logger creation and management
+            // Configure service providers for logger creation and managment
             ipcSvcProvider = servicesIpc
                 .AddLogging(builder =>
                 {
@@ -717,7 +721,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null)
+        public TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null, bool runInContainer = false)
         {
             try
             {
@@ -728,7 +732,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(BootTasksExecutingError);
                 }
 
-                var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath);
+                var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath, runInContainer);
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutable {exeFilePath} {arguments}");
                 return run;
             }
@@ -810,12 +814,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public byte[] GetFile(string sourceFilename, long offset, int count)
+        public byte[] GetFile(string sourceFilename, long offset, int count, bool getFromContainer = false)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
-                var bytes = FOService.Instance.GetFile(sourceFilename, offset, count);
+                var bytes = FOService.Instance.GetFile(sourceFilename, offset, count, getFromContainer);
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
 
@@ -828,7 +832,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void SendFile(string targetFilename, byte[] fileData, bool appending = false)
+        public void SendFile(string targetFilename, byte[] fileData, bool appending = false, bool sendToContainer = false)
         {
             FOService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
 
@@ -836,7 +840,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 try
                 {
-                     FOService.Instance.SendFile(targetFilename, fileData, appending);
+                     FOService.Instance.SendFile(targetFilename, fileData, appending, sendToContainer);
                 }
                 catch (Exception e)
                 {
@@ -852,24 +856,30 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void DeleteFileOrFolder(string path)
+        public void DeleteFileOrFolder(string path, bool deleteInContainer = false)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteFileOrFolder {path}");
-                
-                path = Environment.ExpandEnvironmentVariables(path);
-                if (File.Exists(path))
+                if (deleteInContainer)
                 {
-                    File.Delete(path);
-                }
-                else if (Directory.Exists(path))
-                {
-                    Directory.Delete(path, true);
+                    FOService.Instance.DeleteInContainer(path).Wait();
                 }
                 else
                 {
+                    path = Environment.ExpandEnvironmentVariables(path);
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+                    else if (Directory.Exists(path))
+                    {
+                        Directory.Delete(path, true);
+                    }
+                    else
+                    {
                         throw new FileNotFoundException($"{path} is not a valid file or folder!");
+                    }
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
@@ -881,25 +891,33 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void MoveFileOrFolder(string sourcePath, string destinationPath)
+        public void MoveFileOrFolder(string sourcePath, string destinationPath, bool moveInContainer = false)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"Start: MoveFileOrFolder {sourcePath} {destinationPath}");
 
-                sourcePath = Environment.ExpandEnvironmentVariables(sourcePath);
-                destinationPath = Environment.ExpandEnvironmentVariables(destinationPath);
-                if (File.Exists(sourcePath))
+                if (moveInContainer)
                 {
-                    File.Move(sourcePath, destinationPath);
-                }
-                else if (Directory.Exists(sourcePath))
-                {
-                    Directory.Move(sourcePath, destinationPath);
+                    FOService.Instance.MoveInContainer(sourcePath, destinationPath).Wait();
+                    FOService.Instance.MoveInContainer(sourcePath, destinationPath).Wait();
                 }
                 else
                 {
-                    throw new FileNotFoundException($"{sourcePath} is not a valid file or folder!");
+                    sourcePath = Environment.ExpandEnvironmentVariables(sourcePath);
+                    destinationPath = Environment.ExpandEnvironmentVariables(destinationPath);
+                    if (File.Exists(sourcePath))
+                    {
+                        File.Move(sourcePath, destinationPath);
+                    }
+                    else if (Directory.Exists(sourcePath))
+                    {
+                        Directory.Move(sourcePath, destinationPath);
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException($"{sourcePath} is not a valid file or folder!");
+                    }
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"Finish: MoveFileOrFolder {sourcePath} {destinationPath}");
@@ -1088,6 +1106,28 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public List<string> GetContainerIpAddresses()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"Start: GetContainerIpAddresses");
+                var ips = FOService.Instance.GetContainerIpAddresses();
+                var ipStrings = new List<string>();
+                foreach (var ip in ips)
+                {
+                    ipStrings.Add(ip.ToString());
+                }
+
+                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetContainerIpAddresses");
+                return ipStrings;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
         public List<string> GetDisabledPages()
         {
             try
@@ -1117,6 +1157,30 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 return ret;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
+        public bool IsContainerRunning()
+        {
+            try
+            {
+                if (!String.IsNullOrWhiteSpace(FOService.Instance.GetContainerId()))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (FactoryOrchestratorContainerException)
+            {
+                return false;
             }
             catch (Exception e)
             {
@@ -1189,6 +1253,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         private RegistryKey _mutableKey;
         private RegistryKey _nonMutableKey;
         private RegistryKey _volatileKey;
+
+        private FactoryOrchestratorClient _containerClient;
 
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
@@ -1294,9 +1360,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                 DisableManageTasklistsPage = false;
                 DisableFileTransferPage = false;
                 DisableNetworkAccess = false;
+				EnableNetworkAccess = false;
                 LocalLoopbackApps = new List<string>();
                 TaskManagerLogFolder = _defaultLogFolder;
                 IsExecutingBootTasks = true;
+                _containerClient = null;
                 ServiceNetworkPort = 45684;
                 _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
             }
@@ -1318,30 +1386,29 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Start(bool forceUserTaskRerun)
         {
-            bool NetworkAccessEnabled = false;
+            bool networkAccessEnabled = false;
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks();
+
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
-            // Only enable network access if it is explicitly enabled and not explicitly disabled
-            // For security, DisableNetwordAccess overrides EnableNetworkAccess if both are true
             if (EnableNetworkAccess && !DisableNetworkAccess) 
             {
                 FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684)
                                                                 .Build();
-                NetworkAccessEnabled = true;
+                networkAccessEnabled = true;
             }
             else
             {
                 FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684)
                                                                 .Build();
-                NetworkAccessEnabled = false;
+                networkAccessEnabled = false;
             }
 
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
-            if (NetworkAccessEnabled)
+            if (networkAccessEnabled)
             {
                 ServiceLogger.LogInformation("Factory Orchestrator service network access is enabled\n");
             }
@@ -1349,7 +1416,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 ServiceLogger.LogInformation("Factory Orchestrator service network access is disabled\n");
             }
-            
+
             ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
             LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceStart, null, "Factory Orchestrator Service is executing boot tasks..."));
 
@@ -1459,8 +1526,21 @@ namespace Microsoft.FactoryOrchestrator.Service
             switch (e.Event)
             {
                 case TaskManagerEventType.WaitingForExternalTaskRunStarted:
-                    serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on an external result.");
-                    break;
+                    {
+                        var run = _taskExecutionManager.GetTaskRunByGuid((Guid)e.Guid);
+
+                        if (run.RunInContainer)
+                        {
+                            run.TaskOutput.Add("Attempting to run the Task in the container...");
+                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForContainerTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on a result run by the container.");
+                            RunTaskRunInContainer(run);
+                        }
+                        else
+                        {
+                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on an external result.");
+                        }
+                        break;
+                    }
                 case TaskManagerEventType.WaitingForExternalTaskRunFinished:
                     serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} received a {e.Status} result and is finished.");
                     break;
@@ -1473,83 +1553,323 @@ namespace Microsoft.FactoryOrchestrator.Service
                 LogServiceEvent(serviceEvent);
             }
         }
-        public void SendFile(string targetFilename, byte[] fileData, bool appending)
+
+        private void RunTaskRunInContainer(TaskRun_Server hostRun)
         {
-            targetFilename = Environment.ExpandEnvironmentVariables(targetFilename);
-            // Create target folder, if needed.
-            Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
-
-            // Lock file access lock so the stream can't be disposed mid-write
-            lock (_openedFilesLock)
+            Task.Run(async () =>
             {
-                if (!appending && File.Exists(targetFilename))
+                try
                 {
-                    CloseFile(targetFilename);
-                    File.Delete(targetFilename);
-                }
-
-                var tuple = OpenFile(targetFilename);
-                var stream = tuple.stream;
-                stream.Seek(0, SeekOrigin.End);
-                stream.Write(fileData);
-            }
-
-            // If data is less than the standard length, assume the transfer is complete and close the file.
-            if (fileData.Length != Constants.FILE_TRANSFER_CHUNK_SIZE)
-            {
-                CloseFile(targetFilename);
-            }
-        }
-
-
-        public byte[] GetFile(string sourceFilename, long offset, int count)
-        {
-            byte[] bytes = new byte[0];
-
-            sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
-            if (!File.Exists(sourceFilename))
-            {
-                throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
-            }
-
-            if (offset < 0)
-            {
-                bytes = File.ReadAllBytes(sourceFilename);
-            }
-            else
-            {
-                // Lock file access lock so the stream can't be disposed mid-read
-                lock (_openedFilesLock)
-                {
-                    var tuple = OpenFile(sourceFilename);
-
-                    var stream = tuple.stream;
-
-                    if (offset < stream.Length)
+                    // Create a copy of the Task
+                    TaskBase containerTask;
+                    if (hostRun.OwningTask != null)
                     {
-                        stream.Seek(offset, SeekOrigin.Begin);
-                        byte[] temp = new byte[count];
-                        var bytesRead = stream.Read(temp, 0, count);
-                        if (bytesRead == count)
+                        containerTask = hostRun.OwningTask.DeepCopy();
+                    }
+                    else
+                    {
+                        containerTask = TaskBase.CreateTaskFromTaskRun(hostRun);
+                    }
+
+                    // Set RunInContainer to false so it doesn't try to find another container :)
+                    containerTask.RunInContainer = false;
+
+                    if (containerTask.Type == TaskType.UWP)
+                    {
+                        // The container doesn't have WDP, translate to a shell execute call
+                        hostRun.TaskOutput.Add($"{hostRun.TaskPath} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsExplorerUser...");
+                        var temp = containerTask as UWPTask;
+                        var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsExplorerUser.exe");
+                        uwpContainerTask.Arguments = @"explorer.exe shell:appsFolder\" + temp.Path;
+                        containerTask = uwpContainerTask;
+                    }
+
+                    await ConnectToContainer();
+
+                    hostRun.TaskOutput.Add($"----------- Start Container Process Output (stdout, stderr) -----------");
+                    var containerRun = await _containerClient.RunTask(containerTask);
+                    containerRun = await _containerClient.QueryTaskRun(containerRun.Guid);
+                    int latestIndex = 0;
+                    while (!containerRun.TaskRunComplete)
+                    {
+                        // TODO: signaling
+                        System.Threading.Thread.Sleep(1000);
+
+                        // While the task is running inside the container, query it every second and update the output.
+                        containerRun = await _containerClient.QueryTaskRun(containerRun.Guid);
+                        if (latestIndex != containerRun.TaskOutput.Count)
                         {
-                            bytes = temp;
+                            var newOutput = containerRun.TaskOutput.GetRange(latestIndex, containerRun.TaskOutput.Count - latestIndex);
+                            latestIndex = containerRun.TaskOutput.Count;
+                            hostRun.TaskOutput.AddRange(newOutput);
+                        }
+
+                        if (hostRun.TaskRunComplete)
+                        {
+                            // Host task was completed.
+                            break;
                         }
                         else
                         {
-                            bytes = temp.ToList().GetRange(0, bytesRead).ToArray();
+                            hostRun.TaskStatus = containerRun.TaskStatus;
+                            _taskExecutionManager.UpdateTaskRun(hostRun);
                         }
+                    }
+
+                    if (hostRun.TaskRunComplete && !containerRun.TaskRunComplete)
+                    {
+                        // Host task was completed by another means, likely aborted.
+                        // Abort the container task too. Don't do any further updates to the host task.
+                        try
+                        {
+                            await _containerClient.AbortTaskRun(containerRun.Guid);
+                        }
+                        catch (Exception)
+                        { }
+                    }
+                    else
+                    {
+                        // Container task completed.
+                        // Perform final update of host TaskRun
+                        if (latestIndex != containerRun.TaskOutput.Count)
+                        {
+                            var newOutput = containerRun.TaskOutput.GetRange(latestIndex, containerRun.TaskOutput.Count - latestIndex);
+                            latestIndex = containerRun.TaskOutput.Count;
+                            hostRun.TaskOutput.AddRange(newOutput);
+                        }
+                        hostRun.TimeFinished = DateTime.Now;
+                        hostRun.ExitCode = containerRun.ExitCode;
+                        hostRun.TaskStatus = containerRun.TaskStatus;
+                        hostRun.TaskOutput.Add($"----------- End Container Process Output -----------");
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete TraskRun in container! {e.AllExceptionsToString()}"));
+                    hostRun.TaskOutput.Add($"Unable to complete TraskRun in container!");
+                    hostRun.TaskOutput.Add(e.AllExceptionsToString());
+                    hostRun.TaskStatus = TaskStatus.Failed;
+                    _containerClient = null;
+                }
+            });
+        }
+
+        public async Task ConnectToContainer()
+        {
+            if (_containerClient == null || !_containerClient.IsConnected)
+            {
+                foreach (var ip in GetContainerIpAddresses())
+                {
+                    _containerClient = new FactoryOrchestratorClient(ip, ServiceNetworkPort);
+                    if (await _containerClient.TryConnect())
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        _containerClient = null;
+                    }
+                }
+            }
+            else
+            {
+                return;
+            }
+
+            throw new FactoryOrchestratorContainerException($"No valid container ip found!");
+        }
+
+        public string GetContainerId()
+        {
+            try
+            {
+                // TODO: replace with an API call
+                var cmdiag = RunProcessViaCmd("cmdiag.exe", "list", 5000);
+                var containerGuidString = cmdiag.TaskOutput.Where(x => x.ToLowerInvariant().Contains("cmscontainerstaterunning".ToLowerInvariant())).DefaultIfEmpty(null).FirstOrDefault();
+
+                if (containerGuidString != null)
+                {
+                    return containerGuidString.Split(',', StringSplitOptions.RemoveEmptyEntries).First().Trim();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException("Unable to find container Id!", null, e);
+            }
+
+            throw new FactoryOrchestratorContainerException("Unable to find container Id!");
+        }
+
+        public List<IPAddress> GetContainerIpAddresses()
+        {
+            List<IPAddress> ips = new List<IPAddress>();
+            try
+            {
+                var containerGuid = GetContainerId();
+                var cmdiag = RunProcessViaCmd("cmdiag.exe", $"exec {containerGuid} -runas administrator -command \"ipconfig.exe\"", 5000);
+                var ipStrings = cmdiag.TaskOutput.Where(x => x.ToLowerInvariant().Contains("IPv4 address".ToLowerInvariant()));
+
+                foreach (var ipString in ipStrings)
+                {
+                    if (ipString != null)
+                    {
+                        ips.Add(IPAddress.Parse(ipString.Split(':', StringSplitOptions.RemoveEmptyEntries).Last().Trim()));
                     }
                 }
 
-                // Check if we hit the end of the file
-                if (bytes.Length != count)
-                {
-                    CloseFile(sourceFilename);
-                }
+                return ips;
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException("Unable to find container IP Address!", null, e);
             }
 
-            return bytes;
+            throw new FactoryOrchestratorContainerException("Unable to find container IP Address!");
         }
+
+
+        public void SendFile(string targetFilename, byte[] fileData, bool appending, bool sendToContainer)
+        {
+            if (!sendToContainer)
+            {
+	            targetFilename = Environment.ExpandEnvironmentVariables(targetFilename);
+	            Directory.CreateDirectory(Path.GetDirectoryName(targetFilename));
+
+	            // Lock file access lock so the stream can't be disposed mid-write
+	            lock (_openedFilesLock)
+	            {
+	                if (!appending && File.Exists(targetFilename))
+	                {
+	                    CloseFile(targetFilename);
+	                    File.Delete(targetFilename);
+	                }
+
+	                var tuple = OpenFile(targetFilename);
+	                var stream = tuple.stream;
+	                stream.Seek(0, SeekOrigin.End);
+	                stream.Write(fileData);
+	            }
+
+	            // If data is less than the standard length, assume the transfer is complete and close the file.
+	            if (fileData.Length != Constants.FILE_TRANSFER_CHUNK_SIZE)
+	            {
+	                CloseFile(targetFilename);
+	            }
+		    }
+            else
+            {
+                SendFileToContainer(targetFilename, fileData, appending).Wait();
+            }
+        }
+		
+        public async Task SendFileToContainer(string containerFilePath, byte[] fileData, bool appending)
+        {
+            await ConnectToContainer();
+            try
+            {
+                await _containerClient.SendFile(containerFilePath, fileData, appending);
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException($"Unable to send file to container!", null, e);
+            }
+        }
+
+        public byte[] GetFile(string sourceFilename, long offset, int count, bool getFromContainer)
+        {
+            byte[] bytes = new byte[0];
+
+            if (!getFromContainer)
+            {
+                sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
+                if (!File.Exists(sourceFilename))
+                {
+                    throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
+                }
+
+                if (offset < 0)
+                {
+                    bytes = File.ReadAllBytes(sourceFilename);
+                }
+                else
+                {
+                    lock (_openedFilesLock)
+                    {
+                        var tuple = OpenFile(sourceFilename);
+
+                        var stream = tuple.stream;
+
+                        if (offset < stream.Length)
+                        {
+                            stream.Seek(offset, SeekOrigin.Begin);
+                            byte[] temp = new byte[count];
+                            var bytesRead = stream.Read(temp, 0, count);
+                            if (bytesRead == count)
+                            {
+                                bytes = temp;
+                            }
+                            else
+                            {
+                                bytes = temp.ToList().GetRange(0, bytesRead).ToArray();
+                            }
+                        }
+                    }
+
+                    // Check if we hit the end of the file
+                    if (bytes.Length != count)
+                    {
+                        // We hit the end of the file
+                        CloseFile(sourceFilename);
+                    }
+                }
+
+                return bytes;
+            }
+            else
+            {
+                return GetFileFromContainer(sourceFilename, offset, count).Result;
+            }
+        }
+
+        public async Task<byte[]> GetFileFromContainer(string containerFilePath, long offset, int count)
+        {
+            await ConnectToContainer();
+            try
+            {
+                return await _containerClient.GetFile(containerFilePath, offset, count);
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException($"Unable to get file from container!", null, e);
+            }
+        }
+
+        public async Task MoveInContainer(string sourcePath, string destinationPath)
+        {
+            await ConnectToContainer();
+            try
+            {
+                await _containerClient.MoveFileOrFolder(sourcePath, destinationPath);
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException($"Unable to move file or folder {sourcePath} to {destinationPath} in container!", null, e);
+            }
+        }
+
+        public async Task DeleteInContainer(string path)
+        {
+            await ConnectToContainer();
+            try
+            {
+                await _containerClient.DeleteFileOrFolder(path);
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException($"Unable to delete file or folder {path} in container!", null, e);
+            }
+        }
+
         /// <summary>
         /// Opens the file for reading or writing. It is created if it does not exist. After 1 second the file is closed unless the same file is attempted to be reopened before then.
         /// </summary>
@@ -1596,6 +1916,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             CloseFile((string)state);
         }
+
 
         public void LogServiceEvent(ServiceEvent serviceEvent)
         {
@@ -2033,7 +2354,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception)
             { }
-
             try
             {
                 EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue, false));

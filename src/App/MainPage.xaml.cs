@@ -34,7 +34,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             Header.Text += Client.IsLocalHost ? " (Local Device)" : $" ({Client.IpAddress.ToString()})";
 
             // If localhost connection, hide file transfer page
-            if (Client.IsLocalHost)
+            if (Client.IsLocalHost && !((App)Application.Current).IsContainerRunning)
             {
                 HidePage("files");
             }
@@ -52,6 +52,36 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             ((App)Application.Current).OnServiceDoneExecutingBootTasks += MainPage_OnServiceDoneExecutingBootTasks;
             ((App)Application.Current).OnServiceStart += MainPage_OnServiceStart;
+            ((App)Application.Current).PropertyChanged += MainPage_AppPropertyChanged;
+        }
+
+        private async void MainPage_AppPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("IsContainerRunning", StringComparison.Ordinal) && !disabledPages.Any(x => x.Equals("files", StringComparison.OrdinalIgnoreCase)))
+            {
+                await navUpdateSem.WaitAsync();
+                try
+                {
+                    if (((App)Application.Current).IsContainerRunning && !navViewPages.Any(x => x.Tag == "files"))
+                    {
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            ShowPage("files");
+                        });
+                    }
+                    else if (!((App)Application.Current).IsContainerRunning && navViewPages.Any(x => x.Tag == "files"))
+                    {
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            HidePage("files");
+                        });
+                    }
+                }
+                finally
+                {
+                    navUpdateSem.Release();
+                }
+            }
         }
 
         private async void MainPage_OnServiceStart()
@@ -388,6 +418,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
             try
             {
                 ipAddresses = await Client.GetIpAddressesAndNicNames();
+                if (((App)Application.Current).IsContainerRunning)
+                {
+                    var temp = await Client.GetContainerIpAddresses();
+                    foreach (var ip in temp)
+                    {
+                        ipAddresses.Add(new Tuple<string, string>(ip, "Container IP (Internal)"));
+                    }
+                }
             }
             finally
             {

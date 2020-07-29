@@ -451,6 +451,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         await Task.Delay(1000);
                     }
                 });
+
+
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        try
+                        {
+                            IsContainerRunning = await Client.IsContainerRunning();
+                        }
+                        catch (FactoryOrchestratorConnectionException)
+                        {
+                            OnConnectionFailure();
+                            while (OnConnectionPage || (!Client.IsConnected))
+                            {
+                                await Task.Delay(1000);
+                            }
+                        }
+
+                        await Task.Delay(10000);
+                    }
+                });
             }
         }
 
@@ -589,6 +611,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// Event raised when the Service is starting and is executing boot tasks.
         /// </summary>
         public event ServiceDoneExecutingBootTasks OnServiceStart;
+
+        /// <summary>
+        /// Event when a Property changes.
+        /// </summary>
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// <c>true</c> if the connected device has a container running; otherwise, <c>false</c>.
+        /// </summary>
+        public bool IsContainerRunning
+        {
+            get => _isContainerRunning;
+            set
+            {
+                if (!Equals(value, _isContainerRunning))
+                {
+                    _isContainerRunning = value;
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs("IsContainerRunning"));
+                }
+            }
+        }
+        private bool _isContainerRunning;
 
         private SemaphoreSlim connectionFailureSem;
         private SemaphoreSlim pollingFailureSem;
