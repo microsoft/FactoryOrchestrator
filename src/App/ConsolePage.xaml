@@ -20,10 +20,12 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="CommandConst" Text="Command:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
             <TextBox Name="CommandBox" AutomationProperties.LabeledBy="{Binding ElementName=CommandConst}"  Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
-            <Button Name="RunButton" ToolTipService.ToolTip="Execute command" AutomationProperties.Name="Execute command" Click="RunButton_Click" Grid.Column="2">
+            <CheckBox Padding="5" Name="ContainerCheckBox" Content="Run In Container?" ToolTipService.ToolTip="If checked, command is run in the container" IsThreeState="False" Grid.Column="2"/>
+            <Button Name="RunButton" ToolTipService.ToolTip="Execute command" AutomationProperties.Name="Execute command" Click="RunButton_Click" Grid.Column="3">
                 <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
             </Button>
         </Grid>

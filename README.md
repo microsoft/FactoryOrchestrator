@@ -18,6 +18,8 @@ C# UWP app project for FactoryOrchestratorApp.exe, the UWP used to manually inte
 ## Open Source Components
 ### IpcServiceFramework
 FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). At this time, we are actively working on integrating our version of IpcServiceFramework with the [official IpcServiceFramework repo](https://github.com/jacqueskang/IpcServiceFramework), removing the need for this fork.
+### Pe-Utility
+FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utility), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
 
 # Contributing
 
@@ -90,3 +92,7 @@ Licensed under the [MIT License](./LICENSE).
 [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework) - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
 
 [DotNetCore.WindowsService](https://github.com/PeterKottas/DotNetCore.WindowsService) - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
+
+[Pe-Utility](https://github.com/AndresTraks/pe-utility) - Andres Traks - [MIT License](https://github.com/AndresTraks/pe-utility/blob/master/LICENSE)
+
+[WindowsDevicePortalWrapper (mgurlitz .NET Standard fork)](https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard) - Microsoft Corporation and mgurlitz - [MIT License](https://github.com/mgurlitz/WindowsDevicePortalWrapper/blob/feat-standard/License.txt)

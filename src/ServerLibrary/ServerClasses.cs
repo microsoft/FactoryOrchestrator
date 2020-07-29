@@ -16,11 +16,16 @@ using static Microsoft.FactoryOrchestrator.Server.HelperMethods;
 using System.Runtime.InteropServices;
 using System.Net;
 using System.Text.RegularExpressions;
+using PEUtility;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
     public class TaskManager_Server
     {
+        [DllImport("KernelBase.dll", SetLastError = false, ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsApiSetImplemented([MarshalAs(UnmanagedType.LPStr)] string Contract);
+
         public TaskManager_Server(string logFolder, string taskListStateFile)
         {
             _startNonParallelTaskRunLock = new SemaphoreSlim(1, 1);
@@ -31,6 +36,16 @@ namespace Microsoft.FactoryOrchestrator.Server
             _taskRunMap = new ConcurrentDictionary<Guid, TaskRun_Server>();
             _taskMapLock = new object();
             TaskListStateFile = taskListStateFile;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                _supportsWin32Gui = IsApiSetImplemented("ext-ms-win-ntuser-window-l1-1-4");
+            }
+            else
+            {
+                _supportsWin32Gui = false;
+            }
+
             SetLogFolder(logFolder, false);
         }
 
@@ -825,6 +840,26 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (taskRun.RunByServer)
                 {
+                    if (taskRun.TaskType == TaskType.ConsoleExe)
+                    {
+                        if ((_supportsWin32Gui) && (System.Security.Principal.WindowsIdentity.GetCurrent().IsSystem) && (GetPeSubsystem(taskRun.TaskPath) == Subsystem.WindowsGui))
+                        {
+                            // Program is Win32 GUI, if RunAsExplorerUser is present, redirect to it.
+                            // This allows the program to run as a user account and show its GUI.
+                            if (File.Exists(Path.Combine(Environment.SystemDirectory, "RunAsExplorerUser.exe")))
+                            {
+                                taskRun.TaskOutput.Add($"{taskRun.TaskPath} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser...");
+                                var currentPath = taskRun.TaskPath;
+                                taskRun.TaskPath = Path.Combine(Environment.SystemDirectory, "RunAsExplorerUser.exe");
+                                taskRun.Arguments = $"{currentPath} {taskRun.Arguments}"; 
+                            }
+                            else
+                            {
+                                taskRun.TaskOutput.Add($"WARNING: {taskRun.TaskPath} is a Win32 GUI program. It may not run properly as SYSTEM.");
+                            }
+                        }
+                    }
+
                     runner = new TaskRunner(taskRun);
                     waitingForResult = false;
 
@@ -995,6 +1030,19 @@ namespace Microsoft.FactoryOrchestrator.Server
                  taskRun.ExitCode = -1;
                  taskRun.TaskStatus = TaskStatus.Aborted;
                  taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
+            }
+        }
+
+        private PEUtility.Subsystem GetPeSubsystem(string filename)
+        {
+            try
+            {
+                var pe = new PEUtility.Executable(filename);
+                return pe.Subsystem;
+            }
+            catch (Exception)
+            {
+                return Subsystem.Unknown;
             }
         }
 
@@ -1169,10 +1217,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null)
+        public TaskRun RunExecutableAsBackgroundTask(string exeFilePath, string arguments, string logFilePath = null, bool runInContainer = false)
         {
             var run = CreateTaskRunWithoutTask(exeFilePath, arguments, logFilePath, TaskType.ConsoleExe);
             run.BackgroundTask = true;
+            run.RunInContainer = runInContainer;
             var token = new CancellationTokenSource();
             StartTask(run, token.Token);
 
@@ -1593,6 +1642,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly object RunningTaskListLock = new object();
         private readonly SemaphoreSlim _startNonParallelTaskRunLock;
         private string _logFolder;
+        private bool _supportsWin32Gui;
 
         /// <summary>
         /// Tracks all the task runs that have ever occured, mapped by the task run GUID
@@ -2202,7 +2252,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             // If an executable, find the actual path to the file.
             if ((TaskType == TaskType.ConsoleExe) || (TaskType == TaskType.BatchFile))
             {
-                TaskPath = FindFileInPath(TaskPath);
+                // For container tasks, the executable search should happen inside the container
+                if (!RunInContainer)
+                {
+                    TaskPath = FindFileInPath(TaskPath);
+                }
             }
         }
 
@@ -2244,7 +2298,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         public void EndWaitingForExternalResult(bool waitForResult)
         {
             TimeFinished = DateTime.Now;
-            if (waitForResult)
+            if (waitForResult && !RunInContainer)
             {
                 TaskOutput.Add($"A FactoryOrchestratorClient completed the TaskRun with Status: {TaskStatus}, Exit code: {ExitCode}");
             }

@@ -76,4 +76,20 @@ namespace Microsoft.FactoryOrchestrator.Core
         public FactoryOrchestratorUnkownGuidException(Guid guid, Type type) : base($"{guid} is not a valid {type.Name}!", guid)
         { }
     }
+
+    /// <summary>
+    /// An exception denoting an issue with the container on the device.
+    /// </summary>
+    [JsonObject(MemberSerialization.Fields)]
+    public class FactoryOrchestratorContainerException : FactoryOrchestratorException
+    {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="message">Error message.</param>
+        /// <param name="guid">The GUID this Exception relates to.</param>
+        /// <param name="innerException">Inner Exception(s)</param>
+        public FactoryOrchestratorContainerException(string message = null, Guid? guid = null, Exception innerException = null) : base(message, guid, innerException)
+        { }
+    }
 }

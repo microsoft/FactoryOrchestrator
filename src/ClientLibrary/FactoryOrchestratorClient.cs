@@ -120,7 +120,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="clientFilename">Path on client PC to the file to copy.</param>
         /// <param name="serverFilename">Path on device running Factory Orchestrator Service where the file will be saved.</param>
-        public async Task<long> SendFileToDevice(string clientFilename, string serverFilename)
+        /// <param name="sendToContainer">If true, send the file to the container running on the connected device.</param>
+        public async Task<long> SendFileToDevice(string clientFilename, string serverFilename, bool sendToContainer = false)
         {
             if (!IsConnected)
             {
@@ -138,6 +139,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 using (var reader = CreateClientFileReader(clientFilename))
                 {
                     // Read file in chunks from the client and send to the server
+                    // Read file in chunks from the client and send to the server
                     var bytesThisRead = reader.Read(bytes, 0, Constants.FILE_TRANSFER_CHUNK_SIZE);
                     totalBytesRead += bytesThisRead;
                     while (bytesThisRead > 0)
@@ -147,7 +149,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                             bytes = bytes.ToList().GetRange(0, bytesThisRead).ToArray();
                         }
 
-                        await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", serverFilename, bytes, appending));
+                        await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", serverFilename, bytes, appending, sendToContainer));
                         appending = true;
 
                         bytes = new byte[Constants.FILE_TRANSFER_CHUNK_SIZE];
@@ -167,9 +169,10 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Copies a file from the device running Factory Orchestrator Service to the client. Creates directories if needed.
         /// </summary>
-        /// <param name="serverFilename">Path on device running Factory Orchestrator Service to the file to copy.</param>
+        /// <param name="serverFilename">Path on running Factory Orchestrator Service to the file to copy.</param>
         /// <param name="clientFilename">Path on client PC where the file will be saved.</param>
-        public async Task<long> GetFileFromDevice(string serverFilename, string clientFilename)
+        /// <param name="getFromContainer">If true, get the file from the container running on the connected device.</param>
+        public async Task<long> GetFileFromDevice(string serverFilename, string clientFilename, bool getFromContainer = false)
         {
             if (!IsConnected)
             {
@@ -188,7 +191,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 using (var writer = CreateClientFileWriter(clientFilename))
                 {
                     // read file in chunks from the server and save to client
-                    var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, 0, Constants.FILE_TRANSFER_CHUNK_SIZE));
+                    var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, 0, Constants.FILE_TRANSFER_CHUNK_SIZE, getFromContainer));
                     totalBytesWritten += bytes.Length;
                     if (bytes.Length > 0)
                     {
@@ -197,7 +200,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
                     while (bytes.Length == Constants.FILE_TRANSFER_CHUNK_SIZE)
                     {
-                        bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, totalBytesWritten, Constants.FILE_TRANSFER_CHUNK_SIZE));
+                        bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, totalBytesWritten, Constants.FILE_TRANSFER_CHUNK_SIZE, getFromContainer));
                         totalBytesWritten += bytes.Length;
 
                         if (bytes.Length > 0)
@@ -242,7 +245,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="serverDirectory">Path on device running Factory Orchestrator Service to the folder to copy.</param>
         /// <param name="clientDirectory">Path on client PC where the folder will be saved.</param>
-        public async Task<long> GetDirectoryFromDevice(string serverDirectory, string clientDirectory)
+        /// <param name="getFromContainer">If true, get the file from the container running on the connected device.</param>
+        public async Task<long> GetDirectoryFromDevice(string serverDirectory, string clientDirectory, bool getFromContainer = false)
         {
             if (!IsConnected)
             {
@@ -251,8 +255,8 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                var files = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateFiles", serverDirectory, false));
-                var dirs = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateDirectories", serverDirectory, false));
+                var files = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateFiles", serverDirectory, false, getFromContainer));
+                var dirs = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateDirectories", serverDirectory, false, getFromContainer));
                 long bytesReceived = 0;
 
                 clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
@@ -261,7 +265,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 foreach (var file in files)
                 {
                     var filename = Path.GetFileName(file);
-                    bytesReceived += await GetFileFromDevice(file, Path.Combine(clientDirectory, filename));
+                    bytesReceived += await GetFileFromDevice(file, Path.Combine(clientDirectory, filename), getFromContainer);
                 }
                 foreach (var dir in dirs)
                 {
@@ -285,7 +289,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="clientDirectory">Path on client PC to the folder to copy.</param>
         /// <param name="serverDirectory">Path on device running Factory Orchestrator Service where the folder will be saved.</param>
-        public async Task<long> SendDirectoryToDevice(string clientDirectory, string serverDirectory)
+        /// <param name="sendToContainer">If true, copy the folder to the container running on the connected device.</param>
+        public async Task<long> SendDirectoryToDevice(string clientDirectory, string serverDirectory, bool sendToContainer = false)
         {
             if (!IsConnected)
             {
@@ -302,12 +307,12 @@ namespace Microsoft.FactoryOrchestrator.Client
 
                 foreach (var file in files)
                 {
-                    bytesSent += await SendFileToDevice(file, Path.Combine(serverDirectory, Path.GetFileName(file)));
+                    bytesSent += await SendFileToDevice(file, Path.Combine(serverDirectory, Path.GetFileName(file)), sendToContainer);
                 }
 
                 foreach (var dir in dirs)
                 {
-                    bytesSent += await SendDirectoryToDevice(dir, Path.Combine(serverDirectory, new DirectoryInfo(dir).Name));
+                    bytesSent += await SendDirectoryToDevice(dir, Path.Combine(serverDirectory, new DirectoryInfo(dir).Name), sendToContainer);
                 }
 
                 return bytesSent;
@@ -565,6 +570,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// The IPC client used to communicate with the service.
         /// </summary>
         protected IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
+
     }
 
     /// <summary>

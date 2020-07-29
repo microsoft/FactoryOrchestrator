@@ -73,7 +73,7 @@
                     <TextBlock x:Name="GetText" Text="Get Remote File/Folder" Margin="5,0"/>
                 </StackPanel>
             </Button>
-
+            <CheckBox x:Name="ContainerCheckBox" Content="Transfer to/from Container?" Checked="ContainerCheckBox_Click" Unchecked="ContainerCheckBox_Click" IsChecked="False" IsThreeState="False"/>
         </StackPanel>
 
         <ProgressRing Grid.Row="8" Grid.ColumnSpan="3" x:Name="TranferRing" IsActive="False" Visibility="Visible" Height="100" Width="100"/>
