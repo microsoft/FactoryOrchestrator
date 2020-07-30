@@ -120,7 +120,7 @@
   <data name="AbortAllButton.Content" xml:space="preserve">
     <value>Abort all</value>
   </data>
-  <data name="AbortAllButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="AbortAllButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Abort all running TaskLists</value>
   </data>
   <data name="AbortButton.Content" xml:space="preserve">
@@ -147,7 +147,7 @@
   <data name="Apps.Content" xml:space="preserve">
     <value>UWP Apps</value>
   </data>
-  <data name="Apps.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Apps.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Launch UWP apps</value>
   </data>
   <data name="AppVersion" xml:space="preserve">
@@ -166,7 +166,7 @@
   <data name="AutoPassCheck.Content" xml:space="preserve">
     <value>Auto Pass App on Launch?</value>
   </data>
-  <data name="BackButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="BackButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Go Back</value>
   </data>
   <data name="BadIpContent" xml:space="preserve">
@@ -196,10 +196,10 @@ Check that the IP address is correct and that the Factory Orchestrator Service i
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="CancelCopy.AutomationProperties.Name" xml:space="preserve">
+  <data name="CancelCopy.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Cancel file copy</value>
   </data>
-  <data name="CancelEdit.AutomationProperties.Name" xml:space="preserve">
+  <data name="CancelEdit.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="CheckPath" xml:space="preserve">
@@ -220,16 +220,16 @@ Check that the IP address is correct and that the Factory Orchestrator Service i
   <data name="CommentBlock.Text" xml:space="preserve">
     <value>Notes (Optional)</value>
   </data>
-  <data name="ConfirmCopy.AutomationProperties.Name" xml:space="preserve">
+  <data name="ConfirmCopy.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Confirm file copy</value>
   </data>
-  <data name="ConfirmEdit.AutomationProperties.Name" xml:space="preserve">
+  <data name="ConfirmEdit.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Save</value>
   </data>
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>Connect</value>
   </data>
-  <data name="Console.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Console.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Non-interactive cmd.exe prompt</value>
   </data>
   <data name="ContainerBox.Content" xml:space="preserve">
@@ -238,7 +238,7 @@ Check that the IP address is correct and that the Factory Orchestrator Service i
   <data name="ContainerCheckBox.Content" xml:space="preserve">
     <value>Run In Container?</value>
   </data>
-  <data name="ContainerCheckBox.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ContainerCheckBox.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>If checked, command is run in the container</value>
   </data>
   <data name="ContainerIP" xml:space="preserve">
@@ -260,10 +260,10 @@ Manually exported FactoryOrchestratorXML files will not be deleted, but will nee
 
 If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. "Factory Reset" will temporarily interrupt communication with clients, including this app.</value>
   </data>
-  <data name="DeleteButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="EditButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="EditButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Edit</value>
   </data>
   <data name="EditFlyoutImagePath" xml:space="preserve">
@@ -291,10 +291,10 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="EditingTaskList" xml:space="preserve">
     <value>Editing TaskList</value>
   </data>
-  <data name="EditListNameButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="EditListNameButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Rename TaskList</value>
   </data>
-  <data name="EditListNameButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="EditListNameButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Rename TaskList</value>
   </data>
   <data name="EnableAndRetry" xml:space="preserve">
@@ -316,7 +316,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="ExitCodeConst.Text" xml:space="preserve">
     <value>Exit Code:</value>
   </data>
-  <data name="ExitSymbol.AutomationProperties.Name" xml:space="preserve">
+  <data name="ExitSymbol.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Exit and shutdown menu</value>
   </data>
   <data name="ExitText.Text" xml:space="preserve">
@@ -347,7 +347,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="Files.Content" xml:space="preserve">
     <value>Transfer Files</value>
   </data>
-  <data name="Files.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Files.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Transfer file to/from connected device</value>
   </data>
   <data name="Folder" xml:space="preserve">
@@ -413,7 +413,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="MaybeDeleted" xml:space="preserve">
     <value>It may have been deleted.</value>
   </data>
-  <data name="NetworkButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="NetworkButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Network information</value>
   </data>
   <data name="NewCMDButton.Content" xml:space="preserve">
@@ -488,10 +488,10 @@ On retry</value>
     <value>Path:</value>
     <comment>file path</comment>
   </data>
-  <data name="PauseListButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="PauseListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Pause TaskList</value>
   </data>
-  <data name="PauseListButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="PauseListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Pause</value>
   </data>
   <data name="PrevText.Text" xml:space="preserve">
@@ -509,22 +509,22 @@ On retry</value>
   <data name="ReorderFailed" xml:space="preserve">
     <value>Failed to reorder TaskLists</value>
   </data>
-  <data name="RerunListButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="RerunListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Rerun TaskList</value>
   </data>
-  <data name="RerunListButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="RerunListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Rerun TaskList</value>
   </data>
-  <data name="RestartListButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="RestartListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Restart TaskList</value>
   </data>
-  <data name="RestartListButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="RestartListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Restart</value>
   </data>
-  <data name="ResumeListButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="ResumeListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Resume TaskList</value>
   </data>
-  <data name="ResumeListButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="ResumeListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Resume</value>
   </data>
   <data name="Retry" xml:space="preserve">
@@ -534,34 +534,34 @@ On retry</value>
   <data name="RetryBlock.Text" xml:space="preserve">
     <value>Maximum number of retries:</value>
   </data>
-  <data name="RetryTaskButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="RetryTaskButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Rerun Task</value>
   </data>
-  <data name="RetryTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="RetryTaskButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Rerun Task</value>
   </data>
   <data name="Run.Content" xml:space="preserve">
     <value>Run TaskLists</value>
   </data>
-  <data name="RunAllButton. AutomationProperties.Name" xml:space="preserve">
+  <data name="RunAllButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Run all TaskLists</value>
   </data>
   <data name="RunAllButton.Content" xml:space="preserve">
     <value>Run all</value>
   </data>
-  <data name="RunAllButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="RunAllButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Run all TaskLists</value>
   </data>
-  <data name="RunCommandButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="RunCommandButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Execute command</value>
   </data>
-  <data name="RunCommandButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="RunCommandButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Execute command</value>
   </data>
-  <data name="RunListButton.AutomationProperties.Name" xml:space="preserve">
+  <data name="RunListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Run TaskList</value>
   </data>
-  <data name="RunListButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="RunListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Run</value>
   </data>
   <data name="Running" xml:space="preserve">
@@ -576,7 +576,7 @@ On retry</value>
   <data name="Save.Content" xml:space="preserve">
     <value>Manage TaskLists</value>
   </data>
-  <data name="Save.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Save.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Create or edit a TaskList</value>
   </data>
   <data name="SaveAll.Text" xml:space="preserve">
@@ -674,7 +674,7 @@ On retry</value>
   <data name="TrackExecutionCheck.Content" xml:space="preserve">
     <value>Track Execution</value>
   </data>
-  <data name="TrackExecutionCheck.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="TrackExecutionCheck.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Automatically update UI to follow the running Task(s)</value>
   </data>
   <data name="Unknown" xml:space="preserve">
@@ -690,7 +690,7 @@ On retry</value>
     <value>Windows Device Portal</value>
     <comment>Do not localize</comment>
   </data>
-  <data name="WDP.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="WDP.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Launch Windows Device Portal</value>
   </data>
   <data name="WDPFailedContent" xml:space="preserve">

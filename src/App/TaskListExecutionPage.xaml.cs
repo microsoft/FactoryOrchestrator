@@ -243,15 +243,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         if (newSummaries.Any(x => x.IsRunningOrPending))
                         {
-                            RunAllButton.Content = resourceLoader.GetString("AbortAllButton.Content");
-                            ToolTipService.SetToolTip(RunAllButton, resourceLoader.GetString("AbortAllButton.ToolTipService.ToolTip"));
-                            AutomationProperties.SetName(RunAllButton, resourceLoader.GetString("AbortAllButton.ToolTipService.ToolTip"));
+                            RunAllButton.Content = resourceLoader.GetString("AbortAllButton/Content");
+                            ToolTipService.SetToolTip(RunAllButton, resourceLoader.GetString("AbortAllButton/ToolTipService/ToolTip"));
+                            AutomationProperties.SetName(RunAllButton, resourceLoader.GetString("AbortAllButton/ToolTipService/ToolTip"));
                         }
                         else
                         {
-                            RunAllButton.Content = resourceLoader.GetString("RunAllButton.Content");
-                            ToolTipService.SetToolTip(RunAllButton, resourceLoader.GetString("RunAllButton.ToolTipService.ToolTip"));
-                            AutomationProperties.SetName(RunAllButton, resourceLoader.GetString("RunAllButton.ToolTipService.ToolTip"));
+                            
+                            RunAllButton.Content = resourceLoader.GetString("RunAllButton/Content");
+                            ToolTipService.SetToolTip(RunAllButton, resourceLoader.GetString("RunAllButton/ToolTipService/ToolTip"));
+                            AutomationProperties.SetName(RunAllButton, resourceLoader.GetString("RunAllButton/ToolTipService/ToolTip"));
                         }
 
                         if (newCount == 0)
@@ -411,13 +412,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (bootTasksComplete)
                 {
-                    TaskListsText.Text = resourceLoader.GetString("TaskListsText.Text");
-                    TasksText.Text = resourceLoader.GetString("TasksText.Text");
+                    TaskListsText.Text = resourceLoader.GetString("TaskListsText/Text");
+                    TasksText.Text = resourceLoader.GetString("TasksText/Text");
                 }
                 else
                 {
-                    TaskListsText.Text = $"{resourceLoader.GetString("Boot")} {resourceLoader.GetString("TaskListsText.Text")}";
-                    TasksText.Text = $"{resourceLoader.GetString("Boot")} {resourceLoader.GetString("TasksText.Text")}";
+                    TaskListsText.Text = $"{resourceLoader.GetString("Boot")} {resourceLoader.GetString("TaskListsText/Text")}";
+                    TasksText.Text = $"{resourceLoader.GetString("Boot")} {resourceLoader.GetString("TasksText/Text")}";
                 }
             }
         }

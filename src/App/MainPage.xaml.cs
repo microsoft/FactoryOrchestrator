@@ -286,7 +286,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if ("console".Equals((string)((NavigationViewItem)NavView.SelectedItem).Tag, StringComparison.OrdinalIgnoreCase))
             {
-                return resourceLoader.GetString("CommandPromptText.Text");
+                return resourceLoader.GetString("CommandPromptText/Text");
             }
             else
             {

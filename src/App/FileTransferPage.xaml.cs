@@ -212,17 +212,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if ((bool)ContainerCheckBox.IsChecked)
             {
-                ServerText.Text = resourceLoader.GetString("ServerTextContainer.Text");
-                GetText.Text = resourceLoader.GetString("GetTextContainer.Text");
-                HeaderGet.Text = resourceLoader.GetString("HeaderGetContainer.Text");
-                HeaderSend.Text = resourceLoader.GetString("HeaderSendContainer.Text");
+                ServerText.Text = resourceLoader.GetString("ServerTextContainer/Text");
+                GetText.Text = resourceLoader.GetString("GetTextContainer/Text");
+                HeaderGet.Text = resourceLoader.GetString("HeaderGetContainer/Text");
+                HeaderSend.Text = resourceLoader.GetString("HeaderSendContainer/Text");
             }
             else
             {
-                ServerText.Text = resourceLoader.GetString("ServerText.Text");
-                GetText.Text = resourceLoader.GetString("GetText.Text");
-                HeaderGet.Text = resourceLoader.GetString("HeaderGet.Text");
-                HeaderSend.Text = resourceLoader.GetString("HeaderSend.Text");
+                ServerText.Text = resourceLoader.GetString("ServerText/Text");
+                GetText.Text = resourceLoader.GetString("GetText/Text");
+                HeaderGet.Text = resourceLoader.GetString("HeaderGet/Text");
+                HeaderSend.Text = resourceLoader.GetString("HeaderSend/Text");
             }
         }
 

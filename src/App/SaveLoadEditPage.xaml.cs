@@ -264,10 +264,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContentDialog clearAllDialog = new ContentDialog
             {
-                Title = $"{resourceLoader.GetString("DeleteAll.Text")}?",
+                Title = $"{resourceLoader.GetString("DeleteAll/Text")}?",
                 Content = resourceLoader.GetString("DeleteAllContent"),
                 CloseButtonText = resourceLoader.GetString("Cancel"),
-                PrimaryButtonText = resourceLoader.GetString("DeleteAll.Text"),
+                PrimaryButtonText = resourceLoader.GetString("DeleteAll/Text"),
                 SecondaryButtonText = resourceLoader.GetString("FactoryReset")
             };
 

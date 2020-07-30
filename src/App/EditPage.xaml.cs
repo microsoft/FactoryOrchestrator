@@ -441,11 +441,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 switch (testType)
                 {
                     case TaskType.ConsoleExe:
-                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewExecutableButton.Content");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewExecutableButton/Content");
                         resourceLoader.GetString("Path");
                         break;
                     case TaskType.UWP:
-                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewUWPButton.Content");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewUWPButton/Content");
                         AutoPassCheck.IsChecked = false;
                         TerminateOnCompleteCheck.IsChecked = true;
                         // Enable Terminate box if needed
@@ -453,19 +453,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         resourceLoader.GetString("AUMID");
                         break;
                     case TaskType.External:
-                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewExternalButton.Content");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewExternalButton/Content");
                         PathBlock.Text = resourceLoader.GetString("EditFlyoutImagePath");
                         break;
                     case TaskType.TAEFDll:
-                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewTAEFButton.Content");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewTAEFButton/Content");
                         resourceLoader.GetString("Path");
                         break;
                     case TaskType.PowerShell:
-                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewPSButton.Content");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewPSButton/Content");
                         resourceLoader.GetString("Path");
                         break;
                     case TaskType.BatchFile:
-                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewCMDButton.Content");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewCMDButton/Content");
                         resourceLoader.GetString("Path");
                         break;
                 }
@@ -487,7 +487,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Visible;
                     AppComboBox.Visibility = Visibility.Collapsed;
                     AppBlock.Visibility = Visibility.Collapsed;
-                    resourceLoader.GetString("ArgumentsBlock.Text");
+                    resourceLoader.GetString("ArgumentsBlock/Text");
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Visible;
@@ -500,7 +500,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Visible;
                     AppComboBox.Visibility = Visibility.Collapsed;
                     AppBlock.Visibility = Visibility.Collapsed;
-                    resourceLoader.GetString("ArgumentsBlock.Text");
+                    resourceLoader.GetString("ArgumentsBlock/Text");
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Collapsed;
