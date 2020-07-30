@@ -22,7 +22,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class Resources {
+    internal class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FactoryOrchestratorCoreLibrary.Resources.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks cannot have a retry value!.
         /// </summary>
-        public static string BackgroundRetryException {
+        internal static string BackgroundRetryException {
             get {
                 return ResourceManager.GetString("BackgroundRetryException", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks must be ExecutableTask, PowerShellTask, or BatchFileTask!.
         /// </summary>
-        public static string BackgroundTaskTypeException {
+        internal static string BackgroundTaskTypeException {
             get {
                 return ResourceManager.GetString("BackgroundTaskTypeException", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks cannot have a timeout value!.
         /// </summary>
-        public static string BackgroundTimeoutException {
+        internal static string BackgroundTimeoutException {
             get {
                 return ResourceManager.GetString("BackgroundTimeoutException", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot perform operation because one or more TaskLists are actively running!.
         /// </summary>
-        public static string FactoryOrchestratorTaskListRunningException {
+        internal static string FactoryOrchestratorTaskListRunningException {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorTaskListRunningException", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot perform operation because TaskList $1 is actively running!.
         /// </summary>
-        public static string FactoryOrchestratorTaskListRunningExceptionWithGuid {
+        internal static string FactoryOrchestratorTaskListRunningExceptionWithGuid {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorTaskListRunningExceptionWithGuid", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Guid is not valid!.
         /// </summary>
-        public static string FactoryOrchestratorUnkownGuidException {
+        internal static string FactoryOrchestratorUnkownGuidException {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorUnkownGuidException", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to $1 is not valid!.
         /// </summary>
-        public static string FactoryOrchestratorUnkownGuidExceptionWithGuid {
+        internal static string FactoryOrchestratorUnkownGuidExceptionWithGuid {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorUnkownGuidExceptionWithGuid", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to $1 is not a valid $2!.
         /// </summary>
-        public static string FactoryOrchestratorUnkownGuidExceptionWithGuidAndType {
+        internal static string FactoryOrchestratorUnkownGuidExceptionWithGuidAndType {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorUnkownGuidExceptionWithGuidAndType", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to $1 does not exist!.
         /// </summary>
-        public static string FileNotFoundException {
+        internal static string FileNotFoundException {
             get {
                 return ResourceManager.GetString("FileNotFoundException", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Could not load {filename} as FactoryOrchestratorXML!.
         /// </summary>
-        public static string FOXMLFileLoadException {
+        internal static string FOXMLFileLoadException {
             get {
                 return ResourceManager.GetString("FOXMLFileLoadException", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to TaskRun has an invalid TaskType!.
         /// </summary>
-        public static string InvalidTaskRunTypeException {
+        internal static string InvalidTaskRunTypeException {
             get {
                 return ResourceManager.GetString("InvalidTaskRunTypeException", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Trying to deserialize an unknown task type!.
         /// </summary>
-        public static string TaskBaseDeserializationException {
+        internal static string TaskBaseDeserializationException {
             get {
                 return ResourceManager.GetString("TaskBaseDeserializationException", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Trying to serialize an unknown task type!.
         /// </summary>
-        public static string TaskBaseSerializationException {
+        internal static string TaskBaseSerializationException {
             get {
                 return ResourceManager.GetString("TaskBaseSerializationException", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to TaskList $1 ($2) with status $3.
         /// </summary>
-        public static string TaskListToString {
+        internal static string TaskListToString {
             get {
                 return ResourceManager.GetString("TaskListToString", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to fff.
         /// </summary>
-        public static string test {
+        internal static string test {
             get {
                 return ResourceManager.GetString("test", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Windows Device Portal failed with error.
         /// </summary>
-        public static string WDPError {
+        internal static string WDPError {
             get {
                 return ResourceManager.GetString("WDPError", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Windows Device Portal failed with HTTP error.
         /// </summary>
-        public static string WDPHttpError {
+        internal static string WDPHttpError {
             get {
                 return ResourceManager.GetString("WDPHttpError", resourceCulture);
             }
