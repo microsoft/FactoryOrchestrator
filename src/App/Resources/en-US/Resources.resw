@@ -1,0 +1,717 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AbortAllButton.Content" xml:space="preserve">
+    <value>Abort all</value>
+  </data>
+  <data name="AbortAllButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Abort all running TaskLists</value>
+  </data>
+  <data name="AbortButton.Content" xml:space="preserve">
+    <value>Abort ⛔</value>
+  </data>
+  <data name="Aborted" xml:space="preserve">
+    <value>⛔ Aborted</value>
+  </data>
+  <data name="AbortOnFailBox.Content" xml:space="preserve">
+    <value>Abort TaskList on Task failure?</value>
+  </data>
+  <data name="About.Content" xml:space="preserve">
+    <value>About Factory Orchestrator</value>
+  </data>
+  <data name="AboutButton.Content" xml:space="preserve">
+    <value>About Factory Orchestrator</value>
+  </data>
+  <data name="ActionRequired.Text" xml:space="preserve">
+    <value>Action Required</value>
+  </data>
+  <data name="AppBlock.Text" xml:space="preserve">
+    <value>App:</value>
+  </data>
+  <data name="Apps.Content" xml:space="preserve">
+    <value>UWP Apps</value>
+  </data>
+  <data name="Apps.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Launch UWP apps</value>
+  </data>
+  <data name="AppVersion" xml:space="preserve">
+    <value>App Version</value>
+  </data>
+  <data name="ArgumentsBlock.Text" xml:space="preserve">
+    <value>Arguments:</value>
+  </data>
+  <data name="AttemptingLocalHost.Text" xml:space="preserve">
+    <value>Attempting to connect to your local device</value>
+  </data>
+  <data name="AUMID" xml:space="preserve">
+    <value>AUMID:</value>
+    <comment>App user model id</comment>
+  </data>
+  <data name="AutoPassCheck.Content" xml:space="preserve">
+    <value>Auto Pass App on Launch?</value>
+  </data>
+  <data name="BackButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Go Back</value>
+  </data>
+  <data name="BadIpContent" xml:space="preserve">
+    <value>Could not connect to $1.
+
+Check that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.</value>
+  </data>
+  <data name="BadIpTitle" xml:space="preserve">
+    <value>Unable to connect to target IP</value>
+  </data>
+  <data name="BgTaskBox.Content" xml:space="preserve">
+    <value>Add as Background Task?</value>
+  </data>
+  <data name="BgTasksHeader.Text" xml:space="preserve">
+    <value>Background Tasks:</value>
+  </data>
+  <data name="BlockingCheck.Content" xml:space="preserve">
+    <value>Allow Other TaskLists to Run?</value>
+  </data>
+  <data name="Boot" xml:space="preserve">
+    <value>Boot</value>
+    <comment>Refers to the startup of the PC.</comment>
+  </data>
+  <data name="BootTaskWarning.Text" xml:space="preserve">
+    <value>⚠ Service is executing Boot tasks, many funtions are disabled until finished or aborted ⚠</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CancelCopy.AutomationProperties.Name" xml:space="preserve">
+    <value>Cancel file copy</value>
+  </data>
+  <data name="CancelEdit.AutomationProperties.Name" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CheckPath" xml:space="preserve">
+    <value>Check the path and try again.</value>
+  </data>
+  <data name="ClearButton.Content" xml:space="preserve">
+    <value>Clear Output</value>
+  </data>
+  <data name="ClientText.Text" xml:space="preserve">
+    <value>Local File/Folder:</value>
+  </data>
+  <data name="CommandConst.Text" xml:space="preserve">
+    <value>Command:</value>
+  </data>
+  <data name="CommandPromptText.Text" xml:space="preserve">
+    <value>Command Prompt</value>
+  </data>
+  <data name="CommentBlock.Text" xml:space="preserve">
+    <value>Notes (Optional)</value>
+  </data>
+  <data name="ConfirmCopy.AutomationProperties.Name" xml:space="preserve">
+    <value>Confirm file copy</value>
+  </data>
+  <data name="ConfirmEdit.AutomationProperties.Name" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="ConnectButton.Content" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="Console.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Non-interactive cmd.exe prompt</value>
+  </data>
+  <data name="ContainerBox.Content" xml:space="preserve">
+    <value>Run In Container?</value>
+  </data>
+  <data name="ContainerCheckBox.Content" xml:space="preserve">
+    <value>Run In Container?</value>
+  </data>
+  <data name="ContainerCheckBox.ToolTipService.ToolTip" xml:space="preserve">
+    <value>If checked, command is run in the container</value>
+  </data>
+  <data name="ContainerIP" xml:space="preserve">
+    <value>Container IP (Internal)</value>
+  </data>
+  <data name="CouldNotQuery" xml:space="preserve">
+    <value>Could not query</value>
+  </data>
+  <data name="Debug" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+  <data name="DeleteAll.Text" xml:space="preserve">
+    <value>Delete All TaskLists</value>
+  </data>
+  <data name="DeleteAllContent" xml:space="preserve">
+    <value>All running TaskLists will be stopped. All TaskLists will be removed from the server permanently.
+
+Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via "Load FactoryOrchestratorXML file".
+
+If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. "Factory Reset" will temporarily interrupt communication with clients, including this app.</value>
+  </data>
+  <data name="DeleteButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EditFlyoutImagePath" xml:space="preserve">
+    <value>(Optional) Image or Video Path:</value>
+    <comment>file path</comment>
+  </data>
+  <data name="EditFlyoutTextHeaderEditingCMD" xml:space="preserve">
+    <value>Editing Batch File Task</value>
+  </data>
+  <data name="EditFlyoutTextHeaderEditingExe" xml:space="preserve">
+    <value>Editing Executable Task</value>
+  </data>
+  <data name="EditFlyoutTextHeaderEditingExternal" xml:space="preserve">
+    <value>Editing External Task</value>
+  </data>
+  <data name="EditFlyoutTextHeaderEditingPS" xml:space="preserve">
+    <value>Editing PowerShell Task</value>
+  </data>
+  <data name="EditFlyoutTextHeaderEditingTAEF" xml:space="preserve">
+    <value>Editing TAEF Test</value>
+  </data>
+  <data name="EditFlyoutTextHeaderEditingUWP" xml:space="preserve">
+    <value>Editing UWP Task</value>
+  </data>
+  <data name="EditingTaskList" xml:space="preserve">
+    <value>Editing TaskList</value>
+  </data>
+  <data name="EditListNameButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Rename TaskList</value>
+  </data>
+  <data name="EditListNameButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Rename TaskList</value>
+  </data>
+  <data name="EnableAndRetry" xml:space="preserve">
+    <value>Please enable $1 and try again.</value>
+  </data>
+  <data name="EndComments" xml:space="preserve">
+    <value>End Comments</value>
+    <comment>End of user comments</comment>
+  </data>
+  <data name="ExistingText.Text" xml:space="preserve">
+    <value>Existing TaskLists:</value>
+  </data>
+  <data name="ExistingText2.Text" xml:space="preserve">
+    <value>Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file.</value>
+  </data>
+  <data name="Exit.Text" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="ExitCodeConst.Text" xml:space="preserve">
+    <value>Exit Code:</value>
+  </data>
+  <data name="ExitSymbol.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit and shutdown menu</value>
+  </data>
+  <data name="ExitText.Text" xml:space="preserve">
+    <value>Exit Factory Orchestrator?</value>
+  </data>
+  <data name="FactoryOrchestrator.Text" xml:space="preserve">
+    <value>Factory Orchestrator</value>
+    <comment>Do not localize</comment>
+  </data>
+  <data name="FactoryReset" xml:space="preserve">
+    <value>Factory Reset</value>
+  </data>
+  <data name="FailButton.Content" xml:space="preserve">
+    <value>Fail ❌</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>❌ Failed</value>
+  </data>
+  <data name="FailedAppsQuery" xml:space="preserve">
+    <value>Failed to query apps</value>
+  </data>
+  <data name="FailedQuery" xml:space="preserve">
+    <value>Failed to query TaskList for edit</value>
+  </data>
+  <data name="FailedToLaunch" xml:space="preserve">
+    <value>Failed to launch</value>
+  </data>
+  <data name="Files.Content" xml:space="preserve">
+    <value>Transfer Files</value>
+  </data>
+  <data name="Files.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Transfer file to/from connected device</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>folder as TaskList</value>
+  </data>
+  <data name="FOXML" xml:space="preserve">
+    <value>FactoryOrchestratorXML file</value>
+  </data>
+  <data name="FOXMLSaveFailed" xml:space="preserve">
+    <value>Failed to save FactoryOrchestratorXML file</value>
+  </data>
+  <data name="GetText.Text" xml:space="preserve">
+    <value>Get Remote File/Folder</value>
+  </data>
+  <data name="GetTextContainer.Text" xml:space="preserve">
+    <value>Get Container File/Folder</value>
+  </data>
+  <data name="HeaderGet.Text" xml:space="preserve">
+    <value>Copy from remote device to local device?</value>
+  </data>
+  <data name="HeaderGetContainer.Text" xml:space="preserve">
+    <value>Copy from local device to container?</value>
+  </data>
+  <data name="HeaderSend.Text" xml:space="preserve">
+    <value>Copy from local device to remote device?</value>
+  </data>
+  <data name="HeaderSendContainer.Text" xml:space="preserve">
+    <value>Copy from container to local device?</value>
+  </data>
+  <data name="ImportText.Text" xml:space="preserve">
+    <value>Import FactoryOrchestratorXML File:</value>
+  </data>
+  <data name="IpAddress.Text" xml:space="preserve">
+    <value>IP Address:</value>
+  </data>
+  <data name="IpHeader.Text" xml:space="preserve">
+    <value>System Ip Addresses</value>
+  </data>
+  <data name="LastTimeRunConst.Text" xml:space="preserve">
+    <value>Started at:</value>
+  </data>
+  <data name="LaunchApp.Text" xml:space="preserve">
+    <value>Launch installed app package (exit with ALT+F4):</value>
+  </data>
+  <data name="LoadFailed" xml:space="preserve">
+    <value>Failed to load</value>
+  </data>
+  <data name="LoadFolderFlyoutText" xml:space="preserve">
+    <value>Folder to load as TaskList:</value>
+  </data>
+  <data name="LoadFolderText.Text" xml:space="preserve">
+    <value>Load Folder as TaskList (exe, cmd, ps1, TAEF):</value>
+  </data>
+  <data name="LoadXMLFlyoutText" xml:space="preserve">
+    <value>FactoryOrchestratorXML file to load from:</value>
+  </data>
+  <data name="LocalDevice" xml:space="preserve">
+    <value>Local Device</value>
+  </data>
+  <data name="LogPathConst.Text" xml:space="preserve">
+    <value>Log:</value>
+  </data>
+  <data name="MaybeDeleted" xml:space="preserve">
+    <value>It may have been deleted.</value>
+  </data>
+  <data name="NetworkButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Network information</value>
+  </data>
+  <data name="NewCMDButton.Content" xml:space="preserve">
+    <value>New Batch File Task</value>
+  </data>
+  <data name="NewExecutableButton.Content" xml:space="preserve">
+    <value>New Executable Task</value>
+  </data>
+  <data name="NewExternalButton.Content" xml:space="preserve">
+    <value>New External Task</value>
+  </data>
+  <data name="NewPSButton.Content" xml:space="preserve">
+    <value>New PowerShell Task</value>
+  </data>
+  <data name="NewTAEFButton.Content" xml:space="preserve">
+    <value>New TAEF Task</value>
+  </data>
+  <data name="NewText.Text" xml:space="preserve">
+    <value>Create new TaskList:</value>
+  </data>
+  <data name="NewUWPButton.Content" xml:space="preserve">
+    <value>New UWP App Task</value>
+  </data>
+  <data name="NextText.Text" xml:space="preserve">
+    <value>Next Run</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="NoContainerContent" xml:space="preserve">
+    <value>Returning to last page</value>
+  </data>
+  <data name="NoContainerTitle" xml:space="preserve">
+    <value>Container is no longer running</value>
+  </data>
+  <data name="NotRun" xml:space="preserve">
+    <value>❔ Not Run</value>
+  </data>
+  <data name="OEMVersion" xml:space="preserve">
+    <value>OEM Version</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="OnRetry" xml:space="preserve">
+    <value>
+On retry</value>
+    <comment>Used in sentences like "passed on retry 5", ie it happened on the 5th retry of an action.</comment>
+  </data>
+  <data name="OSSAcknowledgments.Text" xml:space="preserve">
+    <value>Open Source Software Acknowledgments</value>
+  </data>
+  <data name="OSVersion" xml:space="preserve">
+    <value>OS Version</value>
+  </data>
+  <data name="OutputConst.Text" xml:space="preserve">
+    <value>Console Output:</value>
+  </data>
+  <data name="OverallTaskResultConst.Text" xml:space="preserve">
+    <value>Status:</value>
+  </data>
+  <data name="ParallelCheck.Content" xml:space="preserve">
+    <value>Run Tasks in Parallel?</value>
+  </data>
+  <data name="PassButton.Content" xml:space="preserve">
+    <value>Pass ✔️</value>
+  </data>
+  <data name="Passed" xml:space="preserve">
+    <value>✔ Passed</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Path:</value>
+    <comment>file path</comment>
+  </data>
+  <data name="PauseListButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Pause TaskList</value>
+  </data>
+  <data name="PauseListButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="PrevText.Text" xml:space="preserve">
+    <value>Previous Run</value>
+  </data>
+  <data name="RebootButtonText.Text" xml:space="preserve">
+    <value>Reboot</value>
+  </data>
+  <data name="RemoteHost.Text" xml:space="preserve">
+    <value>Or, please enter the IPv4 address of the device you wish to connect to:</value>
+  </data>
+  <data name="RenameListBlock.Text" xml:space="preserve">
+    <value>Rename TaskList</value>
+  </data>
+  <data name="ReorderFailed" xml:space="preserve">
+    <value>Failed to reorder TaskLists</value>
+  </data>
+  <data name="RerunListButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Rerun TaskList</value>
+  </data>
+  <data name="RerunListButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Rerun TaskList</value>
+  </data>
+  <data name="RestartListButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Restart TaskList</value>
+  </data>
+  <data name="RestartListButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Restart</value>
+  </data>
+  <data name="ResumeListButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Resume TaskList</value>
+  </data>
+  <data name="ResumeListButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Retry</value>
+    <comment>Used in sentences like "running retry 5", ie the 5th retry of an action.</comment>
+  </data>
+  <data name="RetryBlock.Text" xml:space="preserve">
+    <value>Maximum number of retries:</value>
+  </data>
+  <data name="RetryTaskButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Rerun Task</value>
+  </data>
+  <data name="RetryTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Rerun Task</value>
+  </data>
+  <data name="Run.Content" xml:space="preserve">
+    <value>Run TaskLists</value>
+  </data>
+  <data name="RunAllButton. AutomationProperties.Name" xml:space="preserve">
+    <value>Run all TaskLists</value>
+  </data>
+  <data name="RunAllButton.Content" xml:space="preserve">
+    <value>Run all</value>
+  </data>
+  <data name="RunAllButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Run all TaskLists</value>
+  </data>
+  <data name="RunCommandButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Execute command</value>
+  </data>
+  <data name="RunCommandButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Execute command</value>
+  </data>
+  <data name="RunListButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Run TaskList</value>
+  </data>
+  <data name="RunListButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Run</value>
+  </data>
+  <data name="Running" xml:space="preserve">
+    <value>▶ Running</value>
+  </data>
+  <data name="RunPending" xml:space="preserve">
+    <value>⏳ Run Pending</value>
+  </data>
+  <data name="RunTimeConst.Text" xml:space="preserve">
+    <value>Run Time:</value>
+  </data>
+  <data name="Save.Content" xml:space="preserve">
+    <value>Manage TaskLists</value>
+  </data>
+  <data name="Save.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Create or edit a TaskList</value>
+  </data>
+  <data name="SaveAll.Text" xml:space="preserve">
+    <value>Save All TaskLists to File</value>
+  </data>
+  <data name="SaveFlyoutTextHeader.Text" xml:space="preserve">
+    <value>File to save as:</value>
+  </data>
+  <data name="SaveTaskListContent" xml:space="preserve">
+    <value>Do you want to save your changes?</value>
+  </data>
+  <data name="SaveTaskListTitle" xml:space="preserve">
+    <value>Save TaskList?</value>
+  </data>
+  <data name="SendText.Text" xml:space="preserve">
+    <value>Send Local File/Folder</value>
+  </data>
+  <data name="ServerText.Text" xml:space="preserve">
+    <value>Remote File/Folder:</value>
+  </data>
+  <data name="ServerTextContainer.Text" xml:space="preserve">
+    <value>Container File/Folder:</value>
+  </data>
+  <data name="ServiceVersion" xml:space="preserve">
+    <value>Service Version</value>
+  </data>
+  <data name="ShutdownButtonText.Text" xml:space="preserve">
+    <value>Shutdown</value>
+  </data>
+  <data name="SourceFileHeaderGet.Text" xml:space="preserve">
+    <value>Source File (from remote device):</value>
+  </data>
+  <data name="SourceFileHeaderSend.Text" xml:space="preserve">
+    <value>Source File (from local device):</value>
+  </data>
+  <data name="StartComments" xml:space="preserve">
+    <value>Start Comments</value>
+    <comment>Start of user comments</comment>
+  </data>
+  <data name="TargetFileHeaderGet.Text" xml:space="preserve">
+    <value>Destination (on local device):</value>
+  </data>
+  <data name="TargetFileHeaderSend.Text" xml:space="preserve">
+    <value>Destination (on remote device):</value>
+  </data>
+  <data name="TaskGuidConst.Text" xml:space="preserve">
+    <value>Task Guid:</value>
+  </data>
+  <data name="TaskListInvalidNameContent" xml:space="preserve">
+    <value>The TaskList name must not be empty!</value>
+  </data>
+  <data name="TaskListInvalidNameTitle" xml:space="preserve">
+    <value>Invalid TaskList Name</value>
+  </data>
+  <data name="TaskListOpt.Text" xml:space="preserve">
+    <value>TaskList Options:</value>
+  </data>
+  <data name="TaskListSaveFailed" xml:space="preserve">
+    <value>Failed to save TaskList</value>
+  </data>
+  <data name="TaskListsText.Text" xml:space="preserve">
+    <value>TaskLists</value>
+  </data>
+  <data name="TaskName.Text" xml:space="preserve">
+    <value>Task Name:</value>
+  </data>
+  <data name="TaskPath.Text" xml:space="preserve">
+    <value>Task Path:</value>
+  </data>
+  <data name="TaskRunGuidConst.Text" xml:space="preserve">
+    <value>TaskRun Guid:</value>
+  </data>
+  <data name="TasksHeader.Text" xml:space="preserve">
+    <value>Tasks:</value>
+  </data>
+  <data name="TasksText.Text" xml:space="preserve">
+    <value>Tasks</value>
+  </data>
+  <data name="TerminateBgTasksCheck.Content" xml:space="preserve">
+    <value>Terminate Background Tasks on Completion?</value>
+  </data>
+  <data name="TerminateOnCompleteCheck.Content" xml:space="preserve">
+    <value>Terminate App on Completion?</value>
+  </data>
+  <data name="TimedOut" xml:space="preserve">
+    <value>⏱ Timed-out</value>
+  </data>
+  <data name="TimeoutBlock.Text" xml:space="preserve">
+    <value>Timeout (seconds):</value>
+  </data>
+  <data name="TotalRuns" xml:space="preserve">
+    <value>total runs</value>
+    <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
+  </data>
+  <data name="TrackExecutionCheck.Content" xml:space="preserve">
+    <value>Track Execution</value>
+  </data>
+  <data name="TrackExecutionCheck.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Automatically update UI to follow the running Task(s)</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>❔ Unknown</value>
+  </data>
+  <data name="UWPArguments" xml:space="preserve">
+    <value>Arguments (NOT passed to app, reference only):</value>
+  </data>
+  <data name="ValidateXMLButton.Content" xml:space="preserve">
+    <value>Validate FactoryOrchestratorXML</value>
+  </data>
+  <data name="WDP.Content" xml:space="preserve">
+    <value>Windows Device Portal</value>
+    <comment>Do not localize</comment>
+  </data>
+  <data name="WDP.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Launch Windows Device Portal</value>
+  </data>
+  <data name="WDPFailedContent" xml:space="preserve">
+    <value>Make sure Windows Device Portal is running and try again.</value>
+  </data>
+  <data name="WDPFailedTitle" xml:space="preserve">
+    <value>Failed to launch Windows Device Portal</value>
+  </data>
+  <data name="Welcome.Text" xml:space="preserve">
+    <value>Welcome to Factory Orchestrator!</value>
+  </data>
+  <data name="XmlFailedTitle" xml:space="preserve">
+    <value>FactoryOrchestratorXML failed validation!</value>
+  </data>
+  <data name="XmlValidatedContent" xml:space="preserve">
+    <value>$1 is valid FactoryOrchestratorXML.</value>
+  </data>
+  <data name="XmlValidatedTitle" xml:space="preserve">
+    <value>FactoryOrchestratorXML successfully validated!</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+</root>

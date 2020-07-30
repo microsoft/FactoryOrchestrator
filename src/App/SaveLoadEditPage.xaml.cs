@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -67,14 +68,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             _isFileLoad = false;
             var button = sender as Button;
-            LoadFlyoutTextHeader.Text = "Folder to load as TaskList:";
+            LoadFlyoutTextHeader.Text = resourceLoader.GetString("LoadFolderFlyoutText");
             Flyout.ShowAttachedFlyout(button);
         }   
 
         private void LoadFileButton_Click(object sender, RoutedEventArgs e)
         {
             _isFileLoad = true;
-            LoadFlyoutTextHeader.Text = "TaskLists XML file to load from:";
+            LoadFlyoutTextHeader.Text = resourceLoader.GetString("LoadXMLFlyoutText");
             var button = sender as Button;
             Flyout.ShowAttachedFlyout(button);
         }
@@ -133,11 +134,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void ShowLoadFailure(bool isFileLoad, string path, string error)
         {
+            var type = isFileLoad ? resourceLoader.GetString("FOXML") : resourceLoader.GetString("Folder");
             ContentDialog failedLoadDialog = new ContentDialog
             {
-                Title = "Failed to load " + (isFileLoad ? "TaskLists XML file" : "folder"),
+                Title = $"{resourceLoader.GetString("LoadFailed")} {type}",
                 Content = path + Environment.NewLine + Environment.NewLine,
-                CloseButtonText = "Ok"
+                CloseButtonText = resourceLoader.GetString("Ok")
             };
 
             if (error != null)
@@ -146,7 +148,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
             else
             {
-                failedLoadDialog.Content += "Check the path and try again.";
+                failedLoadDialog.Content += resourceLoader.GetString("CheckPath");
             }
 
             ContentDialogResult result = await failedLoadDialog.ShowAsync();
@@ -188,9 +190,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 ContentDialog failedQueryDialog = new ContentDialog
                 {
-                    Title = "Failed to query TaskList for edit",
-                    Content = $"It may have been deleted." + Environment.NewLine + Environment.NewLine + ex.Message,
-                    CloseButtonText = "Ok"
+                    Title = resourceLoader.GetString("FailedQuery"),
+                    Content = resourceLoader.GetString("MaybeDeleted") + Environment.NewLine + Environment.NewLine + ex.Message,
+                    CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
                 ContentDialogResult result = await failedQueryDialog.ShowAsync();
@@ -220,7 +222,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text))
             {
-                var savePath = SaveFlyoutUserPath.Text + ".xml";
+                var savePath = SaveFlyoutUserPath.Text;
                 SaveProgressBar.Width = SaveFlyoutUserPath.ActualWidth - CancelSave.ActualWidth - ConfirmSave.ActualWidth - 30; // 30 == combined margin size
                 SaveProgressBar.Visibility = Visibility.Visible;
 
@@ -241,9 +243,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         ContentDialog failedSaveDialog = new ContentDialog
                         {
-                            Title = "Failed to save TaskLists XML file",
+                            Title = resourceLoader.GetString("FOXMLSaveFailed"),
                             Content = $"{ex.Message}",
-                            CloseButtonText = "Ok"
+                            CloseButtonText = resourceLoader.GetString("Ok")
                         };
 
                         ContentDialogResult result = await failedSaveDialog.ShowAsync();
@@ -262,14 +264,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContentDialog clearAllDialog = new ContentDialog
             {
-                Title = "Delete all TaskLists?",
-                Content = "All running TaskLists will be stopped. All TaskLists will be removed from the server permanently.\n" +
-                "Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via \"Load FactoryOrchestratorXML file\".\n\n" +
-                "If \"Factory Reset\" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded.\n" +
-                "\"Factory Reset\" WILL interrupt communication with clients, including this app, until the boot tasks complete.",
-                CloseButtonText = "Cancel",
-                PrimaryButtonText = "Delete All",
-                SecondaryButtonText = "Factory Reset"
+                Title = $"{resourceLoader.GetString("DeleteAll.Text")}?",
+                Content = resourceLoader.GetString("DeleteAllContent"),
+                CloseButtonText = resourceLoader.GetString("Cancel"),
+                PrimaryButtonText = resourceLoader.GetString("DeleteAll.Text"),
+                SecondaryButtonText = resourceLoader.GetString("FactoryReset")
             };
 
             ContentDialogResult result = await clearAllDialog.ShowAsync();
@@ -323,25 +322,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             try
             {
-                if (!TaskListCollection.Any(x => x.IsRunningOrPending))
-                {
-                    var newOrder = new List<Guid>();
-                    newOrder.AddRange(TaskListCollection.Select(x => x.Guid));
-                    await Client.ReorderTaskLists(newOrder);
-                }
-                else
-                {
-                    throw new FactoryOrchestratorException("Cannot reorder TaskLists while a TaskList is running!");
-                }
+                var newOrder = new List<Guid>();
+                newOrder.AddRange(TaskListCollection.Select(x => x.Guid));
+                await Client.ReorderTaskLists(newOrder);
             }
             catch (FactoryOrchestratorException ex)
             {
                 // If it fails, the poller will update the UI to the old order.
                 ContentDialog failedSaveDialog = new ContentDialog
                 {
-                    Title = "Failed to reorder TaskLists",
-                    Content = $"{ex.Message}",
-                    CloseButtonText = "Ok"
+                    Title = resourceLoader.GetString("ReorderFailed"),
+                    Content = ex.Message,
+                    CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
                 ContentDialogResult result = await failedSaveDialog.ShowAsync();
@@ -407,5 +399,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool _isFileLoad;
         private Frame mainPage;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

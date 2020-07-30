@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.Resources;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Storage;
@@ -53,39 +54,39 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TestText.Text = taskRunText;
                 TestText.Visibility = Visibility.Visible;
             }
-            
+
             if (taskRun.TaskPath != taskRun.TaskName)
             {
                 string taskRunPath = taskRun.TaskPath;
-                if (!String.IsNullOrEmpty(taskRunPath)) 
+                if (!String.IsNullOrEmpty(taskRunPath))
                 {
                     PathText.Text = taskRunPath;
                     PathText.Visibility = Visibility.Visible;
                     PathTextLabel.Visibility = Visibility.Visible;
                 }
-                
+
                 string mediaPath = taskRun.TaskPath;
-                MediaType mediaType = GetInstructionalMediaType(mediaPath);                                                                    
+                MediaType mediaType = GetInstructionalMediaType(mediaPath);
                 if (mediaType == MediaType.Image)
-                {               
-                    AddSourceToImage(mediaPath, InstructionalImage, MediaProblems);                    
+                {
+                    AddSourceToImage(mediaPath, InstructionalImage, MediaProblems);
                 }
                 else if (mediaType == MediaType.Video)
-                {                                                         
-                    AddSourceToVideoAndDisplay(mediaPath, InstructionalVideo, MediaProblems);                                                                 
+                {
+                    AddSourceToVideoAndDisplay(mediaPath, InstructionalVideo, MediaProblems);
                 }
             }
 
             string argsString = taskRun.Arguments;
             string taskRunString = taskRun.Guid.ToString();
-            if (!String.IsNullOrEmpty(argsString)) 
+            if (!String.IsNullOrEmpty(argsString))
             {
                 ArgsText.Text = argsString;
                 ArgsText.Visibility = Visibility.Visible;
                 ArgsTextLabel.Visibility = Visibility.Visible;
-            }           
-            
-            if (!String.IsNullOrEmpty(taskRunString)) 
+            }
+
+            if (!String.IsNullOrEmpty(taskRunString))
             {
                 TaskRunText.Text = taskRunString;
                 TaskRunText.Visibility = Visibility.Visible;
@@ -93,21 +94,21 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
             base.OnNavigatedTo(e);
         }
-   
+
         /// <summary>
         /// Given the file path to the media, it will determine if the file extenstion is one of the supported image file extensions or video file extensions, and return string "image" or "video", respectively
         /// </summary>
         /// <param name="mediaPath"></param>
         /// <returns></returns>
-        private MediaType GetInstructionalMediaType(string mediaPath) 
-        {         
+        private MediaType GetInstructionalMediaType(string mediaPath)
+        {
             // TODO: Import all of the supported extensions from config.json, and store it in a scope outside of this function and page so it doesn't parse a json tree every time this is run
-            
+
             // Strip the file path to be just the file extension
             string mediaType = Path.GetExtension(mediaPath);
 
             // Check if the path ends in a supported image extension
-            if (SupportedImageExtensions.Any(x => x.Equals(mediaType, StringComparison.OrdinalIgnoreCase))) 
+            if (SupportedImageExtensions.Any(x => x.Equals(mediaType, StringComparison.OrdinalIgnoreCase)))
             {
                 return MediaType.Image;
             }
@@ -115,18 +116,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 return MediaType.Video;
             }
-   
+
             return MediaType.None;
         }
 
-        private async void AddSourceToImage(string devicePath, Image img, TextBlock errorText) 
+        private async void AddSourceToImage(string devicePath, Image img, TextBlock errorText)
         {
             string desiredName = Path.GetFileName(devicePath);
 
             try
             {
                 string newPath = Path.Combine(localFolder.Path, desiredName);
-                await Client.GetFileFromDevice(devicePath, newPath);               
+                await Client.GetFileFromDevice(devicePath, newPath);
                 BitmapImage bitmapImage = new BitmapImage();
                 bitmapImage.UriSource = new Uri(img.BaseUri, newPath);
                 img.Source = bitmapImage;
@@ -138,8 +139,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 errorText.Visibility = Visibility.Visible;
             }
         }
-        
-        private async void AddSourceToVideoAndDisplay(string devicePath, MediaPlayerElement mediaPlayer, TextBlock errorText) 
+
+        private async void AddSourceToVideoAndDisplay(string devicePath, MediaPlayerElement mediaPlayer, TextBlock errorText)
         {
             if (devicePath != null)
             {
@@ -148,7 +149,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     // Create a new file in the current folder.
                     string desiredName = Path.GetFileName(devicePath);
                     string newPath = Path.Combine(localFolder.Path, desiredName);
-                    await Client.GetFileFromDevice(devicePath, newPath);                  
+                    await Client.GetFileFromDevice(devicePath, newPath);
                     StorageFile videoFile = await StorageFile.GetFileFromPathAsync(newPath);
                     mediaPlayer.Source = MediaSource.CreateFromUri(new Uri(newPath));
                     mediaPlayer.MediaPlayer.IsLoopingEnabled = true;
@@ -156,15 +157,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     VideoButtonTray.Visibility = Visibility.Visible;
                     mediaPlayer.MediaPlayer.Play();
                 }
-                catch(Exception videoException) 
+                catch (Exception videoException)
                 {
                     errorText.Text = videoException.ToString();
                     errorText.Visibility = Visibility.Visible;
                 }
             }
         }
-        
-        
+
+
         private void TaskRunPoller_OnException(object source, ServerPollerExceptionHandlerArgs e)
         {
             if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
@@ -192,7 +193,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 taskRunPoller = null;
             }
             InstructionalVideo.MediaPlayer.Dispose();
-            base.OnNavigatedFrom(e);            
+            base.OnNavigatedFrom(e);
         }
 
         /// <summary>
@@ -237,7 +238,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void ReportTaskRunResultAsync(TaskStatus result)
         {
             lock (updateLock)
-            {   
+            {
                 // Prevent OnUpdatedRun from firing
                 taskRunPoller.StopPolling();
 
@@ -251,12 +252,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 taskRun.TaskStatus = result;
                 if (!String.IsNullOrWhiteSpace(CommentBox.Text))
                 {
-                    taskRun.TaskOutput.Add("------- Start Comments -------");
+                    taskRun.TaskOutput.Add($"------- {resourceLoader.GetString("StartComments")} -------");
                     foreach (var line in CommentBox.Text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
                     {
                         taskRun.TaskOutput.Add(line);
                     }
-                    taskRun.TaskOutput.Add("------- End Comments -------");
+                    taskRun.TaskOutput.Add($"------- {resourceLoader.GetString("EndComments")} -------");
                 }
 
                 if (result != TaskStatus.Aborted)
@@ -298,7 +299,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private void ExitPage()
-        {   
+        {
             // Update App task, so the ServiceEvent code knows we finished
             ((App)Application.Current).RunWaitingForResult.TaskStatus = taskRun.TaskStatus;
 
@@ -340,7 +341,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller taskRunPoller;
         private object updateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-
-       
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

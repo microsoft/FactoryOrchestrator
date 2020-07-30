@@ -23,19 +23,19 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" AutomationProperties.Name="Go Back"/>
+        <Button x:Name="BackButton" x:Uid="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" />
         <StackPanel x:Name="HeaderStack" Grid.Row="0" Grid.Column="1" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" >
             <Button x:Name="PreviousRunButton" Click="PreviousRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=PrevText}"> 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Back" />
-                    <TextBlock x:Name="PrevText" Padding="5,0" TextWrapping="Wrap" Text="Previous Run"/>
+                    <TextBlock x:Name="PrevText" x:Uid="PrevText" Padding="5,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
-            <TextBlock x:Name="TestHeader" Text="" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}" IsTextSelectionEnabled="True" />
+            <TextBlock x:Name="TaskHeader" Text="" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}" IsTextSelectionEnabled="True" />
             <Button x:Name="NextRunButton" Click="NextRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=NextText}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Forward" />
-                    <TextBlock x:Name="NextText" Padding="5,0" TextWrapping="Wrap" Text="Next Run"/>
+                    <TextBlock x:Name="NextText" x:Uid="NextText" Padding="5,0" TextWrapping="Wrap"/>
                 </StackPanel>
             </Button>
         </StackPanel>
@@ -48,33 +48,34 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Name="ArgsConst" Text="Arguments:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" />
+            <TextBlock x:Name="ArgsConst" x:Uid="ArgumentsBlock" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" />
             <TextBlock x:Name="Args" Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="NoWrap" IsTextSelectionEnabled="True"/>
         </Grid>
         <StackPanel x:Name="TaskRunStack" Grid.Row="3" Grid.Column="1" Margin="0" Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock x:Name="TaskGuidConst" Text="Task Guid:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="TaskGuidConst" x:Uid="TaskGuidConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
             <TextBlock x:Name="TaskGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
-            <TextBlock x:Name="TaskRunGuidConst" Text="TaskRun Guid:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed"/>
+            <TextBlock x:Name="TaskRunGuidConst" x:Uid="TaskRunGuidConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed"/>
             <TextBlock x:Name="TaskRunGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True" Visibility="Collapsed"/>
         </StackPanel>
         <StackPanel x:Name="TestResultSummaryStack" Grid.Row="4" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
-            <TextBlock x:Name="OverallTestResultConst" Text="Status:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="OverallTestResult" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
-            <TextBlock x:Name="ExitCodeConst" Text="Exit Code:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="OverallTaskResultConst" x:Uid="OverallTaskResultConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="OverallTaskResult" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
+            <TextBlock x:Name="ExitCodeConst" x:Uid="ExitCodeConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
             <TextBlock x:Name="ExitCode" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
-            <TextBlock x:Name="TaefPassedCasesConst" Text="Passed Test Cases:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <!-- TODO: Support TAEF per test case -->
+            <!--<TextBlock x:Name="TaefPassedCasesConst" Text="Passed Test Cases:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
             <TextBlock x:Name="TaefPassedCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="TaefFailedCasesConst" Text="Failed Test Cases:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
             <TextBlock x:Name="TaefFailedCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
             <TextBlock x:Name="TaefWarningCasesConst" Text="Test Cases with Warnings:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
-            <TextBlock x:Name="TaefWarningCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
-            <TextBlock x:Name="LastTimeRunConst" Text="Started at:" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBlock x:Name="TaefWarningCases" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>-->
+            <TextBlock x:Name="LastTimeRunConst" x:Uid="LastTimeRunConst" FontWeight="Bold" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed"/>
             <TextBlock x:Name="LastTimeRun" Text="" VerticalAlignment="Bottom"  Margin="5" HorizontalAlignment="Left" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
-            <TextBlock x:Name="RunTimeConst" Text="Task Run Time:" FontWeight="Bold" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Left"  Visibility="Collapsed"/>
+            <TextBlock x:Name="RunTimeConst" x:Uid="RunTimeConst" FontWeight="Bold" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Left"  Visibility="Collapsed"/>
             <TextBlock x:Name="RunTime" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
         </StackPanel>
         <StackPanel x:Name="TestResultSummaryStack2" Grid.Row="5" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
-            <TextBlock x:Name="LogPathConst" Text="Log:" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
+            <TextBlock x:Name="LogPathConst" x:Uid="LogPathConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
             <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Column="1" Grid.Row="6" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Task Output:"/>

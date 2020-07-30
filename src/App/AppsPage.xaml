@@ -13,7 +13,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="Launch installed app package (exit with ALT+F4):" Style="{StaticResource SubtitleTextBlockStyle}"/>
+        <TextBlock Grid.Row="0" x:Uid="LaunchApp" Style="{StaticResource SubtitleTextBlockStyle}"/>
         <ListView x:Name="PackageList" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="PackageList_ItemClick"/>
     </Grid>
 </Page>

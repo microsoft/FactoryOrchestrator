@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -32,7 +33,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             var assembly = Assembly.GetExecutingAssembly();
             string assemblyVersion = assembly.GetName().Version.ToString();
             object[] attributes = assembly.GetCustomAttributes(true);
-
+            resourceLoader = ResourceLoader.GetForCurrentView();
             string description = "";
 
             var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
@@ -42,10 +43,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
 #if DEBUG
-            description = "Debug" + description;
+            description = resourceLoader.GetString("Debug") + description;
 #endif
 
-            AppVersionText.Text = $"App Version: {assemblyVersion} ({description})";
+            AppVersionText.Text = $"{resourceLoader.GetString("AppVersion")}: {assemblyVersion} ({description})";
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -54,7 +55,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 try
                 {
-                    ServiceVersionText.Text = "Service Version: ";
+                    ServiceVersionText.Text = $"{resourceLoader.GetString("ServiceVersion")}: ";
                     ServiceVersionText.Text += await Client.GetServiceVersionString();
                 }
                 catch (FactoryOrchestratorConnectionException)
@@ -99,5 +100,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader;
+
     }
 }
