@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppTerminated" xml:space="preserve">
+    <value>Terminated app: {0}</value>
+  </data>
   <data name="BackgroundRetryException" xml:space="preserve">
     <value>BackgroundTasks cannot have a retry value!</value>
   </data>
@@ -126,29 +129,80 @@
   <data name="BackgroundTimeoutException" xml:space="preserve">
     <value>BackgroundTasks cannot have a timeout value!</value>
   </data>
+  <data name="ClientNotConnected" xml:space="preserve">
+    <value>Start connection first!</value>
+  </data>
+  <data name="DuplicateTaskRunGuid" xml:space="preserve">
+    <value>TaskRun {0} could not be loaded from file as it already exists!</value>
+  </data>
+  <data name="EndWaitingForExternalResult" xml:space="preserve">
+    <value>A FactoryOrchestratorClient completed the TaskRun with Status: {0}, Exit code: {1}</value>
+  </data>
+  <data name="FactoryOrchestratorConnectionException" xml:space="preserve">
+    <value>Failed to communicate with Factory Orchestrator Service on {0}</value>
+  </data>
   <data name="FactoryOrchestratorTaskListRunningException" xml:space="preserve">
     <value>Cannot perform operation because one or more TaskLists are actively running!</value>
   </data>
   <data name="FactoryOrchestratorTaskListRunningExceptionWithGuid" xml:space="preserve">
-    <value>Cannot perform operation because TaskList $1 is actively running!</value>
+    <value>Cannot perform operation because TaskList {0} is actively running!</value>
   </data>
   <data name="FactoryOrchestratorUnkownGuidException" xml:space="preserve">
     <value>Guid is not valid!</value>
   </data>
   <data name="FactoryOrchestratorUnkownGuidExceptionWithGuid" xml:space="preserve">
-    <value>$1 is not valid!</value>
+    <value>{0} is not valid!</value>
   </data>
   <data name="FactoryOrchestratorUnkownGuidExceptionWithGuidAndType" xml:space="preserve">
-    <value>$1 is not a valid $2!</value>
+    <value>{0} is not a valid {1}!</value>
+  </data>
+  <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
+    <value>Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.</value>
   </data>
   <data name="FileNotFoundException" xml:space="preserve">
-    <value>$1 does not exist!</value>
+    <value>{0} does not exist!</value>
   </data>
   <data name="FOXMLFileLoadException" xml:space="preserve">
-    <value>Could not load {filename} as FactoryOrchestratorXML!</value>
+    <value>Could not load {0} as FactoryOrchestratorXML!</value>
   </data>
   <data name="InvalidTaskRunTypeException" xml:space="preserve">
     <value>TaskRun has an invalid TaskType!</value>
+  </data>
+  <data name="LogFileCreationFailed" xml:space="preserve">
+    <value>WARNING: Log File {0} could not be created</value>
+  </data>
+  <data name="LogFolderMoveFailed" xml:space="preserve">
+    <value>Could not move log folder!</value>
+  </data>
+  <data name="NoMethodFound" xml:space="preserve">
+    <value>Could not find method with name {0}</value>
+  </data>
+  <data name="ProcessExited" xml:space="preserve">
+    <value>Process exited.</value>
+  </data>
+  <data name="ProcessStartError" xml:space="preserve">
+    <value>Process failed to start!</value>
+  </data>
+  <data name="RedirectingToRunAsExplorerUser" xml:space="preserve">
+    <value>{0} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser...</value>
+  </data>
+  <data name="RunningGuiAsSystemWarning" xml:space="preserve">
+    <value>WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>Source directory does not exist or could not be found:</value>
+  </data>
+  <data name="TaefCheckFailed" xml:space="preserve">
+    <value>Unable to invoke TE.exe to validate possible TAEF test: {0}</value>
+  </data>
+  <data name="TaefCheckReturnedError" xml:space="preserve">
+    <value>TE.exe returned error {0} when trying to validate possible TAEF test: {1}</value>
+  </data>
+  <data name="TaefCheckTimeout" xml:space="preserve">
+    <value>TE.exe timed out trying to validate possible TAEF test: {0}</value>
+  </data>
+  <data name="TaefValidationFailed" xml:space="preserve">
+    <value>Unable to validate possible TAEF test: {0}</value>
   </data>
   <data name="TaskBaseDeserializationException" xml:space="preserve">
     <value>Trying to deserialize an unknown task type!</value>
@@ -156,11 +210,35 @@
   <data name="TaskBaseSerializationException" xml:space="preserve">
     <value>Trying to serialize an unknown task type!</value>
   </data>
-  <data name="TaskListToString" xml:space="preserve">
-    <value>TaskList $1 ($2) with status $3</value>
+  <data name="TaskListCountMismatch" xml:space="preserve">
+    <value>Server has {0} TaskLists but new order has only {1} GUIDs!</value>
   </data>
-  <data name="test" xml:space="preserve">
-    <value>fff</value>
+  <data name="TaskListExistsAlready" xml:space="preserve">
+    <value>TaskList with guid {0} already exists!</value>
+  </data>
+  <data name="TaskListSaveFailed" xml:space="preserve">
+    <value>Could not save TaskLists to {0}!</value>
+  </data>
+  <data name="TaskListToString" xml:space="preserve">
+    <value>TaskList {0} ({1}) with status {2}</value>
+  </data>
+  <data name="TooManyMethodsFound" xml:space="preserve">
+    <value>More than one method with name {0}</value>
+  </data>
+  <data name="UnsupportedGuidType" xml:space="preserve">
+    <value>Unsupported guid type to poll!</value>
+  </data>
+  <data name="WDPAppLaunchFailed" xml:space="preserve">
+    <value>Error: Failed to launch AUMID: {0}</value>
+  </data>
+  <data name="WDPAppLaunchFailed2" xml:space="preserve">
+    <value>Error: Device Portal is required for app launch and may not be running on the system.</value>
+  </data>
+  <data name="WDPAppLaunchFailed3" xml:space="preserve">
+    <value>Error: If it is running, the AUMID may be incorrect.</value>
+  </data>
+  <data name="WDPAppLaunchSucceeded" xml:space="preserve">
+    <value>Sucessfully launched app with AUMID: {0}</value>
   </data>
   <data name="WDPError" xml:space="preserve">
     <value>Windows Device Portal failed with error</value>

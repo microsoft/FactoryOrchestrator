@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FactoryOrchestratorCoreLibrary.Resources {
+namespace Microsoft.FactoryOrchestrator.Core {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FactoryOrchestratorCoreLibrary.Resources.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,18 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Terminated app: {0}.
+        /// </summary>
+        public static string AppTerminated {
+            get {
+                return ResourceManager.GetString("AppTerminated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks cannot have a retry value!.
         /// </summary>
-        internal static string BackgroundRetryException {
+        public static string BackgroundRetryException {
             get {
                 return ResourceManager.GetString("BackgroundRetryException", resourceCulture);
             }
@@ -72,7 +81,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks must be ExecutableTask, PowerShellTask, or BatchFileTask!.
         /// </summary>
-        internal static string BackgroundTaskTypeException {
+        public static string BackgroundTaskTypeException {
             get {
                 return ResourceManager.GetString("BackgroundTaskTypeException", resourceCulture);
             }
@@ -81,25 +90,61 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks cannot have a timeout value!.
         /// </summary>
-        internal static string BackgroundTimeoutException {
+        public static string BackgroundTimeoutException {
             get {
                 return ResourceManager.GetString("BackgroundTimeoutException", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Start connection first!.
+        /// </summary>
+        public static string ClientNotConnected {
+            get {
+                return ResourceManager.GetString("ClientNotConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TaskRun {0} could not be loaded from file as it already exists!.
+        /// </summary>
+        public static string DuplicateTaskRunGuid {
+            get {
+                return ResourceManager.GetString("DuplicateTaskRunGuid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A FactoryOrchestratorClient completed the TaskRun with Status: {0}, Exit code: {1}.
+        /// </summary>
+        public static string EndWaitingForExternalResult {
+            get {
+                return ResourceManager.GetString("EndWaitingForExternalResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to communicate with Factory Orchestrator Service on {0}.
+        /// </summary>
+        public static string FactoryOrchestratorConnectionException {
+            get {
+                return ResourceManager.GetString("FactoryOrchestratorConnectionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot perform operation because one or more TaskLists are actively running!.
         /// </summary>
-        internal static string FactoryOrchestratorTaskListRunningException {
+        public static string FactoryOrchestratorTaskListRunningException {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorTaskListRunningException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot perform operation because TaskList $1 is actively running!.
+        ///   Looks up a localized string similar to Cannot perform operation because TaskList {0} is actively running!.
         /// </summary>
-        internal static string FactoryOrchestratorTaskListRunningExceptionWithGuid {
+        public static string FactoryOrchestratorTaskListRunningExceptionWithGuid {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorTaskListRunningExceptionWithGuid", resourceCulture);
             }
@@ -108,43 +153,52 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Guid is not valid!.
         /// </summary>
-        internal static string FactoryOrchestratorUnkownGuidException {
+        public static string FactoryOrchestratorUnkownGuidException {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorUnkownGuidException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to $1 is not valid!.
+        ///   Looks up a localized string similar to {0} is not valid!.
         /// </summary>
-        internal static string FactoryOrchestratorUnkownGuidExceptionWithGuid {
+        public static string FactoryOrchestratorUnkownGuidExceptionWithGuid {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorUnkownGuidExceptionWithGuid", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to $1 is not a valid $2!.
+        ///   Looks up a localized string similar to {0} is not a valid {1}!.
         /// </summary>
-        internal static string FactoryOrchestratorUnkownGuidExceptionWithGuidAndType {
+        public static string FactoryOrchestratorUnkownGuidExceptionWithGuidAndType {
             get {
                 return ResourceManager.GetString("FactoryOrchestratorUnkownGuidExceptionWithGuidAndType", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to $1 does not exist!.
+        ///   Looks up a localized string similar to Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting..
         /// </summary>
-        internal static string FileNotFoundException {
+        public static string FactoryOrchestratorVersionMismatchException {
+            get {
+                return ResourceManager.GetString("FactoryOrchestratorVersionMismatchException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} does not exist!.
+        /// </summary>
+        public static string FileNotFoundException {
             get {
                 return ResourceManager.GetString("FileNotFoundException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not load {filename} as FactoryOrchestratorXML!.
+        ///   Looks up a localized string similar to Could not load {0} as FactoryOrchestratorXML!.
         /// </summary>
-        internal static string FOXMLFileLoadException {
+        public static string FOXMLFileLoadException {
             get {
                 return ResourceManager.GetString("FOXMLFileLoadException", resourceCulture);
             }
@@ -153,16 +207,124 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to TaskRun has an invalid TaskType!.
         /// </summary>
-        internal static string InvalidTaskRunTypeException {
+        public static string InvalidTaskRunTypeException {
             get {
                 return ResourceManager.GetString("InvalidTaskRunTypeException", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WARNING: Log File {0} could not be created.
+        /// </summary>
+        public static string LogFileCreationFailed {
+            get {
+                return ResourceManager.GetString("LogFileCreationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not move log folder!.
+        /// </summary>
+        public static string LogFolderMoveFailed {
+            get {
+                return ResourceManager.GetString("LogFolderMoveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find method with name {0}.
+        /// </summary>
+        public static string NoMethodFound {
+            get {
+                return ResourceManager.GetString("NoMethodFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Process exited..
+        /// </summary>
+        public static string ProcessExited {
+            get {
+                return ResourceManager.GetString("ProcessExited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Process failed to start!.
+        /// </summary>
+        public static string ProcessStartError {
+            get {
+                return ResourceManager.GetString("ProcessStartError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser....
+        /// </summary>
+        public static string RedirectingToRunAsExplorerUser {
+            get {
+                return ResourceManager.GetString("RedirectingToRunAsExplorerUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM.
+        /// </summary>
+        public static string RunningGuiAsSystemWarning {
+            get {
+                return ResourceManager.GetString("RunningGuiAsSystemWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source directory does not exist or could not be found:.
+        /// </summary>
+        public static string SourceDirectoryNotFound {
+            get {
+                return ResourceManager.GetString("SourceDirectoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to invoke TE.exe to validate possible TAEF test: {0}.
+        /// </summary>
+        public static string TaefCheckFailed {
+            get {
+                return ResourceManager.GetString("TaefCheckFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TE.exe returned error {0} when trying to validate possible TAEF test: {1}.
+        /// </summary>
+        public static string TaefCheckReturnedError {
+            get {
+                return ResourceManager.GetString("TaefCheckReturnedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TE.exe timed out trying to validate possible TAEF test: {0}.
+        /// </summary>
+        public static string TaefCheckTimeout {
+            get {
+                return ResourceManager.GetString("TaefCheckTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to validate possible TAEF test: {0}.
+        /// </summary>
+        public static string TaefValidationFailed {
+            get {
+                return ResourceManager.GetString("TaefValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Trying to deserialize an unknown task type!.
         /// </summary>
-        internal static string TaskBaseDeserializationException {
+        public static string TaskBaseDeserializationException {
             get {
                 return ResourceManager.GetString("TaskBaseDeserializationException", resourceCulture);
             }
@@ -171,34 +333,106 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Trying to serialize an unknown task type!.
         /// </summary>
-        internal static string TaskBaseSerializationException {
+        public static string TaskBaseSerializationException {
             get {
                 return ResourceManager.GetString("TaskBaseSerializationException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TaskList $1 ($2) with status $3.
+        ///   Looks up a localized string similar to Server has {0} TaskLists but new order has only {1} GUIDs!.
         /// </summary>
-        internal static string TaskListToString {
+        public static string TaskListCountMismatch {
+            get {
+                return ResourceManager.GetString("TaskListCountMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TaskList with guid {0} already exists!.
+        /// </summary>
+        public static string TaskListExistsAlready {
+            get {
+                return ResourceManager.GetString("TaskListExistsAlready", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not save TaskLists to {0}!.
+        /// </summary>
+        public static string TaskListSaveFailed {
+            get {
+                return ResourceManager.GetString("TaskListSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TaskList {0} ({1}) with status {2}.
+        /// </summary>
+        public static string TaskListToString {
             get {
                 return ResourceManager.GetString("TaskListToString", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to fff.
+        ///   Looks up a localized string similar to More than one method with name {0}.
         /// </summary>
-        internal static string test {
+        public static string TooManyMethodsFound {
             get {
-                return ResourceManager.GetString("test", resourceCulture);
+                return ResourceManager.GetString("TooManyMethodsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported guid type to poll!.
+        /// </summary>
+        public static string UnsupportedGuidType {
+            get {
+                return ResourceManager.GetString("UnsupportedGuidType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: Failed to launch AUMID: {0}.
+        /// </summary>
+        public static string WDPAppLaunchFailed {
+            get {
+                return ResourceManager.GetString("WDPAppLaunchFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: Device Portal is required for app launch and may not be running on the system..
+        /// </summary>
+        public static string WDPAppLaunchFailed2 {
+            get {
+                return ResourceManager.GetString("WDPAppLaunchFailed2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: If it is running, the AUMID may be incorrect..
+        /// </summary>
+        public static string WDPAppLaunchFailed3 {
+            get {
+                return ResourceManager.GetString("WDPAppLaunchFailed3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sucessfully launched app with AUMID: {0}.
+        /// </summary>
+        public static string WDPAppLaunchSucceeded {
+            get {
+                return ResourceManager.GetString("WDPAppLaunchSucceeded", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Windows Device Portal failed with error.
         /// </summary>
-        internal static string WDPError {
+        public static string WDPError {
             get {
                 return ResourceManager.GetString("WDPError", resourceCulture);
             }
@@ -207,7 +441,7 @@ namespace FactoryOrchestratorCoreLibrary.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Windows Device Portal failed with HTTP error.
         /// </summary>
-        internal static string WDPHttpError {
+        public static string WDPHttpError {
             get {
                 return ResourceManager.GetString("WDPHttpError", resourceCulture);
             }
