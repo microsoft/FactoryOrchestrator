@@ -120,6 +120,9 @@
   <data name="AppTerminated" xml:space="preserve">
     <value>Terminated app: {0}</value>
   </data>
+  <data name="AUMIDNotValidError" xml:space="preserve">
+    <value>AUMID is not valid!</value>
+  </data>
   <data name="BackgroundRetryException" xml:space="preserve">
     <value>BackgroundTasks cannot have a retry value!</value>
   </data>
@@ -128,6 +131,9 @@
   </data>
   <data name="BackgroundTimeoutException" xml:space="preserve">
     <value>BackgroundTasks cannot have a timeout value!</value>
+  </data>
+  <data name="BootTasksExecutingError" xml:space="preserve">
+    <value>Service boot tasks are still executing! Wait for them to finish or call AbortAll().</value>
   </data>
   <data name="ClientNotConnected" xml:space="preserve">
     <value>Start connection first!</value>
@@ -162,8 +168,17 @@
   <data name="FileNotFoundException" xml:space="preserve">
     <value>{0} does not exist!</value>
   </data>
+  <data name="FileSaveError" xml:space="preserve">
+    <value>Target file {0} could not be saved!</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
   <data name="FOXMLFileLoadException" xml:space="preserve">
     <value>Could not load {0} as FactoryOrchestratorXML!</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>{0} is not a valid file or folder!</value>
   </data>
   <data name="InvalidTaskRunTypeException" xml:space="preserve">
     <value>TaskRun has an invalid TaskType!</value>
@@ -177,6 +192,9 @@
   <data name="NoMethodFound" xml:space="preserve">
     <value>Could not find method with name {0}</value>
   </data>
+  <data name="NoTaskListsException" xml:space="preserve">
+    <value>No TaskLists to save!</value>
+  </data>
   <data name="ProcessExited" xml:space="preserve">
     <value>Process exited.</value>
   </data>
@@ -189,8 +207,26 @@
   <data name="RunningGuiAsSystemWarning" xml:space="preserve">
     <value>WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM</value>
   </data>
+  <data name="ServiceErrored" xml:space="preserve">
+    <value>Service {0} errored with exception</value>
+  </data>
+  <data name="ServiceStarted" xml:space="preserve">
+    <value>Service {0} started</value>
+  </data>
+  <data name="ServiceStarting" xml:space="preserve">
+    <value>Service {0} starting</value>
+  </data>
+  <data name="ServiceStopped" xml:space="preserve">
+    <value>Service {0} stopped</value>
+  </data>
+  <data name="ServiceStopping" xml:space="preserve">
+    <value>Service {0} stopping</value>
+  </data>
   <data name="SourceDirectoryNotFound" xml:space="preserve">
     <value>Source directory does not exist or could not be found:</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
   </data>
   <data name="TaefCheckFailed" xml:space="preserve">
     <value>Unable to invoke TE.exe to validate possible TAEF test: {0}</value>
@@ -245,5 +281,11 @@
   </data>
   <data name="WDPHttpError" xml:space="preserve">
     <value>Windows Device Portal failed with HTTP error</value>
+  </data>
+  <data name="WDPNotRunningError" xml:space="preserve">
+    <value>Windows Device Portal must be running to call GetInstalledApps!</value>
+  </data>
+  <data name="WindowsOnlyError" xml:space="preserve">
+    <value>{0} is only supported on Windows!</value>
   </data>
 </root>

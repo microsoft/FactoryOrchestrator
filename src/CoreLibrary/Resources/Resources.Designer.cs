@@ -70,6 +70,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AUMID is not valid!.
+        /// </summary>
+        public static string AUMIDNotValidError {
+            get {
+                return ResourceManager.GetString("AUMIDNotValidError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to BackgroundTasks cannot have a retry value!.
         /// </summary>
         public static string BackgroundRetryException {
@@ -93,6 +102,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string BackgroundTimeoutException {
             get {
                 return ResourceManager.GetString("BackgroundTimeoutException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service boot tasks are still executing! Wait for them to finish or call AbortAll()..
+        /// </summary>
+        public static string BootTasksExecutingError {
+            get {
+                return ResourceManager.GetString("BootTasksExecutingError", resourceCulture);
             }
         }
         
@@ -196,11 +214,38 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Target file {0} could not be saved!.
+        /// </summary>
+        public static string FileSaveError {
+            get {
+                return ResourceManager.GetString("FileSaveError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finish.
+        /// </summary>
+        public static string Finish {
+            get {
+                return ResourceManager.GetString("Finish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not load {0} as FactoryOrchestratorXML!.
         /// </summary>
         public static string FOXMLFileLoadException {
             get {
                 return ResourceManager.GetString("FOXMLFileLoadException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is not a valid file or folder!.
+        /// </summary>
+        public static string InvalidPathError {
+            get {
+                return ResourceManager.GetString("InvalidPathError", resourceCulture);
             }
         }
         
@@ -241,6 +286,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No TaskLists to save!.
+        /// </summary>
+        public static string NoTaskListsException {
+            get {
+                return ResourceManager.GetString("NoTaskListsException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Process exited..
         /// </summary>
         public static string ProcessExited {
@@ -277,11 +331,65 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Service {0} errored with exception.
+        /// </summary>
+        public static string ServiceErrored {
+            get {
+                return ResourceManager.GetString("ServiceErrored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service {0} started.
+        /// </summary>
+        public static string ServiceStarted {
+            get {
+                return ResourceManager.GetString("ServiceStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service {0} starting.
+        /// </summary>
+        public static string ServiceStarting {
+            get {
+                return ResourceManager.GetString("ServiceStarting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service {0} stopped.
+        /// </summary>
+        public static string ServiceStopped {
+            get {
+                return ResourceManager.GetString("ServiceStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service {0} stopping.
+        /// </summary>
+        public static string ServiceStopping {
+            get {
+                return ResourceManager.GetString("ServiceStopping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source directory does not exist or could not be found:.
         /// </summary>
         public static string SourceDirectoryNotFound {
             get {
                 return ResourceManager.GetString("SourceDirectoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        public static string Start {
+            get {
+                return ResourceManager.GetString("Start", resourceCulture);
             }
         }
         
@@ -444,6 +552,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string WDPHttpError {
             get {
                 return ResourceManager.GetString("WDPHttpError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Device Portal must be running to call GetInstalledApps!.
+        /// </summary>
+        public static string WDPNotRunningError {
+            get {
+                return ResourceManager.GetString("WDPNotRunningError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is only supported on Windows!.
+        /// </summary>
+        public static string WindowsOnlyError {
+            get {
+                return ResourceManager.GetString("WindowsOnlyError", resourceCulture);
             }
         }
     }

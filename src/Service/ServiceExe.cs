@@ -94,25 +94,27 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     serviceConfig.OnStart((service, extraParams) =>
                     {
-                        _logger.LogInformation("Service {0} started", name);
+                        _logger.LogInformation(Resources.ServiceStarting, name);
                         service.Start();
+                        _logger.LogInformation(Resources.ServiceStarted, name);
                     });
 
                     serviceConfig.OnStop(service =>
                     {
-                        _logger.LogInformation("Service {0} stopped", name);
+                        _logger.LogInformation(Resources.ServiceStopping, name);
                         service.Stop();
+                        _logger.LogInformation(Resources.ServiceStopped, name);
                     });
 
                     serviceConfig.OnError(e =>
                     {
                         if (FOService.Instance != null)
                         {
-                            _logger.LogError(e, string.Format("Service {0} errored with exception", name));
+                            _logger.LogError(e, string.Format(Resources.ServiceErrored, name));
                         }
                         else
                         {
-                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Service {name} errored with exception {e.AllExceptionsToString()}"));
+                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.ServiceErrored, name)}: {e.AllExceptionsToString()}"));
                         }
                     });
                 });
@@ -165,11 +167,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: IsExecutingBootTasks");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsExecutingBootTasks");
 
                 var ret = FOService.Instance.IsExecutingBootTasks;
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: IsExecutingBootTasks");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsExecutingBootTasks");
                 return ret;
             }
             catch (Exception e)
@@ -183,17 +185,17 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromDirectory {path} {recursive}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: CreateTaskListFromDirectory {path} {recursive}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 path = Environment.ExpandEnvironmentVariables(path);
                 TaskList tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, recursive);
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromDirectory {path} {recursive}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: CreateTaskListFromDirectory {path} {recursive}");
                 return tl;
             }
             catch (Exception e)
@@ -207,17 +209,17 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: LoadTaskListsFromXmlFile {filename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: LoadTaskListsFromXmlFile {filename}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 filename = Environment.ExpandEnvironmentVariables(filename);
                 List<Guid> taskLists = FOService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: LoadTaskListsFromXmlFile {filename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: LoadTaskListsFromXmlFile {filename}");
                 return taskLists;
             }
             catch (Exception e)
@@ -231,15 +233,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: CreateTaskListFromTaskList {list.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: CreateTaskListFromTaskList {list.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 var serverList = FOService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: CreateTaskListFromTaskList {list.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: CreateTaskListFromTaskList {list.Guid}");
                 return serverList;
             }
             catch (Exception e)
@@ -253,17 +255,17 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: SaveTaskListToXmlFile {guid} {filename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: SaveTaskListToXmlFile {guid} {filename}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 filename = Environment.ExpandEnvironmentVariables(filename);
                 FOService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveTaskListToXmlFile {guid} {filename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SaveTaskListToXmlFile {guid} {filename}");
             }
             catch (Exception e)
             {
@@ -276,20 +278,20 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: SaveAllTaskListsToXmlFile {filename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: SaveAllTaskListsToXmlFile {filename}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 filename = Environment.ExpandEnvironmentVariables(filename);
                 if (!FOService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename))
                 {
-                    throw new FactoryOrchestratorException("No TaskLists to save!");
+                    throw new FactoryOrchestratorException(Resources.NoTaskListsException);
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: SaveAllTaskListsToXmlFile {filename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SaveAllTaskListsToXmlFile {filename}");
             }
             catch (Exception e)
             {
@@ -302,9 +304,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListGuids");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetTaskListGuids");
                 var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListGuids");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetTaskListGuids");
                 return guids;
             }
             catch (Exception e)
@@ -318,7 +320,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetTaskListSummaries");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetTaskListSummaries");
                 var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
                 var ret = new List<TaskListSummary>();
                 foreach (var guid in guids)
@@ -330,7 +332,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetTaskListSummaries");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetTaskListSummaries");
                 return ret;
             }
             catch (Exception e)
@@ -344,9 +346,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskList {taskListGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTaskList {taskListGuid}");
                 var list = FOService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskList {taskListGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskList {taskListGuid}");
                 return list;
             }
             catch (Exception e)
@@ -359,13 +361,13 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTask {taskGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTask {taskGuid}");
                 var task = FOService.Instance.TestExecutionManager.GetTask(taskGuid);
                 if (task == null)
                 {
-                    throw new Exception($"No Task with guid {taskGuid} exists!");
+                    throw new FactoryOrchestratorUnkownGuidException(taskGuid);
                 }
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTask {taskGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTask {taskGuid}");
                 return task;
             }
             catch (Exception e)
@@ -379,15 +381,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteTaskList {listToDelete}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: DeleteTaskList {listToDelete}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 FOService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteTaskList {listToDelete}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: DeleteTaskList {listToDelete}");
             }
             catch (Exception e)
             {
@@ -400,15 +402,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: ReorderTaskLists {newOrder}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: ReorderTaskLists {newOrder}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 FOService.Instance.TestExecutionManager.ReorderTaskLists(newOrder);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: ReorderTaskLists {newOrder}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: ReorderTaskLists {newOrder}");
             }
             catch (Exception e)
             {
@@ -423,7 +425,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 // Kill all processes including bg tasks, delete all state except registry configuration
@@ -446,15 +448,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 FOService.Instance.TestExecutionManager.UpdateTask(updatedTask);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
             }
             catch (Exception e)
             {
@@ -467,15 +469,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskList {taskList.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTaskList {taskList.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 FOService.Instance.TestExecutionManager.UpdateTaskList(taskList);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskList {taskList.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTaskList {taskList.Guid}");
             }
             catch (Exception e)
             {
@@ -488,16 +490,16 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: SetDefaultTePath {teExePath}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: SetDefaultTePath {teExePath}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 teExePath = Environment.ExpandEnvironmentVariables(teExePath);
                 TaskRunner.GlobalTeExePath = teExePath;
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: SetDefaultTePath {teExePath}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SetDefaultTePath {teExePath}");
             }
             catch (Exception e)
             {
@@ -510,9 +512,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetLogFolder");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetLogFolder");
                 var folder = FOService.Instance.TestExecutionManager.LogFolder;
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetLogFolder");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetLogFolder");
                 return folder;
             }
             catch (Exception e)
@@ -526,11 +528,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: SetLogFolder {logFolder} {moveExistingLogs}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 logFolder = Environment.ExpandEnvironmentVariables(logFolder);
@@ -539,7 +541,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 // Set new value in registry
                 FOService.Instance.SetValueInRegistry(FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: SetLogFolder {logFolder} move existing logs = {moveExistingLogs}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SetLogFolder {logFolder} {moveExistingLogs}");
             }
             catch (Exception e)
             {
@@ -552,9 +554,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: AbortAllTaskLists");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: AbortAllTaskLists");
                 FOService.Instance.TestExecutionManager.AbortAll();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortAllTaskLists");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: AbortAllTaskLists");
             }
             catch (Exception e)
             {
@@ -567,9 +569,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskList {taskListGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: AbortTaskList {taskListGuid}");
                 FOService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskList {taskListGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: AbortTaskList {taskListGuid}");
             }
             catch (Exception e)
             {
@@ -582,9 +584,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: AbortTaskRun {taskRunGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: AbortTaskRun {taskRunGuid}");
                 FOService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: AbortTaskRun {taskRunGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: AbortTaskRun {taskRunGuid}");
             }
             catch (Exception e)
             {
@@ -597,9 +599,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetServiceVersionString");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetServiceVersionString");
                 var version = FOService.GetServiceVersionString();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetServiceVersionString");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetServiceVersionString");
                 return version;
             }
             catch (Exception e)
@@ -613,9 +615,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetOSVersionString");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetOSVersionString");
                 var version = FOService.GetOSVersionString();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetOSVersionString");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetOSVersionString");
                 return version;
             }
             catch (Exception e)
@@ -629,9 +631,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetOEMVersionString");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetOEMVersionString");
                 var version = FOService.GetOEMVersionString();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetOEMVersionString");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetOEMVersionString");
                 return version;
             }
             catch (Exception e)
@@ -645,9 +647,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: QueryTaskRun {taskRunGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTaskRun {taskRunGuid}");
                 var run = FOService.Instance.TestExecutionManager.GetTaskRunByGuid(taskRunGuid).DeepCopy();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: QueryTaskRun {taskRunGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskRun {taskRunGuid}");
                 return run;
             }
             catch (Exception e)
@@ -661,15 +663,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: UpdateTaskRun {taskRun.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTaskRun {taskRun.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 FOService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: UpdateTaskRun {taskRun.Guid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTaskRun {taskRun.Guid}");
             }
             catch (Exception e)
             {
@@ -682,15 +684,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunAllTaskLists");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: RunAllTaskLists");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 var ran = FOService.Instance.TestExecutionManager.RunAllTaskLists();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunAllTaskLists");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunAllTaskLists");
                 return ran;
             }
             catch (Exception e)
@@ -704,15 +706,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: RunTaskList {taskListToRun} {initialTaskIndex}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 FOService.Instance.TestExecutionManager.RunTaskListFromInitial(taskListToRun, initialTaskIndex);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTaskList {taskListToRun}, start index: {initialTaskIndex}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTaskList {taskListToRun} {initialTaskIndex}");
             }
             catch (Exception e)
             {
@@ -725,15 +727,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunExecutable {exeFilePath} {arguments}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: RunExecutable {exeFilePath} {arguments}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath, runInContainer);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunExecutable {exeFilePath} {arguments}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunExecutable {exeFilePath} {arguments}");
                 return run;
             }
             catch (Exception e)
@@ -747,15 +749,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {taskGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: RunTask {taskGuid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 var run = FOService.Instance.TestExecutionManager.RunTask(taskGuid);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {taskGuid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTask {taskGuid}");
                 return run;
             }
             catch (Exception e)
@@ -769,15 +771,15 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunTask {task}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: RunTask {task}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 var run = FOService.Instance.TestExecutionManager.RunTask(task);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunTask {task}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTask {task}");
                 return run;
             }
             catch (Exception e)
@@ -791,20 +793,20 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: RunApp {aumid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: RunApp {aumid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
                 {
-                    throw new FactoryOrchestratorException(BootTasksExecutingError);
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new FactoryOrchestratorException("RunApp is only supported on Windows!");
+                    throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "RunApp"));
                 }
 
                 var run = FOService.Instance.TestExecutionManager.RunApp(aumid);
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: RunApp {aumid}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunApp {aumid}");
                 return run;
             }
             catch (Exception e)
@@ -818,10 +820,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetFile {sourceFilename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetFile {sourceFilename} {getFromContainer}");
                 var bytes = FOService.Instance.GetFile(sourceFilename, offset, count, getFromContainer);
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetFile {sourceFilename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetFile {sourceFilename} {getFromContainer}");
 
                 return bytes;
             }
@@ -834,7 +836,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public void SendFile(string targetFilename, byte[] fileData, bool appending = false, bool sendToContainer = false)
         {
-            FOService.Instance.ServiceLogger.LogDebug($"Start: SendFile {targetFilename}");
+            FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: SendFile {targetFilename} {appending} {sendToContainer}");
 
             try
             {
@@ -844,10 +846,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    throw new FactoryOrchestratorException($"Target file {targetFilename} could not be saved! {e.AllExceptionsToString()} {e.HResult}", null, e);
+                    throw new FactoryOrchestratorException($"{string.Format(Resources.FileSaveError, targetFilename)} {e.AllExceptionsToString()} {e.HResult}", null, e);
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: SendFile {targetFilename}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SendFile {targetFilename} {appending} {sendToContainer}");
             }
             catch (Exception e)
             {
@@ -860,7 +862,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: DeleteFileOrFolder {path}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: DeleteFileOrFolder {path} {deleteInContainer}");
                 if (deleteInContainer)
                 {
                     FOService.Instance.DeleteInContainer(path).Wait();
@@ -878,11 +880,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        throw new FileNotFoundException($"{path} is not a valid file or folder!");
+                        throw new FileNotFoundException(string.Format(Resources.InvalidPathError, path));
                     }
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: DeleteFileOrFolder {path}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: DeleteFileOrFolder {path} {deleteInContainer}");
             }
             catch (Exception e)
             {
@@ -895,7 +897,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: MoveFileOrFolder {sourcePath} {destinationPath}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: MoveFileOrFolder {sourcePath} {destinationPath} {moveInContainer}");
 
                 if (moveInContainer)
                 {
@@ -916,11 +918,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        throw new FileNotFoundException($"{sourcePath} is not a valid file or folder!");
+                        throw new FileNotFoundException(string.Format(Resources.InvalidPathError, sourcePath));
                     }
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: MoveFileOrFolder {sourcePath} {destinationPath}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: MoveFileOrFolder {sourcePath} {destinationPath} {moveInContainer}");
             }
             catch (Exception e)
             {
@@ -933,10 +935,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateDirectories {path}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: EnumerateDirectories {path}");
                 path = Environment.ExpandEnvironmentVariables(path);
                 var dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateDirectories {path}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: EnumerateDirectories {path}");
                 return dirs;
             }
             catch (Exception e)
@@ -950,10 +952,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: EnumerateFiles {path} {recursive}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: EnumerateFiles {path} {recursive}");
                 path = Environment.ExpandEnvironmentVariables(path);
                 var files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: EnumerateFiles {path} {recursive}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: EnumerateFiles {path} {recursive}");
                 return files;
             }
             catch (Exception e)
@@ -967,30 +969,16 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: InstallApp {appPackagePath}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: InstallApp {appPackagePath}");
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new FactoryOrchestratorException("InstallApp is only supported on Windows!");
+                    throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "InstallApp"));
                 }
 
                 // Expand any vars
                 appPackagePath = Environment.ExpandEnvironmentVariables(appPackagePath);
-                if (certificateFile != null)
-                {
-                    certificateFile = Environment.ExpandEnvironmentVariables(certificateFile);
-                }
-
-                // Validate args
-                if (!File.Exists(appPackagePath))
-                {
-                    throw new FileNotFoundException($"{appPackagePath} does not exist!");
-                }
-
-                if ((certificateFile != null) && (!File.Exists(certificateFile)))
-                {
-                    throw new FileNotFoundException($"{certificateFile} does not exist!");
-                }
+                certificateFile = Environment.ExpandEnvironmentVariables(certificateFile);
 
                 List<Uri> dependentPackagesUris = new List<Uri>();
                 if (dependentPackages != null)
@@ -998,18 +986,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                     for (int i = 0; i < dependentPackages.Count; i++)
                     {
                         var dep = Environment.ExpandEnvironmentVariables(dependentPackages[i]);
-                        if (!File.Exists(dep))
-                        {
-                            throw new FileNotFoundException($"{dep} does not exist!");
-                        }
-
                         dependentPackagesUris.Add(new Uri(dep));
                     }
                 }
 
                 WDPHelpers.InstallAppWithWDP(appPackagePath, dependentPackages, certificateFile).Wait();
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: InstallApp {appPackagePath}");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: InstallApp {appPackagePath}");
             }
             catch (Exception e)
             {
@@ -1022,11 +1005,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetInstalledApps");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetInstalledApps");
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new FactoryOrchestratorException("GetInstalledApps is only supported on Windows!");
+                    throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "GetInstalledApps"));
                 }
 
                 // Get installed packages on the system
@@ -1034,7 +1017,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new InvalidOperationException("Windows Device Portal must be running to call GetInstalledApps!");
+                    throw new InvalidOperationException(Resources.WDPNotRunningError);
                 }
 
                 List<string> aumids = new List<string>();
@@ -1045,7 +1028,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     aumids.Add(match.Groups[1].Value);
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetInstalledApps");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetInstalledApps");
                 return aumids;
             }
             catch (Exception e)
@@ -1059,15 +1042,17 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: EnableLocalLoopbackForApp {aumid}");
                 var index = aumid.IndexOf('!');
 
                 if (index == -1)
                 {
-                    throw new InvalidDataException("AUMID is not valid!");
+                    throw new InvalidDataException(Resources.AUMIDNotValidError);
                 }
 
                 var pfn = aumid.Substring(0, index);
                 FOService.Instance.EnableLocalLoopbackForApp(pfn, true);
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: EnableLocalLoopbackForApp {aumid}");
             }
             catch (Exception e)
             {
@@ -1080,7 +1065,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetIpAddressesAndNicNames");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetIpAddressesAndNicNames");
                 List<Tuple<string, string>> ipAndNic = new List<Tuple<string, string>>();
 
                 var interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback);
@@ -1096,7 +1081,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetIpAddressesAndNicNames");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetIpAddressesAndNicNames");
                 return ipAndNic;
             }
             catch (Exception e)
@@ -1110,7 +1095,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                FOService.Instance.ServiceLogger.LogDebug($"Start: GetContainerIpAddresses");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetContainerIpAddresses");
                 var ips = FOService.Instance.GetContainerIpAddresses();
                 var ipStrings = new List<string>();
                 foreach (var ip in ips)
@@ -1118,7 +1103,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ipStrings.Add(ip.ToString());
                 }
 
-                FOService.Instance.ServiceLogger.LogDebug($"Finish: GetContainerIpAddresses");
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetContainerIpAddresses");
                 return ipStrings;
             }
             catch (Exception e)
@@ -1132,6 +1117,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetDisabledPages");
                 List<string> ret = new List<string>();
 
                 if (FOService.Instance.DisableCommandPromptPage)
@@ -1156,6 +1142,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ret.Add("files");
                 }
 
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetDisabledPages");
                 return ret;
             }
             catch (Exception e)
@@ -1169,17 +1156,23 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsContainerRunning");
+                bool ret = false;
                 if (!String.IsNullOrWhiteSpace(FOService.Instance.GetContainerId()))
                 {
-                    return true;
+                    ret = true;
                 }
                 else
                 {
-                    return false;
+                    ret = false;
                 }
+
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
+                return ret;
             }
             catch (FactoryOrchestratorContainerException)
             {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
                 return false;
             }
             catch (Exception e)
@@ -1188,8 +1181,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 throw e;
             }
         }
-
-        public static readonly string BootTasksExecutingError = "Service boot tasks are still executing! Wait for them to finish or call AbortAll().";
     }
 
     public class FOService : IMicroService
