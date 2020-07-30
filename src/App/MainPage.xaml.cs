@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Windows.ApplicationModel.Resources;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -31,7 +32,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             navUpdateSem = new SemaphoreSlim(1, 1);
 
             // Put Client ipaddress in header
-            Header.Text += Client.IsLocalHost ? " (Local Device)" : $" ({Client.IpAddress.ToString()})";
+            Header.Text += Client.IsLocalHost ? $" ({resourceLoader.GetString("LocalDevice")})" : $" ({Client.IpAddress.ToString()})";
 
             // If localhost connection, hide file transfer page
             if (Client.IsLocalHost && !((App)Application.Current).IsContainerRunning)
@@ -149,15 +150,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             // Put OS & OEM versions in the footer
-            OEMVersionHeader.Text = "OEM Version: ";
-            OSVersionHeader.Text = "OS Version: ";
+            OEMVersionHeader.Text = $"{resourceLoader.GetString("OEMVersion")}: ";
+            OSVersionHeader.Text = $"{resourceLoader.GetString("OSVersion")}: ";
             try
             {
                 OSVersionHeader.Text += await Client.GetOSVersionString();
             }
             catch (Exception)
             {
-                OSVersionHeader.Text += $"Could not query OS version!";
+                OSVersionHeader.Text += $"{resourceLoader.GetString("CouldNotQuery")} {resourceLoader.GetString("OSVersion")}!";
             }
             try
             {
@@ -165,7 +166,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
             catch (Exception)
             {
-                OEMVersionHeader.Text += $"Could not query OEM version!";
+                OEMVersionHeader.Text += $"{resourceLoader.GetString("CouldNotQuery")} {resourceLoader.GetString("OEMVersion")}!";
             }
 
             // Configure network information update timer
@@ -192,14 +193,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
             else
             {
-
                 ContentDialog failedAppsDialog = new ContentDialog
                 {
 
-                    Title = "Failed to launch " + GetPage(),
-                    Content = "Please enable " + GetPage() + " and try again.",
-                    CloseButtonText = "Ok"
+                    Title = $"{resourceLoader.GetString("FailedToLaunch")} {GetHeader()}",
+                    Content = resourceLoader.GetString("EnableAndRetry").Replace("$1", GetHeader()),
+                    CloseButtonText = resourceLoader.GetString("Ok")
                 };
+
+                NavView.SelectedItem = NavView.MenuItems[0];
+                ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
+                NavView_Navigate(lastNavTag, null, e);
+
 
                 ContentDialogResult result = await failedAppsDialog.ShowAsync();
             }
@@ -232,20 +237,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 ShowPage(pagesToEnable[i]);
             }
-        }
-
-        private string GetPage()
-        {
-            string Page = "";
-            switch (lastNavTag)
-            {   
-                case "wdp":
-                    Page = "Windows Device Portal";
-                    break;
-             default:
-                    break;
-            }
-            return Page;
         }
 
         private void HidePage(string tag)
@@ -287,14 +278,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 NavView.SelectedItem = NavView.MenuItems.OfType<NavigationViewItem>().
                                                          First(n => n.Tag.Equals(item.Tag));
 
-                if (item.Tag == "console")
-                {
-                    NavView.Header = "Command Prompt";
-                }
-                else
-                {
-                    NavView.Header = ((NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
-                }
+                NavView.Header = GetHeader();
+            }
+        }
+
+        private string GetHeader()
+        {
+            if ("console".Equals((string)((NavigationViewItem)NavView.SelectedItem).Tag, StringComparison.OrdinalIgnoreCase))
+            {
+                return resourceLoader.GetString("CommandPromptText/Text");
+            }
+            else
+            {
+               return ((NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
             }
         }
 
@@ -423,7 +419,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     var temp = await Client.GetContainerIpAddresses();
                     foreach (var ip in temp)
                     {
-                        ipAddresses.Add(new Tuple<string, string>(ip, "Container IP (Internal)"));
+                        ipAddresses.Add(new Tuple<string, string>(ip, resourceLoader.GetString("ContainerIP")));
                     }
                 }
             }
@@ -452,6 +448,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private int networkTimerIndex;
         private List<Tuple<string, string>> ipAddresses;
         private SemaphoreSlim ipAddressSem;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 
 }

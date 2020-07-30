@@ -14,6 +14,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.ExtendedExecution;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.Core;
@@ -90,8 +91,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             rootFrame.CacheSize = 4;
-            // Requires confirmAppClose restricted capability
-            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += App_CloseRequestedAsync;
             return rootFrame;
         }
 
@@ -361,29 +360,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 Window.Current.Activate();
             }
         
-        }
-
-        // Ask the user to confirm before quitting, as on Factory it might not be easy to relaunch the app
-        private async void App_CloseRequestedAsync(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
-        {
-            var deferral = e.GetDeferral();
-
-            ContentDialog exitFlyout = new ContentDialog()
-            {
-                Title = "Exit?",
-                Content = "Exit Factory Orchestrator?",
-                CloseButtonText = "No",
-                PrimaryButtonText = "Yes",
-            };
-
-            var result = await exitFlyout.ShowAsync();
-
-            if (result == ContentDialogResult.None)
-            {
-                e.Handled = true;
-            }
-
-            deferral.Complete();
         }
 
         /// <summary>
