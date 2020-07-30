@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Padding="15">
-            <TextBlock Text="Action Required" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="35" FontWeight="Bold"/>
+            <TextBlock x:Uid="ActionRequired" Text="Action Required" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="35" FontWeight="Bold"/>
             <TextBlock x:Name ="TestText" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="15"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Padding="20">
@@ -72,7 +72,7 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="CommentBlock" Text="Notes (Optional)" Grid.Column="1" Padding="10" FontSize="25"/>
+                <TextBlock x:Name="CommentBlock"  x:Uid="CommentBlock" Grid.Column="1" Padding="10" FontSize="25"/>
                 <TextBox x:Name="CommentBox" Grid.Column="1" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="100" AutomationProperties.LabeledBy="{Binding ElementName=CommentBlock}"/>
             </Grid>
             <Grid HorizontalAlignment="Center">
@@ -82,9 +82,9 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="PassButton" Grid.Column="0" Margin="20" FontSize="50" Click="PassButton_Click" Content="Pass ✔️"/>
-                <Button x:Name="FailButton" Grid.Column="1" Margin="20" FontSize="50" Content="Fail ❌" Click="FailButton_Click"/>
-                <Button x:Name="AbortButton" Grid.Column="2" Margin="20" FontSize="50" Content="Abort ⛔" Click="AbortButton_Click"/>
+                <Button x:Name="PassButton" x:Uid="PassButton" Grid.Column="0" Margin="20" FontSize="50" Click="PassButton_Click"/>
+                <Button x:Name="FailButton" x:Uid="FailButton" Grid.Column="1" Margin="20" FontSize="50" Click="FailButton_Click"/>
+                <Button x:Name="AbortButton" x:Uid="AbortButton" Grid.Column="2" Margin="20" FontSize="50" Click="AbortButton_Click"/>
             </Grid>
             
         </StackPanel>

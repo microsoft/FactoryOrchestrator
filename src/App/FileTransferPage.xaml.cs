@@ -5,6 +5,7 @@ using Microsoft.FactoryOrchestrator.Client;
 using System;
 using System.Diagnostics;
 using System.IO;
+using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -64,9 +65,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         {
                             ContentDialog errorDialog = new ContentDialog
                             {
-                                Title = "Container is no longer running",
-                                Content = $"Returning to last page",
-                                CloseButtonText = "Ok"
+                                Title = resourceLoader.GetString("NoContainerTitle"),
+                                Content = resourceLoader.GetString("NoContainerContent"),
+                                CloseButtonText = resourceLoader.GetString("Ok")
                             };
 
                             await errorDialog.ShowAsync();
@@ -211,21 +212,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if ((bool)ContainerCheckBox.IsChecked)
             {
-                ServerText.Text = "Container File/Folder: ";
-                GetText.Text = "Get Container File/Folder";
-                HeaderGet.Text = "Copy from local device to container?";
-                HeaderSend.Text = "Copy from container to local device?";
+                ServerText.Text = resourceLoader.GetString("ServerTextContainer/Text");
+                GetText.Text = resourceLoader.GetString("GetTextContainer/Text");
+                HeaderGet.Text = resourceLoader.GetString("HeaderGetContainer/Text");
+                HeaderSend.Text = resourceLoader.GetString("HeaderSendContainer/Text");
             }
             else
             {
-                ServerText.Text = "Remote File/Folder: ";
-                GetText.Text = "Get Remote File/Folder";
-                HeaderGet.Text = "Copy from local device to remote device?";
-                HeaderSend.Text = "Copy from remote device to local device?";
+                ServerText.Text = resourceLoader.GetString("ServerText/Text");
+                GetText.Text = resourceLoader.GetString("GetText/Text");
+                HeaderGet.Text = resourceLoader.GetString("HeaderGet/Text");
+                HeaderSend.Text = resourceLoader.GetString("HeaderSend/Text");
             }
         }
 
         private bool sending;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

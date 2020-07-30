@@ -24,7 +24,7 @@
             <TextBlock Text="(c) Microsoft Corporation" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Grid.Row="2" Margin="5">
-            <TextBlock Text="Open Source Software Acknowledgments" HorizontalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <TextBlock x:Name="oss" x:Uid="OSSAcknowledgments" HorizontalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}"/>
             <TextBlock Text="IpcServiceFramework - Jacques Kang - MIT License - https://github.com/jacqueskang/IpcServiceFramework" HorizontalAlignment="Left"/>
             <TextBlock Text="DotNetCore.WindowsService - Peter Kottas - MIT License - https://github.com/PeterKottas/DotNetCore.WindowsService" HorizontalAlignment="Left"/>
             <TextBlock Text="WindowsDevicePortalWrapper - Microsoft Corporation and mgurlitz - MIT License - https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard" HorizontalAlignment="Left"/>

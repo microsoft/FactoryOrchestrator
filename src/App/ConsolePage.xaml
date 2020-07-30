@@ -22,15 +22,15 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Name="CommandConst" Text="Command:" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
+            <TextBlock x:Name="CommandConst" x:Uid="CommandConst" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
             <TextBox Name="CommandBox" AutomationProperties.LabeledBy="{Binding ElementName=CommandConst}"  Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
-            <CheckBox Padding="5" Name="ContainerCheckBox" Content="Run In Container?" ToolTipService.ToolTip="If checked, command is run in the container" IsThreeState="False" Grid.Column="2"/>
-            <Button Name="RunButton" ToolTipService.ToolTip="Execute command" AutomationProperties.Name="Execute command" Click="RunButton_Click" Grid.Column="3">
+            <CheckBox Padding="5" Name="ContainerCheckBox" x:Uid="ContainerCheckBox" IsThreeState="False" Grid.Column="2"/>
+            <Button Name="RunButton" x:Uid="RunCommandButton" Click="RunButton_Click" Grid.Column="3">
                 <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
             </Button>
         </Grid>
-        <TextBlock x:Name="OutputConst" Grid.Row="2" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Console Output:"/>
-        <Button x:Name="ClearButton" Click="ClearButton_Click" Grid.Row="2" Content="Clear Output" HorizontalAlignment="Right"/>
+        <TextBlock x:Name="OutputConst" Grid.Row="2" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" x:Uid="OutputConst"/>
+        <Button x:Name="ClearButton" x:Uid="ClearButton" Click="ClearButton_Click" Grid.Row="2" HorizontalAlignment="Right"/>
         <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Row="4">
             <StackPanel x:Name="OutputStack" Margin="5" VerticalAlignment="Top" Orientation="Vertical" SizeChanged="OutputStack_SizeChanged"/>
         </ScrollViewer>

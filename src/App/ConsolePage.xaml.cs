@@ -253,7 +253,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (_activeCmdTaskRun.TaskOutput[i] != null)
                 {
-                    if (errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: "))
+                    if (errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCulture))
                     {
                         // Append error text
                         text += _activeCmdTaskRun.TaskOutput[i];
@@ -268,7 +268,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         text = _activeCmdTaskRun.TaskOutput[i];
                         errorBlock = false;
                     }
-                    else if (!errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: "))
+                    else if (!errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCulture))
                     {
                         // Done with normal text, write out the normal text and start again
                         var tupl = (text, false);
