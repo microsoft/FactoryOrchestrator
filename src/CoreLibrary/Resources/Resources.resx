@@ -120,6 +120,12 @@
   <data name="AppTerminated" xml:space="preserve">
     <value>Terminated app: {0}</value>
   </data>
+  <data name="AttemptingContainerTaskRun" xml:space="preserve">
+    <value>Attempting to run the Task in the container...</value>
+  </data>
+  <data name="AttemptingFileLoad" xml:space="preserve">
+    <value>{0} found, attempting to load...</value>
+  </data>
   <data name="AUMIDNotValidError" xml:space="preserve">
     <value>AUMID is not valid!</value>
   </data>
@@ -135,11 +141,35 @@
   <data name="BootTasksExecutingError" xml:space="preserve">
     <value>Service boot tasks are still executing! Wait for them to finish or call AbortAll().</value>
   </data>
+  <data name="BootTasksFinished" xml:space="preserve">
+    <value>Factory Orchestrator Service is done executing boot tasks.</value>
+  </data>
+  <data name="BootTasksStarted" xml:space="preserve">
+    <value>Factory Orchestrator Service is executing boot tasks...</value>
+  </data>
+  <data name="CheckingForFile" xml:space="preserve">
+    <value>Checking for {0}...</value>
+  </data>
   <data name="ClientNotConnected" xml:space="preserve">
     <value>Start connection first!</value>
   </data>
+  <data name="ContainerFileGetFailed" xml:space="preserve">
+    <value>Unable to get file from container!</value>
+  </data>
+  <data name="ContainerFileSendFailed" xml:space="preserve">
+    <value>Unable to send file to container!</value>
+  </data>
+  <data name="ContainerTaskRunFailed" xml:space="preserve">
+    <value>Unable to complete TraskRun in container</value>
+  </data>
+  <data name="DoneWaitingForExternalTaskRun" xml:space="preserve">
+    <value>External TaskRun {0} received a {1} result and is finished.</value>
+  </data>
   <data name="DuplicateTaskRunGuid" xml:space="preserve">
     <value>TaskRun {0} could not be loaded from file as it already exists!</value>
+  </data>
+  <data name="EndContainerOutput" xml:space="preserve">
+    <value>End Container Process Output</value>
   </data>
   <data name="EndWaitingForExternalResult" xml:space="preserve">
     <value>A FactoryOrchestratorClient completed the TaskRun with Status: {0}, Exit code: {1}</value>
@@ -165,6 +195,12 @@
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
     <value>Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.</value>
   </data>
+  <data name="FileLoadSucceeded" xml:space="preserve">
+    <value>Successfully loaded {0}.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>{0} not found.</value>
+  </data>
   <data name="FileNotFoundException" xml:space="preserve">
     <value>{0} does not exist!</value>
   </data>
@@ -189,6 +225,18 @@
   <data name="LogFolderMoveFailed" xml:space="preserve">
     <value>Could not move log folder!</value>
   </data>
+  <data name="NetworkAccessDisabled" xml:space="preserve">
+    <value>Factory Orchestrator Service network access is disabled.</value>
+  </data>
+  <data name="NetworkAccessEnabled" xml:space="preserve">
+    <value>Factory Orchestrator Service network access is enabled.</value>
+  </data>
+  <data name="NoContainerIdFound" xml:space="preserve">
+    <value>No valid container Id found!</value>
+  </data>
+  <data name="NoContainerIpFound" xml:space="preserve">
+    <value>No valid container IP address found!</value>
+  </data>
   <data name="NoMethodFound" xml:space="preserve">
     <value>Could not find method with name {0}</value>
   </data>
@@ -201,11 +249,20 @@
   <data name="ProcessStartError" xml:space="preserve">
     <value>Process failed to start!</value>
   </data>
+  <data name="ReadyToCommunicate" xml:space="preserve">
+    <value>Factory Orchestrator Service is ready to communicate with client(s).</value>
+  </data>
   <data name="RedirectingToRunAsExplorerUser" xml:space="preserve">
     <value>{0} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser...</value>
   </data>
+  <data name="RedirectingUWPToRunAs" xml:space="preserve">
+    <value>{0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsExplorerUser...</value>
+  </data>
   <data name="RunningGuiAsSystemWarning" xml:space="preserve">
     <value>WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM</value>
+  </data>
+  <data name="ServiceAlreadyCreatedError" xml:space="preserve">
+    <value>FactoryOrchestratorService already created! Only one instance allowed.</value>
   </data>
   <data name="ServiceErrored" xml:space="preserve">
     <value>Service {0} errored with exception</value>
@@ -219,14 +276,38 @@
   <data name="ServiceStopped" xml:space="preserve">
     <value>Service {0} stopped</value>
   </data>
+  <data name="ServiceStoppedWithName" xml:space="preserve">
+    <value>Factory Orchestrator Service stopped.</value>
+  </data>
   <data name="ServiceStopping" xml:space="preserve">
     <value>Service {0} stopping</value>
+  </data>
+  <data name="ServiceStopSaveError" xml:space="preserve">
+    <value>Unable to save TaskLists on service stop!</value>
   </data>
   <data name="SourceDirectoryNotFound" xml:space="preserve">
     <value>Source directory does not exist or could not be found:</value>
   </data>
   <data name="Start" xml:space="preserve">
     <value>Start</value>
+  </data>
+  <data name="StartContainerOutput" xml:space="preserve">
+    <value>Start Container Process Output</value>
+  </data>
+  <data name="String1" xml:space="preserve">
+    <value>Unable to move file or folder {sourcePath} to {destinationPath} in container!</value>
+  </data>
+  <data name="String2" xml:space="preserve">
+    <value>Unable to delete file or folder {path} in container!</value>
+  </data>
+  <data name="String3" xml:space="preserve">
+    <value>Could not open NonMutable registry key!</value>
+  </data>
+  <data name="String4" xml:space="preserve">
+    <value>Could not open Volatile registry key!</value>
+  </data>
+  <data name="String5" xml:space="preserve">
+    <value>Could not create {FOServiceExe.ServiceLogFolder} directory!</value>
   </data>
   <data name="TaefCheckFailed" xml:space="preserve">
     <value>Unable to invoke TE.exe to validate possible TAEF test: {0}</value>
@@ -263,6 +344,12 @@
   </data>
   <data name="UnsupportedGuidType" xml:space="preserve">
     <value>Unsupported guid type to poll!</value>
+  </data>
+  <data name="WaitingForContainerTaskRun" xml:space="preserve">
+    <value>TaskRun {0} is waiting on a result run by the container.</value>
+  </data>
+  <data name="WaitingForExternalTaskRun" xml:space="preserve">
+    <value>TaskRun {0} is waiting on an external result.</value>
   </data>
   <data name="WDPAppLaunchFailed" xml:space="preserve">
     <value>Error: Failed to launch AUMID: {0}</value>

@@ -70,6 +70,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attempting to run the Task in the container....
+        /// </summary>
+        public static string AttemptingContainerTaskRun {
+            get {
+                return ResourceManager.GetString("AttemptingContainerTaskRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} found, attempting to load....
+        /// </summary>
+        public static string AttemptingFileLoad {
+            get {
+                return ResourceManager.GetString("AttemptingFileLoad", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to AUMID is not valid!.
         /// </summary>
         public static string AUMIDNotValidError {
@@ -115,6 +133,33 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service is done executing boot tasks..
+        /// </summary>
+        public static string BootTasksFinished {
+            get {
+                return ResourceManager.GetString("BootTasksFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service is executing boot tasks....
+        /// </summary>
+        public static string BootTasksStarted {
+            get {
+                return ResourceManager.GetString("BootTasksStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking for {0}....
+        /// </summary>
+        public static string CheckingForFile {
+            get {
+                return ResourceManager.GetString("CheckingForFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start connection first!.
         /// </summary>
         public static string ClientNotConnected {
@@ -124,11 +169,56 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to get file from container!.
+        /// </summary>
+        public static string ContainerFileGetFailed {
+            get {
+                return ResourceManager.GetString("ContainerFileGetFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to send file to container!.
+        /// </summary>
+        public static string ContainerFileSendFailed {
+            get {
+                return ResourceManager.GetString("ContainerFileSendFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete TraskRun in container.
+        /// </summary>
+        public static string ContainerTaskRunFailed {
+            get {
+                return ResourceManager.GetString("ContainerTaskRunFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to External TaskRun {0} received a {1} result and is finished..
+        /// </summary>
+        public static string DoneWaitingForExternalTaskRun {
+            get {
+                return ResourceManager.GetString("DoneWaitingForExternalTaskRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TaskRun {0} could not be loaded from file as it already exists!.
         /// </summary>
         public static string DuplicateTaskRunGuid {
             get {
                 return ResourceManager.GetString("DuplicateTaskRunGuid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End Container Process Output.
+        /// </summary>
+        public static string EndContainerOutput {
+            get {
+                return ResourceManager.GetString("EndContainerOutput", resourceCulture);
             }
         }
         
@@ -205,6 +295,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Successfully loaded {0}..
+        /// </summary>
+        public static string FileLoadSucceeded {
+            get {
+                return ResourceManager.GetString("FileLoadSucceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} not found..
+        /// </summary>
+        public static string FileNotFound {
+            get {
+                return ResourceManager.GetString("FileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} does not exist!.
         /// </summary>
         public static string FileNotFoundException {
@@ -277,6 +385,42 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service network access is disabled..
+        /// </summary>
+        public static string NetworkAccessDisabled {
+            get {
+                return ResourceManager.GetString("NetworkAccessDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service network access is enabled..
+        /// </summary>
+        public static string NetworkAccessEnabled {
+            get {
+                return ResourceManager.GetString("NetworkAccessEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No valid container Id found!.
+        /// </summary>
+        public static string NoContainerIdFound {
+            get {
+                return ResourceManager.GetString("NoContainerIdFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No valid container IP address found!.
+        /// </summary>
+        public static string NoContainerIpFound {
+            get {
+                return ResourceManager.GetString("NoContainerIpFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find method with name {0}.
         /// </summary>
         public static string NoMethodFound {
@@ -313,6 +457,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service is ready to communicate with client(s)..
+        /// </summary>
+        public static string ReadyToCommunicate {
+            get {
+                return ResourceManager.GetString("ReadyToCommunicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser....
         /// </summary>
         public static string RedirectingToRunAsExplorerUser {
@@ -322,11 +475,29 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsExplorerUser....
+        /// </summary>
+        public static string RedirectingUWPToRunAs {
+            get {
+                return ResourceManager.GetString("RedirectingUWPToRunAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM.
         /// </summary>
         public static string RunningGuiAsSystemWarning {
             get {
                 return ResourceManager.GetString("RunningGuiAsSystemWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FactoryOrchestratorService already created! Only one instance allowed..
+        /// </summary>
+        public static string ServiceAlreadyCreatedError {
+            get {
+                return ResourceManager.GetString("ServiceAlreadyCreatedError", resourceCulture);
             }
         }
         
@@ -367,11 +538,29 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service stopped..
+        /// </summary>
+        public static string ServiceStoppedWithName {
+            get {
+                return ResourceManager.GetString("ServiceStoppedWithName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Service {0} stopping.
         /// </summary>
         public static string ServiceStopping {
             get {
                 return ResourceManager.GetString("ServiceStopping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to save TaskLists on service stop!.
+        /// </summary>
+        public static string ServiceStopSaveError {
+            get {
+                return ResourceManager.GetString("ServiceStopSaveError", resourceCulture);
             }
         }
         
@@ -390,6 +579,60 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string Start {
             get {
                 return ResourceManager.GetString("Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start Container Process Output.
+        /// </summary>
+        public static string StartContainerOutput {
+            get {
+                return ResourceManager.GetString("StartContainerOutput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to move file or folder {sourcePath} to {destinationPath} in container!.
+        /// </summary>
+        public static string String1 {
+            get {
+                return ResourceManager.GetString("String1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to delete file or folder {path} in container!.
+        /// </summary>
+        public static string String2 {
+            get {
+                return ResourceManager.GetString("String2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open NonMutable registry key!.
+        /// </summary>
+        public static string String3 {
+            get {
+                return ResourceManager.GetString("String3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open Volatile registry key!.
+        /// </summary>
+        public static string String4 {
+            get {
+                return ResourceManager.GetString("String4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not create {FOServiceExe.ServiceLogFolder} directory!.
+        /// </summary>
+        public static string String5 {
+            get {
+                return ResourceManager.GetString("String5", resourceCulture);
             }
         }
         
@@ -498,6 +741,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string UnsupportedGuidType {
             get {
                 return ResourceManager.GetString("UnsupportedGuidType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TaskRun {0} is waiting on a result run by the container..
+        /// </summary>
+        public static string WaitingForContainerTaskRun {
+            get {
+                return ResourceManager.GetString("WaitingForContainerTaskRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TaskRun {0} is waiting on an external result..
+        /// </summary>
+        public static string WaitingForExternalTaskRun {
+            get {
+                return ResourceManager.GetString("WaitingForExternalTaskRun", resourceCulture);
             }
         }
         

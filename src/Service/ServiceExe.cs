@@ -1223,14 +1223,14 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _defaultLogFolder = Path.Combine(FOServiceExe.ServiceLogFolder, "Logs");
 
         // Default paths in testcontent directory for user tasklists
-        private readonly string _firstBootStateDefaultPath = @"U:\TestContent\InitialTaskLists.xml";
-        private readonly string _firstBootDefaultPath = @"U:\TestContent\FirstBootTasks.xml";
-        private readonly string _everyBootDefaultPath = @"U:\TestContent\EveryBootTasks.xml";
+        private readonly string _initialTasksDefaultPath = Environment.ExpandEnvironmentVariables(@"%DataDrive%\TestContent\InitialTaskLists.xml");
+        private readonly string _firstBootTasksDefaultPath = Environment.ExpandEnvironmentVariables(@"%DataDrive%\TestContent\FirstBootTasks.xml");
+        private readonly string _everyBootTasksDefaultPath = Environment.ExpandEnvironmentVariables(@"%DataDrive%\TestContent\EveryBootTasks.xml");
 
         // Registry fallbacks for user tasklists
         private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
         private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
-        private readonly string _firstBootStatePathValue = @"FirstBootStateTaskListsXML";
+        private readonly string _initialTasksPathValue = @"FirstBootStateTaskListsXML";
 
         // user tasklists state registry values
         private readonly string _firstBootCompleteValue = @"FirstBootTaskListsComplete";
@@ -1336,7 +1336,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 if (_singleton != null)
                 {
-                    throw new FactoryOrchestratorException("FactoryOrchestratorService already created! Only one instance allowed.");
+                    throw new FactoryOrchestratorException(Resources.ServiceAlreadyCreatedError);
                 }
 
                 _controller = controller;
@@ -1423,7 +1423,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    ServiceLogger.LogWarning($"Factory Orchestrator Service could not load {_taskExecutionManager.TaskListStateFile}\n {e.AllExceptionsToString()}");
+                    ServiceLogger.LogWarning($"{string.Format(Resources.FOXMLFileLoadException, _taskExecutionManager.TaskListStateFile)}\n {e.AllExceptionsToString()}");
                 }
             }
 
@@ -1438,42 +1438,39 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 var firstBootStateLoaded = GetValueFromRegistry(_firstBootStateLoadedValue) as int?;
+                string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
                 if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0) || (force))
                 {
-                    ServiceLogger.LogInformation("Checking for first boot state TaskLists XML...");
+                    ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _initialTasksDefaultPath));
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                    string firstBootStateTaskListPath = null;
-                    if (File.Exists(_firstBootStateDefaultPath))
+                    if (!File.Exists(firstBootStateTaskListPath))
                     {
-                        firstBootStateTaskListPath = _firstBootStateDefaultPath;
-                    }
-                    else
-                    {
-                        firstBootStateTaskListPath = GetValueFromRegistry(_firstBootStatePathValue) as string;
+                        firstBootStateTaskListPath = GetValueFromRegistry(_initialTasksPathValue, _initialTasksDefaultPath) as string;
                     }
 
-                    if (firstBootStateTaskListPath != null)
+                    if (File.Exists(firstBootStateTaskListPath))
                     {
-                        ServiceLogger.LogInformation($"First boot state TaskLists XML found, attempting to load {firstBootStateTaskListPath}...");
+                        ServiceLogger.LogInformation($"{firstBootStateTaskListPath} found, attempting to load...");
 
                         // Load the TaskLists file specified in registry
                         var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootStateTaskListPath);
 
-                        ServiceLogger.LogInformation($"Successfully loaded first boot state TaskLists XML {firstBootStateTaskListPath}...");
+                        ServiceLogger.LogInformation(string.Format(Resources.FileLoadSucceeded, firstBootStateTaskListPath));
+                        loaded = true;
+                        SetValueInRegistry(_firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
                     }
                     else
                     {
-                        ServiceLogger.LogInformation("No first boot state TaskLists XML found.");
+                        ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, _initialTasksDefaultPath));
                     }
 
-                    loaded = true;
-                    SetValueInRegistry(_firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
+
                 }
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to load first boot state TaskLists XML! ({e.AllExceptionsToString()})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.FOXMLFileLoadException, _initialTasksDefaultPath)} ({e.AllExceptionsToString()})"));
             }
 
             return loaded;
@@ -1497,7 +1494,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (FactoryOrchestratorException e)
             {
-                ServiceLogger.LogError(e, $"Unable to save TaskLists on service stop!");
+                ServiceLogger.LogError(e, Resources.ServiceStopSaveError);
             }
 
             // Close registry
@@ -1508,7 +1505,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 _mutableKey.Close();
             }
 
-            ServiceLogger.LogInformation("Factory Orchestrator Service Stopped.\n");
+            ServiceLogger.LogInformation(Resources.ServiceStoppedWithName);
         }
 
         private void HandleTaskManagerEvent(object source, TaskManagerEventArgs e)
@@ -1522,18 +1519,17 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         if (run.RunInContainer)
                         {
-                            run.TaskOutput.Add("Attempting to run the Task in the container...");
-                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForContainerTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on a result run by the container.");
+                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForContainerTaskRun, e.Guid, string.Format(Resources.WaitingForContainerTaskRun, e.Guid));
                             RunTaskRunInContainer(run);
                         }
                         else
                         {
-                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, $"TaskRun {e.Guid} is waiting on an external result.");
+                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, string.Format(Resources.WaitingForExternalTaskRun, e.Guid));
                         }
                         break;
                     }
                 case TaskManagerEventType.WaitingForExternalTaskRunFinished:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, $"External TaskRun {e.Guid} received a {e.Status} result and is finished.");
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, string.Format(Resources.DoneWaitingForExternalTaskRun, e.Guid, e.Status));
                     break;
                 default:
                     break;
@@ -1547,6 +1543,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private void RunTaskRunInContainer(TaskRun_Server hostRun)
         {
+            hostRun.TaskOutput.Add(Resources.AttemptingContainerTaskRun);
+
             Task.Run(async () =>
             {
                 try
@@ -1568,7 +1566,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     if (containerTask.Type == TaskType.UWP)
                     {
                         // The container doesn't have WDP, translate to a shell execute call
-                        hostRun.TaskOutput.Add($"{hostRun.TaskPath} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsExplorerUser...");
+                        hostRun.TaskOutput.Add(Resources.RedirectingUWPToRunAs);
                         var temp = containerTask as UWPTask;
                         var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsExplorerUser.exe");
                         uwpContainerTask.Arguments = @"explorer.exe shell:appsFolder\" + temp.Path;
@@ -1577,7 +1575,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     await ConnectToContainer();
 
-                    hostRun.TaskOutput.Add($"----------- Start Container Process Output (stdout, stderr) -----------");
+                    hostRun.TaskOutput.Add($"----------- {Resources.StartContainerOutput} (stdout, stderr) -----------");
                     var containerRun = await _containerClient.RunTask(containerTask);
                     containerRun = await _containerClient.QueryTaskRun(containerRun.Guid);
                     int latestIndex = 0;
@@ -1631,13 +1629,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                         hostRun.TimeFinished = DateTime.Now;
                         hostRun.ExitCode = containerRun.ExitCode;
                         hostRun.TaskStatus = containerRun.TaskStatus;
-                        hostRun.TaskOutput.Add($"----------- End Container Process Output -----------");
+                        hostRun.TaskOutput.Add($"----------- {Resources.EndContainerOutput} -----------");
                     }
                 }
                 catch (Exception e)
                 {
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete TraskRun in container! {e.AllExceptionsToString()}"));
-                    hostRun.TaskOutput.Add($"Unable to complete TraskRun in container!");
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{Resources.ContainerTaskRunFailed}! {e.AllExceptionsToString()}"));
+                    hostRun.TaskOutput.Add(Resources.ContainerTaskRunFailed);
                     hostRun.TaskOutput.Add(e.AllExceptionsToString());
                     hostRun.TaskStatus = TaskStatus.Failed;
                     _containerClient = null;
@@ -1667,7 +1665,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 return;
             }
 
-            throw new FactoryOrchestratorContainerException($"No valid container ip found!");
+            throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
         }
 
         public string GetContainerId()
@@ -1685,10 +1683,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorContainerException("Unable to find container Id!", null, e);
+                throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound, null, e);
             }
 
-            throw new FactoryOrchestratorContainerException("Unable to find container Id!");
+            throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
         }
 
         public List<IPAddress> GetContainerIpAddresses()
@@ -1712,10 +1710,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorContainerException("Unable to find container IP Address!", null, e);
+                throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound, null, e);
             }
 
-            throw new FactoryOrchestratorContainerException("Unable to find container IP Address!");
+            throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
         }
 
 
@@ -1762,7 +1760,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorContainerException($"Unable to send file to container!", null, e);
+                throw new FactoryOrchestratorContainerException(Resources.ContainerFileSendFailed, null, e);
             }
         }
 
@@ -1775,7 +1773,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
                 if (!File.Exists(sourceFilename))
                 {
-                    throw new FileNotFoundException($"File {sourceFilename} requested by GetFile does not exist!");
+                    throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, sourceFilename), sourceFilename);
                 }
 
                 if (offset < 0)
@@ -1831,7 +1829,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorContainerException($"Unable to get file from container!", null, e);
+                throw new FactoryOrchestratorContainerException(Resources.ContainerFileGetFailed, null, e);
             }
         }
 
@@ -1844,7 +1842,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorContainerException($"Unable to move file or folder {sourcePath} to {destinationPath} in container!", null, e);
+                throw new FactoryOrchestratorContainerException($"", null, e);
             }
         }
 
@@ -1857,7 +1855,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorContainerException($"Unable to delete file or folder {path} in container!", null, e);
+                throw new FactoryOrchestratorContainerException($"", null, e);
             }
         }
 
@@ -1949,7 +1947,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Could not open NonMutable registry key! {e.Message}");
+                ServiceLogger.LogError($" {e.Message}");
                 Stop();
             }
 
@@ -1959,7 +1957,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Could not open Volatile registry key! {e.Message}");
+                ServiceLogger.LogError($"! {e.Message}");
                 Stop();
             }
 
@@ -2025,9 +2023,9 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
                     string firstBootTaskListPath = null;
-                    if (File.Exists(_firstBootDefaultPath))
+                    if (File.Exists(_firstBootTasksDefaultPath))
                     {
-                        firstBootTaskListPath = _firstBootDefaultPath;
+                        firstBootTaskListPath = _firstBootTasksDefaultPath;
                     }
                     else
                     {
@@ -2092,9 +2090,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                         ServiceLogger.LogInformation($"Checking for every boot TaskLists XML...");
                         // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
                         string everyBootTaskListPath = null;
-                        if (File.Exists(_everyBootDefaultPath))
+                        if (File.Exists(_everyBootTasksDefaultPath))
                         {
-                            everyBootTaskListPath = _everyBootDefaultPath;
+                            everyBootTaskListPath = _everyBootTasksDefaultPath;
                         }
                         else
                         {
