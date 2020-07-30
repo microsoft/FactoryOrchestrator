@@ -2425,19 +2425,19 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             if (run.TimeStarted == null)
             {
-                throw new FactoryOrchestratorException($"{process} never started");
+                throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessStartFailed, process));
             }
 
             var runner = run.GetOwningTaskRunner();
             if ((runner != null) && (!runner.WaitForExit(timeoutMS)))
             {
                 TestExecutionManager.AbortTaskRun(run.Guid);
-                throw new FactoryOrchestratorException($"{process} did not exit before {timeoutMS}ms!");
+                throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessTimedOut, timeoutMS));
             }
 
             if (run.TaskStatus != TaskStatus.Passed)
             {
-                throw new FactoryOrchestratorException($"{process} exited with {run.ExitCode}");
+                throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessExitedWithError, process, run.ExitCode));
             }
 
             return run;
