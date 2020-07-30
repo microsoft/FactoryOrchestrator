@@ -18,6 +18,8 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Windows.Foundation;
+using Windows.ApplicationModel.Resources;
+using Windows.UI.Xaml.Automation;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -241,11 +243,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         if (newSummaries.Any(x => x.IsRunningOrPending))
                         {
-                            RunAllButton.Content = "Abort all";
+                            RunAllButton.Content = resourceLoader.GetString("AbortAllButton.Content");
+                            ToolTipService.SetToolTip(RunAllButton, resourceLoader.GetString("AbortAllButton.ToolTipService.ToolTip"));
+                            AutomationProperties.SetName(RunAllButton, resourceLoader.GetString("AbortAllButton.ToolTipService.ToolTip"));
                         }
                         else
                         {
-                            RunAllButton.Content = "Run all";
+                            RunAllButton.Content = resourceLoader.GetString("RunAllButton.Content");
+                            ToolTipService.SetToolTip(RunAllButton, resourceLoader.GetString("RunAllButton.ToolTipService.ToolTip"));
+                            AutomationProperties.SetName(RunAllButton, resourceLoader.GetString("RunAllButton.ToolTipService.ToolTip"));
                         }
 
                         if (newCount == 0)
@@ -405,13 +411,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (bootTasksComplete)
                 {
-                    TaskListsText.Text = "Task Lists";
-                    TasksText.Text = "Tasks";
+                    TaskListsText.Text = resourceLoader.GetString("TaskListsText.Text");
+                    TasksText.Text = resourceLoader.GetString("TasksText.Text");
                 }
                 else
                 {
-                    TaskListsText.Text = "Boot Task Lists";
-                    TasksText.Text = "Boot Tasks";
+                    TaskListsText.Text = $"{resourceLoader.GetString("Boot")} {resourceLoader.GetString("TaskListsText.Text")}";
+                    TasksText.Text = $"{resourceLoader.GetString("Boot")} {resourceLoader.GetString("TasksText.Text")}";
                 }
             }
         }
@@ -428,7 +434,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void RunAllButton_Click(object sender, RoutedEventArgs e)
         {
-            if (RunAllButton.Content.ToString().Contains("Run", StringComparison.CurrentCultureIgnoreCase))
+            if (TaskListCollection.All(x => x.IsRunningOrPending == false))
             {
                 _ = Client.RunAllTaskLists();
             }
@@ -599,6 +605,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public ObservableCollection<TaskListSummary> TaskListCollection;
         public ObservableCollection<TaskBaseWithTemplate> ActiveListCollection;
         public bool FollowOutput { get; set; }
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 
     /// <summary>

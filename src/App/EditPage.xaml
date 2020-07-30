@@ -30,28 +30,28 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="EditFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Task Name:" Padding="5"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" x:Uid="TaskName" Padding="5"/>
                 <TextBox Grid.Row="1" Grid.Column="1" x:Name="TestNameBox" Text="" MinWidth="400"/>
-                <TextBlock Grid.Row="2" Grid.Column="0"  x:Name="PathBlock" Text="Task Path:" Padding="5"/>
+                <TextBlock Grid.Row="2" Grid.Column="0"  x:Name="PathBlock" x:Uid="TaskPath" Padding="5"/>
                 <TextBox Grid.Row="2" Grid.Column="1" x:Name="TaskPathBox" Text="" MinWidth="400"/>
-                <TextBlock Grid.Row="2" Grid.Column="0" x:Name="AppBlock" Text="App:" Visibility="Collapsed" Padding="5"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" x:Name="AppBlock" x:Uid="AppBlock" Visibility="Collapsed" Padding="5"/>
                 <ComboBox Grid.Row="2" Grid.Column="1" x:Name="AppComboBox" Visibility="Collapsed" MinWidth="400" IsEditable="True"/>
-                <TextBlock Grid.Row="3" Grid.Column="0"  x:Name="ArgumentsBlock" Text="Arguments:" Padding="5"/>
+                <TextBlock Grid.Row="3" Grid.Column="0"  x:Name="ArgumentsBlock" x:Uid="ArgumentsBlock" Padding="5"/>
                 <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="400"/>
-                <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TimeoutBlock" Text="Timeout (seconds):" Padding="5"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TimeoutBlock" x:Uid="TimeoutBlock" Padding="5"/>
                 <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged"/>
-                <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" Text="Maximum number of retries:" Padding="5"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" x:Uid="RetryBlock" Padding="5"/>
                 <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="400" TextChanged="RetryBox_TextChanged"/>
-                <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AutoPassCheck" Content="Auto Pass App on Launch?" IsChecked="False" Visibility="Collapsed" IsThreeState="False" Padding="5" Click="AutoPassCheck_Click"/>
-                <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TerminateOnCompleteCheck" Content="Terminate App on Completion?" IsChecked="True" Visibility="Collapsed" IsThreeState="False" Padding="5"/>
-                <CheckBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" Content="Abort TaskList on Task failure?" IsChecked="False" IsThreeState="False" Padding="5"/>
-                <CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" x:Name="BgTaskBox" Content="Add as Background Task?" IsChecked="False" IsThreeState="False" Padding="5" Click="BgTaskBox_Click"/>
-                <CheckBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ContainerBox" Content="Run In Container?" IsChecked="False" IsThreeState="False" Padding="5" />
+                <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AutoPassCheck" x:Uid="AutoPassCheck" IsChecked="False" Visibility="Collapsed" IsThreeState="False" Padding="5" Click="AutoPassCheck_Click"/>
+                <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TerminateOnCompleteCheck" x:Uid="TerminateOnCompleteCheck" IsChecked="True" Visibility="Collapsed" IsThreeState="False" Padding="5"/>
+                <CheckBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" x:Uid="AbortOnFailBox" IsChecked="False" IsThreeState="False" Padding="5"/>
+                <CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" x:Name="BgTaskBox" x:Uid="BgTaskBox" IsChecked="False" IsThreeState="False" Padding="5" Click="BgTaskBox_Click"/>
+                <CheckBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ContainerBox" x:Uid="ContainerBox" IsChecked="False" IsThreeState="False" Padding="5" />
                 <StackPanel Orientation="Horizontal" Grid.Row="11" Grid.ColumnSpan="2" >
-                    <Button x:Name="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
+                    <Button x:Name="CancelEdit" x:Uid="CancelEdit" Padding="5" Margin="5" Click="CancelEdit_Click">
                         <SymbolIcon Symbol="Cancel"/>
                     </Button>
-                    <Button x:Name="ConfirmEdit" Padding="5" Margin="5" Click="ConfirmEdit_Click">
+                    <Button x:Name="ConfirmEdit" x:Uid="ConfirmEdit" Padding="5" Margin="5" Click="ConfirmEdit_Click">
                         <SymbolIcon Symbol="Save"/>
                     </Button>
                 </StackPanel>
@@ -73,21 +73,21 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" AutomationProperties.Name="Go Back"/>
+        <Button x:Name="BackButton" x:Uid="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Spacing="10">
             <TextBlock x:Name="TaskListHeader" Style="{StaticResource SubheaderTextBlockStyle}" VerticalAlignment="Center"/>
-            <Button x:Name="EditListNameButton" ToolTipService.ToolTip="Rename TaskList" VerticalAlignment="Center">
+            <Button x:Name="EditListNameButton" x:Uid="EditListNameButton" VerticalAlignment="Center">
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8AC;"/>
                 <Button.Flyout>
                     <Flyout x:Name="EditListNameFlyout" Opening="EditListNameFlyout_Opening">
                         <StackPanel Orientation="Vertical">
-                            <TextBlock TextWrapping="Wrap" Text="Rename Tasklist" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
+                            <TextBlock TextWrapping="Wrap" x:Uid="RenammeListBlock" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
                             <TextBox TextWrapping="Wrap" x:Name="RenameBox"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button x:Name="CancelNameEdit" Padding="5" Margin="5" Click="CancelNameEdit_Click">
+                                <Button x:Name="CancelNameEdit" x:Uid="CancelEdit" Padding="5" Margin="5" Click="CancelNameEdit_Click">
                                     <SymbolIcon Symbol="Cancel"/>
                                 </Button>
-                                <Button x:Name="ConfirmNameEdit" Padding="5" Margin="5" Click="ConfirmNameEdit_Click">
+                                <Button x:Name="ConfirmNameEdit" x:Uid="ConfirmEdit" Padding="5" Margin="5" Click="ConfirmNameEdit_Click">
                                     <SymbolIcon Symbol="Save"/>
                                 </Button>
                             </StackPanel>
@@ -95,29 +95,28 @@
                     </Flyout>
                 </Button.Flyout>
             </Button>
-            <TextBlock x:Name="TaskListHeader2" Grid.ColumnSpan="2" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
-            <TextBlock x:Name="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}" Text="TaskList Options:"/>
-            <CheckBox x:Name="ParallelCheck" Content="Run Tasks in Parallel?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
-            <CheckBox x:Name="BlockingCheck" Content="Allow Other TaskLists to Run?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
-            <CheckBox x:Name="TerminateBgTasksCheck" Content="Terminate Background Tasks on Completion?" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
+            <TextBlock x:Name="TaskListOpt" x:Uid="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <CheckBox x:Name="ParallelCheck" x:Uid="ParallelCheck" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
+            <CheckBox x:Name="BlockingCheck" x:Uid="BlockingCheck" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
+            <CheckBox x:Name="TerminateBgTasksCheck" x:Uid="TerminateBgTasksCheck" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
-                <Button x:Name="NewExecutableButton" Content="New Executable Task" Click="NewExecutableButton_Click"/>
-                <Button x:Name="NewPSButton" Content="New PowerShell Task" Click="NewPSButton_Click"/>
-                <Button x:Name="NewCMDButton" Content="New Batch File Task" Click="NewCMDButton_Click"/>
+                <Button x:Name="NewExecutableButton" x:Uid="NewExecutableButton" Click="NewExecutableButton_Click"/>
+                <Button x:Name="NewPSButton" x:Uid="NewPSButton" Click="NewPSButton_Click"/>
+                <Button x:Name="NewCMDButton" x:Uid="NewCMDButton" Click="NewCMDButton_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
-                <Button x:Name="NewTAEFButton" Content="New TAEF Task" Click="NewTAEFButton_Click"/>
-                <Button x:Name="NewUWPButton" Content="New UWP App Task" Click="NewUWPButton_Click"/>
-                <Button x:Name="NewExternalButton" Content="New External Task" Click="NewExternalButton_Click"/>
+                <Button x:Name="NewTAEFButton" x:Uid="NewTAEFButton" Click="NewTAEFButton_Click"/>
+                <Button x:Name="NewUWPButton" x:Uid="NewUWPButton" Click="NewUWPButton_Click"/>
+                <Button x:Name="NewExternalButton" x:Uid="NewExternalButton" Click="NewExternalButton_Click"/>
             </StackPanel>
         </StackPanel>
 
-        <TextBlock x:Name="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="Background Tasks:" Visibility="Collapsed"/>
+        <TextBlock x:Name="BgTasksHeader" x:Uid="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Visibility="Collapsed"/>
         <ListView x:Name="BgTaskListView" Grid.Row="4"  Grid.Column="1" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" DragItemsCompleted="TaskListView_DragCompleted">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
@@ -134,10 +133,10 @@
                                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
                                     <ContentPresenter Grid.Column="1" />
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroupBg">
-                                        <Button x:Name="EditBackgroundListButton" Margin="10,0,5,0" Click="BgEditButton_Click">
+                                        <Button x:Name="EditBackgroundListButton" x:Uid="EditButton" Margin="10,0,5,0" Click="BgEditButton_Click">
                                             <SymbolIcon Symbol="Edit"/>
                                         </Button>
-                                        <Button x:Name="DeleteBackgroundListButton" Margin="5,0,5,0" Click="BgDeleteButton_Click">
+                                        <Button x:Name="DeleteBackgroundListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="BgDeleteButton_Click">
                                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                         </Button>
                                     </StackPanel>
@@ -154,7 +153,7 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <TextBlock x:Name="TasksHeader" Grid.Row="5" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Text="Tasks:" Visibility="Collapsed"/>
+        <TextBlock x:Name="TasksHeader" x:Uid="TasksHeader" Grid.Row="5" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Visibility="Collapsed"/>
         <ListView x:Name="TaskListView" Grid.Row="6"  Grid.Column="1" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" DragItemsCompleted="TaskListView_DragCompleted">
         <ListView.Resources>
             <Style TargetType="ListViewItem">
@@ -171,10 +170,10 @@
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
                                 <ContentPresenter Grid.Column="1" />
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                                    <Button x:Name="EditListButton" Margin="10,0,5,0" Click="EditButton_Click">
+                                    <Button x:Name="EditListButton" x:Uid="EditButton" Margin="10,0,5,0" Click="EditButton_Click">
                                         <SymbolIcon Symbol="Edit"/>
                                     </Button>
-                                    <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteButton_Click">
+                                    <Button x:Name="DeleteListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="DeleteButton_Click">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                     </Button>
                                 </StackPanel>

@@ -3,10 +3,7 @@
 
 using Microsoft.FactoryOrchestrator.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml.Data;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
@@ -51,56 +48,52 @@ namespace Microsoft.FactoryOrchestrator.UWP
             switch (statusEnum)
             {
                 case TaskStatus.Passed:
-                    status += "✔ Passed";
+                    status += resourceLoader.GetString("Passed");
                     if ((!isStatus) && (task.TimesRetried > 0))
                     {
-                        status += $" (On retry {task.TimesRetried})";
+                        status += $" ({resourceLoader.GetString("OnRetry")} {task.TimesRetried})";
                     }
                     if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
-                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                        status += $" ({task.TaskRunGuids.Count} {resourceLoader.GetString("TotalRuns")})";
                     }
                     break;
                 case TaskStatus.Failed:
-                    status += "❌ Failed";
-                    if ((!isStatus) && (task.TimesRetried > 0))
-                    {
-                        status += $" (All {task.TimesRetried} retries)";
-                    }
+                    status += resourceLoader.GetString("Failed");
                     if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
-                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                        status += $" ({task.TaskRunGuids.Count} {resourceLoader.GetString("TotalRuns")})";
                     }
                     break;
                 case TaskStatus.Running:
-                    status += "▶ Running";
+                    status += resourceLoader.GetString("Running");
                     if ((!isStatus) && (task.TimesRetried > 0))
                     {
-                        status += $" (Retry {task.TimesRetried})";
+                        status += $" ({resourceLoader.GetString("Retry")} {task.TimesRetried})";
                     }
                     break;
                 case TaskStatus.NotRun:
-                    status += "❔ Not Run";
+                    status += resourceLoader.GetString("NotRun");
                     break;
                 case TaskStatus.Aborted:
-                    status += "⛔ Aborted";
+                    status += resourceLoader.GetString("Aborted");
                     if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
-                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                        status += $" ({task.TaskRunGuids.Count} {resourceLoader.GetString("TotalRuns")})";
                     }
                     break;
                 case TaskStatus.Timeout:
-                    status += "⏱ Timed-out";
+                    status += resourceLoader.GetString("TimedOut");
                     if ((!isStatus) && (task.TaskRunGuids.Count > 1) && (task.TaskRunGuids.Count > task.TimesRetried))
                     {
-                        status += $" ({task.TaskRunGuids.Count} total runs)";
+                        status += $" ({task.TaskRunGuids.Count} {resourceLoader.GetString("TotalRuns")})";
                     }
                     break;
                 case TaskStatus.RunPending:
-                    status += "❔ Run Pending";
+                    status += resourceLoader.GetString("RunPending");
                     break;
                 default:
-                    status += "❔ Unknown";
+                    status += resourceLoader.GetString("Unknown");
                     break;
             }
 
@@ -113,5 +106,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             throw new NotImplementedException();
         }
 
+        private ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse();
     }
 }
