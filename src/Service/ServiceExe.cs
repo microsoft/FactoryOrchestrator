@@ -1401,15 +1401,15 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             if (networkAccessEnabled)
             {
-                ServiceLogger.LogInformation("Factory Orchestrator service network access is enabled\n");
+                ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
             }
             else 
             {
-                ServiceLogger.LogInformation("Factory Orchestrator service network access is disabled\n");
+                ServiceLogger.LogInformation($"{Resources.NetworkAccessDisabled}\n");
             }
 
-            ServiceLogger.LogInformation("Factory Orchestrator Service is ready to communicate with client(s)\n");
-            LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceStart, null, "Factory Orchestrator Service is executing boot tasks..."));
+            ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
+            LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceStart, null, Resources.BootTasksStarted));
 
             // Execute user defined tasks.
             ExecuteUserBootTasks(forceUserTaskRerun);
@@ -1428,7 +1428,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             IsExecutingBootTasks = false;
-            LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, "Factory Orchestrator Service is done executing boot tasks. "));
+            LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
         }
 
         private bool LoadFirstBootStateFile(bool force)
@@ -1438,20 +1438,25 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 var firstBootStateLoaded = GetValueFromRegistry(_firstBootStateLoadedValue) as int?;
-                string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
                 if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0) || (force))
                 {
+                    string firstBootStateTaskListPath = _initialTasksDefaultPath;
+
                     ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _initialTasksDefaultPath));
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
                     if (!File.Exists(firstBootStateTaskListPath))
                     {
                         firstBootStateTaskListPath = GetValueFromRegistry(_initialTasksPathValue, _initialTasksDefaultPath) as string;
+                        if (!firstBootStateTaskListPath.Equals(_initialTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, firstBootStateTaskListPath));
+                        }
                     }
 
                     if (File.Exists(firstBootStateTaskListPath))
                     {
-                        ServiceLogger.LogInformation($"{firstBootStateTaskListPath} found, attempting to load...");
+                        ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootStateTaskListPath));
 
                         // Load the TaskLists file specified in registry
                         var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootStateTaskListPath);
@@ -1462,10 +1467,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, _initialTasksDefaultPath));
+                        ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, firstBootStateTaskListPath));
                     }
-
-
                 }
             }
             catch (Exception e)
@@ -1970,7 +1973,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Could not create {FOServiceExe.ServiceLogFolder} directory! {e.Message}");
+                ServiceLogger.LogError($"{string.Format(Resources.CreateDirectoryFailed, FOServiceExe.ServiceLogFolder)} {e.Message}");
                 Stop();
             }
             try
@@ -1979,7 +1982,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"Could not create {TaskManagerLogFolder} directory! {e.Message}");
+                ServiceLogger.LogError($"{string.Format(Resources.CreateDirectoryFailed, TaskManagerLogFolder)} {e.Message}");
                 Stop();
             }
 
@@ -2019,24 +2022,23 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
                 {
-                    ServiceLogger.LogInformation("Checking for first boot TaskLists XML...");
+                    ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _firstBootTasksDefaultPath));
+                    string firstBootTaskListPath = _firstBootTasksDefaultPath;
 
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                    string firstBootTaskListPath = null;
-                    if (File.Exists(_firstBootTasksDefaultPath))
+                    if (!File.Exists(firstBootTaskListPath))
                     {
-                        firstBootTaskListPath = _firstBootTasksDefaultPath;
-                    }
-                    else
-                    {
-                        firstBootTaskListPath = GetValueFromRegistry(_firstBootTasksPathValue) as string;
+                        firstBootTaskListPath = (string)GetValueFromRegistry(_firstBootTasksPathValue, _firstBootTasksDefaultPath);
+                        if (!firstBootTaskListPath.Equals(_firstBootTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, firstBootTaskListPath));
+                        }
                     }
 
-                    if (firstBootTaskListPath != null)
+                    if (File.Exists(firstBootTaskListPath))
                     {
                         firstBootTasksExecuted = true;
-
-                        ServiceLogger.LogInformation($"First boot TaskLists XML found, attempting to load {firstBootTaskListPath}...");
+                        ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootTaskListPath));
                         // Create a new directory for the first boot logs
                         _taskExecutionManager.SetLogFolder(Path.Combine(logFolder, "FirstBootTaskLists"), false);
 
@@ -2046,22 +2048,22 @@ namespace Microsoft.FactoryOrchestrator.Service
                         foreach (var listGuid in firstBootTaskListGuids)
                         {
                             _taskExecutionManager.RunTaskList(listGuid);
-                            ServiceLogger.LogInformation($"Running first boot TaskList {listGuid}...");
+                            ServiceLogger.LogInformation(string.Format(Resources.FirstBootRunningTaskList, listGuid));
                         }
                     }
                     else
                     {
-                        ServiceLogger.LogInformation("No first boot TaskLists found.");
+                        ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, firstBootTaskListPath));
                     }
                 }
                 else
                 {
-                    ServiceLogger.LogInformation("First boot TaskLists already complete.");
+                    ServiceLogger.LogInformation(Resources.FirstBootAlreadyComplete);
                 }
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete first boot TaskLists! ({e.AllExceptionsToString()})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{Resources.FirstBootFailed}! ({e.AllExceptionsToString()})"));
                 firstBootTasksFailed = true;
             }
 
@@ -2073,7 +2075,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 sleepCount++;
                 if (sleepCount % 15 == 0)
                 {
-                    ServiceLogger.LogInformation("Waiting for first boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
+                    ServiceLogger.LogInformation(Resources.FirstBootWaiting);
                 }
             }
 
@@ -2087,22 +2089,23 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
                     {
-                        ServiceLogger.LogInformation($"Checking for every boot TaskLists XML...");
+                        ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _everyBootTasksDefaultPath));
+                        string everyBootTaskListPath = _everyBootTasksDefaultPath;
+
                         // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                        string everyBootTaskListPath = null;
-                        if (File.Exists(_everyBootTasksDefaultPath))
+                        if (!File.Exists(everyBootTaskListPath))
                         {
-                            everyBootTaskListPath = _everyBootTasksDefaultPath;
-                        }
-                        else
-                        {
-                            everyBootTaskListPath = GetValueFromRegistry(_everyBootTasksPathValue) as string;
+                            everyBootTaskListPath = (string)GetValueFromRegistry(_everyBootTasksPathValue, _everyBootTasksDefaultPath);
+                            if (!everyBootTaskListPath.Equals(_everyBootTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, everyBootTaskListPath));
+                            }
                         }
 
-                        if (everyBootTaskListPath != null)
+                        if (File.Exists(everyBootTaskListPath))
                         {
                             everyBootTasksExecuted = true;
-                            ServiceLogger.LogInformation($"Every boot TaskLists XML found, attempting to load {everyBootTaskListPath}...");
+                            ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, everyBootTaskListPath));
 
                             // Create a new directory for the first boot logs
                             _taskExecutionManager.SetLogFolder(Path.Combine(logFolder, "EveryBootTaskLists"), false);
@@ -2113,22 +2116,22 @@ namespace Microsoft.FactoryOrchestrator.Service
                             foreach (var listGuid in everyBootTaskListGuids)
                             {
                                 _taskExecutionManager.RunTaskList(listGuid);
-                                ServiceLogger.LogInformation($"Running every boot TaskList {listGuid}...");
+                                ServiceLogger.LogInformation(string.Format(Resources.EveryBootRunningTaskList, listGuid));
                             }
                         }
                         else
                         {
-                            ServiceLogger.LogInformation("No every boot TaskLists found.");
+                            ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, everyBootTaskListPath));
                         }
                     }
                     else
                     {
-                        ServiceLogger.LogInformation("Every boot TaskLists already complete.");
+                        ServiceLogger.LogInformation(Resources.EveryBootAlreadyComplete);
                     }
                 }
                 catch (Exception e)
                 {
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to complete every boot TaskLists! ({e.AllExceptionsToString()})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{Resources.EveryBootFailed} ({e.AllExceptionsToString()})"));
                     everyBootTasksFailed = true;
                 }
             }
@@ -2141,7 +2144,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 sleepCount++;
                 if (sleepCount % 15 == 0)
                 {
-                    ServiceLogger.LogInformation("Waiting for every boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)");
+                    ServiceLogger.LogInformation(Resources.EveryBootWaiting);
                 }
             }
 
@@ -2150,7 +2153,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 // Mark first boot tasks as complete
                 if (firstBootTasksExecuted)
                 {
-                    ServiceLogger.LogInformation("First boot TaskLists complete.");
+                    ServiceLogger.LogInformation(Resources.FirstBootComplete);
                 }
                 
                 SetValueInRegistry(_firstBootCompleteValue, 1, RegistryValueKind.DWord);
@@ -2160,7 +2163,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 // Mark every boot tasks as complete. Mark in volatile registry location so it is reset after reboot.
                 if (everyBootTasksExecuted)
                 {
-                    ServiceLogger.LogInformation("Every boot TaskLists complete.");
+                    ServiceLogger.LogInformation(Resources.EveryBootComplete);
                 }
 
                 _volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
@@ -2258,7 +2261,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             if (loopbackEnabled == 0)
             {
                 // Always make sure the Factory Orchestrator apps are allowed
-                ServiceLogger.LogInformation($"Enabling UWP local loopback for {_foAppPfn}...");
+                ServiceLogger.LogInformation(string.Format(Resources.EnablingLoopback, _foAppPfn));
 
                 try
                 {
@@ -2267,10 +2270,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                 catch (Exception e)
                 {
                     success = false;
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback for {_foAppPfn}! You may not be able to communicate with the Factory Orchestrator Service from {_foAppPfn} ({e.AllExceptionsToString()})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.EnablingLoopbackFailed, _foAppPfn)} ({e.AllExceptionsToString()})"));
                 }
 
-                ServiceLogger.LogInformation($"Enabling UWP local loopback for {_foDevAppPfn}...");
+                ServiceLogger.LogInformation(string.Format(Resources.EnablingLoopback, _foDevAppPfn));
 
                 try
                 {
@@ -2279,13 +2282,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                 catch (Exception e)
                 {
                     success = false;
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback for {_foDevAppPfn}! You may not be able to communicate with the Factory Orchestrator Service from {_foDevAppPfn} ({e.AllExceptionsToString()})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.EnablingLoopbackFailed, _foDevAppPfn)} ({e.AllExceptionsToString()})"));
                 }
 
                 // Enable all other allowed apps
                 foreach (var app in LocalLoopbackApps)
                 {
-                    ServiceLogger.LogInformation($"Enabling UWP local loopback for {app}...");
+                    ServiceLogger.LogInformation(string.Format(Resources.EnablingLoopback, app));
 
                     try
                     {
@@ -2294,7 +2297,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     catch (Exception e)
                     {
                         success = false;
-                        LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"Unable to enable UWP local loopback for {app}! You may not be able to communicate with the Factory Orchestrator Service from {app} ({e.AllExceptionsToString()})"));
+                        LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.EnablingLoopbackFailed, app)} ({e.AllExceptionsToString()})"));
                     }
                 }
 
@@ -2426,10 +2429,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             var runner = run.GetOwningTaskRunner();
-            if ((runner != null) && (!runner.WaitForExit(5000)))
+            if ((runner != null) && (!runner.WaitForExit(timeoutMS)))
             {
                 TestExecutionManager.AbortTaskRun(run.Guid);
-                throw new FactoryOrchestratorException($"{process} did not exit after 5 seconds!");
+                throw new FactoryOrchestratorException($"{process} did not exit before {timeoutMS}ms!");
             }
 
             if (run.TaskStatus != TaskStatus.Passed)

@@ -196,6 +196,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not create {0} directory!.
+        /// </summary>
+        public static string CreateDirectoryFailed {
+            get {
+                return ResourceManager.GetString("CreateDirectoryFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to delete file or folder {0} in container!.
+        /// </summary>
+        public static string DeleteContainerPathFailed {
+            get {
+                return ResourceManager.GetString("DeleteContainerPathFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to External TaskRun {0} received a {1} result and is finished..
         /// </summary>
         public static string DoneWaitingForExternalTaskRun {
@@ -214,6 +232,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enabling UWP local loopback for {0}....
+        /// </summary>
+        public static string EnablingLoopback {
+            get {
+                return ResourceManager.GetString("EnablingLoopback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to enable UWP local loopback for {0}! You may not be able to communicate with the Factory Orchestrator Service from {0}..
+        /// </summary>
+        public static string EnablingLoopbackFailed {
+            get {
+                return ResourceManager.GetString("EnablingLoopbackFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to End Container Process Output.
         /// </summary>
         public static string EndContainerOutput {
@@ -228,6 +264,51 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string EndWaitingForExternalResult {
             get {
                 return ResourceManager.GetString("EndWaitingForExternalResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Every boot TaskLists already complete..
+        /// </summary>
+        public static string EveryBootAlreadyComplete {
+            get {
+                return ResourceManager.GetString("EveryBootAlreadyComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Every boot TaskLists complete..
+        /// </summary>
+        public static string EveryBootComplete {
+            get {
+                return ResourceManager.GetString("EveryBootComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete every boot TaskLists!.
+        /// </summary>
+        public static string EveryBootFailed {
+            get {
+                return ResourceManager.GetString("EveryBootFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running every boot TaskList {0}....
+        /// </summary>
+        public static string EveryBootRunningTaskList {
+            get {
+                return ResourceManager.GetString("EveryBootRunningTaskList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting for every boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.).
+        /// </summary>
+        public static string EveryBootWaiting {
+            get {
+                return ResourceManager.GetString("EveryBootWaiting", resourceCulture);
             }
         }
         
@@ -340,6 +421,51 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to First boot TaskList already complete!.
+        /// </summary>
+        public static string FirstBootAlreadyComplete {
+            get {
+                return ResourceManager.GetString("FirstBootAlreadyComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First boot TaskLists complete..
+        /// </summary>
+        public static string FirstBootComplete {
+            get {
+                return ResourceManager.GetString("FirstBootComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete first boot TaskLists!.
+        /// </summary>
+        public static string FirstBootFailed {
+            get {
+                return ResourceManager.GetString("FirstBootFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running first boot TaskList {0}....
+        /// </summary>
+        public static string FirstBootRunningTaskList {
+            get {
+                return ResourceManager.GetString("FirstBootRunningTaskList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting for first boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.).
+        /// </summary>
+        public static string FirstBootWaiting {
+            get {
+                return ResourceManager.GetString("FirstBootWaiting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not load {0} as FactoryOrchestratorXML!.
         /// </summary>
         public static string FOXMLFileLoadException {
@@ -381,6 +507,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string LogFolderMoveFailed {
             get {
                 return ResourceManager.GetString("LogFolderMoveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to move file or folder {0} to {1} in container!.
+        /// </summary>
+        public static string MoveContainerPathFailed {
+            get {
+                return ResourceManager.GetString("MoveContainerPathFailed", resourceCulture);
             }
         }
         
@@ -435,6 +570,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string NoTaskListsException {
             get {
                 return ResourceManager.GetString("NoTaskListsException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open NonMutable registry key!.
+        /// </summary>
+        public static string OpenNonMutableKeyFailed {
+            get {
+                return ResourceManager.GetString("OpenNonMutableKeyFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open Volatile registry key!.
+        /// </summary>
+        public static string OpenVolatileKeyFailed {
+            get {
+                return ResourceManager.GetString("OpenVolatileKeyFailed", resourceCulture);
             }
         }
         
@@ -507,6 +660,33 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string ServiceErrored {
             get {
                 return ResourceManager.GetString("ServiceErrored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} exited with {1}!.
+        /// </summary>
+        public static string ServiceProcessExitedWithError {
+            get {
+                return ResourceManager.GetString("ServiceProcessExitedWithError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} never started!.
+        /// </summary>
+        public static string ServiceProcessStartFailed {
+            get {
+                return ResourceManager.GetString("ServiceProcessStartFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} did not exit before {1}ms!.
+        /// </summary>
+        public static string ServiceProcessTimedOut {
+            get {
+                return ResourceManager.GetString("ServiceProcessTimedOut", resourceCulture);
             }
         }
         
@@ -588,51 +768,6 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string StartContainerOutput {
             get {
                 return ResourceManager.GetString("StartContainerOutput", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to move file or folder {sourcePath} to {destinationPath} in container!.
-        /// </summary>
-        public static string String1 {
-            get {
-                return ResourceManager.GetString("String1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to delete file or folder {path} in container!.
-        /// </summary>
-        public static string String2 {
-            get {
-                return ResourceManager.GetString("String2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not open NonMutable registry key!.
-        /// </summary>
-        public static string String3 {
-            get {
-                return ResourceManager.GetString("String3", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not open Volatile registry key!.
-        /// </summary>
-        public static string String4 {
-            get {
-                return ResourceManager.GetString("String4", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not create {FOServiceExe.ServiceLogFolder} directory!.
-        /// </summary>
-        public static string String5 {
-            get {
-                return ResourceManager.GetString("String5", resourceCulture);
             }
         }
         

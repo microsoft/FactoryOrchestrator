@@ -294,20 +294,20 @@
   <data name="StartContainerOutput" xml:space="preserve">
     <value>Start Container Process Output</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value>Unable to move file or folder {sourcePath} to {destinationPath} in container!</value>
+  <data name="MoveContainerPathFailed" xml:space="preserve">
+    <value>Unable to move file or folder {0} to {1} in container!</value>
   </data>
-  <data name="String2" xml:space="preserve">
-    <value>Unable to delete file or folder {path} in container!</value>
+  <data name="DeleteContainerPathFailed" xml:space="preserve">
+    <value>Unable to delete file or folder {0} in container!</value>
   </data>
-  <data name="String3" xml:space="preserve">
+  <data name="OpenNonMutableKeyFailed" xml:space="preserve">
     <value>Could not open NonMutable registry key!</value>
   </data>
-  <data name="String4" xml:space="preserve">
+  <data name="OpenVolatileKeyFailed" xml:space="preserve">
     <value>Could not open Volatile registry key!</value>
   </data>
-  <data name="String5" xml:space="preserve">
-    <value>Could not create {FOServiceExe.ServiceLogFolder} directory!</value>
+  <data name="CreateDirectoryFailed" xml:space="preserve">
+    <value>Could not create {0} directory!</value>
   </data>
   <data name="TaefCheckFailed" xml:space="preserve">
     <value>Unable to invoke TE.exe to validate possible TAEF test: {0}</value>
@@ -374,5 +374,50 @@
   </data>
   <data name="WindowsOnlyError" xml:space="preserve">
     <value>{0} is only supported on Windows!</value>
+  </data>
+  <data name="EnablingLoopback" xml:space="preserve">
+    <value>Enabling UWP local loopback for {0}...</value>
+  </data>
+  <data name="EnablingLoopbackFailed" xml:space="preserve">
+    <value>Unable to enable UWP local loopback for {0}! You may not be able to communicate with the Factory Orchestrator Service from {0}.</value>
+  </data>
+  <data name="EveryBootAlreadyComplete" xml:space="preserve">
+    <value>Every boot TaskLists already complete.</value>
+  </data>
+  <data name="EveryBootComplete" xml:space="preserve">
+    <value>Every boot TaskLists complete.</value>
+  </data>
+  <data name="EveryBootFailed" xml:space="preserve">
+    <value>Unable to complete every boot TaskLists!</value>
+  </data>
+  <data name="EveryBootRunningTaskList" xml:space="preserve">
+    <value>Running every boot TaskList {0}...</value>
+  </data>
+  <data name="EveryBootWaiting" xml:space="preserve">
+    <value>Waiting for every boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)</value>
+  </data>
+  <data name="FirstBootAlreadyComplete" xml:space="preserve">
+    <value>First boot TaskList already complete!</value>
+  </data>
+  <data name="FirstBootComplete" xml:space="preserve">
+    <value>First boot TaskLists complete.</value>
+  </data>
+  <data name="FirstBootFailed" xml:space="preserve">
+    <value>Unable to complete first boot TaskLists!</value>
+  </data>
+  <data name="FirstBootRunningTaskList" xml:space="preserve">
+    <value>Running first boot TaskList {0}...</value>
+  </data>
+  <data name="FirstBootWaiting" xml:space="preserve">
+    <value>Waiting for first boot TaskLists to complete... (Mark tests as BackgroundTasks if you do not expect them to ever exit.)</value>
+  </data>
+  <data name="ServiceProcessExitedWithError" xml:space="preserve">
+    <value>{0} exited with {1}!</value>
+  </data>
+  <data name="ServiceProcessStartFailed" xml:space="preserve">
+    <value>{0} never started!</value>
+  </data>
+  <data name="ServiceProcessTimedOut" xml:space="preserve">
+    <value>{0} did not exit before {1}ms!</value>
   </data>
 </root>
