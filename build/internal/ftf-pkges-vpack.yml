@@ -21,6 +21,12 @@ trigger:
     include:
     - OSBuild*
 
+variables:
+  ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'master')) }}:
+    VPACKNAME: ''
+  ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'master'))) }}:
+    VPACKNAME: '.$(Build.SourceBranchName)'
+
 # NOTES FOR PEOPLE USING THIS BUILD DEFINITION
 # XES_DfsMsBuildLogDir, XES_OUTDIR, and TFS_BUILDNUMBER are defined by PackageES build agents. If you are using this definition on another pool, you'll need to define these variables for yourself
 #Your build pipeline references the ‘BuildPlatform’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
@@ -39,7 +45,22 @@ steps:
 # Fully qualified name for the NugetCommand@2 task
 - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
   displayName: 'NuGet restore **/*.sln'
-  
+
+- powershell: |
+    if ($VPACKNAME -eq "") {
+      Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
+      Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
+    }
+    else {
+      Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:TFS_PACKAGEVERSIONNUMBER"
+    Write-Output "Using $env:TFS_PACKAGEVERSIONNUMBER as VPack version"
+    }
+  displayName: 'Set VPack version'
+
+- bash: |
+    env | sort
+  displayName: "Print all variables"
+
 - task: VSBuild@1
   displayName: 'Build solution Any CPU'
   inputs:
@@ -232,8 +253,9 @@ steps:
   displayName: 'PkgES Create VPack msixbundle'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\msixbundle'
-    pushPkgName: 'FactoryOrchestrator.msixbundle.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.msixbundle.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.msixbundle$(VPACKNAME)'
+    description: 'FactoryOrchestrator.msixbundle$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), and(ne(variables['skipmsix'], 'true'), ne(variables['skipvpack'], 'true'))))
   enabled: true
 
@@ -251,8 +273,9 @@ steps:
   displayName: 'PkgES Create VPack ARM'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.ARM.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.Service.ARM.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.Service.ARM$(VPACKNAME)'
+    description: 'FactoryOrchestrator.Service.ARM$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -270,8 +293,9 @@ steps:
   displayName: 'PkgES Create VPack ARM64'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.ARM64.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.Service.ARM64.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.Service.ARM64$(VPACKNAME)'
+    description: 'FactoryOrchestrator.Service.ARM64$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -289,8 +313,9 @@ steps:
   displayName: 'PkgES Create VPack x86'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\x86\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.x86.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.Service.x86.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.Service.x86$(VPACKNAME)'
+    description: 'FactoryOrchestrator.Service.x86$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -308,8 +333,9 @@ steps:
   displayName: 'PkgES Create VPack x64'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\x64\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.x64.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.Service.x64.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.Service.x64$(VPACKNAME)'
+    description: 'FactoryOrchestrator.Service.x64$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -357,8 +383,9 @@ steps:
   displayName: 'PkgES Create VPack Client Libraries'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\ClientLibraries'
-    pushPkgName: 'FactoryOrchestrator.ClientLibraries.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.ClientLibraries.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
+    description: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -396,8 +423,9 @@ steps:
   displayName: 'PkgES Create VPack Client Sample'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\ClientSampleWSK'
-    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK.$(Build.SourceBranchName)'
-    description: 'FactoryOrchestrator.ClientSampleWSK.$(Build.SourceBranchName)'
+    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
+    description: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -465,7 +493,7 @@ steps:
     configPath: 'build/internal/GitCheckin.json'
     binVersion: Custom
     binVersionOverride: 'Production'
-  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), and(ne(variables['skipvpack'], 'true'), eq(variables['Build.SourceBranchName'], 'master'))))
+  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), and(ne(variables['skipvpack'], 'true'), eq(variables['VPACKNAME'], ''))))
   enabled: true
 
 - task: PkgESLateTasks@10
