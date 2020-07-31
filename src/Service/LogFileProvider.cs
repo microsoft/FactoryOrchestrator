@@ -2,9 +2,8 @@
 // Licensed under the MIT license.
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.FactoryOrchestrator.Core;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -35,7 +34,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     catch (Exception)
                     {
-                        Console.Error.WriteLine($"Could not create log file at {_logPath}");
+                        Console.Error.WriteLine(string.Format(Resources.LogFileCreationFailed));
                     }
                 }
             }

@@ -5,6 +5,7 @@ using Microsoft.FactoryOrchestrator.Client;
 using System;
 using System.Diagnostics;
 using System.IO;
+using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -23,6 +24,59 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public FileTransferPage()
         {
             this.InitializeComponent();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (Client.IsLocalHost)
+            {
+                ContainerCheckBox.IsChecked = true;
+                ContainerCheckBox.IsEnabled = false;
+            }
+            else if (((App)Application.Current).IsContainerRunning)
+            {
+                ContainerCheckBox.IsChecked = false;
+            }
+            else
+            {
+                ContainerCheckBox.IsChecked = false;
+                ContainerCheckBox.IsEnabled = false;
+            }
+
+            ((App)Application.Current).PropertyChanged += FileTransferPage_AppPropertyChanged;
+        }
+
+        private async void FileTransferPage_AppPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("IsContainerRunning", StringComparison.Ordinal))
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    if (((App)Application.Current).IsContainerRunning)
+                    {
+                        ContainerCheckBox.IsEnabled = true;
+                    }
+                    else
+                    {
+                        ContainerCheckBox.IsChecked = false;
+                        ContainerCheckBox.IsEnabled = false;
+
+                        if (Client.IsLocalHost && this.Frame.CanGoBack)
+                        {
+                            ContentDialog errorDialog = new ContentDialog
+                            {
+                                Title = resourceLoader.GetString("NoContainerTitle"),
+                                Content = resourceLoader.GetString("NoContainerContent"),
+                                CloseButtonText = resourceLoader.GetString("Ok")
+                            };
+
+                            await errorDialog.ShowAsync();
+
+                            this.Frame.GoBack();
+                        }
+                    }
+                });
+            }
         }
 
         private void GetServerFileButton_Click(object sender, RoutedEventArgs e)
@@ -105,22 +159,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (isFile)
                     {
-                        await Client.SendFileToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text);
+                        await Client.SendFileToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                     else
                     {
-                        await Client.SendDirectoryToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text);
+                        await Client.SendDirectoryToDevice(ClientFileTextBox.Text, ServerFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                 }
                 else
                 {
                     try
                     {
-                        await Client.GetFileFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text);
+                        await Client.GetFileFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                     catch (FileNotFoundException)
                     {                        
-                        await Client.GetDirectoryFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text);
+                        await Client.GetDirectoryFromDevice(ServerFileTextBox.Text, ClientFileTextBox.Text, (bool)ContainerCheckBox.IsChecked);
                     }
                 }
 
@@ -154,7 +208,26 @@ namespace Microsoft.FactoryOrchestrator.UWP
             TranferRing.IsActive = false;
         }
 
+        private void ContainerCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)ContainerCheckBox.IsChecked)
+            {
+                ServerText.Text = resourceLoader.GetString("ServerTextContainer/Text");
+                GetText.Text = resourceLoader.GetString("GetTextContainer/Text");
+                HeaderGet.Text = resourceLoader.GetString("HeaderGetContainer/Text");
+                HeaderSend.Text = resourceLoader.GetString("HeaderSendContainer/Text");
+            }
+            else
+            {
+                ServerText.Text = resourceLoader.GetString("ServerText/Text");
+                GetText.Text = resourceLoader.GetString("GetText/Text");
+                HeaderGet.Text = resourceLoader.GetString("HeaderGet/Text");
+                HeaderSend.Text = resourceLoader.GetString("HeaderSend/Text");
+            }
+        }
+
         private bool sending;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

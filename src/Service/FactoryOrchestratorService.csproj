@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
     <ProjectReference Include="..\oss\ipcframework\IpcServiceFramework.Server\IpcServiceFramework.Server.csproj" />
     <ProjectReference Include="..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
@@ -40,10 +41,10 @@
     </None>
   </ItemGroup>
 
-  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true'">
+  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
-  <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' != 'true'">
+  <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' != 'true' And '$(Configuration)' == 'Debug'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
   </Target>
 

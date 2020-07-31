@@ -23,7 +23,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -44,7 +44,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -66,7 +66,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -88,7 +88,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -109,7 +109,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -130,7 +130,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -151,7 +151,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -172,7 +172,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -194,7 +194,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -217,7 +217,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -238,7 +238,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -259,12 +259,33 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
                 return await _IpcClient.InvokeAsync<List<Tuple<string, string>>>(CreateIpcRequest("GetIpAddressesAndNicNames"));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of IP addresses for the container. These IPs are internal, they cannot be accessed outside of the host.
+        /// </summary>
+        /// <returns>A list of IP addresses for the container.</returns>
+        public async Task<List<string>> GetContainerIpAddresses()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("GetContainerIpAddresses"));
             }
             catch (Exception ex)
             {
@@ -280,12 +301,35 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
                 return await _IpcClient.InvokeAsync<bool>(CreateIpcRequest("IsExecutingBootTasks"));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the connected device has a container present and running.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if container is present and running; otherwise, <c>false</c>.
+        /// </returns>
+        public async Task<bool> IsContainerRunning()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync<bool>(CreateIpcRequest("IsContainerRunning"));
             }
             catch (Exception ex)
             {
@@ -301,7 +345,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -324,7 +368,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -346,7 +390,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -369,7 +413,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -391,7 +435,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -413,7 +457,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -434,7 +478,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -455,7 +499,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -477,7 +521,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -499,7 +543,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -521,7 +565,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -542,7 +586,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -564,7 +608,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -585,7 +629,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -609,7 +653,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -630,7 +674,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -651,7 +695,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -674,7 +718,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -694,7 +738,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -715,7 +759,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -736,7 +780,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -755,17 +799,18 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="exeFilePath">Full path to the .exe file</param>
         /// <param name="arguments">Arguments to pass to the .exe</param>
         /// <param name="logFilePath">Optional log file to save the console output to.</param>
+        /// <param name="runInContainer">If true, run the executable in the container of the connected device.</param>
         /// <returns>The TaskRun associated with the .exe</returns>
-        public async Task<TaskRun> RunExecutable(string exeFilePath, string arguments, string logFilePath = null)
+        public async Task<TaskRun> RunExecutable(string exeFilePath, string arguments, string logFilePath = null, bool runInContainer = false)
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
-                return await _IpcClient.InvokeAsync<TaskRun>(CreateIpcRequest("RunExecutable", exeFilePath, arguments, logFilePath ));
+                return await _IpcClient.InvokeAsync<TaskRun>(CreateIpcRequest("RunExecutable", exeFilePath, arguments, logFilePath , runInContainer ));
             }
             catch (Exception ex)
             {
@@ -782,7 +827,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -804,7 +849,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -826,7 +871,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -848,7 +893,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -870,7 +915,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -889,17 +934,18 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="sourceFilename">The path to the file to retrieve.</param>
         /// <param name="offset">If -1, read the whole file. Otherwise the starting byte to read the file from.</param>
         /// <param name="count">If offset is -1 this is ignored. Otherwise, the number of bytes to read from the file.</param>
+        /// <param name="getFromContainer">If true, get the file from the container running on the connected device.</param>
         /// <returns>The bytes in the file.</returns>
-        public async Task<byte[]> GetFile(string sourceFilename, long offset = -1, int count = 0)
+        public async Task<byte[]> GetFile(string sourceFilename, long offset = -1, int count = 0, bool getFromContainer = false)
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
-                return await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", sourceFilename, offset , count ));
+                return await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", sourceFilename, offset , count , getFromContainer ));
             }
             catch (Exception ex)
             {
@@ -913,17 +959,18 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
         /// <param name="appendFile">If true, the file is appended to instead of overwritten.</param>
+        /// <param name="sendToContainer">If true, send the file to the container running on the connected device.</param>
         /// <returns>true if the file was sucessfully created.</returns>
-        public async Task SendFile(string targetFilename, byte[] fileData, bool appendFile = false)
+        public async Task SendFile(string targetFilename, byte[] fileData, bool appendFile = false, bool sendToContainer = false)
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", targetFilename, fileData, appendFile ));
+                 await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", targetFilename, fileData, appendFile , sendToContainer ));
             }
             catch (Exception ex)
             {
@@ -935,16 +982,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Permanently deletes a file or folder. If a folder, all contents are deleted.
         /// </summary>
         /// <param name="path">File or folder to delete</param>
-        public async Task DeleteFileOrFolder(string path)
+        /// <param name="deleteInContainer">If true, delete the file from the container running on the connected device.</param>
+        public async Task DeleteFileOrFolder(string path, bool deleteInContainer = false)
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("DeleteFileOrFolder", path));
+                 await _IpcClient.InvokeAsync(CreateIpcRequest("DeleteFileOrFolder", path, deleteInContainer ));
             }
             catch (Exception ex)
             {
@@ -957,16 +1005,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="sourcePath">File or folder to move</param>
         /// <param name="destinationPath">Destination path</param>
-        public async Task MoveFileOrFolder(string sourcePath, string destinationPath)
+        /// <param name="moveInContainer">If true, move the file from the container running on the connected device.</param>
+        public async Task MoveFileOrFolder(string sourcePath, string destinationPath, bool moveInContainer = false)
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("MoveFileOrFolder", sourcePath, destinationPath));
+                 await _IpcClient.InvokeAsync(CreateIpcRequest("MoveFileOrFolder", sourcePath, destinationPath, moveInContainer ));
             }
             catch (Exception ex)
             {
@@ -984,7 +1033,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -1007,7 +1056,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try

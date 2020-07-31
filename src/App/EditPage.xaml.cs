@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using Windows.ApplicationModel.Resources;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -45,7 +46,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             else
             {
                 isNewList = true;
-                activeList = new TaskList("New TaskList", Guid.NewGuid());
+                var guid = Guid.NewGuid();
+                activeList = new TaskList(guid.ToString(), guid);
             }
 
             try
@@ -89,8 +91,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void UpdateHeader()
         {
-            TaskListHeader.Text = $"Editing TaskList: {activeList.Name}";
-            TaskListHeader2.Text = $"({activeList.Guid.ToString()})";
+            TaskListHeader.Text = resourceLoader.GetString("EditingTaskList") + $": {activeList.Name}";
         }
 
         private async void Back_Click(object sender, RoutedEventArgs e)
@@ -106,11 +107,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     ContentDialog deleteFileDialog = new ContentDialog
                     {
-                        Title = "Save TaskList?",
-                        Content = "Do you want to save your changes?",
-                        PrimaryButtonText = "Yes",
-                        SecondaryButtonText = "No",
-                        CloseButtonText = "Cancel"
+                        
+                        Title = resourceLoader.GetString("SaveTaskListTitle"),
+                        Content = resourceLoader.GetString("SaveTaskListContent"),
+                        PrimaryButtonText = resourceLoader.GetString("Yes"),
+                        SecondaryButtonText = resourceLoader.GetString("No"),
+                        CloseButtonText = resourceLoader.GetString("Cancel")
                     };
 
                     ContentDialogResult result = await deleteFileDialog.ShowAsync();
@@ -287,6 +289,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             activeTask.AbortTaskListOnFailed = (bool)AbortOnFailBox.IsChecked;
+            activeTask.RunInContainer = (bool)ContainerBox.IsChecked;
 
             return activeTask;
         }
@@ -355,6 +358,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TestNameBox.Text = activeTask.Name;
                 TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
                 RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
+                ContainerBox.IsChecked = activeTask.RunInContainer;
                 AbortOnFailBox.IsChecked = activeTask.AbortTaskListOnFailed;
 
                 switch (testType)
@@ -363,7 +367,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         var exeTest = activeTask as ExecutableTask;
                         TaskPathBox.Text = exeTest.Path;
                         ArgumentsBox.Text = exeTest.Arguments;
-                        EditFlyoutTextHeader.Text = $"Editing Executable Task";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingExe");
+                        resourceLoader.GetString("Path");
                         BgTaskBox.IsChecked = exeTest.BackgroundTask;
                         break;
                     case TaskType.UWP:
@@ -396,38 +401,38 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         // Disable Terminate box if needed
                         AutoPassCheck_Click(null, null);
 
-                        EditFlyoutTextHeader.Text = $"Editing UWP Task";
-                        PathBlock.Text = "Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingUWP");
+                        resourceLoader.GetString("AUMID");
                         break;
                     case TaskType.External:
                         var externalTest = activeTask as ExternalTask;
                         TaskPathBox.Text = externalTest.Path;
                         ArgumentsBox.Text = externalTest.Arguments;
-                        PathBlock.Text = "Image or Video Path: ";
-                        EditFlyoutTextHeader.Text = $"Editing External Task";
+                        PathBlock.Text = resourceLoader.GetString("EditFlyoutImagePath");
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingExternal");
                         break;
                     case TaskType.TAEFDll:
                         var taefTest = activeTask as TAEFTest;
                         TaskPathBox.Text = taefTest.Path;
                         ArgumentsBox.Text = taefTest.Arguments;
-                        EditFlyoutTextHeader.Text = $"Editing TAEF Test";
-                        PathBlock.Text = "Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingTAEF");
+                        resourceLoader.GetString("Path");
                         break;
                     case TaskType.PowerShell:
                         var script = activeTask as PowerShellTask;
                         TaskPathBox.Text = script.Path;
                         ArgumentsBox.Text = script.Arguments;
-                        EditFlyoutTextHeader.Text = $"Editing PowerShell Task";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingPS");
                         BgTaskBox.IsChecked = script.BackgroundTask;
-                        PathBlock.Text = "Path: ";
+                        resourceLoader.GetString("Path");
                         break;
                     case TaskType.BatchFile:
                         var cmd = activeTask as BatchFileTask;
                         TaskPathBox.Text = cmd.Path;
                         ArgumentsBox.Text = cmd.Arguments;
-                        EditFlyoutTextHeader.Text = $"Editing Batch File Task";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingCMD");
                         BgTaskBox.IsChecked = cmd.BackgroundTask;
-                        PathBlock.Text = "Path: ";
+                        resourceLoader.GetString("Path");
                         break;
                 }
             }
@@ -436,32 +441,32 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 switch (testType)
                 {
                     case TaskType.ConsoleExe:
-                        EditFlyoutTextHeader.Text = $"New Executable Task";
-                        PathBlock.Text = "Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewExecutableButton/Content");
+                        resourceLoader.GetString("Path");
                         break;
                     case TaskType.UWP:
-                        EditFlyoutTextHeader.Text = $"New UWP Task";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewUWPButton/Content");
                         AutoPassCheck.IsChecked = false;
                         TerminateOnCompleteCheck.IsChecked = true;
                         // Enable Terminate box if needed
                         AutoPassCheck_Click(null, null);
-                        PathBlock.Text = "Path: ";
+                        resourceLoader.GetString("AUMID");
                         break;
                     case TaskType.External:
-                        EditFlyoutTextHeader.Text = $"New External Task";
-                        PathBlock.Text = "Image or Video Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewExternalButton/Content");
+                        PathBlock.Text = resourceLoader.GetString("EditFlyoutImagePath");
                         break;
                     case TaskType.TAEFDll:
-                        EditFlyoutTextHeader.Text = $"New TAEF Test";
-                        PathBlock.Text = "Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewTAEFButton/Content");
+                        resourceLoader.GetString("Path");
                         break;
                     case TaskType.PowerShell:
-                        EditFlyoutTextHeader.Text = $"New PowerShell Task";
-                        PathBlock.Text = "Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewPSButton/Content");
+                        resourceLoader.GetString("Path");
                         break;
                     case TaskType.BatchFile:
-                        EditFlyoutTextHeader.Text = $"New Batch Task";
-                        PathBlock.Text = "Path: ";
+                        EditFlyoutTextHeader.Text = resourceLoader.GetString("NewCMDButton/Content");
+                        resourceLoader.GetString("Path");
                         break;
                 }
 
@@ -482,7 +487,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Visible;
                     AppComboBox.Visibility = Visibility.Collapsed;
                     AppBlock.Visibility = Visibility.Collapsed;
-                    ArgumentsBlock.Text = "Arguments:";
+                    resourceLoader.GetString("ArgumentsBlock/Text");
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Visible;
@@ -495,7 +500,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Visible;
                     AppComboBox.Visibility = Visibility.Collapsed;
                     AppBlock.Visibility = Visibility.Collapsed;
-                    ArgumentsBlock.Text = "Arguments:";
+                    resourceLoader.GetString("ArgumentsBlock/Text");
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Collapsed;
@@ -507,7 +512,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     TaskPathBox.Visibility = Visibility.Collapsed;
                     AppComboBox.Visibility = Visibility.Visible;
                     AppBlock.Visibility = Visibility.Visible;
-                    ArgumentsBlock.Text = "Arguments (NOT passed to app, reference only):";
+                    resourceLoader.GetString("UWPArguments");
                     ArgumentsBlock.Visibility = Visibility.Visible;
                     ArgumentsBox.Visibility = Visibility.Visible;
                     BgTaskBox.Visibility = Visibility.Collapsed;
@@ -659,9 +664,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     ContentDialog failedSaveDialog = new ContentDialog
                     {
-                        Title = "Failed to save TaskList",
+                        Title = resourceLoader.GetString("TaskListSaveFailed"),
                         Content = ex.Message,
-                        CloseButtonText = "Ok"
+                        CloseButtonText = resourceLoader.GetString("Ok")
                     };
 
                     ContentDialogResult result = await failedSaveDialog.ShowAsync();
@@ -702,9 +707,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 ContentDialog failedEdit = new ContentDialog
                 {
-                    Title = "Name must not be empty!",
-                    Content = "The TaskList name must not be empty!",
-                    CloseButtonText = "Ok"
+                    Title = resourceLoader.GetString("TaskListInvalidNameTitle"),
+                    Content = resourceLoader.GetString("TaskListInvalidNameContent"),
+                    CloseButtonText = resourceLoader.GetString("Ok")
                 };
                 RenameBox.Text = activeList.Name;
 
@@ -734,5 +739,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool isNewList;
         private bool listEdited;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

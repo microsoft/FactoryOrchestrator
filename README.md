@@ -4,21 +4,22 @@
 
 # Introduction 
 Factory Orchestrator is a tool for built for Original Equipment Maufacturers to aid in the manufacturing of Windows devices.
-Factory Orchestrator consists of the following projects
-## 1. FactoryOrchestratorCoreLibrary 
+Factory Orchestrator consists of the following projects:
+## FactoryOrchestratorCoreLibrary 
 .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
-## 2.	FactoryOrchestratorServerLibrary
+## FactoryOrchestratorServerLibrary
 A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects.
-## 3.	FactoryOrchestratorClientLibrary 
-.NET Standard library containing the client-side FactoryOrchestrator classes. Has helper classes which are optional for all FactoryOrchestrator client projects.
-## 4.	FactoryOrchestratorService 
-.NET Core Executable project for FactoryOrchestratorService.exe, the FactoryOrchestrator server implementation.
-## 5.	FactoryOrchestratorApp 
-.NET UWP app project for FactoryOrchestratorApp.exe, the UWP used to communicate with FactoryOrchestratorService and run UI tests.
-## Open Source Component
+## FactoryOrchestratorService 
+.NET Core Executable project for FactoryOrchestratorService.exe, the FactoryOrchestrator server implementation. Requires administrator access to run.
+## FactoryOrchestratorClientLibrary 
+.NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with FactoryOrchestratorService. Also contains optional helper classess.
+## FactoryOrchestratorApp 
+C# UWP app project for FactoryOrchestratorApp.exe, the UWP used to manually interact with FactoryOrchestratorService via GUI.
+## Open Source Components
 ### IpcServiceFramework
-https://github.com/jacqueskang/IpcServiceFramework
-FactoryOrchestrator forks the source of IpcServiceFramework. At this time, we are actively working on integrating our version of IpcServiceFramework the official IpcServiceFramework repo, removing the need for this fork.
+FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). At this time, we are actively working on integrating our version of IpcServiceFramework with the [official IpcServiceFramework repo](https://github.com/jacqueskang/IpcServiceFramework), removing the need for this fork.
+### Pe-Utility
+FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utility), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
 
 # Contributing
 
@@ -37,9 +38,9 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## 2. Prerequisite steps
 ### Install Visual Studio 
-Any variation of Visual Studio (Enterprise, Community) is fine. 
-https://visualstudio.microsoft.com/vs/
-In the installer, make sure you click the checkboxes for .NET Dekstop Development, and Universal Windows Platform Development. 
+Any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/) is fine. In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.17763.0). 
+
+Other development environments such as [Visual Studio Code](https://code.visualstudio.com/) are acceptible if you are not making FactoryOrchestratorApp changes.
 
 ### Clone the repository
 
@@ -53,19 +54,45 @@ FactoryOrchestrator contains a series of unsigned powershell scripts. Windows se
 More information on how to do this can be found here: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7
 
 #### Set the Execution Policy to Unrestricted
-This method is not recommended, but is doable. Setting the Execution Policy to Unresricted allows any powershell script to run. 
+This method is not recommended. Setting the Execution Policy to Unresricted allows any powershell script to run. 
 Documentation on Execution Policy:
 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7
 
-## 3. When Developing
-Run _FactoryOrchestratorApp (Universal Windows)_ and _FactoryOrchestratorService_ in separate Visual Studio App instances. This will allow the app and the service to communicate with each other. 
-Even if you are coding for just the app, you need to run the service so the app has something to connect to.
+## 3. Building
+When building the source code, keep in mind that certain actions only occur when the build is run as part of an Azure DevOps Pipeline or when run in the "Release" configuration locally. For example, [DocFX documentation](https://dotnet.github.io/docfx/) for the Core and Client Libraries is only generated when the build is run in in one of those two modes. These actions are skipped in Debug builds to increase inner-dev-loop speed.
 
-At the moment, running either piece will cause exceptions to be thrown. This is because they try to access resources specific to FactoryOS (FactoryOrchestrator's intended OS). You can routinely skip over these exceptions or disable them. 
+## 4. Debugging
+Run _FactoryOrchestratorApp (Universal Windows)_ and _FactoryOrchestratorService_ in separate Visual Studio 2019+ instances. This will allow the app and the service to communicate with each other. 
+Even if you are coding for just the app, you generally need to run the service so the app has something to connect to. The service must be run as administrator.
+
+At the moment, running either the app or service under a debugger will cause exceptions to be thrown related to certain registry keys (ex: GetOEMVersionString()), but all exceptions are caught and will not result in a crash. This is because they try to access registry keys specific to a Microsoft internal product. You can routinely skip over these exceptions when they occur or disable them.
+
+## 5. Versioning
+Factory Orchestrator uses a slightly modified form of [semver versioning](https://semver.org/). All Factory Orchestrator binaries from the same build share the same version; there is no unique client or service version. In the [src/custom.props](src/custom.props) file, increment the:
+
+- MAJOR version when you make incompatible API changes,
+- MINOR version when you add functionality in a backwards compatible manner.
+
+The PATCH version is automatically set by the build, and is based on the [date/time the build is run](build/SetSourceVersion.ps1). The PATCH version is only changed when the build is run as part of an Azure Pipeline or when run in the "Release" configuration locally.
+
+When the MAJOR version diverges between a Client and Service, Clients will be prevented from connecting to the Service by default. Changing the signiture of any FactoryOrchestratorCoreLibrary class is therefore usually a MAJOR version change and should be done sparingly.
+
 
 Happy Coding!
 
-# Open Source Software We Use
-IpcServiceFramework - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
-DotNetCore.WindowsService - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
+# Reporting Security Issues
+Please refer to [SECURITY.md](./SECURITY.md).
 
+# License
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the [MIT License](./LICENSE).
+
+# Open Source Software Acknowledgments
+[IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework) - Jacques Kang - [MIT License](https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE)
+
+[DotNetCore.WindowsService](https://github.com/PeterKottas/DotNetCore.WindowsService) - Peter Kottas - [MIT License](https://github.com/PeterKottas/DotNetCore.WindowsService/blob/master/LICENSE)
+
+[Pe-Utility](https://github.com/AndresTraks/pe-utility) - Andres Traks - [MIT License](https://github.com/AndresTraks/pe-utility/blob/master/LICENSE)
+
+[WindowsDevicePortalWrapper (mgurlitz .NET Standard fork)](https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard) - Microsoft Corporation and mgurlitz - [MIT License](https://github.com/mgurlitz/WindowsDevicePortalWrapper/blob/feat-standard/License.txt)

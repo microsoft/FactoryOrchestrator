@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -57,9 +58,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 ContentDialog failedAppsDialog = new ContentDialog
                 {
-                    Title = "Failed to launch Windows Device Portal",
-                    Content = "Make sure Windows Device Portal is running and try again.",
-                    CloseButtonText = "Ok"
+                    Title = resourceLoader.GetString("WDPFailedTitle"),
+                    Content = resourceLoader.GetString("WDPFailedContent"),
+                    CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
                 ContentDialogResult result = await failedAppsDialog.ShowAsync();
@@ -68,6 +69,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
         
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
- 
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

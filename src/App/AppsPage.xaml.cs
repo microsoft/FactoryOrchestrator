@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Resources;
 using Windows.Management.Deployment;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -38,9 +39,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 ContentDialog failedAppsDialog = new ContentDialog
                 {
-                    Title = "Failed to query apps",
+                    Title = resourceLoader.GetString("FailedAppsQuery"),
                     Content = ex.Message,
-                    CloseButtonText = "Ok"
+                    CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
                 ContentDialogResult result = await failedAppsDialog.ShowAsync();
@@ -56,5 +57,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         public List<string> PackageStrings { get; private set; }
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

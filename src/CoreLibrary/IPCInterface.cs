@@ -5,9 +5,13 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
+    /// <summary>
+    /// Class for any cross-project constants.
+    /// </summary>
     public static class Constants
     {
         /// <summary>
@@ -21,20 +25,18 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// </summary>
     public enum ServiceEventType
     {
-        //NewTaskList = 0,
-        //UpdatedTaskList = 1,
-        //DeletedTaskList = 2,
-        //TaskListStarted = 3,
-        //TaskListFinished = 4,
         /// <summary>
         /// External TaskRun is completed.
         /// </summary>
-        DoneWaitingForExternalTaskRun = 5,
+        DoneWaitingForExternalTaskRun,
         /// <summary>
         /// External TaskRun is waiting on an external action.
         /// </summary>
-        WaitingForExternalTaskRun = 6,
-        //ServiceReset = 7,
+        WaitingForExternalTaskRun,
+        /// <summary>
+        /// TaskRun is waiting to be run by the container.
+        /// </summary>
+        WaitingForContainerTaskRun,
         /// <summary>
         /// The Factory Orchestrator Serivce threw an exception.
         /// </summary>
@@ -50,7 +52,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// An unknown Factory Orchestrator Serivce event occurred.
         /// </summary>
-        Unknown
+        Unknown = int.MaxValue
     }
 
     /// <summary>
@@ -224,10 +226,23 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns>A list of IP addresses and the Network Adapter each IP address belongs to.</returns>
         List<Tuple<string, string>> GetIpAddressesAndNicNames();
         /// <summary>
+        /// Gets a list of IP addresses for the container. These IPs are internal, they cannot be accessed outside of the host.
+        /// </summary>
+        /// <returns>A list of IP addresses for the container.</returns>
+        List<string> GetContainerIpAddresses();
+        /// <summary>
         /// Checks if the service is executing boot tasks. While executing boot tasks, many commands cannot be run.
         /// </summary>
         /// <returns><c>true</c> is the service is executing boot tasks.</returns>
         bool IsExecutingBootTasks();
+
+        /// <summary>
+        /// Determines whether the connected device has a container present and running.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if container is present and running; otherwise, <c>false</c>.
+        /// </returns>
+        bool IsContainerRunning();
 
         /// <summary>
         /// Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.
@@ -365,8 +380,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="exeFilePath">Full path to the .exe file</param>
         /// <param name="arguments">Arguments to pass to the .exe</param>
         /// <param name="logFilePath">Optional log file to save the console output to.</param>
+        /// <param name="runInContainer">If true, run the executable in the container of the connected device.</param>
         /// <returns>The TaskRun associated with the .exe</returns>
-        TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null);
+        TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null, bool runInContainer = false);
         /// <summary>
         /// Runs a UWP app outside of a Task/TaskList. Requires Windows Device Portal.
         /// </summary>
@@ -407,27 +423,31 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="sourceFilename">The path to the file to retrieve.</param>
         /// <param name="offset">If -1, read the whole file. Otherwise the starting byte to read the file from.</param>
         /// <param name="count">If offset is -1 this is ignored. Otherwise, the number of bytes to read from the file.</param>
+        /// <param name="getFromContainer">If true, get the file from the container running on the connected device.</param>
         /// <returns>The bytes in the file.</returns>
-        byte[] GetFile(string sourceFilename, long offset = -1, int count = 0);
+        byte[] GetFile(string sourceFilename, long offset = -1, int count = 0, bool getFromContainer = false);
         /// <summary>
         /// Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToDevice instead.
         /// </summary>
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
         /// <param name="appendFile">If true, the file is appended to instead of overwritten.</param>
+        /// <param name="sendToContainer">If true, send the file to the container running on the connected device.</param>
         /// <returns>true if the file was sucessfully created.</returns>
-        void SendFile(string targetFilename, byte[] fileData, bool appendFile = false);
+        void SendFile(string targetFilename, byte[] fileData, bool appendFile = false, bool sendToContainer = false);
         /// <summary>
         /// Permanently deletes a file or folder. If a folder, all contents are deleted.
         /// </summary>
         /// <param name="path">File or folder to delete</param>
-        void DeleteFileOrFolder(string path);
+        /// <param name="deleteInContainer">If true, delete the file from the container running on the connected device.</param>
+        void DeleteFileOrFolder(string path, bool deleteInContainer = false);
         /// <summary>
         /// Moves a file or folder to a new location.
         /// </summary>
         /// <param name="sourcePath">File or folder to move</param>
         /// <param name="destinationPath">Destination path</param>
-        void MoveFileOrFolder(string sourcePath, string destinationPath);
+        /// <param name="moveInContainer">If true, move the file from the container running on the connected device.</param>
+        void MoveFileOrFolder(string sourcePath, string destinationPath, bool moveInContainer = false);
         /// <summary>
         /// Returns a list of all directories in a given folder.
         /// </summary>

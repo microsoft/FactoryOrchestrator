@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -101,7 +102,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
                 {
                     // Set task status to not run
-                    OverallTestResult.Text = "❔ Not Run";
+                    OverallTaskResult.Text = "❔ Not Run";
                 }
             }
             else if (_test.TaskRunGuids.Count == 0)
@@ -220,7 +221,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void CreateHeader()
         {
-            TestHeader.Text = _test.Name;
+            TaskHeader.Text = _test.Name;
             TaskGuid.Text = _test.Guid.ToString();
             
             if (_test.Path != null)
@@ -248,28 +249,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
             switch (_selectedRun.TaskStatus)
             {
                 case TaskStatus.Passed:
-                    OverallTestResult.Text = "✔ Passed";
+                    OverallTaskResult.Text = resourceLoader.GetString("Passed");
                     break;
                 case TaskStatus.Failed:
-                    OverallTestResult.Text = "❌ Failed";
+                    OverallTaskResult.Text = resourceLoader.GetString("Failed");
                     break;
                 case TaskStatus.Running:
-                    OverallTestResult.Text = "▶ Running";
+                    OverallTaskResult.Text = resourceLoader.GetString("Running");
                     break;
                 case TaskStatus.NotRun:
-                    OverallTestResult.Text = "❔ Not Run";
+                    OverallTaskResult.Text = resourceLoader.GetString("NotRun");
                     break;
                 case TaskStatus.Aborted:
-                    OverallTestResult.Text = "⛔ Aborted";
+                    OverallTaskResult.Text = resourceLoader.GetString("Aborted");
                     break;
                 case TaskStatus.Timeout:
-                    OverallTestResult.Text = "⏱ Timed-out";
+                    OverallTaskResult.Text = resourceLoader.GetString("TimedOut");
                     break;
                 case TaskStatus.RunPending:
-                    OverallTestResult.Text = "❔ Run Pending";
+                    OverallTaskResult.Text = resourceLoader.GetString("RunPending");
                     break;
                 default:
-                    OverallTestResult.Text = "❔ Unknown";
+                    OverallTaskResult.Text = resourceLoader.GetString("Unknown");
                     break;
             }
 
@@ -329,7 +330,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (_selectedRun.TaskOutput[i] != null)
                 {
-                    if (errorBlock && _selectedRun.TaskOutput[i].StartsWith("ERROR: "))
+                    if (errorBlock && _selectedRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCultureIgnoreCase))
                     {
                         // Append error text
                         text += _selectedRun.TaskOutput[i];
@@ -344,7 +345,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         text = _selectedRun.TaskOutput[i];
                         errorBlock = false;
                     }
-                    else if (!errorBlock && _selectedRun.TaskOutput[i].StartsWith("ERROR: "))
+                    else if (!errorBlock && _selectedRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCultureIgnoreCase))
                     {
                         // Done with normal text, write out the normal text and start again
                         var tupl = (text, false);
@@ -542,7 +543,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     BackButton.Visibility = Visibility.Collapsed;
                     PreviousRunButton.Visibility = Visibility.Collapsed;
                     NextRunButton.Visibility = Visibility.Collapsed;
-                    TestHeader.Visibility = Visibility.Collapsed;
+                    TaskHeader.Visibility = Visibility.Collapsed;
                     _isEmbedded = true;
                 }
                 else
@@ -550,7 +551,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     BackButton.Visibility = Visibility.Visible;
                     PreviousRunButton.Visibility = Visibility.Visible;
                     NextRunButton.Visibility = Visibility.Visible;
-                    TestHeader.Visibility = Visibility.Visible;
+                    TaskHeader.Visibility = Visibility.Visible;
                     _isEmbedded = false;
                 }
             }
@@ -568,5 +569,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool _isEmbedded;
         private bool _isBootTask;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

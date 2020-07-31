@@ -14,6 +14,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.ExtendedExecution;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.Core;
@@ -90,8 +91,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
             rootFrame.CacheSize = 4;
-            // Requires confirmAppClose restricted capability
-            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += App_CloseRequestedAsync;
             return rootFrame;
         }
 
@@ -363,29 +362,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         }
 
-        // Ask the user to confirm before quitting, as on Factory it might not be easy to relaunch the app
-        private async void App_CloseRequestedAsync(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
-        {
-            var deferral = e.GetDeferral();
-
-            ContentDialog exitFlyout = new ContentDialog()
-            {
-                Title = "Exit?",
-                Content = "Exit Factory Orchestrator?",
-                CloseButtonText = "No",
-                PrimaryButtonText = "Yes",
-            };
-
-            var result = await exitFlyout.ShowAsync();
-
-            if (result == ContentDialogResult.None)
-            {
-                e.Handled = true;
-            }
-
-            deferral.Complete();
-        }
-
         /// <summary>
         /// Invoked when Navigation to a certain page fails
         /// </summary>
@@ -449,6 +425,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         await HandleServiceEvents();
                         await Task.Delay(1000);
+                    }
+                });
+
+
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        try
+                        {
+                            IsContainerRunning = await Client.IsContainerRunning();
+                        }
+                        catch (FactoryOrchestratorConnectionException)
+                        {
+                            OnConnectionFailure();
+                            while (OnConnectionPage || (!Client.IsConnected))
+                            {
+                                await Task.Delay(1000);
+                            }
+                        }
+
+                        await Task.Delay(10000);
                     }
                 });
             }
@@ -589,6 +587,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// Event raised when the Service is starting and is executing boot tasks.
         /// </summary>
         public event ServiceDoneExecutingBootTasks OnServiceStart;
+
+        /// <summary>
+        /// Event when a Property changes.
+        /// </summary>
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// <c>true</c> if the connected device has a container running; otherwise, <c>false</c>.
+        /// </summary>
+        public bool IsContainerRunning
+        {
+            get => _isContainerRunning;
+            set
+            {
+                if (!Equals(value, _isContainerRunning))
+                {
+                    _isContainerRunning = value;
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs("IsContainerRunning"));
+                }
+            }
+        }
+        private bool _isContainerRunning;
 
         private SemaphoreSlim connectionFailureSem;
         private SemaphoreSlim pollingFailureSem;

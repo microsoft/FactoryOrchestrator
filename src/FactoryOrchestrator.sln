@@ -29,10 +29,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSample\ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pe-Utility", "Pe-Utility", "{765DEB35-1D5D-41E3-854E-7ACEAE86E4A2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pe-Utility", "oss\Pe-Utility\Pe-Utility.csproj", "{049C416B-D3DB-4D9E-88CC-C1157A68CC53}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125C-4D28-B8F5-3A662F2055BC}"
 	ProjectSection(SolutionItems) = preProject
+		oss\cgmanifest.json = oss\cgmanifest.json
 		oss\DotNetCore.WindowsService.txt = oss\DotNetCore.WindowsService.txt
 		oss\IpcServiceFramework.txt = oss\IpcServiceFramework.txt
+		oss\Pe-Utility.txt = oss\Pe-Utility.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A-F7D2-40A1-B311-1416F9CE7A2A}"
@@ -47,25 +53,38 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "internal", "internal", "{A33F40C3-2BAD-406E-86BE-DBE33F12BB29}"
 	ProjectSection(SolutionItems) = preProject
-		build\internal\CreateServiceManifest.ps1 = build\internal\CreateServiceManifest.ps1
-		build\internal\CreateServiceManifestForPkgES.ps1 = build\internal\CreateServiceManifestForPkgES.ps1
-		build\internal\FactoryOrchestratorServiceTemplate.wm.xml = build\internal\FactoryOrchestratorServiceTemplate.wm.xml
-		build\internal\ftf-ci-hosted.yml = build\internal\ftf-ci-hosted.yml
-		build\internal\ftf-pkges-vpack.yml = build\internal\ftf-pkges-vpack.yml
-		build\internal\GitCheckin.json = build\internal\GitCheckin.json
-		build\internal\MakeAppxBundle.cmd = build\internal\MakeAppxBundle.cmd
-		build\internal\UpdateClientSampleForWSK.ps1 = build\internal\UpdateClientSampleForWSK.ps1
+		..\build\internal\CreateServiceManifest.ps1 = ..\build\internal\CreateServiceManifest.ps1
+		..\build\internal\CreateServiceManifestForPkgES.ps1 = ..\build\internal\CreateServiceManifestForPkgES.ps1
+		..\build\internal\FactoryOrchestratorServiceTemplate.wm.xml = ..\build\internal\FactoryOrchestratorServiceTemplate.wm.xml
+		..\build\internal\ftf-ci-hosted.yml = ..\build\internal\ftf-ci-hosted.yml
+		..\build\internal\ftf-pkges-vpack.yml = ..\build\internal\ftf-pkges-vpack.yml
+		..\build\internal\GitCheckin.json = ..\build\internal\GitCheckin.json
+		..\build\internal\MakeAppxBundle.cmd = ..\build\internal\MakeAppxBundle.cmd
+		..\build\internal\UpdateClientSampleForWSK.ps1 = ..\build\internal\UpdateClientSampleForWSK.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{B4F05BFC-A45E-4400-814A-12DA0D6FA3D0}"
 	ProjectSection(SolutionItems) = preProject
-		build\CredScanSuppressions.json = build\CredScanSuppressions.json
-		build\PolicheckExclusions.xml = build\PolicheckExclusions.xml
+		..\build\CredScanSuppressions.json = ..\build\CredScanSuppressions.json
+		..\build\PolicheckExclusions.xml = ..\build\PolicheckExclusions.xml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\templates\template-build-all-arch.yml = ..\build\templates\template-build-all-arch.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{422A5B26-B858-44D2-9E64-DD88B7B0A1F1}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
+		..\LICENSE = ..\LICENSE
+		..\NOTICE.txt = ..\NOTICE.txt
+		..\README.md = ..\README.md
+		..\SECURITY.md = ..\SECURITY.md
+		..\StartAppDebug.cmd = ..\StartAppDebug.cmd
+		..\StartClientSampleDebug.cmd = ..\StartClientSampleDebug.cmd
+		..\StartServiceDebug.cmd = ..\StartServiceDebug.cmd
 	EndProjectSection
 EndProject
 Global
@@ -240,6 +259,22 @@ Global
 		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|ARM.ActiveCfg = Release|Any CPU
 		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|x64.ActiveCfg = Release|Any CPU
 		{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}.Release|x86.ActiveCfg = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|ARM.Build.0 = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|x64.Build.0 = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Debug|x86.Build.0 = Debug|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|ARM.ActiveCfg = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|ARM.Build.0 = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|x64.ActiveCfg = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|x64.Build.0 = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|x86.ActiveCfg = Release|Any CPU
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -251,6 +286,8 @@ Global
 		{85F00E28-CD14-4FAD-BD5A-A78B3AE4F57E} = {BB6182E5-4177-44D4-A7E8-2590D00941AE}
 		{75CE917D-7640-4B7C-A25B-5EBCD14FE21D} = {BB6182E5-4177-44D4-A7E8-2590D00941AE}
 		{EC92FDBB-93C1-4F42-ABF6-B4A5D01DD571} = {BB6182E5-4177-44D4-A7E8-2590D00941AE}
+		{765DEB35-1D5D-41E3-854E-7ACEAE86E4A2} = {AB6C2AD9-125C-4D28-B8F5-3A662F2055BC}
+		{049C416B-D3DB-4D9E-88CC-C1157A68CC53} = {765DEB35-1D5D-41E3-854E-7ACEAE86E4A2}
 		{A33F40C3-2BAD-406E-86BE-DBE33F12BB29} = {492B979A-F7D2-40A1-B311-1416F9CE7A2A}
 		{B4F05BFC-A45E-4400-814A-12DA0D6FA3D0} = {492B979A-F7D2-40A1-B311-1416F9CE7A2A}
 		{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F} = {492B979A-F7D2-40A1-B311-1416F9CE7A2A}

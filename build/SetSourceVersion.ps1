@@ -10,7 +10,7 @@ Param
 
 $ErrorActionPreference = "stop"
 
-Write-Host "Generating AssemblyInfo.cs for $SrcPath"
+Write-Host "Generating AssemblyInfo.cs for $SrcPath (MajorMinorOnly = $MajorMinorOnly)"
 
 
 $buildNumber = $env:TFS_VersionNumber

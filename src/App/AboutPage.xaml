@@ -11,9 +11,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Button x:Name="BackButton" Grid.Row="0" VerticalAlignment="Top" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" Visibility="Collapsed" AutomationProperties.Name="Go Back"/>
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="5">
@@ -24,30 +24,15 @@
             <TextBlock Text="(c) Microsoft Corporation" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
         </StackPanel>
         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Grid.Row="2" Margin="5">
-            <TextBlock Text="Open Source Software" HorizontalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}"/>
+            <TextBlock x:Name="oss" x:Uid="OSSAcknowledgments" HorizontalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}"/>
             <TextBlock Text="IpcServiceFramework - Jacques Kang - MIT License - https://github.com/jacqueskang/IpcServiceFramework" HorizontalAlignment="Left"/>
             <TextBlock Text="DotNetCore.WindowsService - Peter Kottas - MIT License - https://github.com/PeterKottas/DotNetCore.WindowsService" HorizontalAlignment="Left"/>
             <TextBlock Text="WindowsDevicePortalWrapper - Microsoft Corporation and mgurlitz - MIT License - https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard" HorizontalAlignment="Left"/>
+            <TextBlock Text="Pe-Utility - Andres Traks - MIT License - https://github.com/AndresTraks/pe-utility" HorizontalAlignment="Left"/>
         </StackPanel>
-        <StackPanel Orientation="Vertical" Grid.Row="3" Margin="5">
-            <TextBlock Text="MIT License for IpcServiceFramework, DotNetCore.WindowsService, and WindowsDevicePortalWrapper" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
-            <TextBlock Text="Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the Software), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:" TextWrapping="WrapWholeWords" HorizontalAlignment="Left"/>
-            <TextBlock Text="" TextWrapping="WrapWholeWords" HorizontalAlignment="Left"/>
-            <TextBlock Text="The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software." TextWrapping="WrapWholeWords" HorizontalAlignment="Left"/>
-            <TextBlock Text="" TextWrapping="WrapWholeWords" HorizontalAlignment="Left"/>
-            <TextBlock Text="THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE." TextWrapping="WrapWholeWords" HorizontalAlignment="Left"/>
-        </StackPanel>
+        <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Row="3">
+            <TextBlock Margin="0,20" x:Name="NoticeBlock" Text="" Style="{StaticResource BodyTextBlockStyle}" HorizontalAlignment="Left" />
+        </ScrollViewer>
+
     </Grid>
 </Page>

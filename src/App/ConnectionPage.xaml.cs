@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using System.Threading.Tasks;
 using System.Threading;
+using Windows.ApplicationModel.Resources;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -119,9 +120,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContentDialog failedConnectDialog = new ContentDialog
             {
-                Title = "Unable to connect to target IP",
-                Content = $"Could not connect to {ipStr}.\n\nCheck that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.",
-                CloseButtonText = "Ok"
+                Title = resourceLoader.GetString("BadIpTitle"),
+                Content = string.Format(resourceLoader.GetString("BadIpContent"), ipStr),
+                CloseButtonText = resourceLoader.GetString("Ok")
             };
 
             _ = await failedConnectDialog.ShowAsync();
@@ -177,9 +178,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     ContentDialog successLoadDialog = new ContentDialog
                     {
-                        Title = "FactoryOrchestratorXML successfully validated!",
-                        Content = $"{path} is valid FactoryOrchestratorXML.",
-                        CloseButtonText = "Ok"
+                        Title = resourceLoader.GetString("XmlValidatedTitle"),
+                        Content = string.Format(resourceLoader.GetString("XmlValidatedContent"), path),
+                        CloseButtonText = resourceLoader.GetString("Ok")
                     };
 
                     _ = await successLoadDialog.ShowAsync();
@@ -189,9 +190,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     var msg = ex.AllExceptionsToString().Replace(tempXml.Path, path);
                     ContentDialog failedLoadDialog = new ContentDialog
                     {
-                        Title = "FactoryOrchestratorXML failed validation!",
-                        Content = $"{msg}",
-                        CloseButtonText = "Ok"
+                        Title = resourceLoader.GetString("XmlFailedTitle"),
+                        Content = msg,
+                        CloseButtonText = resourceLoader.GetString("Ok")
                     };
 
                     _ = await failedLoadDialog.ShowAsync();
@@ -202,6 +203,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private string lastNavTag;
         private SemaphoreSlim connectionSem;
         private ApplicationDataContainer localSettings;
+        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
     }
 }

@@ -102,9 +102,15 @@ namespace Microsoft.FactoryOrchestrator.Core
     public enum TaskType
     {
         /// <summary>
-        /// The Task is a console executable.
+        /// The Task is a executable (exe) task.
+        /// </summary>
+        Executable = 0,
+        /// <summary>
+        /// The Task is a executable (exe) task.
         /// </summary>
         ConsoleExe = 0,
+
+
         /// <summary>
         /// The Task is a TAEF test.
         /// </summary>
@@ -178,6 +184,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             MaxNumberOfRetries = 0;
             TimesRetried = 0;
             AbortTaskListOnFailed = false;
+            RunInContainer = false;
         }
 
         /// <summary>
@@ -189,6 +196,36 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             Guid = Guid.NewGuid();
             Path = taskPath;
+        }
+
+        /// <summary>
+        /// Create a "deep" copy of the Task.
+        /// </summary>
+        /// <returns></returns>
+        public TaskBase DeepCopy()
+        {
+            TaskBase copy;
+
+            lock (TaskLock)
+            {
+                copy = (TaskBase)this.MemberwiseClone();
+                var stringProps = this.GetType().GetProperties().Where(x => x.PropertyType == typeof(string));
+                foreach (var prop in stringProps)
+                {
+                    var value = prop.GetValue(this);
+                    if (value != null)
+                    {
+                        var copyStr = String.Copy(value as string);
+                        prop.SetValue(copy, copyStr);
+                    }
+                    else
+                    {
+                        prop.SetValue(copy, null);
+                    }
+                }
+            }
+
+            return copy;
         }
 
         // TODO: Make only getters and add internal apis to set
@@ -462,7 +499,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             get
             {
-                return ((Type != TaskType.External) && (Type != TaskType.UWP));
+                return (!RunInContainer) && (Type != TaskType.External) && (Type != TaskType.UWP);
             }
         }
 
@@ -529,6 +566,24 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
         private uint _timesRetried;
+
+        /// <summary>
+        /// If true, the task is executed inside the Win32 container.
+        /// </summary>
+        [XmlAttribute]
+        public bool RunInContainer
+        {
+            get => _runInContainer;
+            set
+            {
+                if (!Equals(value, _runInContainer))
+                {
+                    _runInContainer = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _runInContainer;
 
         // XmlSerializer calls these to check if these values are set.
         // If not set, don't serialize.
@@ -612,6 +667,15 @@ namespace Microsoft.FactoryOrchestrator.Core
         public bool ShouldSerializeAbortTaskListOnFailed()
         {
             return AbortTaskListOnFailed == true;
+        }
+
+        /// <summary>
+        /// XmlSerializer calls to check if this should be serialized.
+        /// </summary>
+        /// <returns>true if it should be serialized.</returns>
+        public bool ShouldSerializeRunInContainer()
+        {
+            return RunInContainer == true;
         }
 
         /// <summary>
@@ -713,6 +777,54 @@ namespace Microsoft.FactoryOrchestrator.Core
         [JsonIgnore]
         [XmlIgnore]
         public object TaskLock;
+
+        /// <summary>
+        /// Creates a Task object from a TaskRun object.
+        /// </summary>
+        /// <param name="run">The TaskRun.</param>
+        /// <returns>a TaskBase object representing the Task defined by the Run.</returns>
+        /// <exception cref="InvalidEnumArgumentException">Given TaskRun has an invalid TaskType</exception>
+        public static TaskBase CreateTaskFromTaskRun(TaskRun run)
+        {
+            TaskBase task;
+            switch (run.TaskType)
+            {
+                case TaskType.BatchFile:
+                    task = new BatchFileTask(run.TaskPath);
+                    (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
+                    break;
+                case TaskType.Executable:
+                    task = new ExecutableTask(run.TaskPath);
+                    (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
+                    break;
+                case TaskType.External:
+                    task = new ExternalTask(run.TaskName);
+                    break;
+                case TaskType.PowerShell:
+                    task = new PowerShellTask(run.TaskPath);
+                    (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
+                    break;
+                case TaskType.TAEFDll:
+                    task = new TAEFTest(run.TaskPath);
+                    break;
+                case TaskType.UWP:
+                    task = new UWPTask(run.TaskPath);
+                    (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException(Resources.InvalidTaskRunTypeException);
+            }
+
+            task.Name = run.TaskName;
+            task.Arguments = run.Arguments;
+
+            if (run.OwningTaskGuid != null)
+            {
+                task.Guid = (Guid)run.OwningTaskGuid;
+            }
+
+            return task;
+        }
     }
 
     /// <summary>
@@ -1544,6 +1656,8 @@ namespace Microsoft.FactoryOrchestrator.Core
                 TaskName = owningTask.Name;
                 TaskType = owningTask.Type;
                 TimeoutSeconds = owningTask.TimeoutSeconds;
+                RunInContainer = owningTask.RunInContainer;
+
                 if (owningTask as ExecutableTask != null)
                 {
                     BackgroundTask = ((ExecutableTask)owningTask).BackgroundTask;
@@ -1819,13 +1933,30 @@ namespace Microsoft.FactoryOrchestrator.Core
         private int _timeoutSeconds;
 
         /// <summary>
+        /// If true, the TaskRun is executed inside the Win32 container.
+        /// </summary>
+        public bool RunInContainer
+        {
+            get => _runInContainer;
+            set
+            {
+                if (!Equals(value, _runInContainer))
+                {
+                    _runInContainer = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private bool _runInContainer;
+
+        /// <summary>
         /// True if this TaskRun is run by the server, such as an ExecutableTask.
         /// </summary>
         public bool RunByServer
         {
             get
             {
-                return ((TaskType != TaskType.External) && (TaskType != TaskType.UWP));
+                return (!RunInContainer) && (TaskType != TaskType.External) && (TaskType != TaskType.UWP);
             }
         }
 
@@ -2016,17 +2147,17 @@ namespace Microsoft.FactoryOrchestrator.Core
                     // Validate background tasks meet requirements
                     if ((bgtask as ExecutableTask) == null)
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTask, PowerShellTask, or BatchFileTask!");
+                        throw new XmlSchemaValidationException(Resources.BackgroundTaskTypeException);
                     }
 
                     if (bgtask.TimeoutSeconds != -1)
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks cannot have a timeout value!");
+                        throw new XmlSchemaValidationException(Resources.BackgroundTimeoutException);
                     }
 
                     if (bgtask.MaxNumberOfRetries != 0)
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks cannot have a retry value!");
+                        throw new XmlSchemaValidationException(Resources.BackgroundRetryException);
                     }
 
                     if (bgtask.Guid == Guid.Empty)
@@ -2057,7 +2188,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                     if (!File.Exists(filename))
                     {
-                        throw new FileNotFoundException($"{filename} does not exist!");
+                        throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, filename));
                     }
 
                     // Validate XSD
@@ -2108,7 +2239,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
             catch (Exception e)
             {
-                throw new FileLoadException($"Could not load {filename} as FactoryOrchestratorXML!", e);
+                throw new FileLoadException(string.Format(Resources.FOXMLFileLoadException, filename), e);
             }
 
             return xml;
@@ -2223,7 +2354,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         public override string ToString()
         {
             // Accessible name.
-            return $"Task List {Name} ({Guid}) with Status {Status}";
+            return string.Format(Resources.TaskListToString, Name, Guid.ToString(), Status.ToString());
         }
 
         /// <summary>
