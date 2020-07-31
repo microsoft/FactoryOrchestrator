@@ -95,7 +95,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorException("Could not move log folder!", null, e);
+                throw new FactoryOrchestratorException(Resources.LogFolderMoveFailed, null, e);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             if (!dir.Exists)
             {
                 throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
+                    Resources.SourceDirectoryNotFound
                     + sourceDirName);
             }
 
@@ -218,7 +218,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (!xml.Save(filename))
                 {
-                    throw new FactoryOrchestratorException($"Could not save TaskLists to {filename}!");
+                    throw new FactoryOrchestratorException(Resources.TaskListSaveFailed);
                 }
             }
 
@@ -248,7 +248,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (!xml.Save(filename))
                 {
-                    throw new FactoryOrchestratorException($"Could not save TaskLists to {filename}!");
+                    throw new FactoryOrchestratorException(Resources.TaskListSaveFailed);
                 }
             }
         }
@@ -369,7 +369,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (KnownTaskLists.Count != newOrder.Count)
                 {
-                    throw new FactoryOrchestratorException($"Server has {KnownTaskLists.Count} TaskLists but new order has ony {newOrder.Count} GUIDs!");
+                    throw new FactoryOrchestratorException(string.Format(Resources.TaskListCountMismatch, KnownTaskLists.Count, newOrder.Count));
                 }
 
                 lock (RunningTaskListLock)
@@ -399,7 +399,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (KnownTaskLists.Exists(x => x.Guid == taskList.Guid))
                 {
-                    throw new FactoryOrchestratorException($"TaskList with guid {taskList.Guid} already exists!");
+                    throw new FactoryOrchestratorException(string.Format(Resources.TaskListExistsAlready, taskList.Guid));
                 }
                 else
                 {
@@ -473,13 +473,13 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (!runner.CheckIfTaefTest())
                 {
-                    throw new FactoryOrchestratorException(String.Format("Unable to invoke TE.exe to validate possible TAEF test: {0}", dllToTest));
+                    throw new FactoryOrchestratorException(String.Format(Resources.TaefCheckFailed, dllToTest));
                 }
                 // Timeout after a second
                 if (!runner.WaitForExit(1000))
                 {
                     runner.StopTask();
-                    throw new FactoryOrchestratorException(String.Format("TE.exe timed out trying to validate possible TAEF test: {0}", dllToTest));
+                    throw new FactoryOrchestratorException(String.Format(Resources.TaefCheckTimeout, dllToTest));
                 }
 
                 // "No tests were executed." error, returned when a binary is not a valid TAEF test.
@@ -494,12 +494,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
-                    throw new FactoryOrchestratorException(String.Format("TE.exe returned error {0} when trying to validate possible TAEF test: {1}", taskRun.ExitCode, dllToTest));
+                    throw new FactoryOrchestratorException(String.Format(Resources.TaefCheckReturnedError, taskRun.ExitCode, dllToTest));
                 }
             }
             catch (Exception e)
             {
-                throw new FactoryOrchestratorException(String.Format("Unable to validate possible TAEF test: {0}", dllToTest), null, e);
+                throw new FactoryOrchestratorException(String.Format(Resources.TaefValidationFailed, dllToTest), null, e);
             }
 
             // Cleanup task run
@@ -848,14 +848,14 @@ namespace Microsoft.FactoryOrchestrator.Server
                             // This allows the program to run as a user account and show its GUI.
                             if (File.Exists(Path.Combine(Environment.SystemDirectory, "RunAsExplorerUser.exe")))
                             {
-                                taskRun.TaskOutput.Add($"{taskRun.TaskPath} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser...");
+                                taskRun.TaskOutput.Add(string.Format(Resources.RedirectingToRunAsExplorerUser, taskRun.TaskPath));
                                 var currentPath = taskRun.TaskPath;
                                 taskRun.TaskPath = Path.Combine(Environment.SystemDirectory, "RunAsExplorerUser.exe");
                                 taskRun.Arguments = $"{currentPath} {taskRun.Arguments}"; 
                             }
                             else
                             {
-                                taskRun.TaskOutput.Add($"WARNING: {taskRun.TaskPath} is a Win32 GUI program. It may not run properly as SYSTEM.");
+                                taskRun.TaskOutput.Add(string.Format(Resources.RunningGuiAsSystemWarning, taskRun.TaskPath));
                             }
                         }
                     }
@@ -896,9 +896,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (restFailed || (response.StatusCode != HttpStatusCode.OK))
                         {
                             waitingForResult = false;
-                            taskRun.TaskOutput.Add($"Error: Failed to launch AUMID: {taskRun.TaskPath}");
-                            taskRun.TaskOutput.Add($"Error: Device Portal is required for app launch and may not be running on the system.");
-                            taskRun.TaskOutput.Add($"Error: If it is running, the AUMID may be incorrect.");
+                            taskRun.TaskOutput.Add(string.Format(Resources.WDPAppLaunchFailed, taskRun.TaskPath));
+                            taskRun.TaskOutput.Add(Resources.WDPAppLaunchFailed2);
+                            taskRun.TaskOutput.Add(Resources.WDPAppLaunchFailed3);
                             taskRun.TaskStatus = TaskStatus.Failed;
                             taskRun.ExitCode = -1;
                             taskRun.TimeFinished = DateTime.Now;
@@ -906,7 +906,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         }
                         else
                         {
-                            taskRun.TaskOutput.Add($"Sucessfully launched app with AUMID: {taskRun.TaskPath}");
+                            taskRun.TaskOutput.Add(string.Format(Resources.WDPAppLaunchSucceeded));
                             if (taskRun.OwningTask == null)
                             {
                                 // App was launched via RunApp(), and is not part of a Task. Complete it.
@@ -995,7 +995,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
                             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
                         {
-                            taskRun.TaskOutput.Add($"Terminated app: {taskRun.TaskPath}");
+                            taskRun.TaskOutput.Add(string.Format(Resources.AppTerminated, taskRun.TaskPath));
                         }
                     }
 
@@ -1476,7 +1476,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 if (!UpdateTaskRunGuid(run.Guid, taskRunGuid))
                 {
                     // The taskrun already exists.
-                    throw new FactoryOrchestratorException($"TaskRun {run.Guid} could not be loaded from file as it already exists!", run.Guid);
+                    throw new FactoryOrchestratorException(string.Format(Resources.DuplicateTaskRunGuid), run.Guid);
                 }
 
                 run.LogFilePath = filePath;
@@ -1768,7 +1768,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
-                    throw new FileNotFoundException($"{value} is not a valid file path!");
+                    throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, newPath), newPath);
                 }
             }
         }
@@ -1904,7 +1904,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 ActiveTaskRun.TaskStatus = TaskStatus.Failed;
                 TaskRunner removed;
                 _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
-                ActiveTaskRun.TaskOutput.Add("Process failed to start!");
+                ActiveTaskRun.TaskOutput.Add("ERROR: " + Resources.ProcessStartError);
                 ActiveTaskRun.TaskOutput.Add(e.Message);
             }
 
@@ -1946,7 +1946,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     // Process.Start() failed. Finish writing the log file, as OnExited will never execute.
                     ActiveTaskRun.WriteLogFooter();
-                    OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, "Process failed to start."));
+                    OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, Resources.ProcessStartError));
                 }
                 else
                 {
@@ -2051,7 +2051,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             _taskRunnerMap.TryRemove(ActiveTaskRunGuid, out removed);
 
             // Raise event if event handler exists
-            OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, "Process exited."));
+            OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, Resources.ProcessExited));
         }
 
         private bool TimeoutTask()
@@ -2300,7 +2300,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             TimeFinished = DateTime.Now;
             if (waitForResult && !RunInContainer)
             {
-                TaskOutput.Add($"A FactoryOrchestratorClient completed the TaskRun with Status: {TaskStatus}, Exit code: {ExitCode}");
+                TaskOutput.Add(string.Format(Resources.EndWaitingForExternalResult, TaskStatus, ExitCode));
             }
 
             UpdateOwningTaskFromTaskRun();
@@ -2342,7 +2342,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 catch (IOException e)
                 {
                     // todo: logging
-                    TaskOutput.Insert(0, $"WARNING: Log File {LogFilePath} could not be created:{Environment.NewLine}{e.AllExceptionsToString()}");
+                    TaskOutput.Insert(0, $"{string.Format(Resources.LogFileCreationFailed, LogFilePath)}.{Environment.NewLine}{e.AllExceptionsToString()}");
                     DeleteLogFile();
                 }
             }
@@ -2362,7 +2362,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     catch (IOException e)
                     {
                         // todo: logging
-                        TaskOutput.Insert(0, $"WARNING: Log File {LogFilePath} could not be created:{Environment.NewLine}{e.AllExceptionsToString()}");
+                        TaskOutput.Insert(0, $"{string.Format(Resources.LogFileCreationFailed, LogFilePath)}.{Environment.NewLine}{e.AllExceptionsToString()}");
                         DeleteLogFile();
                     }
                 }
@@ -2398,7 +2398,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 catch (IOException e)
                 {
                     // todo: logging
-                    TaskOutput.Insert(0, $"WARNING: Log File {LogFilePath} could not be created:{Environment.NewLine}{e.AllExceptionsToString()}");
+                    TaskOutput.Insert(0, $"{string.Format(Resources.LogFileCreationFailed, LogFilePath)}:{Environment.NewLine}{e.AllExceptionsToString()}");
                     DeleteLogFile();
                 }
             }

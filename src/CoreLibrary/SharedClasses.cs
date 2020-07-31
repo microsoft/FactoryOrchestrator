@@ -812,7 +812,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                     (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
                     break;
                 default:
-                    throw new InvalidEnumArgumentException("TaskRun has an invalid TaskType!");
+                    throw new InvalidEnumArgumentException(Resources.InvalidTaskRunTypeException);
             }
 
             task.Name = run.TaskName;
@@ -2147,17 +2147,17 @@ namespace Microsoft.FactoryOrchestrator.Core
                     // Validate background tasks meet requirements
                     if ((bgtask as ExecutableTask) == null)
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks must be ExecutableTask, PowerShellTask, or BatchFileTask!");
+                        throw new XmlSchemaValidationException(Resources.BackgroundTaskTypeException);
                     }
 
                     if (bgtask.TimeoutSeconds != -1)
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks cannot have a timeout value!");
+                        throw new XmlSchemaValidationException(Resources.BackgroundTimeoutException);
                     }
 
                     if (bgtask.MaxNumberOfRetries != 0)
                     {
-                        throw new XmlSchemaValidationException("BackgroundTasks cannot have a retry value!");
+                        throw new XmlSchemaValidationException(Resources.BackgroundRetryException);
                     }
 
                     if (bgtask.Guid == Guid.Empty)
@@ -2188,7 +2188,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                     if (!File.Exists(filename))
                     {
-                        throw new FileNotFoundException($"{filename} does not exist!");
+                        throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, filename));
                     }
 
                     // Validate XSD
@@ -2239,7 +2239,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
             catch (Exception e)
             {
-                throw new FileLoadException($"Could not load {filename} as FactoryOrchestratorXML!", e);
+                throw new FileLoadException(string.Format(Resources.FOXMLFileLoadException, filename), e);
             }
 
             return xml;
@@ -2354,7 +2354,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         public override string ToString()
         {
             // Accessible name.
-            return $"Task List {Name} ({Guid}) with Status {Status}";
+            return string.Format(Resources.TaskListToString, Name, Guid.ToString(), Status.ToString());
         }
 
         /// <summary>

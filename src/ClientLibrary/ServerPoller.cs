@@ -44,7 +44,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             if ((guidType != typeof(TaskBase)) && (guidType != typeof(ExecutableTask)) && (guidType != typeof(UWPTask)) && (guidType != typeof(TAEFTest)) && (guidType != typeof(TaskList)) && (guidType != typeof(TaskRun)))
             {
-                throw new FactoryOrchestratorException("Unsupported guid type to poll!");
+                throw new FactoryOrchestratorException(Resources.UnsupportedGuidType);
             }
             _guidType = guidType;
         }
@@ -146,7 +146,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             if (!_client.IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             if (_stopped != false)

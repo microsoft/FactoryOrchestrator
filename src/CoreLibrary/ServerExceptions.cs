@@ -38,14 +38,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// Constructor.
         /// </summary>
-        public FactoryOrchestratorTaskListRunningException() : base("Cannot perform operation because one or more TaskLists are actively running!")
+        public FactoryOrchestratorTaskListRunningException() : base(Resources.FactoryOrchestratorTaskListRunningException)
         { }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="guid">The TaskList GUID.</param>
-        public FactoryOrchestratorTaskListRunningException(Guid guid) : base($"Cannot perform operation because TaskList {guid} is actively running!", guid)
+        public FactoryOrchestratorTaskListRunningException(Guid guid) : base(string.Format(Resources.FactoryOrchestratorTaskListRunningExceptionWithGuid, guid.ToString()), guid)
         { }
     }
 
@@ -58,14 +58,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// Constructor.
         /// </summary>
-        public FactoryOrchestratorUnkownGuidException() : base($"Guid is not valid!")
+        public FactoryOrchestratorUnkownGuidException() : base(Resources.FactoryOrchestratorUnkownGuidException)
         { }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="guid">The unkonwn GUID.</param>
-        public FactoryOrchestratorUnkownGuidException(Guid guid) : base($"{guid} is not valid!", guid)
+        public FactoryOrchestratorUnkownGuidException(Guid guid) : base(string.Format(Resources.FactoryOrchestratorUnkownGuidExceptionWithGuid, guid.ToString()), guid)
         { }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="guid">The unkonwn GUID.</param>
         /// <param name="type">The type of the GUID.</param>
-        public FactoryOrchestratorUnkownGuidException(Guid guid, Type type) : base($"{guid} is not a valid {type.Name}!", guid)
+        public FactoryOrchestratorUnkownGuidException(Guid guid, Type type) : base(string.Format(Resources.FactoryOrchestratorUnkownGuidExceptionWithGuidAndType, guid.ToString(), type.ToString()), guid)
         { }
     }
 
