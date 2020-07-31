@@ -170,7 +170,7 @@
     <value>Go Back</value>
   </data>
   <data name="BadIpContent" xml:space="preserve">
-    <value>Could not connect to $1.
+    <value>Could not connect to {0}.
 
 Check that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.</value>
   </data>
@@ -298,7 +298,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <value>Rename TaskList</value>
   </data>
   <data name="EnableAndRetry" xml:space="preserve">
-    <value>Please enable $1 and try again.</value>
+    <value>Please enable {0} and try again.</value>
   </data>
   <data name="EndComments" xml:space="preserve">
     <value>End Comments</value>
@@ -706,7 +706,7 @@ On retry</value>
     <value>FactoryOrchestratorXML failed validation!</value>
   </data>
   <data name="XmlValidatedContent" xml:space="preserve">
-    <value>$1 is valid FactoryOrchestratorXML.</value>
+    <value>{0} is valid FactoryOrchestratorXML.</value>
   </data>
   <data name="XmlValidatedTitle" xml:space="preserve">
     <value>FactoryOrchestratorXML successfully validated!</value>

@@ -197,7 +197,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
 
                     Title = $"{resourceLoader.GetString("FailedToLaunch")} {GetHeader()}",
-                    Content = resourceLoader.GetString("EnableAndRetry").Replace("$1", GetHeader()),
+                    Content = string.Format(resourceLoader.GetString("EnableAndRetry"), GetHeader()),
                     CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
