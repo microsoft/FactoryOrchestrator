@@ -44,7 +44,7 @@ steps:
 
 # Fully qualified name for the NugetCommand@2 task
 - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
-  displayName: 'NuGet restore **/*.sln'
+  displayName: 'NuGet restore **/FactoryOrchestrator.sln'
 
 - powershell: |
     if ($env:VPACKNAME -eq "") {
@@ -64,6 +64,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution Any CPU'
   inputs:
+    solution: 'src/FactoryOrchestrator.sln'
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_anycpu_MsBuild.log;Verbosity=Detailed'
     platform: 'Any CPU'
     configuration: '$(BuildConfiguration)'
@@ -74,6 +75,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution x86'
   inputs:
+    solution: 'src/FactoryOrchestrator.sln'
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x86_MsBuild.log;Verbosity=Detailed'
     platform: 'x86'
     configuration: '$(BuildConfiguration)'
@@ -84,6 +86,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution x64'
   inputs:
+    solution: 'src/FactoryOrchestrator.sln'
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x64_MsBuild.log;Verbosity=Detailed'
     platform: 'x64'
     configuration: '$(BuildConfiguration)'
@@ -94,6 +97,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build solution ARM'
   inputs:
+    solution: 'src/FactoryOrchestrator.sln'
     msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_arm_MsBuild.log;Verbosity=Detailed'
     platform: 'ARM'
     configuration: '$(BuildConfiguration)'
