@@ -1,0 +1,13 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/AndresTraks/pe-utility",
+          "commitHash": "e716c4372ac32c3a04cfc8b3069f2fb16032870c"
+        }
+      }
+    }
+  ]
+}

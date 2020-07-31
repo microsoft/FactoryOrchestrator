@@ -28,10 +28,13 @@ trigger:
 
 steps:
 - task: PkgESSetupBuild@10
-  displayName: 'PkgES Setup Build '
+  displayName: 'Package ES - Setup Build'
   inputs:
+    branchVersion: true
+    branchVersionExcludeBranch: 'master'
     productName: 'FactoryOrchestrator'
     disableOutputRedirect: true
+    useDfs: true
 
 # Fully qualified name for the NugetCommand@2 task
 - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
@@ -126,6 +129,38 @@ steps:
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
+    
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop x86'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD'
+  condition: eq(variables['BuildConfiguration'], 'Release')
+  
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop x64'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD'
+  condition: eq(variables['BuildConfiguration'], 'Release')
+  
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop ARM'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD'
+  condition: eq(variables['BuildConfiguration'], 'Release')
+  
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Drop ARM64'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD'
+  condition: eq(variables['BuildConfiguration'], 'Release')
 
 - task: PowerShell@2
   displayName: 'Create FactoryOrchestratorService Manifest for VPack'
@@ -197,8 +232,8 @@ steps:
   displayName: 'PkgES Create VPack msixbundle'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\msixbundle'
-    pushPkgName: 'FactoryOrchestrator.msixbundle'
-    description: 'FactoryOrchestrator.msixbundle'
+    pushPkgName: 'FactoryOrchestrator.msixbundle.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.msixbundle.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), and(ne(variables['skipmsix'], 'true'), ne(variables['skipvpack'], 'true'))))
   enabled: true
 
@@ -216,8 +251,8 @@ steps:
   displayName: 'PkgES Create VPack ARM'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.ARM'
-    description: 'FactoryOrchestrator.Service.ARM'
+    pushPkgName: 'FactoryOrchestrator.Service.ARM.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.Service.ARM.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -235,8 +270,8 @@ steps:
   displayName: 'PkgES Create VPack ARM64'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.ARM64'
-    description: 'FactoryOrchestrator.Service.ARM64'
+    pushPkgName: 'FactoryOrchestrator.Service.ARM64.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.Service.ARM64.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -254,8 +289,8 @@ steps:
   displayName: 'PkgES Create VPack x86'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\x86\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.x86'
-    description: 'FactoryOrchestrator.Service.x86'
+    pushPkgName: 'FactoryOrchestrator.Service.x86.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.Service.x86.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -273,8 +308,8 @@ steps:
   displayName: 'PkgES Create VPack x64'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\Release\x64\FactoryOrchestratorService_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.x64'
-    description: 'FactoryOrchestrator.Service.x64'
+    pushPkgName: 'FactoryOrchestrator.Service.x64.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.Service.x64.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -294,10 +329,10 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
-  displayName: 'Copy IPC License to Client Libraries'
+  displayName: 'Copy NOTICE to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\oss'
-    Contents: 'IpcServiceFramework.txt'
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
@@ -310,9 +345,9 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
-  displayName: 'Copy Client documentation to root of drop'
+  displayName: 'Copy Client documentation to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\bin\docfx'
+    SourceFolder: '$(XES_DFSDROP)\docfx'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries\FactoryOrchestratorDocumentation'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
@@ -322,8 +357,8 @@ steps:
   displayName: 'PkgES Create VPack Client Libraries'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\ClientLibraries'
-    pushPkgName: 'FactoryOrchestrator.ClientLibraries'
-    description: 'FactoryOrchestrator.ClientLibraries'
+    pushPkgName: 'FactoryOrchestrator.ClientLibraries.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.ClientLibraries.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -361,8 +396,8 @@ steps:
   displayName: 'PkgES Create VPack Client Sample'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\ClientSampleWSK'
-    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK'
-    description: 'FactoryOrchestrator.ClientSampleWSK'
+    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK.$(Build.SourceBranchName)'
+    description: 'FactoryOrchestrator.ClientSampleWSK.$(Build.SourceBranchName)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
   enabled: true
 
@@ -430,7 +465,7 @@ steps:
     configPath: 'build/internal/GitCheckin.json'
     binVersion: Custom
     binVersionOverride: 'Production'
-  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), ne(variables['skipvpack'], 'true')))
+  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), and(ne(variables['skipvpack'], 'true'), eq(variables['Build.SourceBranchName'], 'master'))))
   enabled: true
 
 - task: PkgESLateTasks@10

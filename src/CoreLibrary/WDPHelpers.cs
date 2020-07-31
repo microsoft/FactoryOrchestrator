@@ -191,12 +191,12 @@ namespace Microsoft.FactoryOrchestrator.Core
                                 }
                                 else
                                 {
-                                    throw new Exception($"Windows Device Portal failed with error: {errorResponse.Reason}.");
+                                    throw new Exception(string.Format(Resources.WDPError, errorResponse.Reason));
                                 }
                             }
                             else
                             {
-                                throw new Exception($"Windows Device Portal failed with HTTP error {response.StatusCode}.");
+                                throw new Exception(string.Format(Resources.WDPHttpError, response.StatusCode));
                             }
                         }
                     }
@@ -208,7 +208,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 }
                 else
                 {
-                    throw new Exception($"Windows Device Portal failed with HTTP error {response.StatusCode}.");
+                    throw new Exception(string.Format(Resources.WDPHttpError, response.StatusCode));
                 }
             }
 
@@ -232,7 +232,7 @@ namespace Microsoft.FactoryOrchestrator.Core
 
             if (!File.Exists(appFilePath))
             {
-                throw new FileNotFoundException($"{appFilePath} does not exist!");
+                throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, appFilePath));
             }
 
             if (dependentAppsFilePaths != null)
@@ -241,7 +241,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     if (!File.Exists(app))
                     {
-                        throw new FileNotFoundException($"{app} does not exist!");
+                        throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, app));
                     }
                 }
             }
@@ -250,7 +250,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             {
                 if (!File.Exists(certFilePath))
                 {
-                    throw new FileNotFoundException($"{certFilePath} does not exist!");
+                    throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, certFilePath));
                 }
             }
 

@@ -61,7 +61,7 @@ foreach ($line in $interfaceContent)
             }
 
             $outputContent += "`n$indent$indent{"
-            $outputContent += "`n$indent$indent$indent" + "if (!IsConnected)" + "`n$indent$indent$indent" + "{`n$indent$indent$indent$indent" + "throw new FactoryOrchestratorConnectionException(`"Start connection first!`");`n$indent$indent$indent}"
+            $outputContent += "`n$indent$indent$indent" + "if (!IsConnected)" + "`n$indent$indent$indent" + "{`n$indent$indent$indent$indent" + "throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);`n$indent$indent$indent}"
             $outputContent += "`n`n$indent$indent$indent" + "try`n$indent$indent$indent{"
             $outputContent += "`n$indent$indent$indent$indent"
             
