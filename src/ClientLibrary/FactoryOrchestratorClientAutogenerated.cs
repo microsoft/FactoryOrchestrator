@@ -23,7 +23,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -44,7 +44,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -66,7 +66,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -88,7 +88,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -109,7 +109,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -130,7 +130,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -151,7 +151,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -172,7 +172,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -194,7 +194,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -217,7 +217,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -238,7 +238,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -259,7 +259,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -280,7 +280,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -301,7 +301,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -324,7 +324,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -345,7 +345,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -368,7 +368,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -390,7 +390,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -413,7 +413,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -435,7 +435,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -457,7 +457,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -478,7 +478,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -499,7 +499,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -521,7 +521,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -543,7 +543,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -565,7 +565,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -586,7 +586,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -608,7 +608,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -629,7 +629,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -653,7 +653,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -674,7 +674,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -695,7 +695,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -718,7 +718,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -738,7 +738,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -759,7 +759,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -780,7 +780,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -805,7 +805,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -827,7 +827,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -849,7 +849,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -871,7 +871,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -893,7 +893,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -915,7 +915,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -940,7 +940,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -965,7 +965,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -987,7 +987,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -1010,7 +1010,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -1033,7 +1033,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -1056,7 +1056,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try

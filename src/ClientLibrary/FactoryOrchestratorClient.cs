@@ -102,7 +102,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -125,7 +125,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -176,7 +176,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             long totalBytesWritten = 0;
@@ -250,7 +250,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -294,7 +294,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -332,7 +332,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -353,7 +353,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!IsConnected)
             {
-                throw new FactoryOrchestratorConnectionException("Start connection first!");
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
             }
 
             try
@@ -427,11 +427,11 @@ namespace Microsoft.FactoryOrchestrator.Client
 
                 if (frame.Count() == 0)
                 {
-                    throw new Exception($"Could not find method with name {methodName}");
+                    throw new Exception(string.Format(Resources.NoMethodFound, methodName));
                 }
                 if (frame.Count() > 1)
                 {
-                    throw new Exception($"More than one method with name {methodName}");
+                    throw new Exception(string.Format(Resources.TooManyMethodsFound, methodName));
                 }
 
                 method = frame.First().GetMethod();
@@ -587,7 +587,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Constructor.
         /// </summary>
         /// <param name="ip">IP address Client is communicating with.</param>
-        public FactoryOrchestratorConnectionException(IPAddress ip) : base($"Failed to communicate with Factory Orchestrator Service on {ip}!")
+        public FactoryOrchestratorConnectionException(IPAddress ip) : base(string.Format(Resources.FactoryOrchestratorConnectionException, ip.ToString()))
         { }
         /// <summary>
         /// Constructor.
@@ -608,7 +608,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="ip">The ip address of the Service.</param>
         /// <param name="serviceVersion">The service version.</param>
         /// <param name="clientVersion">The client version.</param>
-        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion, string clientVersion) : base($"Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.")
+        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion, string clientVersion) : base(string.Format(Resources.FactoryOrchestratorVersionMismatchException, ip.ToString(), serviceVersion, clientVersion))
         {
             ServiceVersion = serviceVersion;
             ClientVersion = clientVersion;

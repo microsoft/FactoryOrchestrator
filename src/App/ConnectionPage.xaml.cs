@@ -121,7 +121,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ContentDialog failedConnectDialog = new ContentDialog
             {
                 Title = resourceLoader.GetString("BadIpTitle"),
-                Content = resourceLoader.GetString("BadIpContent").Replace("$1", ipStr),
+                Content = string.Format(resourceLoader.GetString("BadIpContent"), ipStr),
                 CloseButtonText = resourceLoader.GetString("Ok")
             };
 
@@ -179,7 +179,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ContentDialog successLoadDialog = new ContentDialog
                     {
                         Title = resourceLoader.GetString("XmlValidatedTitle"),
-                        Content = resourceLoader.GetString("XmlValidatedContent").Replace("$1", path),
+                        Content = string.Format(resourceLoader.GetString("XmlValidatedContent"), path),
                         CloseButtonText = resourceLoader.GetString("Ok")
                     };
 
