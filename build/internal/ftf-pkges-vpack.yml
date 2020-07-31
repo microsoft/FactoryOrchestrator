@@ -47,7 +47,7 @@ steps:
   displayName: 'NuGet restore **/*.sln'
 
 - powershell: |
-    if ($VPACKNAME -eq "") {
+    if ($env:VPACKNAME -eq "") {
       Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
       Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
     }
