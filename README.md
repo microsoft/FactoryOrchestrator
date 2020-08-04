@@ -1,6 +1,6 @@
 | CI Build   | 
 |----|
-|  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=master)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)  |   
+|  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)  |   
 
 # Introduction 
 Factory Orchestrator is a tool for built for Original Equipment Maufacturers to aid in the manufacturing of Windows devices.
