@@ -22,9 +22,9 @@ trigger:
     - OSBuild*
 
 variables:
-  ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'master')) }}:
+  ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     VPACKNAME: ''
-  ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'master'))) }}:
+  ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     VPACKNAME: '.$(Build.SourceBranchName)'
 
 # NOTES FOR PEOPLE USING THIS BUILD DEFINITION
@@ -37,7 +37,7 @@ steps:
   displayName: 'Package ES - Setup Build'
   inputs:
     branchVersion: true
-    branchVersionExcludeBranch: 'master'
+    branchVersionExcludeBranch: 'main'
     productName: 'FactoryOrchestrator'
     disableOutputRedirect: true
     useDfs: true
