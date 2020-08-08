@@ -1217,6 +1217,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
         private readonly string _localLoopbackAppsValue = @"AllowedLocalLoopbackApps";
+        private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
         internal readonly string _logFolderValue = @"LogFolder";
 
         // Default log folder path
@@ -1258,6 +1259,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableNetworkAccess { get; private set; }
         public bool EnableNetworkAccess { get; private set; }
         public int ServiceNetworkPort { get; private set; }
+        public bool RunInitialTaskListsOnFirstBoot { get; private set; }
 
         public string TaskManagerLogFolder { get; private set; }
 
@@ -1415,7 +1417,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             ExecuteUserBootTasks(forceUserTaskRerun);
 
             // Load first boot state file, or try to load known TaskLists from the existing state file.
-            if (!LoadFirstBootStateFile(forceUserTaskRerun) && File.Exists(_taskExecutionManager.TaskListStateFile))
+            bool firstBootFileLoaded = LoadFirstBootStateFile(forceUserTaskRerun);
+            if (!firstBootFileLoaded && File.Exists(_taskExecutionManager.TaskListStateFile))
             {
                 try
                 {
@@ -1429,6 +1432,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             IsExecutingBootTasks = false;
             LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
+
+            if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+            {
+                _taskExecutionManager.RunAllTaskLists();
+            }
         }
 
         private bool LoadFirstBootStateFile(bool force)
@@ -2391,6 +2399,13 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 TaskManagerLogFolder = (string)GetValueFromRegistry(_logFolderValue, _defaultLogFolder);
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetValueFromRegistry(_runOnFirstBootValue, false));
             }
             catch (Exception)
             { }
