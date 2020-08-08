@@ -603,7 +603,6 @@ namespace Microsoft.FactoryOrchestrator.Server
                 foreach (var list in KnownTaskLists)
                 {
                     RunTaskList(list.Guid);
-                    Thread.Sleep(5);
                 }
             }
 
