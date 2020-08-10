@@ -22,9 +22,6 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using Microsoft.FactoryOrchestrator.Client;
-using System.Collections.Concurrent;
-using PeterKottas.DotNetCore.WindowsService.Base;
-using System.Security.Cryptography;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -193,7 +190,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 path = Environment.ExpandEnvironmentVariables(path);
-                TaskList tl = FOService.Instance.TestExecutionManager.CreateTaskListFromDirectory(path, recursive);
+                TaskList tl = FOService.Instance.TaskExecutionManager.CreateTaskListFromDirectory(path, recursive);
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: CreateTaskListFromDirectory {path} {recursive}");
                 return tl;
@@ -217,7 +214,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 filename = Environment.ExpandEnvironmentVariables(filename);
-                List<Guid> taskLists = FOService.Instance.TestExecutionManager.LoadTaskListsFromXmlFile(filename);
+                List<Guid> taskLists = FOService.Instance.TaskExecutionManager.LoadTaskListsFromXmlFile(filename);
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: LoadTaskListsFromXmlFile {filename}");
                 return taskLists;
@@ -240,7 +237,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                var serverList = FOService.Instance.TestExecutionManager.CreateTaskListFromTaskList(list);
+                var serverList = FOService.Instance.TaskExecutionManager.CreateTaskListFromTaskList(list);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: CreateTaskListFromTaskList {list.Guid}");
                 return serverList;
             }
@@ -263,7 +260,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 filename = Environment.ExpandEnvironmentVariables(filename);
-                FOService.Instance.TestExecutionManager.SaveTaskListToXmlFile(guid, filename);
+                FOService.Instance.TaskExecutionManager.SaveTaskListToXmlFile(guid, filename);
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SaveTaskListToXmlFile {guid} {filename}");
             }
@@ -286,7 +283,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 filename = Environment.ExpandEnvironmentVariables(filename);
-                if (!FOService.Instance.TestExecutionManager.SaveAllTaskListsToXmlFile(filename))
+                if (!FOService.Instance.TaskExecutionManager.SaveAllTaskListsToXmlFile(filename))
                 {
                     throw new FactoryOrchestratorException(Resources.NoTaskListsException);
                 }
@@ -305,7 +302,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetTaskListGuids");
-                var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
+                var guids = FOService.Instance.TaskExecutionManager.GetTaskListGuids();
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetTaskListGuids");
                 return guids;
             }
@@ -321,11 +318,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetTaskListSummaries");
-                var guids = FOService.Instance.TestExecutionManager.GetTaskListGuids();
+                var guids = FOService.Instance.TaskExecutionManager.GetTaskListGuids();
                 var ret = new List<TaskListSummary>();
                 foreach (var guid in guids)
                 {
-                    var list = FOService.Instance.TestExecutionManager.GetTaskList(guid);
+                    var list = FOService.Instance.TaskExecutionManager.GetTaskList(guid);
                     if (list != null)
                     {
                         ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus, list.RunInParallel, list.AllowOtherTaskListsToRun, list.TerminateBackgroundTasksOnCompletion));
@@ -342,12 +339,65 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public List<Guid> GetBootTaskListGuids()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetBootTaskListGuids");
+                var guids = FOService.Instance.BootTaskExecutionManager.GetTaskListGuids();
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetBootTaskListGuids");
+                return guids;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
+        public List<TaskListSummary> GetBootTaskListSummaries()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetBootTaskListSummaries");
+                var guids = FOService.Instance.BootTaskExecutionManager.GetTaskListGuids();
+                var ret = new List<TaskListSummary>();
+                foreach (var guid in guids)
+                {
+                    var list = FOService.Instance.BootTaskExecutionManager.GetTaskList(guid);
+                    if (list != null)
+                    {
+                        ret.Add(new TaskListSummary(guid, list.Name, list.TaskListStatus, list.RunInParallel, list.AllowOtherTaskListsToRun, list.TerminateBackgroundTasksOnCompletion));
+                    }
+                }
+
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetBootTaskListSummaries");
+                return ret;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
         public TaskList QueryTaskList(Guid taskListGuid)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTaskList {taskListGuid}");
-                var list = FOService.Instance.TestExecutionManager.GetTaskList(taskListGuid);
+
+                // Check active task manager, then boot task manager
+                var list = FOService.Instance.TaskExecutionManager.GetTaskList(taskListGuid);
+                if (list == null)
+                {
+                    list = FOService.Instance.BootTaskExecutionManager.GetTaskList(taskListGuid);
+                }
+
+                if (list == null)
+                {
+                    throw new FactoryOrchestratorUnkownGuidException(taskListGuid, typeof(TaskList));
+                }
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskList {taskListGuid}");
                 return list;
             }
@@ -357,18 +407,44 @@ namespace Microsoft.FactoryOrchestrator.Service
                 throw e;
             }
         }
+
         public TaskBase QueryTask(Guid taskGuid)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTask {taskGuid}");
-                var task = FOService.Instance.TestExecutionManager.GetTask(taskGuid);
+
+                // Check active task manager, then boot task manager
+                var task = FOService.Instance.TaskExecutionManager.GetTask(taskGuid);
+
+                if (task == null)
+                {
+                    task = FOService.Instance.BootTaskExecutionManager.GetTask(taskGuid);
+                }
                 if (task == null)
                 {
                     throw new FactoryOrchestratorUnkownGuidException(taskGuid);
                 }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTask {taskGuid}");
                 return task;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw e;
+            }
+        }
+
+        public TaskRun QueryTaskRun(Guid taskRunGuid)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTaskRun {taskRunGuid}");
+                // This performs a recursive search that will include both "normal" and "boot" tasks, so BootTaskExecutionManager doesn't need to be queried.
+                var run = FOService.Instance.TaskExecutionManager.GetTaskRunByGuid(taskRunGuid).DeepCopy();
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskRun {taskRunGuid}");
+                return run;
             }
             catch (Exception e)
             {
@@ -388,7 +464,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                FOService.Instance.TestExecutionManager.DeleteTaskList(listToDelete);
+                FOService.Instance.TaskExecutionManager.DeleteTaskList(listToDelete);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: DeleteTaskList {listToDelete}");
             }
             catch (Exception e)
@@ -409,7 +485,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                FOService.Instance.TestExecutionManager.ReorderTaskLists(newOrder);
+                FOService.Instance.TaskExecutionManager.ReorderTaskLists(newOrder);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: ReorderTaskLists {newOrder}");
             }
             catch (Exception e)
@@ -429,7 +505,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Kill all processes including bg tasks, delete all state except registry configuration
-                FOService.Instance.TestExecutionManager.Reset(preserveLogs, true);
+                FOService.Instance.TaskExecutionManager.Reset(preserveLogs, true);
 
                 if (factoryReset)
                 {
@@ -455,7 +531,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                FOService.Instance.TestExecutionManager.UpdateTask(updatedTask);
+                FOService.Instance.TaskExecutionManager.UpdateTask(updatedTask);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
             }
             catch (Exception e)
@@ -476,7 +552,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                FOService.Instance.TestExecutionManager.UpdateTaskList(taskList);
+                FOService.Instance.TaskExecutionManager.UpdateTaskList(taskList);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTaskList {taskList.Guid}");
             }
             catch (Exception e)
@@ -513,7 +589,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetLogFolder");
-                var folder = FOService.Instance.TestExecutionManager.LogFolder;
+                var folder = FOService.Instance.TaskExecutionManager.LogFolder;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetLogFolder");
                 return folder;
             }
@@ -536,7 +612,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 logFolder = Environment.ExpandEnvironmentVariables(logFolder);
-                FOService.Instance.TestExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
+                FOService.Instance.TaskExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
 
                 // Set new value in registry
                 FOService.Instance.SetValueInRegistry(FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
@@ -555,7 +631,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: AbortAllTaskLists");
-                FOService.Instance.TestExecutionManager.AbortAll();
+                FOService.Instance.TaskExecutionManager.AbortAll();
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: AbortAllTaskLists");
             }
             catch (Exception e)
@@ -570,7 +646,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: AbortTaskList {taskListGuid}");
-                FOService.Instance.TestExecutionManager.AbortTaskList(taskListGuid);
+                FOService.Instance.TaskExecutionManager.AbortTaskList(taskListGuid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: AbortTaskList {taskListGuid}");
             }
             catch (Exception e)
@@ -585,7 +661,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: AbortTaskRun {taskRunGuid}");
-                FOService.Instance.TestExecutionManager.AbortTaskRun(taskRunGuid);
+                FOService.Instance.TaskExecutionManager.AbortTaskRun(taskRunGuid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: AbortTaskRun {taskRunGuid}");
             }
             catch (Exception e)
@@ -643,22 +719,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskRun QueryTaskRun(Guid taskRunGuid)
-        {
-            try
-            {
-                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTaskRun {taskRunGuid}");
-                var run = FOService.Instance.TestExecutionManager.GetTaskRunByGuid(taskRunGuid).DeepCopy();
-                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskRun {taskRunGuid}");
-                return run;
-            }
-            catch (Exception e)
-            {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
-            }
-        }
-
         public void UpdateTaskRun(TaskRun taskRun)
         {
             try
@@ -670,7 +730,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                FOService.Instance.TestExecutionManager.UpdateTaskRun(taskRun);
+                FOService.Instance.TaskExecutionManager.UpdateTaskRun(taskRun);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTaskRun {taskRun.Guid}");
             }
             catch (Exception e)
@@ -691,7 +751,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                var ran = FOService.Instance.TestExecutionManager.RunAllTaskLists();
+                var ran = FOService.Instance.TaskExecutionManager.RunAllTaskLists();
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunAllTaskLists");
                 return ran;
             }
@@ -713,7 +773,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                FOService.Instance.TestExecutionManager.RunTaskListFromInitial(taskListToRun, initialTaskIndex);
+                FOService.Instance.TaskExecutionManager.RunTaskListFromInitial(taskListToRun, initialTaskIndex);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTaskList {taskListToRun} {initialTaskIndex}");
             }
             catch (Exception e)
@@ -734,7 +794,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                var run = FOService.Instance.TestExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath, runInContainer);
+                var run = FOService.Instance.TaskExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath, runInContainer);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunExecutable {exeFilePath} {arguments}");
                 return run;
             }
@@ -756,7 +816,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                var run = FOService.Instance.TestExecutionManager.RunTask(taskGuid);
+                var run = FOService.Instance.TaskExecutionManager.RunTask(taskGuid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTask {taskGuid}");
                 return run;
             }
@@ -778,7 +838,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                var run = FOService.Instance.TestExecutionManager.RunTask(task);
+                var run = FOService.Instance.TaskExecutionManager.RunTask(task);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTask {task}");
                 return run;
             }
@@ -805,7 +865,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "RunApp"));
                 }
 
-                var run = FOService.Instance.TestExecutionManager.RunApp(aumid);
+                var run = FOService.Instance.TaskExecutionManager.RunApp(aumid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunApp {aumid}");
                 return run;
             }
@@ -1196,7 +1256,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
 
-        private TaskManager_Server _taskExecutionManager;
         private IMicroServiceController _controller;
         public ILogger<FOService> ServiceLogger;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
@@ -1248,6 +1307,37 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private FactoryOrchestratorClient _containerClient;
 
+        // TaskManager_Server instances
+        private TaskManager_Server _taskExecutionManager;
+        /// <summary>
+        /// Gets the "active" task execution manager. If boot tasks are executing it returns the BootTaskExecutionManager, otherwise the _taskExecutionManager.
+        /// </summary>
+        /// <value>
+        /// The task execution manager.
+        /// </value>
+        public TaskManager_Server TaskExecutionManager
+        {
+            get
+            {
+                if (IsExecutingBootTasks)
+                {
+                    return BootTaskExecutionManager;
+                }
+                else
+                {
+                    return _taskExecutionManager;
+                }
+            }
+        }
+        /// <summary>
+        /// Gets the boot task execution manager.
+        /// </summary>
+        /// <value>
+        /// The boot task execution manager.
+        /// </value>
+        public TaskManager_Server BootTaskExecutionManager { get; private set; }
+        public string TaskManagerLogFolder { get; private set; }
+
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
@@ -1261,7 +1351,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         public int ServiceNetworkPort { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
 
-        public string TaskManagerLogFolder { get; private set; }
 
 
         /// <summary>
@@ -1363,9 +1452,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskManager_Server TestExecutionManager { get => _taskExecutionManager; }
-        
-
         /// <summary>
         /// Service start.
         /// </summary>
@@ -1382,6 +1468,20 @@ namespace Microsoft.FactoryOrchestrator.Service
             bool networkAccessEnabled = false;
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks();
+
+            // Load first boot state file, or try to load known TaskLists from the existing state file.
+            bool firstBootFileLoaded = LoadFirstBootStateFile(forceUserTaskRerun);
+            if (!firstBootFileLoaded && File.Exists(_taskExecutionManager.TaskListStateFile))
+            {
+                try
+                {
+                    _taskExecutionManager.LoadTaskListsFromXmlFile(_taskExecutionManager.TaskListStateFile);
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogWarning($"{string.Format(Resources.FOXMLFileLoadException, _taskExecutionManager.TaskListStateFile)}\n {e.AllExceptionsToString()}");
+                }
+            }
 
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
             if (EnableNetworkAccess && !DisableNetworkAccess) 
@@ -1415,20 +1515,6 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             // Execute user defined tasks.
             ExecuteUserBootTasks(forceUserTaskRerun);
-
-            // Load first boot state file, or try to load known TaskLists from the existing state file.
-            bool firstBootFileLoaded = LoadFirstBootStateFile(forceUserTaskRerun);
-            if (!firstBootFileLoaded && File.Exists(_taskExecutionManager.TaskListStateFile))
-            {
-                try
-                {
-                    _taskExecutionManager.LoadTaskListsFromXmlFile(_taskExecutionManager.TaskListStateFile);
-                }
-                catch (Exception e)
-                {
-                    ServiceLogger.LogWarning($"{string.Format(Resources.FOXMLFileLoadException, _taskExecutionManager.TaskListStateFile)}\n {e.AllExceptionsToString()}");
-                }
-            }
 
             IsExecutingBootTasks = false;
             LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
@@ -1467,7 +1553,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootStateTaskListPath));
 
                         // Load the TaskLists file specified in registry
-                        var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootStateTaskListPath);
+                        _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootStateTaskListPath);
 
                         ServiceLogger.LogInformation(string.Format(Resources.FileLoadSucceeded, firstBootStateTaskListPath));
                         loaded = true;
@@ -1496,12 +1582,13 @@ namespace Microsoft.FactoryOrchestrator.Service
             _ipcCancellationToken.Cancel();
 
             // Abort everything that's running, except persisted background tasks
-            TestExecutionManager.AbortAll();
+            _taskExecutionManager?.AbortAll();
+            BootTaskExecutionManager?.AbortAll();
 
             // Update state file
             try
             {
-                TestExecutionManager.SaveAllTaskListsToXmlFile(TestExecutionManager.TaskListStateFile);
+                _taskExecutionManager.SaveAllTaskListsToXmlFile(_taskExecutionManager.TaskListStateFile);
             }
             catch (FactoryOrchestratorException e)
             {
@@ -1612,7 +1699,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         else
                         {
                             hostRun.TaskStatus = containerRun.TaskStatus;
-                            _taskExecutionManager.UpdateTaskRun(hostRun);
+                            TaskExecutionManager.UpdateTaskRun(hostRun);
                         }
                     }
 
@@ -2011,57 +2098,41 @@ namespace Microsoft.FactoryOrchestrator.Service
             bool everyBootTasksFailed = false;
             bool firstBootTasksExecuted = false;
             bool everyBootTasksExecuted = false;
-            bool stateFileBackedup = false;
-            var logFolder = _taskExecutionManager.LogFolder;
-            var stateFileBackupPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FactoryOrchestratorTempTaskListStateFile");
 
             // First Boot tasks
             try
             {
-                // Backup State File
-                if (File.Exists(_taskExecutionManager.TaskListStateFile))
+                // Create unconditionally so it is guaranteed to not be null
+                BootTaskExecutionManager = new TaskManager_Server(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), _firstBootTasksDefaultPath);
+
+                // Find the TaskLists XML path.
+                var firstBootTaskListPath = (string)GetValueFromRegistry(_firstBootTasksPathValue, _firstBootTasksDefaultPath);
+                ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _firstBootTasksDefaultPath));
+
+                // Load first boot XML, even if we don't end up executing it, so it can be queried via FO APIs
+                List<Guid> firstBootTaskListGuids = null;
+                if (File.Exists(firstBootTaskListPath))
                 {
-                    File.Copy(_taskExecutionManager.TaskListStateFile, stateFileBackupPath, true);
+                    BootTaskExecutionManager = new TaskManager_Server(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), firstBootTaskListPath);
+                    ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootTaskListPath));
+                    // Load the first boot TaskLists file
+                    firstBootTaskListGuids = BootTaskExecutionManager.LoadTaskListsFromXmlFile(firstBootTaskListPath);
                 }
-                stateFileBackedup = true;
+                else
+                {
+                    ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, firstBootTaskListPath));
+                }
 
                 // Check if first boot tasks were already completed
                 var firstBootTasksCompleted = GetValueFromRegistry(_firstBootCompleteValue) as int?;
-
                 if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
                 {
-                    ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _firstBootTasksDefaultPath));
-                    string firstBootTaskListPath = _firstBootTasksDefaultPath;
+                    firstBootTasksExecuted = true;
 
-                    // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                    if (!File.Exists(firstBootTaskListPath))
+                    foreach (var listGuid in firstBootTaskListGuids)
                     {
-                        firstBootTaskListPath = (string)GetValueFromRegistry(_firstBootTasksPathValue, _firstBootTasksDefaultPath);
-                        if (!firstBootTaskListPath.Equals(_firstBootTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, firstBootTaskListPath));
-                        }
-                    }
-
-                    if (File.Exists(firstBootTaskListPath))
-                    {
-                        firstBootTasksExecuted = true;
-                        ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootTaskListPath));
-                        // Create a new directory for the first boot logs
-                        _taskExecutionManager.SetLogFolder(Path.Combine(logFolder, "FirstBootTaskLists"), false);
-
-                        // Load the TaskLists file specified in registry
-                        var firstBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootTaskListPath);
-
-                        foreach (var listGuid in firstBootTaskListGuids)
-                        {
-                            _taskExecutionManager.RunTaskList(listGuid);
-                            ServiceLogger.LogInformation(string.Format(Resources.FirstBootRunningTaskList, listGuid));
-                        }
-                    }
-                    else
-                    {
-                        ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, firstBootTaskListPath));
+                        BootTaskExecutionManager.RunTaskList(listGuid);
+                        ServiceLogger.LogInformation(string.Format(Resources.FirstBootRunningTaskList, listGuid));
                     }
                 }
                 else
@@ -2077,82 +2148,13 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             // Wait for all first boot tasks to complete
             int sleepCount = 0;
-            while (_taskExecutionManager.IsTaskListRunning)
+            while (BootTaskExecutionManager.IsTaskListRunning)
             {
                 System.Threading.Thread.Sleep(1000);
                 sleepCount++;
                 if (sleepCount % 15 == 0)
                 {
                     ServiceLogger.LogInformation(Resources.FirstBootWaiting);
-                }
-            }
-
-            // Every boot tasks
-            if ((stateFileBackedup) && (_nonMutableKey != null) && (_volatileKey != null))
-            {
-                try
-                {
-                    // Check if every boot tasks were already completed
-                    var everyBootTasksCompleted = _volatileKey.GetValue(_everyBootCompleteValue) as int?;
-
-                    if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
-                    {
-                        ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _everyBootTasksDefaultPath));
-                        string everyBootTaskListPath = _everyBootTasksDefaultPath;
-
-                        // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                        if (!File.Exists(everyBootTaskListPath))
-                        {
-                            everyBootTaskListPath = (string)GetValueFromRegistry(_everyBootTasksPathValue, _everyBootTasksDefaultPath);
-                            if (!everyBootTaskListPath.Equals(_everyBootTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
-                            {
-                                ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, everyBootTaskListPath));
-                            }
-                        }
-
-                        if (File.Exists(everyBootTaskListPath))
-                        {
-                            everyBootTasksExecuted = true;
-                            ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, everyBootTaskListPath));
-
-                            // Create a new directory for the first boot logs
-                            _taskExecutionManager.SetLogFolder(Path.Combine(logFolder, "EveryBootTaskLists"), false);
-
-                            // Load the TaskLists file specified in registry
-                            var everyBootTaskListGuids = _taskExecutionManager.LoadTaskListsFromXmlFile(everyBootTaskListPath);
-
-                            foreach (var listGuid in everyBootTaskListGuids)
-                            {
-                                _taskExecutionManager.RunTaskList(listGuid);
-                                ServiceLogger.LogInformation(string.Format(Resources.EveryBootRunningTaskList, listGuid));
-                            }
-                        }
-                        else
-                        {
-                            ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, everyBootTaskListPath));
-                        }
-                    }
-                    else
-                    {
-                        ServiceLogger.LogInformation(Resources.EveryBootAlreadyComplete);
-                    }
-                }
-                catch (Exception e)
-                {
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{Resources.EveryBootFailed} ({e.AllExceptionsToString()})"));
-                    everyBootTasksFailed = true;
-                }
-            }
-
-            // Wait for all tasks to complete
-            sleepCount = 0;
-            while (_taskExecutionManager.IsTaskListRunning)
-            {
-                System.Threading.Thread.Sleep(1000);
-                sleepCount++;
-                if (sleepCount % 15 == 0)
-                {
-                    ServiceLogger.LogInformation(Resources.EveryBootWaiting);
                 }
             }
 
@@ -2163,9 +2165,66 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     ServiceLogger.LogInformation(Resources.FirstBootComplete);
                 }
-                
+
                 SetValueInRegistry(_firstBootCompleteValue, 1, RegistryValueKind.DWord);
             }
+
+            // Every boot tasks
+            try
+            {
+                // Find the TaskLists XML path.
+                var everyBootTaskListPath = (string)GetValueFromRegistry(_everyBootTasksPathValue, _everyBootTasksDefaultPath);
+                ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _everyBootTasksDefaultPath));
+
+                // Load every boot XML, even if we don't end up executing it, so it can be queried via FO APIs
+                List<Guid> everyBootTaskListGuids = null;
+                if (File.Exists(everyBootTaskListPath))
+                {
+                    BootTaskExecutionManager.SetLogFolder(Path.Combine(_taskExecutionManager.LogFolder, "EveryBootTaskLists"), false);
+                    ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, everyBootTaskListPath));
+                    // Load the first boot TaskLists file
+                    everyBootTaskListGuids = BootTaskExecutionManager.LoadTaskListsFromXmlFile(everyBootTaskListPath);
+                }
+                else
+                {
+                    ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, everyBootTaskListPath));
+                }
+
+                // Check if every boot tasks were already completed
+                var everyBootTasksCompleted = GetValueFromRegistry(_everyBootCompleteValue) as int?;
+                if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
+                {
+                    everyBootTasksExecuted = true;
+
+                    foreach (var listGuid in everyBootTaskListGuids)
+                    {
+                        BootTaskExecutionManager.RunTaskList(listGuid);
+                        ServiceLogger.LogInformation(string.Format(Resources.EveryBootRunningTaskList, listGuid));
+                    }
+                }
+                else
+                {
+                    ServiceLogger.LogInformation(Resources.EveryBootAlreadyComplete);
+                }
+            }
+            catch (Exception e)
+            {
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{Resources.EveryBootFailed}! ({e.AllExceptionsToString()})"));
+                everyBootTasksFailed = true;
+            }
+
+            // Wait for all tasks to complete
+            sleepCount = 0;
+            while (BootTaskExecutionManager.IsTaskListRunning)
+            {
+                System.Threading.Thread.Sleep(1000);
+                sleepCount++;
+                if (sleepCount % 15 == 0)
+                {
+                    ServiceLogger.LogInformation(Resources.EveryBootWaiting);
+                }
+            }
+
             if (!everyBootTasksFailed)
             {
                 // Mark every boot tasks as complete. Mark in volatile registry location so it is reset after reboot.
@@ -2175,19 +2234,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 _volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
-            }
-
-            if (firstBootTasksExecuted || everyBootTasksExecuted)
-            {
-                // Reset server state, clearing the first boot and first run tasklists, but keep the logs and tasks running.
-                _taskExecutionManager.SetLogFolder(logFolder, false);
-                _taskExecutionManager.Reset(true, false);
-
-                // Restore state file, if it existed
-                if (File.Exists(stateFileBackupPath))
-                {
-                    File.Copy(stateFileBackupPath, _taskExecutionManager.TaskListStateFile, true);
-                }
             }
         }
 
@@ -2425,7 +2471,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private TaskRun_Server RunProcessViaCmd(string process, string args, int timeoutMS)
         {
-            var run = (TaskRun_Server)TestExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
+            var run = (TaskRun_Server)_taskExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
 
             // Wait 2 seconds for process to start
             int waitCount = 0;
@@ -2446,7 +2492,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             var runner = run.GetOwningTaskRunner();
             if ((runner != null) && (!runner.WaitForExit(timeoutMS)))
             {
-                TestExecutionManager.AbortTaskRun(run.Guid);
+                _taskExecutionManager.AbortTaskRun(run.Guid);
                 throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessTimedOut, timeoutMS));
             }
 
