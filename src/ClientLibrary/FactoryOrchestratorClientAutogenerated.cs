@@ -471,7 +471,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets the GUID of every TaskList on the Service.
+        /// Gets the GUID of every "active" TaskList on the Service. If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists.
         /// </summary>
         /// <returns>The list of TaskList GUIDs.</returns>
         public async Task<List<Guid>> GetTaskListGuids()
@@ -492,7 +492,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets TaskList summaries for every TaskList on the Service. The summary contains basic info about the TaskList.
+        /// Gets TaskList summaries for every "active" TaskList on the Service.  If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists. The summary contains basic info about the TaskList.
         /// </summary>
         /// <returns>A list of TaskListSummary objects.</returns>
         public async Task<List<TaskListSummary>> GetTaskListSummaries()
@@ -505,6 +505,48 @@ namespace Microsoft.FactoryOrchestrator.Client
             try
             {
                 return await _IpcClient.InvokeAsync<List<TaskListSummary>>(CreateIpcRequest("GetTaskListSummaries"));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Gets the GUID of every "boot" TaskList on the Service.
+        /// </summary>
+        /// <returns>The list of TaskList GUIDs.</returns>
+        public async Task<List<Guid>> GetBootTaskListGuids()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync<List<Guid>>(CreateIpcRequest("GetBootTaskListGuids"));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Gets "boot" TaskList summaries for every "boot" TaskList on the Service. The summary contains basic info about the TaskList.
+        /// </summary>
+        /// <returns>A list of TaskListSummary objects.</returns>
+        public async Task<List<TaskListSummary>> GetBootTaskListSummaries()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync<List<TaskListSummary>>(CreateIpcRequest("GetBootTaskListSummaries"));
             }
             catch (Exception ex)
             {

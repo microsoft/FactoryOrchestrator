@@ -284,15 +284,25 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns>The created Service TaskList.</returns>
         TaskList CreateTaskListFromTaskList(TaskList list);
         /// <summary>
-        /// Gets the GUID of every TaskList on the Service.
+        /// Gets the GUID of every "active" TaskList on the Service. If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists.
         /// </summary>
         /// <returns>The list of TaskList GUIDs.</returns>
         List<Guid> GetTaskListGuids();
         /// <summary>
-        /// Gets TaskList summaries for every TaskList on the Service. The summary contains basic info about the TaskList.
+        /// Gets TaskList summaries for every "active" TaskList on the Service.  If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists. The summary contains basic info about the TaskList.
         /// </summary>
         /// <returns>A list of TaskListSummary objects.</returns>
         List<TaskListSummary> GetTaskListSummaries();
+        /// <summary>
+        /// Gets the GUID of every "boot" TaskList on the Service.
+        /// </summary>
+        /// <returns>The list of TaskList GUIDs.</returns>
+        List<Guid> GetBootTaskListGuids();
+        /// <summary>
+        /// Gets "boot" TaskList summaries for every "boot" TaskList on the Service. The summary contains basic info about the TaskList.
+        /// </summary>
+        /// <returns>A list of TaskListSummary objects.</returns>
+        List<TaskListSummary> GetBootTaskListSummaries();
         /// <summary>
         /// Gets the TaskList object for a given TaskList GUID.
         /// </summary>
