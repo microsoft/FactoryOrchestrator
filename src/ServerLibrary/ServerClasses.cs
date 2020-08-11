@@ -347,15 +347,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public TaskList GetTaskList(Guid guid)
         {
-            TaskList list = KnownTaskLists.Find(x => x.Guid == guid);
-            if (list != null)
-            {
-                return list;
-            }
-            else
-            {
-                throw new FactoryOrchestratorUnkownGuidException(guid, typeof(TaskList));
-            }
+            return KnownTaskLists.Find(x => x.Guid == guid);
         }
 
         public List<Guid> GetTaskListGuids()
@@ -603,7 +595,6 @@ namespace Microsoft.FactoryOrchestrator.Server
                 foreach (var list in KnownTaskLists)
                 {
                     RunTaskList(list.Guid);
-                    Thread.Sleep(5);
                 }
             }
 
@@ -1419,14 +1410,18 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                var files = Directory.EnumerateFiles(_logFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories);
+                var files = Directory.EnumerateFiles(_logFolder, $"*{taskRunGuid.ToString()}*", SearchOption.AllDirectories).ToList();
                 if (files.Count() == 1)
                 {
                     return LoadTaskRunFromFile(files.First());
                 }
-                else
+                else if (files.Count() == 0)
                 {
-                    throw new FactoryOrchestratorUnkownGuidException(taskRunGuid, typeof(TaskRun));
+                    return null;
+                }
+                else // Count > 1
+                {
+                    throw new FactoryOrchestratorException($"Multiple TaskRun log files found with GUID {taskRunGuid} in {_logFolder}!", taskRunGuid);
                 }
             }
         }
