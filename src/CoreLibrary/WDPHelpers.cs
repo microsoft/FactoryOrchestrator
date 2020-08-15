@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -97,20 +98,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// Builds the application installation Uri and generates a unique boundary string for the multipart form data.
         /// </summary>
         /// <param name="packageName">The name of the application package.</param>
-        /// <param name="uri">The endpoint for the install request.</param>
-        /// <param name="boundaryString">Unique string used to separate the parts of the multipart form data.</param>
-        private static void CreateAppInstallEndpointAndBoundaryString(
-            string packageName,
-            out Uri uri,
-            out string boundaryString)
-        {
-            CreateAppInstallEndpointAndBoundaryString(packageName, "localhost", out uri, out boundaryString);
-        }
-
-        /// <summary>
-        /// Builds the application installation Uri and generates a unique boundary string for the multipart form data.
-        /// </summary>
-        /// <param name="packageName">The name of the application package.</param>
         /// <param name="ipAddress">The ip address of the device to install the app on</param>
         /// <param name="uri">The endpoint for the install request.</param>
         /// <param name="boundaryString">Unique string used to separate the parts of the multipart form data.</param>
@@ -123,7 +110,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             uri = BuildEndpoint(
                 new Uri($"http://{ipAddress}"),
                 "api/app/packagemanager/package",
-                string.Format("package={0}", packageName));
+                $"package={packageName}");
 
             boundaryString = Guid.NewGuid().ToString();
         }
@@ -141,7 +128,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             string payload = null)
         {
             string relativePart = !string.IsNullOrWhiteSpace(payload) ?
-                                    string.Format("{0}?{1}", path, payload) : path;
+                                    $"{path}?{payload}" : path;
             return new Uri(baseUri, relativePart);
         }
 
@@ -168,35 +155,37 @@ namespace Microsoft.FactoryOrchestrator.Core
                         {
                             // If we have a response body, it's possible this was an error
                             // (even though we got an HTTP 200).
-                            Stream dataStream = null;
-                            using (HttpContent content = response.Content)
+
+
+                            using (Stream dataStream = new MemoryStream())
                             {
-                                dataStream = new MemoryStream();
-
-                                await content.CopyToAsync(dataStream).ConfigureAwait(false);
-
-                                // Ensure we point the stream at the origin.
-                                dataStream.Position = 0;
-                            }
-
-                            if (dataStream != null)
-                            {
-                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(HttpErrorResponse));
-
-                                HttpErrorResponse errorResponse = (HttpErrorResponse)serializer.ReadObject(dataStream);
-
-                                if (errorResponse.Success)
+                                using (HttpContent content = response.Content)
                                 {
-                                    status = ApplicationInstallStatus.Completed;
+                                    await content.CopyToAsync(dataStream).ConfigureAwait(false);
+
+                                    // Ensure we point the stream at the origin.
+                                    dataStream.Position = 0;
+                                }
+
+                                if (dataStream.Length > 0)
+                                {
+                                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(HttpErrorResponse));
+
+                                    HttpErrorResponse errorResponse = (HttpErrorResponse)serializer.ReadObject(dataStream);
+
+                                    if (errorResponse.Success)
+                                    {
+                                        status = ApplicationInstallStatus.Completed;
+                                    }
+                                    else
+                                    {
+                                        throw new Exception(string.Format(CultureInfo.CurrentCulture, Resources.WDPError, errorResponse.Reason));
+                                    }
                                 }
                                 else
                                 {
-                                    throw new Exception(string.Format(Resources.WDPError, errorResponse.Reason));
+                                    throw new Exception(string.Format(CultureInfo.CurrentCulture, Resources.WDPHttpError, response.StatusCode));
                                 }
-                            }
-                            else
-                            {
-                                throw new Exception(string.Format(Resources.WDPHttpError, response.StatusCode));
                             }
                         }
                     }
@@ -208,7 +197,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 }
                 else
                 {
-                    throw new Exception(string.Format(Resources.WDPHttpError, response.StatusCode));
+                    throw new Exception(string.Format(CultureInfo.CurrentCulture, Resources.WDPHttpError, response.StatusCode));
                 }
             }
 
@@ -226,13 +215,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </exception>
         public static async Task InstallAppWithWDP(string appFilePath, List<string> dependentAppsFilePaths, string certFilePath, string ipAddress = "localhost")
         {
-            Uri uri;
-            string boundaryString;
             ApplicationInstallStatus status = ApplicationInstallStatus.InProgress;
 
             if (!File.Exists(appFilePath))
             {
-                throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, appFilePath));
+                throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFoundException, appFilePath));
             }
 
             if (dependentAppsFilePaths != null)
@@ -241,7 +228,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 {
                     if (!File.Exists(app))
                     {
-                        throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, app));
+                        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFoundException, app));
                     }
                 }
             }
@@ -250,13 +237,15 @@ namespace Microsoft.FactoryOrchestrator.Core
             {
                 if (!File.Exists(certFilePath))
                 {
-                    throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, certFilePath));
+                    throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFoundException, certFilePath));
                 }
             }
 
-            CreateAppInstallEndpointAndBoundaryString(Path.GetFileName(appFilePath), ipAddress, out uri, out boundaryString);
-            var content = CreateAppInstallContent(appFilePath, dependentAppsFilePaths, certFilePath);
-            await WdpHttpClient.PostAsync(uri, content);
+            CreateAppInstallEndpointAndBoundaryString(Path.GetFileName(appFilePath), ipAddress, out var uri, out _);
+            using (var content = CreateAppInstallContent(appFilePath, dependentAppsFilePaths, certFilePath))
+            {
+                await WdpHttpClient.PostAsync(uri, content);
+            }
 
             while (status == ApplicationInstallStatus.InProgress)
             {
@@ -271,12 +260,12 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// List of items to transfer
         /// </summary>
-        private List<string> items = new List<string>();
+        private readonly List<string> items = new List<string>();
 
         /// <summary>
         /// Boundary string
         /// </summary>
-        private string boundaryString;
+        private readonly string boundaryString;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpMultipartFileContent" /> class.
@@ -292,7 +281,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         public HttpMultipartFileContent(string boundary)
         {
             this.boundaryString = boundary;
-            Headers.TryAddWithoutValidation("Content-Type", string.Format("multipart/form-data; boundary={0}", this.boundaryString));
+            Headers.TryAddWithoutValidation("Content-Type", $"multipart/form-data; boundary={this.boundaryString}");
         }
 
         /// <summary>
@@ -358,7 +347,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         protected override bool TryComputeLength(out long length)
         {
             length = 0;
-            var boundaryLength = Encoding.ASCII.GetBytes(string.Format("--{0}\r\n", this.boundaryString)).Length;
+            var boundaryLength = Encoding.ASCII.GetBytes($"--{this.boundaryString}\r\n").Length;
             foreach (var item in this.items)
             {
                 var headerdata = GetFileHeader(new FileInfo(item));
@@ -377,12 +366,12 @@ namespace Microsoft.FactoryOrchestrator.Core
         private static byte[] GetFileHeader(FileInfo info)
         {
             string contentType = "application/octet-stream";
-            if (info.Extension.ToLower() == ".cer")
+            if (info.Extension.ToUpperInvariant() == ".CER")
             {
                 contentType = "application/x-x509-ca-cert";
             }
 
-            return Encoding.ASCII.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{0}\"\r\nContent-Type: {1}\r\n\r\n", info.Name, contentType));
+            return Encoding.ASCII.GetBytes($"Content-Disposition: form-data; name=\"{info.Name}\"; filename=\"{info.Name}\"\r\nContent-Type: {contentType}\r\n\r\n");
         }
     }
 

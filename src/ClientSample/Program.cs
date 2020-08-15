@@ -5,13 +5,14 @@ using Microsoft.FactoryOrchestrator.Client;
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
-namespace FactoryOrchestratorClientSample
+namespace Microsoft.FactoryOrchestrator.ClientSample
 {
     /// <summary>
     /// 
@@ -52,11 +53,11 @@ namespace FactoryOrchestratorClientSample
                 await CopyLogsFromDUT(LogFolder);
                 var TimeFinished = DateTime.Now;
 
-                Console.WriteLine($"Copied test files, ran tests, and gathered logs in {TimeFinished - TimeStarted}");
+                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.Completed, TimeFinished - TimeStarted));
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"Fatal Exeption! {e.HResult} {e.Message}");
+                Console.Error.WriteLine($"{Resources.Exception} {e.HResult} {e.Message}");
             }
         }
 
@@ -69,18 +70,18 @@ namespace FactoryOrchestratorClientSample
             {
                 if (args.Length != 4)
                 {
-                    throw new ArgumentException("Specify IP, test content, dest dir, and log output folder!");
+                    throw new ArgumentException(Resources.NotEnoughArgs);
                 }
 
                 if (!IPAddress.TryParse(args[0], out Ip))
                 {
-                    throw new ArgumentException($"{args[0]} is not a valid IP address!");
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidIp, args[0]));
                 }
 
                 TestDir = args[1];
                 if (!Directory.Exists(TestDir))
                 {
-                    throw new ArgumentException($"{TestDir} is not a valid directory path!");
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidDir, TestDir));
                 }
 
                 DestDir = args[2];
@@ -98,8 +99,8 @@ namespace FactoryOrchestratorClientSample
         private static void PrintUsage(ArgumentException e)
         {
             Console.WriteLine();
-            Console.WriteLine("Usage:");
-            Console.WriteLine("dotnet ClientSample.dll <IP Address of DUT> <Folder on this PC with test content AND FactoryOrchestratorXML files> <Destination folder on DUT> <Destination folder on this PC to save logs>");
+            Console.WriteLine(Resources.Usage);
+            Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.ClientSampleUsage, Environment.GetCommandLineArgs()[0]));
             Console.WriteLine();
             throw e;
         }
@@ -113,11 +114,11 @@ namespace FactoryOrchestratorClientSample
             Client = new FactoryOrchestratorClient(ip);
             while (!await Client.TryConnect())
             {
-                Console.WriteLine($"Waiting for Factory Orchestrator Service on {ip.ToString()}...");
+                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.WaitingForService, ip.ToString()));
                 await Task.Delay(2000);
             }
 
-            Console.WriteLine($"Connected to {ip.ToString()}");
+            Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.ConnectedToIp, ip.ToString()));
         }
 
         /// <summary>
@@ -128,11 +129,11 @@ namespace FactoryOrchestratorClientSample
         /// <returns>Filename of any XML files found.</returns>
         private static async Task<List<string>> CopyFilesToDUT(string testDir, string destDir)
         {
-            Console.WriteLine($"Copying latest binaries and TaskLists from {testDir} to {destDir} on device...");
+            Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.CopyingFiles, testDir, destDir));
 
             var bytes = await Client.SendDirectoryToDevice(testDir, destDir);
 
-            Console.WriteLine($"Copied {bytes} bytes to the device...");
+            Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.CopyComplete, bytes));
 
             return Directory.EnumerateFiles(testDir, "*.xml").ToList();
         }
@@ -157,9 +158,18 @@ namespace FactoryOrchestratorClientSample
         /// <param name="destDir">Root folder on DUT where apps were copied to</param>
         private static async Task InstallAppsOnDUT(string destDir)
         {
-            Console.WriteLine($"Looking for apps in subfolders of {destDir}...");
+            Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.LookingForApps, destDir));
 
-            var dirs = await Client.EnumerateDirectories(destDir, false);
+            List<string> dirs;
+            try
+            {
+                dirs = await Client.EnumerateDirectories(destDir, false);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return;
+            }
+
             var mainApps = new List<string>();
             var certificates = new List<string>();
             var dependencyApps = new List<List<string>>();
@@ -173,42 +183,41 @@ namespace FactoryOrchestratorClientSample
                     continue;
                 }
 
-                var apps = files.Where(x => x.ToLowerInvariant().EndsWith(".appx") || x.ToLowerInvariant().EndsWith(".appxbundle") ||
-                                            x.ToLowerInvariant().EndsWith(".msixbundle") || x.ToLowerInvariant().EndsWith(".msix"));
+                var apps = files.Where(x => x.EndsWith(".appx", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".appxbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msix", StringComparison.InvariantCultureIgnoreCase));
+
+                if (!apps.Any())
+                {
+                    continue;
+                }
 
                 if (apps.Count() > 1)
                 {
-                    throw new InvalidDataException($"More than one app found in {dir}!");
-                }
-
-                if (apps.Count() == 0)
-                {
-                    continue;
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Resources.TooManyApps, dir));
                 }
 
                 // One & only one app was found, add to list
                 mainApps.Add(apps.First());
                 
                 // Check for a certificate
-                var certs = files.Where(x => x.ToLowerInvariant().EndsWith(".cer"));
+                var certs = files.Where(x => x.EndsWith(".cer", StringComparison.InvariantCultureIgnoreCase));
 
                 if (certs.Count() > 1)
                 {
-                    throw new InvalidDataException($"More than one certificate found in {dir}!");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Resources.TooManyCerts, dir));
                 }
 
                 // Add cert or null if no cert
                 certificates.Add(certs.DefaultIfEmpty(null).FirstOrDefault());
 
                 var interiorDirs = await Client.EnumerateDirectories(dir, false);
-                if (interiorDirs.Count > 0 && interiorDirs.Any(x => x.ToLowerInvariant().EndsWith(@"\dependencies")))
+                if (interiorDirs.Count > 0 && interiorDirs.Any(x => x.EndsWith(@"\dependencies", StringComparison.InvariantCultureIgnoreCase)))
                 {
                     // App directory has 'dependencies' folder, see if it contains apps
                     var depsForApp = await Client.EnumerateFiles(Path.Combine(dir, "dependencies"), true);
                     if (depsForApp.Count > 0)
                     {
-                        depsForApp = depsForApp.Where(x => x.ToLowerInvariant().EndsWith(".appx") || x.ToLowerInvariant().EndsWith(".appxbundle") ||
-                                                        x.ToLowerInvariant().EndsWith(".msixbundle") || x.ToLowerInvariant().EndsWith(".msix")).ToList();
+                        depsForApp = depsForApp.Where(x => x.EndsWith(".appx", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".appxbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msix", StringComparison.InvariantCultureIgnoreCase)).ToList();
+
                         if (depsForApp.Count == 0)
                         {
                             // no dependent apps
@@ -235,7 +244,7 @@ namespace FactoryOrchestratorClientSample
                 var depAppsForCurrentApp = dependencyApps[i];
                 var certForCurrentApp = certificates[i];
 
-                Console.WriteLine($"Installing {mainApp}... This may take a few minutes...");
+                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.InstallingApp, mainApp));
                 await Client.InstallApp(mainApp, depAppsForCurrentApp, certForCurrentApp);
             }
         }
@@ -247,7 +256,7 @@ namespace FactoryOrchestratorClientSample
         /// <param name="FOXMLs">Filenames of XML files to import</param>
         private static async Task<List<TaskListSummary>> LoadFactoryOrchestratorXMLs(string destDir, List<string> FOXMLs)
         {
-            Console.WriteLine("Loading TaskList(s) from FactoryOrchestratorXML file(s)...");
+            Console.WriteLine(Resources.LoadingFOXML);
 
             foreach (var xmlFilename in FOXMLs)
             {
@@ -273,7 +282,7 @@ namespace FactoryOrchestratorClientSample
         {
             foreach (var summary in tasklistSummaries)
             {
-                Console.WriteLine($"Executing TaskList {summary.Name}...");
+                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.ExecutingTaskList, summary.Name));
                 await Client.RunTaskList(summary.Guid);
 
                 var taskList = await Client.QueryTaskList(summary.Guid);
@@ -287,21 +296,21 @@ namespace FactoryOrchestratorClientSample
                     {
                         var runningTasks = taskList.Tasks.Where(x => x.IsRunningOrPending);
 
-                        Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}---- TaskList {summary.Name} Status: {taskList.TaskListStatus} ----");
-                        Console.WriteLine($"---- Running Tasks: ----");
+                        Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}---- {taskList.ToString()} ----");
+                        Console.WriteLine($"---- {Resources.RunningTasks} ----");
                         foreach (var task in runningTasks)
                         {
                             Console.Write($"{task.Name}");
                             if (task.LatestTaskRunRunTime != null)
                             {
-                                Console.Write($": Running for { (task.LatestTaskRunRunTime).GetValueOrDefault().TotalSeconds} seconds");
+                                Console.Write($": {string.Format(CultureInfo.CurrentCulture, Resources.RunningFor, (task.LatestTaskRunRunTime).GetValueOrDefault().TotalSeconds)}");
                             }
                             Console.WriteLine();
                         }
                     }
                 }
 
-                Console.WriteLine($"TaskList {taskList.Name} is finished!");
+                Console.WriteLine(Resources.TaskListComplete);
                 Console.WriteLine();
                 Console.WriteLine();
             }
@@ -314,26 +323,26 @@ namespace FactoryOrchestratorClientSample
         {
             var tasklistSummaries = (await Client.GetTaskListSummaries()).OrderBy(x => x.Name);
             var allPassed = tasklistSummaries.All(x => x.Status == TaskStatus.Passed);
-            Console.WriteLine("---- TaskList Execution Summary ----");
-            Console.Write($"Overall result: ");
+            Console.WriteLine($"---- {Resources.SummaryHeader} ----");
+            Console.Write($"{Resources.OverallResult}: ");
             if (allPassed)
             {
-                Console.WriteLine("Passed!");
+                Console.WriteLine(Resources.Passed);
             }
             else
             {
-                Console.WriteLine("Failed!");
+                Console.WriteLine(Resources.Failed);
             }
-            Console.WriteLine($"Total time to load and execute all TaskLists: {DateTime.Now - TimeStarted}");
+            Console.WriteLine($"{Resources.TotalTime} {DateTime.Now - TimeStarted}");
 
             foreach (var summary in tasklistSummaries)
             {
                 var taskList = await Client.QueryTaskList(summary.Guid);
-                Console.WriteLine($"---- Results for {taskList.Name} ----");
-                Console.WriteLine($"Overall status: {taskList.TaskListStatus}");
+                Console.WriteLine($"---- {Resources.ResultsFor} {taskList.Name} ----");
+                Console.WriteLine($"{Resources.OverallResult}: {taskList.TaskListStatus}");
                 foreach (var task in taskList.Tasks)
                 {
-                    Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} with exit code {task.LatestTaskRunExitCode.GetValueOrDefault()}. Task took {task.LatestTaskRunRunTime.GetValueOrDefault().TotalSeconds} seconds.");
+                    Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} {Resources.WithExitCode} {task.LatestTaskRunExitCode.GetValueOrDefault()}. {string.Format(CultureInfo.CurrentCulture, Resources.TaskTime, task.LatestTaskRunRunTime.GetValueOrDefault().TotalSeconds)}");
                 }
             }
         }
@@ -347,7 +356,7 @@ namespace FactoryOrchestratorClientSample
             var logDir = await Client.GetLogFolder();
             var bytes = await Client.GetDirectoryFromDevice(logDir, destinationPath);
 
-            Console.WriteLine($"Logs copied to {destinationPath}. Total size: {bytes} bytes.");
+            Console.WriteLine($"{Resources.LogsCopiedTo} {destinationPath}. {string.Format(CultureInfo.CurrentCulture, Resources.TotalSize, bytes)}");
         }
 
         public static FactoryOrchestratorClient Client;

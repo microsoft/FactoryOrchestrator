@@ -76,8 +76,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{422A5B26-B858-44D2-9E64-DD88B7B0A1F1}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		..\.gitignore = ..\.gitignore
 		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
+		Directory.Build.props = Directory.Build.props
 		..\LICENSE = ..\LICENSE
 		..\NOTICE.txt = ..\NOTICE.txt
 		..\README.md = ..\README.md

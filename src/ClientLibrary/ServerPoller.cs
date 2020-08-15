@@ -14,7 +14,7 @@ namespace Microsoft.FactoryOrchestrator.Client
     /// Factory Ochestrator uses a polling model. ServerPoller is used to create a polling thread for a given Factory Ochestrator GUID. It can optionally raise a ServerPollerEvent event via OnUpdatedObject.
     /// All Factory Orchestrator GUID types are supported.
     /// </summary>
-    public class ServerPoller
+    public class ServerPoller : IDisposable
     {
         /// <summary>
         /// Create a new ServerPoller. The ServerPoller is associated with a specific FactoryOrchestratorClient and object you want to poll. The desired object is referred to by its GUID. The GUID can be NULL for TaskRun polling.
@@ -38,6 +38,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             _timer = new Timer(GetUpdatedObjectAsync, null, Timeout.Infinite, pollingIntervalMs);
             _invokeSem = new SemaphoreSlim(1, 1);
             _stopped = true;
+            _isDisposed = false;
             OnUpdatedObject = null;
             OnException = null;
             OnlyRaiseOnExceptionEventForConnectionException = false;
@@ -59,13 +60,13 @@ namespace Microsoft.FactoryOrchestrator.Client
                     // TODO: Logging: check for failure
                     if ((_guidType == typeof(TaskBase)) || (_guidType == typeof(ExecutableTask)) || (_guidType == typeof(UWPTask)) || (_guidType == typeof(TAEFTest)))
                     {
-                    	newObj = await _client.QueryTask((Guid)PollingGuid);
+                        newObj = await _client.QueryTask((Guid)PollingGuid);
                     }
                     else if (_guidType == typeof(TaskList))
                     {
-                    	if (PollingGuid != null)
+                        if (PollingGuid != null)
                         {
-                        	newObj = await _client.QueryTaskList((Guid)PollingGuid);
+                            newObj = await _client.QueryTaskList((Guid)PollingGuid);
                         }
                         else
                         {
@@ -74,14 +75,14 @@ namespace Microsoft.FactoryOrchestrator.Client
                     }
                     else //if (_guidType == typeof(TaskRun))
                     {
-                    	newObj = await _client.QueryTaskRun((Guid)PollingGuid);
+                        newObj = await _client.QueryTaskRun((Guid)PollingGuid);
                     }
 
                     if (!_stopped)
                     {
-                    	LatestObject = newObj;
+                        LatestObject = newObj;
 
-                    	if (!Equals(newObj, _lastEventObject))
+                        if (!Equals(newObj, _lastEventObject))
                         {
                             if (_adaptiveInterval)
                             {
@@ -90,12 +91,12 @@ namespace Microsoft.FactoryOrchestrator.Client
                                 int newInterval;
                                 if (_invokeSem.Wait(0))
                                 {
-                                try
-                                {
-                                    OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
-                                }
-                                catch (Exception)
-                                {}
+                                    try
+                                    {
+                                        OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
+                                    }
+                                    catch (Exception)
+                                    { }
 
                                     _lastEventObject = newObj;
                                     _invokeSem.Release();
@@ -103,7 +104,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                                 }
                                 else
                                 {
-	                            newInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
+                                    newInterval = Math.Min(_initialPollingInterval * _adaptiveModifier, _pollingInterval + _pollingIntervalStep);
                                 }
 
                                 if (newInterval != _pollingInterval)
@@ -114,14 +115,14 @@ namespace Microsoft.FactoryOrchestrator.Client
                             }
                             else
                             {
-	                            try
-	                            {
-	                                // update object seen as it could be changed when the invoke returns
-	                                _lastEventObject = newObj;
-	                                OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
-	                            }
-	                            catch (Exception)
-	                            {}
+                                try
+                                {
+                                    // update object seen as it could be changed when the invoke returns
+                                    _lastEventObject = newObj;
+                                    OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
+                                }
+                                catch (Exception)
+                                { }
                             }
                         }
                     }
@@ -131,7 +132,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             {
                 if (!OnlyRaiseOnExceptionEventForConnectionException || e.GetType() != typeof(FactoryOrchestratorConnectionException))
                 {
-                    OnException?.Invoke(this, new ServerPollerExceptionHandlerArgs(e));
+                    OnException?.Invoke(this, new ServerPollerExceptionHandlerEventArgs(e));
                 }
             }
         }
@@ -142,7 +143,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="client">The FactoryOrchestratorClient object to use for polling.</param>
         public void StartPolling(FactoryOrchestratorClient client)
         {
-            _client = client;
+            _client = client ?? throw new ArgumentNullException(nameof(client));
 
             if (!_client.IsConnected)
             {
@@ -172,6 +173,37 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // free managed resources
+
+                _invokeSem.Dispose();
+                _timer.Dispose();
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
         /// Returns the latest object retrieved from the server.
         /// </summary>
         public object LatestObject { get; private set; }
@@ -189,14 +221,15 @@ namespace Microsoft.FactoryOrchestrator.Client
         private FactoryOrchestratorClient _client;
         private object _lastEventObject;
         private int _pollingInterval;
-        private int _initialPollingInterval;
-        private int _pollingIntervalStep;
+        private readonly int _initialPollingInterval;
+        private readonly int _pollingIntervalStep;
         private Timer _timer;
-        private SemaphoreSlim _invokeSem;
-        private Type _guidType;
+        private readonly SemaphoreSlim _invokeSem;
+        private readonly Type _guidType;
         private bool _stopped;
-        private bool _adaptiveInterval;
-        private int _adaptiveModifier;
+        private readonly bool _adaptiveInterval;
+        private readonly int _adaptiveModifier;
+        private bool _isDisposed;
 
         /// <summary>
         /// Event raised when a new object is received. It is only thrown if the object has changed since last polled.
@@ -247,18 +280,18 @@ namespace Microsoft.FactoryOrchestrator.Client
     /// </summary>
     /// <param name="source">The ServerPoller that retrieved the object.</param>
     /// <param name="e">The exception from the latest poll operation.</param>
-    public delegate void ServerPollerExceptionHandler(object source, ServerPollerExceptionHandlerArgs e);
+    public delegate void ServerPollerExceptionHandler(object source, ServerPollerExceptionHandlerEventArgs e);
 
     /// <summary>
     /// Class containing the exception thrown from the latest poll operation.
     /// </summary>
-    public class ServerPollerExceptionHandlerArgs : EventArgs
+    public class ServerPollerExceptionHandlerEventArgs : EventArgs
     {
         /// <summary>
         /// Creates a new ServerPollerExceptionArgs instance.
         /// </summary>
         /// <param name="exception">Exception from latest poll of the Server.</param>
-        public ServerPollerExceptionHandlerArgs(Exception exception)
+        public ServerPollerExceptionHandlerEventArgs(Exception exception)
         {
             Exception = exception;
         }

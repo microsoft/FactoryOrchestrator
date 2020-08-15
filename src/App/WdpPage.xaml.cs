@@ -32,10 +32,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         private async Task<bool> IsWindowsDevicePortalRunning()
         {
-            List<string> InstalledApps = new List<string>();
             try
             {
-                InstalledApps = await Client.GetInstalledApps();
+                _ = await Client.GetInstalledApps();
                 return true;
             }
             catch (Exception)
@@ -63,12 +62,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
-                ContentDialogResult result = await failedAppsDialog.ShowAsync();
+                _ = await failedAppsDialog.ShowAsync();
                 base.OnNavigatedTo(e);
             }
         }
         
-        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

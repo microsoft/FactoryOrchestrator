@@ -30,7 +30,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    sealed partial class App : Application
+    sealed partial class App : Application, IDisposable
     {
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -74,10 +74,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         private Frame PreLaunchSetUp()
         {
-            Frame rootFrame = Window.Current.Content as Frame;
+            var rootFrame = Window.Current.Content as Frame;
 
-            extendedExecution = new ExtendedExecutionSession();
-            extendedExecution.Reason = ExtendedExecutionReason.Unspecified;
+            extendedExecution = new ExtendedExecutionSession
+            {
+                Reason = ExtendedExecutionReason.Unspecified
+            };
             _ = extendedExecution.RequestExtensionAsync();
 
             if (rootFrame == null)
@@ -96,7 +98,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override async void OnActivated(IActivatedEventArgs args)
         {
+#pragma warning disable CA1062 // Validate arguments of public methods
             if (args.Kind == ActivationKind.Protocol)
+#pragma warning restore CA1062 // Validate arguments of public methods
             {
                 ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
                 var path = eventArgs.Uri.LocalPath;
@@ -127,13 +131,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             rootFrame.Navigate(typeof(ConnectionPage), path);
                         }
                     }
-                   
                 }
-
             }
         }
 
-        internal async void OnServerPollerException(object source, ServerPollerExceptionHandlerArgs e)
+        internal async void OnServerPollerException(object source, ServerPollerExceptionHandlerEventArgs e)
         {
             var poller = source as ServerPoller;
 
@@ -160,8 +162,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             Content = "Stop polling this object?"
                         };
 
-                        var dialogStack = new StackPanel();
-                        dialogStack.Orientation = Orientation.Vertical;
+                        var dialogStack = new StackPanel
+                        {
+                            Orientation = Orientation.Vertical
+                        };
                         dialogStack.Children.Add(new TextBlock()
                         {
                             Text = e.Exception.Message + "\r\n\r\nThis can occur when the Factory Orchestrator Service is restarted during an operation",
@@ -335,7 +339,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             Frame rootFrame = PreLaunchSetUp();
 
+#pragma warning disable CA1062 // Validate arguments of public methods
             if (e.PrelaunchActivated == false)
+#pragma warning restore CA1062 // Validate arguments of public methods
             {
                 if (rootFrame.Content == null)
                 {
@@ -494,10 +500,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async Task HandleServiceEvents()
         {
             // Handle one event at a time, oldest first
-            ServiceEvent evnt;
-            while (serviceEventQueue.TryDequeue(out evnt))
+            while (serviceEventQueue.TryDequeue(out var evnt))
             {
-                switch(evnt.ServiceEventType)
+                switch (evnt.ServiceEventType)
                 {
                     case ServiceEventType.ServiceStart:
                         IsServiceExecutingBootTasks = true;
@@ -569,6 +574,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
             RunWaitingForResult = null;
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    connectionFailureSem?.Dispose();
+                    pollingFailureSem?.Dispose();
+                    extendedExecution?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
         public TaskRun RunWaitingForResult { get; private set; }
         public string MainPageLastNavTag { get; set; }
         public FactoryOrchestratorUWPClient Client { get; set; }
@@ -604,19 +636,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (!Equals(value, _isContainerRunning))
                 {
                     _isContainerRunning = value;
-                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs("IsContainerRunning"));
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsContainerRunning)));
                 }
             }
         }
         private bool _isContainerRunning;
 
-        private SemaphoreSlim connectionFailureSem;
-        private SemaphoreSlim pollingFailureSem;
+        private readonly SemaphoreSlim connectionFailureSem;
+        private readonly SemaphoreSlim pollingFailureSem;
         private bool eventSeen = false;
         private ulong lastEventIndex;
-        private ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
+        private readonly ConcurrentQueue<ServiceEvent> serviceEventQueue = new ConcurrentQueue<ServiceEvent>();
         private ExtendedExecutionSession extendedExecution = null;
-        private object onConnectionLock = new object();
+        private readonly object onConnectionLock = new object();
         private IPAddress lastIp = null;
     }
 

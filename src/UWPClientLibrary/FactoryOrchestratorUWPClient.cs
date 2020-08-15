@@ -102,6 +102,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <param name="path">Directory to create.</param>
         protected override void CreateDirectory(string path)
         {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
             StorageFolder parent;
             var parentPath = Path.GetDirectoryName(path);
 

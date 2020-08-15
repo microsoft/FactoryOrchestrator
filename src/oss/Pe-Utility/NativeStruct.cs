@@ -1,7 +1,8 @@
 ﻿// From https://github.com/AndresTraks/pe-utility with minimal changes for simplification and compatibility with .NET Standard
 // Copyright(c) 2014-2016 Andres Traks
 // Licensed under the MIT license.
-
+#pragma warning disable CA1051 // Do not declare visible instance fields
+#pragma warning disable CA1815 // Override equals and operator equals on value types
 using System;
 using System.Runtime.InteropServices;
 
@@ -66,7 +67,7 @@ namespace PEUtility
         }
     }
 
-    public enum Subsystem : ushort
+    public enum Subsystem
     {
         Unknown = 0,
         Native = 1,
@@ -82,7 +83,7 @@ namespace PEUtility
     }
 
     [Flags]
-    public enum DllCharacteristics : ushort
+    public enum DllCharacteristics
     {
         DynamicBase = 0x0040,
         ForceIntegrity = 0x0080,
@@ -94,7 +95,7 @@ namespace PEUtility
         TerminalServerAware = 0x8000
     }
 
-    public enum ImageOptionalHeaderMagic : ushort
+    public enum ImageOptionalHeaderMagic
     {
         Header32 = 0x10b,
         Header64 = 0x20b,
@@ -259,7 +260,7 @@ namespace PEUtility
     }
 
     [Flags]
-    public enum ImageSectionCharacteristics : uint
+    public enum ImageSectionCharacteristics : Int64
     {
         None = 0x0,
         TypeDSect = 0x1,
@@ -277,7 +278,6 @@ namespace PEUtility
         LnkComdat = 0x1000,
         MemoryFarData = 0x8000,
         MemoryPurgeable = 0x20000,
-        Memory16Bit = 0x20000,
         MemoryLocked = 0x40000,
         MemoryPreload = 0x80000,
         Align1Bytes = 0x100000,
@@ -336,7 +336,9 @@ namespace PEUtility
 
         public override string ToString()
         {
+#pragma warning disable CA1305 // Specify IFormatProvider
             return Section + " RVA: " + string.Format("0x{0:X}", VirtualAddress);
+#pragma warning restore CA1305 // Specify IFormatProvider
         }
     }
 
@@ -383,8 +385,9 @@ namespace PEUtility
         }
     }
 
+#pragma warning disable CA1707 // Identifiers should not contain underscores
     [Flags]
-    public enum ComImageFlags : uint
+    public enum ComImageFlags
     {
         ILOnly = 1,
         _32BitRequired = 2,
@@ -394,6 +397,7 @@ namespace PEUtility
         TrackDebugData = 0x10000,
         _32BitPreferred = 0x20000,
     }
+#pragma warning restore CA1707 // Identifiers should not contain underscores
 
     public struct ImageCor20Header
     {
@@ -411,3 +415,5 @@ namespace PEUtility
         public ImageDataDirectory ManagedNativeHeader;
     }
 }
+#pragma warning restore CA1051 // Do not declare visible instance fields
+#pragma warning restore CA1815 // Override equals and operator equals on value types
