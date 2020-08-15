@@ -45,7 +45,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A
 	ProjectSection(SolutionItems) = preProject
 		..\build\AutoGenerateInterfaceHelper.ps1 = ..\build\AutoGenerateInterfaceHelper.ps1
 		..\build\azure-pipelines.pr.yml = ..\build\azure-pipelines.pr.yml
-		..\build\azure-pipelines.release.yml = ..\build\azure-pipelines.release.yml
 		..\build\azure-pipelines.yml = ..\build\azure-pipelines.yml
 		custom.props = custom.props
 		..\build\SetSourceVersion.ps1 = ..\build\SetSourceVersion.ps1
