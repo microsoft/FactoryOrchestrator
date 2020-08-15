@@ -14,13 +14,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Globalization;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
     /// <summary>
     /// Extends the Exception class.
     /// </summary>
-    public static class Exception_Extensions
+    public static class ExceptionExtensions
     {
         /// <summary>
         /// Returns a string describing the given Exception including all inner exceptions.
@@ -108,7 +109,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// The Task is a executable (exe) task.
         /// </summary>
-        ConsoleExe = 0,
+        ConsoleExe = Executable,
 
 
         /// <summary>
@@ -141,11 +142,21 @@ namespace Microsoft.FactoryOrchestrator.Core
     {
         public override bool Equals(TaskBase x, TaskBase y)
         {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
             return x.Equals(y);
         }
 
         public override int GetHashCode(TaskBase obj)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             return obj.GetHashCode();
         }
     }
@@ -776,7 +787,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         [JsonIgnore]
         [XmlIgnore]
-        public object TaskLock;
+        public object TaskLock { get; private set; }
 
         /// <summary>
         /// Creates a Task object from a TaskRun object.
@@ -786,6 +797,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <exception cref="InvalidEnumArgumentException">Given TaskRun has an invalid TaskType</exception>
         public static TaskBase CreateTaskFromTaskRun(TaskRun run)
         {
+            if (run == null)
+            {
+                throw new ArgumentNullException(nameof(run));
+            }
+
             TaskBase task;
             switch (run.TaskType)
             {
@@ -1000,7 +1016,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             return base.Equals(obj as ExecutableTask);
         }
 
-        private string _scriptPath;
+        private readonly string _scriptPath;
         private string _testFriendlyName;
     }
 
@@ -1070,7 +1086,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             return base.Equals(obj as ExecutableTask);
         }
 
-        private string _scriptPath;
+        private readonly string _scriptPath;
         private string _testFriendlyName;
     }
 
@@ -1408,7 +1424,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </returns>
         public override string ToString()
         {
-            return Name;
+            return string.Format(CultureInfo.CurrentCulture, Resources.TaskListToString, Name, Guid.ToString(), TaskListStatus.ToString());
         }
 
         /// <summary>
@@ -2188,15 +2204,17 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                     if (!File.Exists(filename))
                     {
-                        throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, filename));
+                        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFoundException, filename));
                     }
 
                     // Validate XSD
                     var asm = Assembly.GetAssembly(typeof(FactoryOrchestratorXML));
                     using (Stream xsdStream = asm.GetManifestResourceStream(GetResourceName(Assembly.GetAssembly(typeof(FactoryOrchestratorXML)), "FactoryOrchestratorXML.xsd", false)))
                     {
-                        XmlReaderSettings settings = new XmlReaderSettings();
-                        settings.XmlResolver = null;
+                        XmlReaderSettings settings = new XmlReaderSettings
+                        {
+                            XmlResolver = null
+                        };
 
                         using (XmlReader xsdReader = XmlReader.Create(xsdStream, settings))
                         {
@@ -2204,8 +2222,10 @@ namespace Microsoft.FactoryOrchestrator.Core
 
                             using (XmlReader reader = XmlReader.Create(filename, settings))
                             {
-                                XmlDocument document = new XmlDocument();
-                                document.XmlResolver = null;
+                                XmlDocument document = new XmlDocument
+                                {
+                                    XmlResolver = null
+                                };
                                 document.Schemas.Add(xmlSchema);
 
                                 // Remove xsi:type so they are properly validated against the shared "task" XSD type
@@ -2239,7 +2259,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
             catch (Exception e)
             {
-                throw new FileLoadException(string.Format(Resources.FOXMLFileLoadException, filename), e);
+                throw new FileLoadException(string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, filename), e);
             }
 
             return xml;
@@ -2264,19 +2284,19 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         private static string GetResourceName(Assembly assembly, string resourceIdentifier, bool matchWholeWord = true)
         {
-            resourceIdentifier = resourceIdentifier.ToLowerInvariant();
+            resourceIdentifier = resourceIdentifier.ToUpperInvariant();
             var ListOfResources = assembly.GetManifestResourceNames();
 
             foreach (string resource in ListOfResources)
             {
                 if (matchWholeWord)
                 {
-                    if (resource.ToLowerInvariant().Equals(resourceIdentifier))
+                    if (resource.ToUpperInvariant().Equals(resourceIdentifier, StringComparison.InvariantCultureIgnoreCase))
                     {
                         return resource;
                     }
                 }
-                else if (resource.ToLowerInvariant().Contains(resourceIdentifier))
+                else if (resource.ToUpperInvariant().Contains(resourceIdentifier))
                 {
                     return resource;
                 }
@@ -2303,14 +2323,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         private static bool XmlIsValid { get; set; }
-        private static object XmlSerializeLock = new object();
+        private static readonly object XmlSerializeLock = new object();
         private static string ValidationErrors;
     }
 
     /// <summary>
     /// A helper class containing basic information about a TaskList. Use to quickly update clients about TaskLists and their statuses.
     /// </summary>
-    public struct TaskListSummary
+    public struct TaskListSummary : IEquatable<TaskListSummary>
     {
         /// <summary>
         /// Creates a new TaskListSummary.
@@ -2354,7 +2374,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         public override string ToString()
         {
             // Accessible name.
-            return string.Format(Resources.TaskListToString, Name, Guid.ToString(), Status.ToString());
+            return string.Format(CultureInfo.CurrentCulture, Resources.TaskListToString, Name, Guid.ToString(), Status.ToString());
         }
 
         /// <summary>
@@ -2377,14 +2397,27 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </returns>
         public override bool Equals(object obj)
         {
-            var rhs = (TaskListSummary)obj;
+            if (!(obj is TaskListSummary))
+            {
+                return false;
+            }
 
+            return Equals((TaskListSummary)obj);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="TaskListSummary" />, is equal to this instance.
+        /// </summary>
+        /// <param name="rhs">The <see cref="TaskListSummary" /> to compare with this instance.</param>
+        /// <returns></returns>
+        public bool Equals(TaskListSummary rhs)
+        {
             if (!Guid.Equals(rhs.Guid))
             {
                 return false;
             }
 
-            if (!Name.Equals(rhs.Name))
+            if (!Name.Equals(rhs.Name, StringComparison.CurrentCulture))
             {
                 return false;
             }
@@ -2410,6 +2443,32 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static bool operator ==(TaskListSummary first, TaskListSummary second)
+        {
+            return first.Equals(second);
+        }
+
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static bool operator !=(TaskListSummary first, TaskListSummary second)
+        {
+            return !first.Equals(second);
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
         }
 
         /// <summary>Reads the JSON representation of the object.</summary>
-        /// <param name="reader">The <see cref="T:Newtonsoft.Json.JsonReader"/> to read from.</param>
+        /// <param name="reader">The <see cref="Newtonsoft.Json.JsonReader"/> to read from.</param>
         /// <param name="objectType">Type of the object.</param>
         /// <param name="existingValue">The existing value of object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
@@ -52,9 +52,9 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
             }
         }
 
-        /// <summary>Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter"/> can write JSON.</summary>
+        /// <summary>Gets a value indicating whether this <see cref="Newtonsoft.Json.JsonConverter"/> can write JSON.</summary>
         /// <value>
-        ///   <c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter"/> can write JSON; otherwise, <c>false</c>.</value>
+        ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter"/> can write JSON; otherwise, <c>false</c>.</value>
         public override bool CanWrite
         {
             get { return true; }
@@ -63,12 +63,21 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
         /// <summary>
         /// Writes the JSON representation of the object.
         /// </summary>
-        /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
+        /// <param name="writer">The <see cref="Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
         /// <exception cref="FactoryOrchestratorException">Trying to serialize an unknown task type</exception>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            if (serializer == null)
+            {
+                throw new ArgumentNullException(nameof(serializer));
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             var task = (TaskBase)value;
             switch (task.Type)
             {
@@ -116,17 +125,17 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON.
+        /// Gets a value indicating whether this <see cref="Newtonsoft.Json.JsonConverter" /> can read JSON.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON; otherwise, <c>false</c>.
+        ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter" /> can read JSON; otherwise, <c>false</c>.
         /// </value>
         public override bool CanRead { get { return false; } }
 
         /// <summary>
         /// Reads the JSON representation of the object.
         /// </summary>
-        /// <param name="reader">The <see cref="T:Newtonsoft.Json.JsonReader" /> to read from.</param>
+        /// <param name="reader">The <see cref="Newtonsoft.Json.JsonReader" /> to read from.</param>
         /// <param name="objectType">Type of the object.</param>
         /// <param name="existingValue">The existing value of object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
@@ -140,17 +149,17 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter" /> can write JSON.
+        /// Gets a value indicating whether this <see cref="Newtonsoft.Json.JsonConverter" /> can write JSON.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter" /> can write JSON; otherwise, <c>false</c>.
+        ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter" /> can write JSON; otherwise, <c>false</c>.
         /// </value>
         public override bool CanWrite { get { return false; } }
 
         /// <summary>
         /// Writes the JSON representation of the object.
         /// </summary>
-        /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
+        /// <param name="writer">The <see cref="Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
         /// <exception cref="NotImplementedException"></exception>

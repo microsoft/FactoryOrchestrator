@@ -6,6 +6,7 @@ using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -134,13 +135,13 @@ namespace Microsoft.FactoryOrchestrator.Client
 
                 bool appending = false;
                 long totalBytesRead = 0;
-                byte[] bytes = new byte[Constants.FILE_TRANSFER_CHUNK_SIZE];
+                byte[] bytes = new byte[Constants.FileTransferChunkSize];
 
                 using (var reader = CreateClientFileReader(clientFilename))
                 {
                     // Read file in chunks from the client and send to the server
                     // Read file in chunks from the client and send to the server
-                    var bytesThisRead = reader.Read(bytes, 0, Constants.FILE_TRANSFER_CHUNK_SIZE);
+                    var bytesThisRead = reader.Read(bytes, 0, Constants.FileTransferChunkSize);
                     totalBytesRead += bytesThisRead;
                     while (bytesThisRead > 0)
                     {
@@ -152,8 +153,8 @@ namespace Microsoft.FactoryOrchestrator.Client
                         await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", serverFilename, bytes, appending, sendToContainer));
                         appending = true;
 
-                        bytes = new byte[Constants.FILE_TRANSFER_CHUNK_SIZE];
-                        bytesThisRead = reader.Read(bytes, 0, Constants.FILE_TRANSFER_CHUNK_SIZE);
+                        bytes = new byte[Constants.FileTransferChunkSize];
+                        bytesThisRead = reader.Read(bytes, 0, Constants.FileTransferChunkSize);
                         totalBytesRead += bytesThisRead;
                     }
                 }
@@ -191,16 +192,16 @@ namespace Microsoft.FactoryOrchestrator.Client
                 using (var writer = CreateClientFileWriter(clientFilename))
                 {
                     // read file in chunks from the server and save to client
-                    var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, 0, Constants.FILE_TRANSFER_CHUNK_SIZE, getFromContainer));
+                    var bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, 0, Constants.FileTransferChunkSize, getFromContainer));
                     totalBytesWritten += bytes.Length;
                     if (bytes.Length > 0)
                     {
                         writer.Write(bytes, 0, bytes.Length);
                     }
 
-                    while (bytes.Length == Constants.FILE_TRANSFER_CHUNK_SIZE)
+                    while (bytes.Length == Constants.FileTransferChunkSize)
                     {
-                        bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, totalBytesWritten, Constants.FILE_TRANSFER_CHUNK_SIZE, getFromContainer));
+                        bytes = await _IpcClient.InvokeAsync<byte[]>(CreateIpcRequest("GetFile", serverFilename, totalBytesWritten, Constants.FileTransferChunkSize, getFromContainer));
                         totalBytesWritten += bytes.Length;
 
                         if (bytes.Length > 0)
@@ -425,13 +426,13 @@ namespace Microsoft.FactoryOrchestrator.Client
                 // Multiple methods with the same name were found or no method was found, try to find the unique method via stack trace
                 var frame = new StackTrace().GetFrames().Where(x => x.GetMethod()?.Name == methodName);
 
-                if (frame.Count() == 0)
+                if (!frame.Any())
                 {
-                    throw new Exception(string.Format(Resources.NoMethodFound, methodName));
+                    throw new Exception(string.Format(CultureInfo.CurrentCulture, Resources.NoMethodFound, methodName));
                 }
                 if (frame.Count() > 1)
                 {
-                    throw new Exception(string.Format(Resources.TooManyMethodsFound, methodName));
+                    throw new Exception(string.Format(CultureInfo.CurrentCulture, Resources.TooManyMethodsFound, methodName));
                 }
 
                 method = frame.First().GetMethod();
@@ -462,9 +463,9 @@ namespace Microsoft.FactoryOrchestrator.Client
             return new IpcRequest()
             {
                 MethodName = methodName,
-                Parameters = new object[0],
-                ParameterAssemblyNames = new string[0],
-                ParameterTypes = new string[0]
+                Parameters = Array.Empty<string>(),
+                ParameterAssemblyNames = Array.Empty<string>(),
+                ParameterTypes = Array.Empty<string>()
             };
         }
 
@@ -569,7 +570,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// The IPC client used to communicate with the service.
         /// </summary>
-        protected IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
+        private IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
 
     }
 
@@ -584,16 +585,26 @@ namespace Microsoft.FactoryOrchestrator.Client
     public class FactoryOrchestratorConnectionException : FactoryOrchestratorException
     {
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorConnectionException"/> class.
         /// </summary>
-        /// <param name="ip">IP address Client is communicating with.</param>
-        public FactoryOrchestratorConnectionException(IPAddress ip) : base(string.Format(Resources.FactoryOrchestratorConnectionException, ip.ToString()))
-        { }
+        public FactoryOrchestratorConnectionException() : base() { }
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorConnectionException"/> class.
         /// </summary>
-        /// <param name="message">Exception text.</param>
-        public FactoryOrchestratorConnectionException(string message) : base(message)
+        /// <param name="message">The message that describes the error.</param>
+        public FactoryOrchestratorConnectionException(string message) : base(message) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorConnectionException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        public FactoryOrchestratorConnectionException(string message, Exception innerException) : base(message, innerException) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorConnectionException"/> class.
+        /// </summary>
+        /// <param name="ip">IP address the client is attempting to communicate with.</param>
+        public FactoryOrchestratorConnectionException(IPAddress ip) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorConnectionException, ip?.ToString()))
         { }
     }
 
@@ -605,10 +616,27 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
         /// </summary>
+        public FactoryOrchestratorVersionMismatchException() : base() { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the error.</param>
+        public FactoryOrchestratorVersionMismatchException(string message) : base(message) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        public FactoryOrchestratorVersionMismatchException(string message, Exception innerException) : base(message, innerException) { }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
+        /// </summary>
         /// <param name="ip">The ip address of the Service.</param>
         /// <param name="serviceVersion">The service version.</param>
         /// <param name="clientVersion">The client version.</param>
-        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion, string clientVersion) : base(string.Format(Resources.FactoryOrchestratorVersionMismatchException, ip.ToString(), serviceVersion, clientVersion))
+        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion, string clientVersion) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorVersionMismatchException, ip?.ToString(), serviceVersion, clientVersion))
         {
             ServiceVersion = serviceVersion;
             ClientVersion = clientVersion;

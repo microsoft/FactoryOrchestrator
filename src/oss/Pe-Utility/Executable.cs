@@ -36,7 +36,9 @@ namespace PEUtility
         public bool IsValid { get; }
         public string Filename { get; }
         public ExecutableReader Reader { get; }
+#pragma warning disable CA1819 // Properties should not return arrays
         public ImageSectionHeader[] Sections { get; private set; }
+#pragma warning restore CA1819 // Properties should not return arrays
 
         public string Type
         {
@@ -81,7 +83,9 @@ namespace PEUtility
             var bytes = new List<char>();
             while (true)
             {
+#pragma warning disable CA1062 // Validate arguments of public methods
                 var b = accessor.ReadByte(position);
+#pragma warning restore CA1062 // Validate arguments of public methods
                 if (b == 0)
                 {
                     break;

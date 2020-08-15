@@ -9,7 +9,9 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
-    class TaskStatusDataBindingConverter : IValueConverter
+#pragma warning disable CA1812 // Used in XAML
+    public class TaskStatusDataBindingConverter : IValueConverter
+#pragma warning restore CA1812
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
@@ -17,7 +19,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             if (paramStr == null)
             {
+#pragma warning disable CA1062 // Validate arguments of public methods
                 return ConvertStatus(value, true);
+#pragma warning restore CA1062 // Validate arguments of public methods
             }
             if (paramStr.Equals("TaskBase", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -106,6 +110,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             throw new NotImplementedException();
         }
 
-        private ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse();
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForViewIndependentUse();
     }
 }

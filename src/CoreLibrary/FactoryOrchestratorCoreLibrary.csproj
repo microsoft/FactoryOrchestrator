@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <TargetName>FactoryOrchestratorCoreLibrary</TargetName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>

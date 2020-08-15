@@ -72,14 +72,6 @@ namespace PEUtility
             }
         }
 
-        private long ReadInt64(long address)
-        {
-            using (var accessor = GetAccessor(address, sizeof(long)))
-            {
-                return accessor.ReadInt64(0);
-            }
-        }
-
         public ulong ReadUInt64(long address)
         {
             using (var accessor = GetAccessor(address, sizeof(ulong)))

@@ -6,6 +6,7 @@
     <LangVersion>latest</LangVersion>
     <TargetName>ClientSample</TargetName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -21,6 +22,20 @@
   <ItemGroup>
     <Compile Include="obj\AssemblyInfo.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.FactoryOrchestrator.ClientSample</CustomToolNamespace>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">

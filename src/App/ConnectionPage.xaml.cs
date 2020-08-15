@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Navigation;
 using System.Threading.Tasks;
 using System.Threading;
 using Windows.ApplicationModel.Resources;
+using System.Globalization;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -20,7 +21,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class ConnectionPage : Page
+    public sealed partial class ConnectionPage : Page, IDisposable
     {
         public ConnectionPage()
         {
@@ -34,7 +35,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            lastNavTag = e.Parameter as string;
+            if (e == null)
+            {
+                lastNavTag = null;
+            }
+            else
+            {
+                lastNavTag = e.Parameter as string;
+            }
+
             if (localSettings.Values.ContainsKey("lastIp"))
             {
                 IpTextBox.Text = (string)localSettings.Values["lastIp"];
@@ -84,10 +93,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            IPAddress ip = null;
             bool validIp = false;
 
-            validIp = IPAddress.TryParse(IpTextBox.Text, out ip);
+            validIp = IPAddress.TryParse(IpTextBox.Text, out var ip);
 
             if (validIp)
             {
@@ -121,7 +129,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ContentDialog failedConnectDialog = new ContentDialog
             {
                 Title = resourceLoader.GetString("BadIpTitle"),
-                Content = string.Format(resourceLoader.GetString("BadIpContent"), ipStr),
+                Content = string.Format(CultureInfo.CurrentCulture, resourceLoader.GetString("BadIpContent"), ipStr),
                 CloseButtonText = resourceLoader.GetString("Ok")
             };
 
@@ -159,9 +167,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void ValidateXMLButton_Click(object sender, RoutedEventArgs e)
         {
-            var picker = new Windows.Storage.Pickers.FileOpenPicker();
-            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
-            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.List,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder
+            };
             picker.FileTypeFilter.Add(".xml");
             Windows.Storage.StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile tempXml = await localFolder.CreateFileAsync("temp.xml", CreationCollisionOption.ReplaceExisting);
@@ -179,7 +189,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ContentDialog successLoadDialog = new ContentDialog
                     {
                         Title = resourceLoader.GetString("XmlValidatedTitle"),
-                        Content = string.Format(resourceLoader.GetString("XmlValidatedContent"), path),
+                        Content = string.Format(CultureInfo.CurrentCulture, resourceLoader.GetString("XmlValidatedContent"), path),
                         CloseButtonText = resourceLoader.GetString("Ok")
                     };
 
@@ -187,7 +197,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
                 catch (Exception ex)
                 {
-                    var msg = ex.AllExceptionsToString().Replace(tempXml.Path, path);
+                    var msg = ex.AllExceptionsToString().Replace(tempXml.Path, path, StringComparison.OrdinalIgnoreCase);
                     ContentDialog failedLoadDialog = new ContentDialog
                     {
                         Title = resourceLoader.GetString("XmlFailedTitle"),
@@ -201,9 +211,34 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private string lastNavTag;
-        private SemaphoreSlim connectionSem;
-        private ApplicationDataContainer localSettings;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly SemaphoreSlim connectionSem;
+        private readonly ApplicationDataContainer localSettings;
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    connectionSem?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
 
     }
 }

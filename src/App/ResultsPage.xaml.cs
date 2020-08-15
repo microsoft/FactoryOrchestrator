@@ -23,7 +23,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class ResultsPage : Page
+    public sealed partial class ResultsPage : Page, IDisposable
     {
         public ResultsPage()
         {
@@ -78,6 +78,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            if (e == null)
+            {
+                throw new ArgumentNullException(nameof(e));
+            }
+
             await SetupForTask(e.Parameter as TaskBase);
             BackButton.IsEnabled = this.Frame.CanGoBack;
             base.OnNavigatedTo(e);
@@ -213,12 +218,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return false;
         }
 
-        private void BackInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-        {
-            On_BackRequested();
-            args.Handled = true;
-        }
-
         private void CreateHeader()
         {
             TaskHeader.Text = _test.Name;
@@ -245,7 +244,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void UpdateResultsSummary()
         {
-            var children = TestResultSummaryStack.Children;
             switch (_selectedRun.TaskStatus)
             {
                 case TaskStatus.Passed:
@@ -392,15 +390,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private void UpdateOutput(List<(string text, bool isError)> blocks)
         {
-            foreach (var block in blocks)
+            foreach (var (text, isError) in blocks)
             {
                 var textBlock = new TextBlock()
                 {
-                    Text = block.text,
+                    Text = text,
                     IsTextSelectionEnabled = true
                 };
 
-                if (block.isError)
+                if (isError)
                 {
                     textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
                     textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
@@ -507,7 +505,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ScrollView.ZoomMode = ZoomMode.Enabled;
         }
 
-        private async void OnPollingException(object source, ServerPollerExceptionHandlerArgs e)
+        private async void OnPollingException(object source, ServerPollerExceptionHandlerEventArgs e)
         {
             bool handled = false;
             if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
@@ -529,6 +527,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 ((App)Application.Current).OnServerPollerException(source, e);
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _taskRunPoller?.Dispose();
+                    _taskPoller?.Dispose();
+                    _updateSem?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
 
         public bool IsEmbedded
         {
@@ -563,12 +588,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private TaskRun _selectedRun;
         private ServerPoller _taskRunPoller;
         private ServerPoller _taskPoller;
-        private object _taskRunPollLock;
-        private SemaphoreSlim _updateSem;
+        private readonly object _taskRunPollLock;
+        private readonly SemaphoreSlim _updateSem;
         private int lastOutput;
         private bool _isEmbedded;
         private bool _isBootTask;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

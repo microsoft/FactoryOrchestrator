@@ -31,7 +31,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class SaveLoadEditPage : Page
+    public sealed partial class SaveLoadEditPage : Page, IDisposable
     {
         public SaveLoadEditPage()
         {
@@ -42,7 +42,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            mainPage = (Frame)e.Parameter;
+            if (e != null)
+            {
+                mainPage = (Frame)e.Parameter;
+            }
             if (_taskListGuidPoller == null)
             {
                 _taskListGuidPoller = new ServerPoller(null, typeof(TaskList), 2000);
@@ -60,7 +63,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void NewListButton_Click(object sender, RoutedEventArgs e)
         {
-            mainPage.Navigate(typeof(EditPage), null);
+            mainPage?.Navigate(typeof(EditPage), null);
             this.OnNavigatedFrom(null);
         }
 
@@ -151,7 +154,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 failedLoadDialog.Content += resourceLoader.GetString("CheckPath");
             }
 
-            ContentDialogResult result = await failedLoadDialog.ShowAsync();
+            _ = await failedLoadDialog.ShowAsync();
         }
 
         /// <summary>
@@ -183,7 +186,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             try
             {
                 var list = await Client.QueryTaskList(guid);
-                mainPage.Navigate(typeof(EditPage), list);
+                mainPage?.Navigate(typeof(EditPage), list);
                 this.OnNavigatedFrom(null);
             }
             catch (FactoryOrchestratorUnkownGuidException ex)
@@ -195,7 +198,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
-                ContentDialogResult result = await failedQueryDialog.ShowAsync();
+                _ = await failedQueryDialog.ShowAsync();
             }
         }
 
@@ -248,7 +251,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             CloseButtonText = resourceLoader.GetString("Ok")
                         };
 
-                        ContentDialogResult result = await failedSaveDialog.ShowAsync();
+                        _ = await failedSaveDialog.ShowAsync();
                     }
                 }
 
@@ -346,9 +349,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private async void OnUpdatedTaskListGuidsAsync(object source, ServerPollerEventArgs e)
         {
-            var taskListSummaries = e.Result as List<TaskListSummary>;
-
-            if (taskListSummaries != null)
+            if (e.Result is List<TaskListSummary> taskListSummaries)
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
@@ -392,13 +393,39 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return ((TaskListSummary)((ContentPresenter)(grid.Children.Where(x => x.GetType() == typeof(ContentPresenter)).First())).Content).Guid;
         }
 
-        public ObservableCollection<TaskListSummary> TaskListCollection;
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _resetSem?.Dispose();
+                    _taskListGuidPoller?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
+        public ObservableCollection<TaskListSummary> TaskListCollection { get; private set; }
         private ServerPoller _taskListGuidPoller;
-        private SemaphoreSlim _resetSem;
+        private readonly SemaphoreSlim _resetSem;
         private Guid _activeGuid;
         private bool _isFileLoad;
         private Frame mainPage;
-        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

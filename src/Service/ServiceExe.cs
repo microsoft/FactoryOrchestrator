@@ -22,6 +22,7 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using Microsoft.FactoryOrchestrator.Client;
+using System.Globalization;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -61,6 +62,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 })
                 .AddOptions()
+#pragma warning disable CA2000 // Dispose objects before losing scope
                 .AddSingleton(new LoggerFactory())
                 .BuildServiceProvider();
 
@@ -74,6 +76,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 })
                 .AddOptions()
                 .AddSingleton(new LoggerFactory())
+#pragma warning restore CA2000 // Dispose objects before losing scope
                 .BuildServiceProvider();
 
             var _logger = foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOServiceExe>();
@@ -86,7 +89,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     serviceConfig.ServiceFactory((extraArguments, controller) =>
                     {
-                        return new FOService(controller, foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOService>());
+                        return new FOService(foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOService>());
                     });
 
                     serviceConfig.OnStart((service, extraParams) =>
@@ -107,11 +110,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     {
                         if (FOService.Instance != null)
                         {
-                            _logger.LogError(e, string.Format(Resources.ServiceErrored, name));
+                            _logger.LogError(e, string.Format(CultureInfo.CurrentCulture, Resources.ServiceErrored, name));
                         }
                         else
                         {
-                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.ServiceErrored, name)}: {e.AllExceptionsToString()}"));
+                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(CultureInfo.CurrentCulture, Resources.ServiceErrored, name)}: {e.AllExceptionsToString()}"));
                         }
                     });
                 });
@@ -174,7 +177,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -198,7 +201,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -222,7 +225,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -230,6 +233,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                if (list == null)
+                {
+                    throw new ArgumentNullException(nameof(list));
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: CreateTaskListFromTaskList {list.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
@@ -244,7 +252,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -267,7 +275,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -293,7 +301,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -309,7 +317,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -335,7 +343,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -351,7 +359,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -377,7 +385,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -404,7 +412,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -432,7 +440,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -449,7 +457,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -470,7 +478,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -491,7 +499,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -516,7 +524,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -524,6 +532,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                if (updatedTask == null)
+                {
+                    throw new ArgumentNullException(nameof(updatedTask));
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
@@ -537,7 +550,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -545,6 +558,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                if (taskList == null)
+                {
+                    throw new ArgumentNullException(nameof(taskList));
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTaskList {taskList.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
@@ -558,7 +576,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -580,7 +598,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -596,7 +614,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -622,7 +640,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -637,7 +655,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -652,7 +670,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -667,7 +685,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -683,7 +701,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -699,7 +717,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -715,7 +733,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -723,6 +741,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                if (taskRun == null)
+                {
+                    throw new ArgumentNullException(nameof(taskRun));
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTaskRun {taskRun.Guid}");
 
                 if (FOService.Instance.IsExecutingBootTasks)
@@ -736,7 +759,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -758,7 +781,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -779,7 +802,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -801,7 +824,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -823,7 +846,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -845,7 +868,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -862,7 +885,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "RunApp"));
+                    throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "RunApp"));
                 }
 
                 var run = FOService.Instance.TaskExecutionManager.RunApp(aumid);
@@ -872,7 +895,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -890,7 +913,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -906,7 +929,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    throw new FactoryOrchestratorException($"{string.Format(Resources.FileSaveError, targetFilename)} {e.AllExceptionsToString()} {e.HResult}", null, e);
+                    throw new FactoryOrchestratorException($"{string.Format(CultureInfo.CurrentCulture, Resources.FileSaveError, targetFilename)} {e.AllExceptionsToString()} {e.HResult}", null, e);
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SendFile {targetFilename} {appending} {sendToContainer}");
@@ -914,7 +937,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -940,7 +963,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        throw new FileNotFoundException(string.Format(Resources.InvalidPathError, path));
+                        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPathError, path));
                     }
                 }
 
@@ -949,7 +972,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -978,7 +1001,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     else
                     {
-                        throw new FileNotFoundException(string.Format(Resources.InvalidPathError, sourcePath));
+                        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPathError, sourcePath));
                     }
                 }
 
@@ -987,7 +1010,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1004,7 +1027,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1021,7 +1044,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1033,7 +1056,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "InstallApp"));
+                    throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "InstallApp"));
                 }
 
                 // Expand any vars
@@ -1057,7 +1080,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1069,7 +1092,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new FactoryOrchestratorException(string.Format(Resources.WindowsOnlyError, "GetInstalledApps"));
+                    throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "GetInstalledApps"));
                 }
 
                 // Get installed packages on the system
@@ -1094,7 +1117,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1102,8 +1125,13 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                if (aumid == null)
+                {
+                    throw new ArgumentNullException(nameof(aumid));
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: EnableLocalLoopbackForApp {aumid}");
-                var index = aumid.IndexOf('!');
+                var index = aumid.IndexOf('!', StringComparison.OrdinalIgnoreCase);
 
                 if (index == -1)
                 {
@@ -1117,7 +1145,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1147,7 +1175,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1169,7 +1197,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1208,7 +1236,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
 
@@ -1238,12 +1266,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw e;
+                throw;
             }
         }
     }
 
-    public class FOService : IMicroService
+    public class FOService : IMicroService, IDisposable
     {
         internal enum RegKeyType
         {
@@ -1255,11 +1283,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static FOService _singleton = null;
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
-
-        private IMicroServiceController _controller;
-        public ILogger<FOService> ServiceLogger;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
-        private Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
+        private readonly Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
 
         private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
@@ -1308,14 +1333,14 @@ namespace Microsoft.FactoryOrchestrator.Service
         private FactoryOrchestratorClient _containerClient;
 
         // TaskManager_Server instances
-        private TaskManager_Server _taskExecutionManager;
+        private TaskManager _taskExecutionManager;
         /// <summary>
         /// Gets the "active" task execution manager. If boot tasks are executing it returns the BootTaskExecutionManager, otherwise the _taskExecutionManager.
         /// </summary>
         /// <value>
         /// The task execution manager.
         /// </value>
-        public TaskManager_Server TaskExecutionManager
+        public TaskManager TaskExecutionManager
         {
             get
             {
@@ -1335,8 +1360,16 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <value>
         /// The boot task execution manager.
         /// </value>
-        public TaskManager_Server BootTaskExecutionManager { get; private set; }
+        public TaskManager BootTaskExecutionManager { get; private set; }
         public string TaskManagerLogFolder { get; private set; }
+
+        /// <summary>
+        /// The service logger for FactoryOrchestrator (FOService).
+        /// </summary>
+        /// <value>
+        /// The service logger.
+        /// </value>
+        public ILogger<FOService> ServiceLogger { get; private set; }
 
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
         public ulong LastEventIndex { get; private set; }
@@ -1401,11 +1434,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public static string GetOSVersionString()
         {
-            using (var reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", false))
-            {
-                var version = (string)reg.GetValue("BuildLabEx");
-                return version;
-            }
+            using var reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", false);
+            var version = (string)reg.GetValue("BuildLabEx");
+            return version;
         }
 
         /// <summary>
@@ -1414,14 +1445,12 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public static string GetOEMVersionString()
         {
-            using (var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false))
-            {
-                var version = (string)reg.GetValue("OEMVersion");
-                return version;
-            }
+            using var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false);
+            var version = (string)reg.GetValue("OEMVersion");
+            return version;
         }
 
-        public FOService(IMicroServiceController controller, ILogger<FOService> logger)
+        public FOService(ILogger<FOService> logger)
         {
             lock (_constructorLock)
             {
@@ -1430,7 +1459,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.ServiceAlreadyCreatedError);
                 }
 
-                _controller = controller;
                 ServiceLogger = logger;
                 _singleton = this;
                 ServiceEvents = new Dictionary<ulong, ServiceEvent>();
@@ -1479,7 +1507,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    ServiceLogger.LogWarning($"{string.Format(Resources.FOXMLFileLoadException, _taskExecutionManager.TaskListStateFile)}\n {e.AllExceptionsToString()}");
+                    ServiceLogger.LogWarning($"{string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, _taskExecutionManager.TaskListStateFile)}\n {e.AllExceptionsToString()}");
                 }
             }
 
@@ -1537,37 +1565,37 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
-                    ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _initialTasksDefaultPath));
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _initialTasksDefaultPath));
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
                     if (!File.Exists(firstBootStateTaskListPath))
                     {
                         firstBootStateTaskListPath = GetValueFromRegistry(_initialTasksPathValue, _initialTasksDefaultPath) as string;
                         if (!firstBootStateTaskListPath.Equals(_initialTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
                         {
-                            ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, firstBootStateTaskListPath));
+                            ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
                         }
                     }
 
                     if (File.Exists(firstBootStateTaskListPath))
                     {
-                        ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootStateTaskListPath));
+                        ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.AttemptingFileLoad, firstBootStateTaskListPath));
 
                         // Load the TaskLists file specified in registry
                         _taskExecutionManager.LoadTaskListsFromXmlFile(firstBootStateTaskListPath);
 
-                        ServiceLogger.LogInformation(string.Format(Resources.FileLoadSucceeded, firstBootStateTaskListPath));
+                        ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileLoadSucceeded, firstBootStateTaskListPath));
                         loaded = true;
                         SetValueInRegistry(_firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
                     }
                     else
                     {
-                        ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, firstBootStateTaskListPath));
+                        ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFound, firstBootStateTaskListPath));
                     }
                 }
             }
             catch (Exception e)
             {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.FOXMLFileLoadException, _initialTasksDefaultPath)} ({e.AllExceptionsToString()})"));
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, _initialTasksDefaultPath)} ({e.AllExceptionsToString()})"));
             }
 
             return loaded;
@@ -1617,17 +1645,17 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         if (run.RunInContainer)
                         {
-                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForContainerTaskRun, e.Guid, string.Format(Resources.WaitingForContainerTaskRun, e.Guid));
+                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForContainerTaskRun, e.Guid, string.Format(CultureInfo.CurrentCulture, Resources.WaitingForContainerTaskRun, e.Guid));
                             RunTaskRunInContainer(run);
                         }
                         else
                         {
-                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, string.Format(Resources.WaitingForExternalTaskRun, e.Guid));
+                            serviceEvent = new ServiceEvent(ServiceEventType.WaitingForExternalTaskRun, e.Guid, string.Format(CultureInfo.CurrentCulture, Resources.WaitingForExternalTaskRun, e.Guid));
                         }
                         break;
                     }
                 case TaskManagerEventType.WaitingForExternalTaskRunFinished:
-                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, string.Format(Resources.DoneWaitingForExternalTaskRun, e.Guid, e.Status));
+                    serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, string.Format(CultureInfo.CurrentCulture, Resources.DoneWaitingForExternalTaskRun, e.Guid, e.Status));
                     break;
                 default:
                     break;
@@ -1639,7 +1667,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        private void RunTaskRunInContainer(TaskRun_Server hostRun)
+        private void RunTaskRunInContainer(ServerTaskRun hostRun)
         {
             hostRun.TaskOutput.Add(Resources.AttemptingContainerTaskRun);
 
@@ -1666,8 +1694,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                         // The container doesn't have WDP, translate to a shell execute call
                         hostRun.TaskOutput.Add(Resources.RedirectingUWPToRunAs);
                         var temp = containerTask as UWPTask;
-                        var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsExplorerUser.exe");
-                        uwpContainerTask.Arguments = @"explorer.exe shell:appsFolder\" + temp.Path;
+                        var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsExplorerUser.exe")
+                        {
+                            Arguments = @"explorer.exe shell:appsFolder\" + temp.Path
+                        };
                         containerTask = uwpContainerTask;
                     }
 
@@ -1772,7 +1802,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 // TODO: replace with an API call
                 var cmdiag = RunProcessViaCmd("cmdiag.exe", "list", 5000);
-                var containerGuidString = cmdiag.TaskOutput.Where(x => x.ToLowerInvariant().Contains("cmscontainerstaterunning".ToLowerInvariant())).DefaultIfEmpty(null).FirstOrDefault();
+                var containerGuidString = cmdiag.TaskOutput.Where(x => x.Contains("cmscontainerstaterunning", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
 
                 if (containerGuidString != null)
                 {
@@ -1794,7 +1824,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 var containerGuid = GetContainerId();
                 var cmdiag = RunProcessViaCmd("cmdiag.exe", $"exec {containerGuid} -runas administrator -command \"ipconfig.exe\"", 5000);
-                var ipStrings = cmdiag.TaskOutput.Where(x => x.ToLowerInvariant().Contains("IPv4 address".ToLowerInvariant()));
+                var ipStrings = cmdiag.TaskOutput.Where(x => x.Contains("IPv4 address", StringComparison.InvariantCultureIgnoreCase));
 
                 foreach (var ipString in ipStrings)
                 {
@@ -1817,6 +1847,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public void SendFile(string targetFilename, byte[] fileData, bool appending, bool sendToContainer)
         {
+            if (fileData == null)
+            {
+                throw new ArgumentNullException(nameof(fileData));
+            }
+
             if (!sendToContainer)
             {
 	            targetFilename = Environment.ExpandEnvironmentVariables(targetFilename);
@@ -1838,7 +1873,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 	            }
 
 	            // If data is less than the standard length, assume the transfer is complete and close the file.
-	            if (fileData.Length != Constants.FILE_TRANSFER_CHUNK_SIZE)
+	            if (fileData.Length != Constants.FileTransferChunkSize)
 	            {
 	                CloseFile(targetFilename);
 	            }
@@ -1864,14 +1899,14 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public byte[] GetFile(string sourceFilename, long offset, int count, bool getFromContainer)
         {
-            byte[] bytes = new byte[0];
+            byte[] bytes = Array.Empty<byte>();
 
             if (!getFromContainer)
             {
                 sourceFilename = Environment.ExpandEnvironmentVariables(sourceFilename);
                 if (!File.Exists(sourceFilename))
                 {
-                    throw new FileNotFoundException(string.Format(Resources.FileNotFoundException, sourceFilename), sourceFilename);
+                    throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFoundException, sourceFilename), sourceFilename);
                 }
 
                 if (offset < 0)
@@ -2007,6 +2042,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public void LogServiceEvent(ServiceEvent serviceEvent)
         {
+            if (serviceEvent == null)
+            {
+                throw new ArgumentNullException(nameof(serviceEvent));
+            }
+
             ServiceEvents.Add(serviceEvent.EventIndex, serviceEvent);
             LastEventIndex = serviceEvent.EventIndex;
             LastEventTime = serviceEvent.EventTime;
@@ -2068,7 +2108,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"{string.Format(Resources.CreateDirectoryFailed, FOServiceExe.ServiceLogFolder)} {e.Message}");
+                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, FOServiceExe.ServiceLogFolder)} {e.Message}");
                 Stop();
             }
             try
@@ -2077,12 +2117,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"{string.Format(Resources.CreateDirectoryFailed, TaskManagerLogFolder)} {e.Message}");
+                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, TaskManagerLogFolder)} {e.Message}");
                 Stop();
             }
 
 
-            _taskExecutionManager = new TaskManager_Server(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
+            _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
 
             // Enable local loopback every boot.
             EnableUWPLocalLoopback();
@@ -2103,24 +2143,24 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 // Create unconditionally so it is guaranteed to not be null
-                BootTaskExecutionManager = new TaskManager_Server(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), _firstBootTasksDefaultPath);
+                BootTaskExecutionManager = new TaskManager(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), _firstBootTasksDefaultPath);
 
                 // Find the TaskLists XML path.
                 var firstBootTaskListPath = (string)GetValueFromRegistry(_firstBootTasksPathValue, _firstBootTasksDefaultPath);
-                ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _firstBootTasksDefaultPath));
+                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _firstBootTasksDefaultPath));
 
                 // Load first boot XML, even if we don't end up executing it, so it can be queried via FO APIs
                 List<Guid> firstBootTaskListGuids = null;
                 if (File.Exists(firstBootTaskListPath))
                 {
-                    BootTaskExecutionManager = new TaskManager_Server(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), firstBootTaskListPath);
-                    ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, firstBootTaskListPath));
+                    BootTaskExecutionManager = new TaskManager(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), firstBootTaskListPath);
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.AttemptingFileLoad, firstBootTaskListPath));
                     // Load the first boot TaskLists file
                     firstBootTaskListGuids = BootTaskExecutionManager.LoadTaskListsFromXmlFile(firstBootTaskListPath);
                 }
                 else
                 {
-                    ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, firstBootTaskListPath));
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFound, firstBootTaskListPath));
                 }
 
                 // Check if first boot tasks were already completed
@@ -2132,7 +2172,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     foreach (var listGuid in firstBootTaskListGuids)
                     {
                         BootTaskExecutionManager.RunTaskList(listGuid);
-                        ServiceLogger.LogInformation(string.Format(Resources.FirstBootRunningTaskList, listGuid));
+                        ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FirstBootRunningTaskList, listGuid));
                     }
                 }
                 else
@@ -2174,20 +2214,20 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 // Find the TaskLists XML path.
                 var everyBootTaskListPath = (string)GetValueFromRegistry(_everyBootTasksPathValue, _everyBootTasksDefaultPath);
-                ServiceLogger.LogInformation(string.Format(Resources.CheckingForFile, _everyBootTasksDefaultPath));
+                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _everyBootTasksDefaultPath));
 
                 // Load every boot XML, even if we don't end up executing it, so it can be queried via FO APIs
                 List<Guid> everyBootTaskListGuids = null;
                 if (File.Exists(everyBootTaskListPath))
                 {
                     BootTaskExecutionManager.SetLogFolder(Path.Combine(_taskExecutionManager.LogFolder, "EveryBootTaskLists"), false);
-                    ServiceLogger.LogInformation(string.Format(Resources.AttemptingFileLoad, everyBootTaskListPath));
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.AttemptingFileLoad, everyBootTaskListPath));
                     // Load the first boot TaskLists file
                     everyBootTaskListGuids = BootTaskExecutionManager.LoadTaskListsFromXmlFile(everyBootTaskListPath);
                 }
                 else
                 {
-                    ServiceLogger.LogInformation(string.Format(Resources.FileNotFound, everyBootTaskListPath));
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFound, everyBootTaskListPath));
                 }
 
                 // Check if every boot tasks were already completed
@@ -2199,7 +2239,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     foreach (var listGuid in everyBootTaskListGuids)
                     {
                         BootTaskExecutionManager.RunTaskList(listGuid);
-                        ServiceLogger.LogInformation(string.Format(Resources.EveryBootRunningTaskList, listGuid));
+                        ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EveryBootRunningTaskList, listGuid));
                     }
                 }
                 else
@@ -2315,7 +2355,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             if (loopbackEnabled == 0)
             {
                 // Always make sure the Factory Orchestrator apps are allowed
-                ServiceLogger.LogInformation(string.Format(Resources.EnablingLoopback, _foAppPfn));
+                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopback, _foAppPfn));
 
                 try
                 {
@@ -2324,10 +2364,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                 catch (Exception e)
                 {
                     success = false;
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.EnablingLoopbackFailed, _foAppPfn)} ({e.AllExceptionsToString()})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopbackFailed, _foAppPfn)} ({e.AllExceptionsToString()})"));
                 }
 
-                ServiceLogger.LogInformation(string.Format(Resources.EnablingLoopback, _foDevAppPfn));
+                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopback, _foDevAppPfn));
 
                 try
                 {
@@ -2336,13 +2376,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                 catch (Exception e)
                 {
                     success = false;
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.EnablingLoopbackFailed, _foDevAppPfn)} ({e.AllExceptionsToString()})"));
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopbackFailed, _foDevAppPfn)} ({e.AllExceptionsToString()})"));
                 }
 
                 // Enable all other allowed apps
                 foreach (var app in LocalLoopbackApps)
                 {
-                    ServiceLogger.LogInformation(string.Format(Resources.EnablingLoopback, app));
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopback, app));
 
                     try
                     {
@@ -2351,7 +2391,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     catch (Exception e)
                     {
                         success = false;
-                        LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(Resources.EnablingLoopbackFailed, app)} ({e.AllExceptionsToString()})"));
+                        LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopbackFailed, app)} ({e.AllExceptionsToString()})"));
                     }
                 }
 
@@ -2396,48 +2436,48 @@ namespace Microsoft.FactoryOrchestrator.Service
             // If a value is set improperly, it will fallback to defaults set in the CTOR.
             try
             {
-                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue, true));
+                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue, true), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
             try
             {
-                EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue, false));
-            }
-            catch (Exception)
-            { }
-
-            try
-            {
-                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(_disableCmdPromptValue, false));
+                EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue, false), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(_disableFileTransferValue, false));
+                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(_disableCmdPromptValue, false), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(_disableUWPAppsValue, false));
+                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(_disableFileTransferValue, false), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(_disableTaskManagerValue, false));
+                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(_disableUWPAppsValue, false), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
 
             try
             {
-                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(_disableWindowsDevicePortalValue, false));
+                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(_disableTaskManagerValue, false), CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(_disableWindowsDevicePortalValue, false), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
@@ -2451,7 +2491,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetValueFromRegistry(_runOnFirstBootValue, false));
+                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetValueFromRegistry(_runOnFirstBootValue, false), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             { }
@@ -2469,9 +2509,9 @@ namespace Microsoft.FactoryOrchestrator.Service
             return true;
         }
 
-        private TaskRun_Server RunProcessViaCmd(string process, string args, int timeoutMS)
+        private ServerTaskRun RunProcessViaCmd(string process, string args, int timeoutMS)
         {
-            var run = (TaskRun_Server)_taskExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
+            var run = (ServerTaskRun)_taskExecutionManager.RunExecutableAsBackgroundTask(@"%systemroot%\system32\cmd.exe", $"/C \"{process} {args}\"");
 
             // Wait 2 seconds for process to start
             int waitCount = 0;
@@ -2486,22 +2526,51 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             if (run.TimeStarted == null)
             {
-                throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessStartFailed, process));
+                throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.ServiceProcessStartFailed, process));
             }
 
             var runner = run.GetOwningTaskRunner();
             if ((runner != null) && (!runner.WaitForExit(timeoutMS)))
             {
                 _taskExecutionManager.AbortTaskRun(run.Guid);
-                throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessTimedOut, timeoutMS));
+                throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.ServiceProcessTimedOut, timeoutMS));
             }
 
             if (run.TaskStatus != TaskStatus.Passed)
             {
-                throw new FactoryOrchestratorException(string.Format(Resources.ServiceProcessExitedWithError, process, run.ExitCode));
+                throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.ServiceProcessExitedWithError, process, run.ExitCode));
             }
 
             return run;
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _ipcCancellationToken?.Dispose();
+                    _mutableKey?.Dispose();
+                    _nonMutableKey?.Dispose();
+                    _volatileKey?.Dispose();
+                    _taskExecutionManager?.Dispose();
+                    BootTaskExecutionManager?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Page, IDisposable
     {
         public MainPage()
         {
@@ -119,7 +120,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            lastNavTag = e.Parameter as string;
+            if (e == null)
+            {
+                lastNavTag = null;
+            }
+            else
+            {
+                lastNavTag = e.Parameter as string;
+            }
+
             Client = ((App)Application.Current).Client;
             this.Frame.CacheSize = 3;
 
@@ -197,7 +206,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
 
                     Title = $"{resourceLoader.GetString("FailedToLaunch")} {GetHeader()}",
-                    Content = string.Format(resourceLoader.GetString("EnableAndRetry"), GetHeader()),
+                    Content = string.Format(CultureInfo.CurrentCulture, resourceLoader.GetString("EnableAndRetry"), GetHeader()),
                     CloseButtonText = resourceLoader.GetString("Ok")
                 };
 
@@ -219,7 +228,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             BootTaskWarning.Visibility = Visibility.Visible;
             var pagesToDisable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == true)).ToArray();
-            for (int i = 0; i < pagesToDisable.Count(); i++)
+            for (int i = 0; i < pagesToDisable.Length; i++)
             {
                 HidePage(pagesToDisable[i]);
             }
@@ -233,7 +242,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             BootTaskWarning.Visibility = Visibility.Collapsed;
 
             var pagesToEnable = navViewPages.Where(x => (x.AllowedDuringBoot == false) && (x.Enabled == false) && (!disabledPages.Contains(x.Tag))).ToArray();
-            for (int i = 0; i < pagesToEnable.Count(); i++)
+            for (int i = 0; i < pagesToEnable.Length; i++)
             {
                 ShowPage(pagesToEnable[i]);
             }
@@ -307,7 +316,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ((App)Application.Current).MainPageLastNavTag = lastNavTag = navItemTag;
             Type page = null;
-            var pageMap = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag));
+            var pageMap = navViewPages.FirstOrDefault(p => p.Tag.Equals(navItemTag, StringComparison.OrdinalIgnoreCase));
 
             if (pageMap.Enabled)
             {
@@ -429,8 +438,35 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    navUpdateSem?.Dispose();
+                    ipAddressSem?.Dispose();
+                    networkTimer?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
         private string lastNavTag;
-        private List<(string Tag, Type Page, bool Enabled, bool AllowedDuringBoot)> navViewPages = new List<(string Tag, Type Page, bool Enabled, bool AllowedDuringBoot)>
+        private readonly List<(string Tag, Type Page, bool Enabled, bool AllowedDuringBoot)> navViewPages = new List<(string Tag, Type Page, bool Enabled, bool AllowedDuringBoot)>
         {
             ("run", typeof(TaskListExecutionPage), true, true),
             ("console", typeof(ConsolePage), true, false),
@@ -441,14 +477,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ("about", typeof(AboutPage), true, true)
         };
         private List<string> disabledPages;
-        private SemaphoreSlim navUpdateSem;
+        private readonly SemaphoreSlim navUpdateSem;
 
         private FactoryOrchestratorUWPClient Client;
-        private System.Timers.Timer networkTimer;
+        private readonly System.Timers.Timer networkTimer;
         private int networkTimerIndex;
         private List<Tuple<string, string>> ipAddresses;
-        private SemaphoreSlim ipAddressSem;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly SemaphoreSlim ipAddressSem;
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 
 }
