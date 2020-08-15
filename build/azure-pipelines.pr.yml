@@ -63,7 +63,3 @@ jobs:
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: BuildArtifactStagingDirectoryPoli
-
-- job: RunFxCop
-  steps: 
-  
