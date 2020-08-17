@@ -1514,13 +1514,13 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
             if (EnableNetworkAccess && !DisableNetworkAccess) 
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684)
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684, new JKang.IpcServiceFramework.Tcp.TcpConcurrencyOptions(5))
                                                                 .Build();
                 networkAccessEnabled = true;
             }
             else
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684)
+                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684, new JKang.IpcServiceFramework.Tcp.TcpConcurrencyOptions(5))
                                                                 .Build();
                 networkAccessEnabled = false;
             }
