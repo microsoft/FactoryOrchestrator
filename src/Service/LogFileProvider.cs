@@ -36,7 +36,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     catch (Exception)
                     {
-                        Console.Error.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.LogFileCreationFailed));
+                        Console.Error.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.LogFileCreationFailed, _logPath));
                     }
                 }
             }
@@ -60,7 +60,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void AddMessage(DateTimeOffset timestamp, string message)
+        public static void AddMessage(DateTimeOffset timestamp, string message)
         {
             // Synchronize to ensure messages are printed in order
             lock (_logLock)
@@ -123,7 +123,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 builder.AppendLine(exception.ToString());
             }
 
-            _provider.AddMessage(timestamp, builder.ToString());
+            LogFileProvider.AddMessage(timestamp, builder.ToString());
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

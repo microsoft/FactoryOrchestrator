@@ -1050,7 +1050,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        private PEUtility.Subsystem GetPeSubsystem(string filename)
+        private static PEUtility.Subsystem GetPeSubsystem(string filename)
         {
             try
             {
@@ -1080,7 +1080,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
         }
 
-        private bool KillAppProcess(ServerTaskRun run)
+        private static bool KillAppProcess(ServerTaskRun run)
         {
             // Use WDP to find the app package full name
             string appFullName = "";
@@ -1706,9 +1706,8 @@ namespace Microsoft.FactoryOrchestrator.Server
         /// <summary>
         /// Tracks all the task runs that have ever occured, mapped by the task run GUID
         /// </summary>
-        private static ConcurrentDictionary<Guid, ServerTaskRun> _taskRunMap;
-        private static object _taskMapLock;
-
+        private readonly ConcurrentDictionary<Guid, ServerTaskRun> _taskRunMap;
+        private readonly object _taskMapLock;
 
         public string LogFolder { get; private set; }
         public string TaskListStateFile { get; private set; }
