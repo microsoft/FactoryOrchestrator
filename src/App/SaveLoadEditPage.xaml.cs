@@ -386,7 +386,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <summary>
         /// Given a button associated with a tasklist, returns the tasklist GUID.
         /// </summary>
-        private Guid GetTaskListGuidFromButton(Button button)
+        private static Guid GetTaskListGuidFromButton(Button button)
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;

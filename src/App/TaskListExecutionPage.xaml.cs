@@ -489,7 +489,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         /// <param name="list">ListView to check.</param>
         /// <param name="scroller">Scroll view the ListView is a child of.</param>
-        private void EnsureSelectedIndexVisible(ListView list, ScrollViewer scroller)
+        private static void EnsureSelectedIndexVisible(ListView list, ScrollViewer scroller)
         {
             // Get ListItem
             var element = list.ContainerFromIndex(list.SelectedIndex) as FrameworkElement;
@@ -518,7 +518,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <summary>
         /// Given a button associated with a tasklist, returns the tasklist guid.
         /// </summary>
-        private Guid GetTaskListGuidFromButton(Button button)
+        private static Guid GetTaskListGuidFromButton(Button button)
         {
             return ((TaskListSummary)button.DataContext).Guid;
         }

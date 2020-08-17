@@ -371,7 +371,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Gets the build number of FactoryOrchestratorClient.
         /// </summary>
         /// <returns></returns>
-        public string GetClientVersionString()
+        public static string GetClientVersionString()
         {
             var assembly = Assembly.GetExecutingAssembly();
             string assemblyVersion = assembly.GetName().Version.ToString();
@@ -398,7 +398,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="methodName">Name of the method.</param>
         /// <param name="args">The arguments to the method.</param>
         /// <returns>IpcRequest object</returns>
-        protected IpcRequest CreateIpcRequest(string methodName, params object[] args)
+        protected static IpcRequest CreateIpcRequest(string methodName, params object[] args)
         {
 
             MethodBase method = null;
@@ -408,12 +408,12 @@ namespace Microsoft.FactoryOrchestrator.Client
             {
                 if (args.All(x => x != null))
                 {
-                    method = this.GetType().GetMethod(methodName, args.Select(x => x.GetType()).ToArray());
+                    method = typeof(FactoryOrchestratorClient).GetMethod(methodName, args.Select(x => x.GetType()).ToArray());
                 }
 
                 if (method == null)
                 {
-                    method = this.GetType().GetMethod(methodName);
+                    method = typeof(FactoryOrchestratorClient).GetMethod(methodName);
                 }
             }
             catch (Exception)
@@ -458,7 +458,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="methodName">Name of the method. The method is assumed to have no parameters.</param>
         /// <returns>IpcRequest object</returns>
-        private IpcRequest CreateIpcRequest(string methodName)
+        protected static IpcRequest CreateIpcRequest(string methodName)
         {
             return new IpcRequest()
             {
