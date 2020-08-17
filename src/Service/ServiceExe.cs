@@ -528,32 +528,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void UpdateTask(TaskBase updatedTask)
-        {
-            try
-            {
-                if (updatedTask == null)
-                {
-                    throw new ArgumentNullException(nameof(updatedTask));
-                }
-
-                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
-
-                if (FOService.Instance.IsExecutingBootTasks)
-                {
-                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
-                }
-
-                FOService.Instance.TaskExecutionManager.UpdateTask(updatedTask);
-                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: UpdateTask {updatedTask.Name} {updatedTask.Guid}");
-            }
-            catch (Exception e)
-            {
-                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
-                throw;
-            }
-        }
-
         public void UpdateTaskList(TaskList taskList)
         {
             try

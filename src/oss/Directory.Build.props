@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Don't run FxCop on IpcFramework -->
+  <!-- Don't run FxCop on OSS -->
   <PropertyGroup>
     <SkipDefaultEditorConfigAsAdditionalFile>true</SkipDefaultEditorConfigAsAdditionalFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
