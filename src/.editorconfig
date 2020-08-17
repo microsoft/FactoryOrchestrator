@@ -29,8 +29,8 @@ dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.CA2227.severity = none
 # IDE0019: Use pattern matching
 dotnet_diagnostic.IDE0019.severity = none
-# CA1824: Mark assemblies with NeutralResourcesLanguageAttribute
-dotnet_diagnostic.CA1824.severity = none
+# CA1801: Parameter of method is never used. Remove the parameter or use it in the method body.
+dotnet_diagnostic.CA1801.severity = none
 
 # Organize usings
 dotnet_sort_system_directives_first = true

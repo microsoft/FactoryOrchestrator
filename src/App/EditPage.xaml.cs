@@ -143,7 +143,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void BgDeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            BackgroundTasksCollection.Remove(GetTestFromButton(sender as Button));
+            BackgroundTasksCollection.Remove(GetTaskFromButton(sender as Button));
             listEdited = true;
 
             if (BackgroundTasksCollection.Count == 0)
@@ -154,7 +154,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void BgEditButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTask = GetTestFromButton(sender as Button);
+            activeTask = GetTaskFromButton(sender as Button);
             activeTaskIndex = BackgroundTasksCollection.IndexOf(activeTask);
             ConfigureFlyout(activeTask.Type, true);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
@@ -166,7 +166,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            TasksCollection.Remove(GetTestFromButton(sender as Button));
+            TasksCollection.Remove(GetTaskFromButton(sender as Button));
             listEdited = true;
 
             if (TasksCollection.Count == 0)
@@ -177,7 +177,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTask = GetTestFromButton(sender as Button);
+            activeTask = GetTaskFromButton(sender as Button);
             activeTaskIndex = TasksCollection.IndexOf(activeTask);
             ConfigureFlyout(activeTask.Type);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
@@ -682,7 +682,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             listEdited = true;
         }
 
-        private TaskBase GetTestFromButton(Button button)
+        private static TaskBase GetTaskFromButton(Button button)
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;
