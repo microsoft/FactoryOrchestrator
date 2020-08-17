@@ -108,18 +108,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     serviceConfig.OnError(e =>
                     {
-                        if (FOService.Instance != null)
-                        {
-                            _logger.LogError(e, string.Format(CultureInfo.CurrentCulture, Resources.ServiceErrored, name));
-                        }
-                        else
-                        {
-                            FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, $"{string.Format(CultureInfo.CurrentCulture, Resources.ServiceErrored, name)}: {e.AllExceptionsToString()}"));
-                        }
+                        _logger?.LogCritical(e, string.Format(CultureInfo.CurrentCulture, Resources.ServiceErrored, name));
+                        throw e;
                     });
                 });
             });
-
             // Dispose of loggers, this needs to be done manually
             ipcSvcProvider.GetService<ILoggerFactory>().Dispose();
             foSvcProvider.GetService<ILoggerFactory>().Dispose();
@@ -518,7 +511,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if (factoryReset)
                 {
                     // Pause a bit to allow the IPC call to return before we kill it off
-                    Task.Run(() => { System.Threading.Thread.Sleep(100); FOService.Instance.Stop(); FOService.Instance.Start(true); });
+                    Task.Run(() => { System.Threading.Thread.Sleep(500); FOService.Instance.Stop(); FOService.Instance.Start(true); });
                 }
             }
             catch (Exception e)
@@ -1581,7 +1574,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public void Stop()
         {
             // Disable inter process communication interface
-            _ipcCancellationToken.Cancel();
+            _ipcCancellationToken?.Cancel();
 
             // Abort everything that's running, except persisted background tasks
             _taskExecutionManager?.AbortAll();
@@ -1590,7 +1583,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Update state file
             try
             {
-                _taskExecutionManager.SaveAllTaskListsToXmlFile(_taskExecutionManager.TaskListStateFile);
+                TaskExecutionManager?.SaveAllTaskListsToXmlFile(TaskExecutionManager.TaskListStateFile);
             }
             catch (FactoryOrchestratorException e)
             {
@@ -1598,12 +1591,9 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Close registry
-            _volatileKey.Close();
-            _nonMutableKey.Close();
-            if (_mutableKey != null)
-            {
-                _mutableKey.Close();
-            }
+            _volatileKey?.Close();
+            _nonMutableKey?.Close();
+            _mutableKey?.Close();
 
             ServiceLogger.LogInformation(Resources.ServiceStoppedWithName);
         }
@@ -2060,7 +2050,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 ServiceLogger.LogError($" {e.Message}");
-                Stop();
+                throw;
             }
 
             try
@@ -2070,7 +2060,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 ServiceLogger.LogError($"! {e.Message}");
-                Stop();
+                throw;
             }
 
             LoadOEMCustomizations();
@@ -2083,7 +2073,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, FOServiceExe.ServiceLogFolder)} {e.Message}");
-                Stop();
+                throw;
             }
             try
             {
@@ -2092,7 +2082,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception e)
             {
                 ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, TaskManagerLogFolder)} {e.Message}");
-                Stop();
+                throw;
             }
 
 
