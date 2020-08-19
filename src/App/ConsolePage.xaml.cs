@@ -27,7 +27,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// A simple semi-interactive console.
     /// </summary>
-    public sealed partial class ConsolePage : Page
+    public sealed partial class ConsolePage : Page, IDisposable
     {
         public ConsolePage()
         {
@@ -245,7 +245,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
 
 
-            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + _maxLinesPerBlock);
+            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + MaxLinesPerBlock);
             string text = "";
             bool errorBlock = false;
 
@@ -315,21 +315,21 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private void UpdateOutput(List<(string text, bool isError)> blocks)
         {
-            foreach (var block in blocks)
+            foreach (var (text, isError) in blocks)
             {
                 var textBlock = new TextBlock()
                 {
-                    Text = block.text,
+                    Text = text,
                     IsTextSelectionEnabled = true
                 };
 
-                if (block.isError)
+                if (isError)
                 {
                     textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
                     textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
                 }
 
-                if (OutputStack.Children.Count >= _maxBlocks)
+                if (OutputStack.Children.Count >= MaxBlocks)
                 {
                     OutputStack.Children.RemoveAt(0);
                 }
@@ -345,15 +345,42 @@ namespace Microsoft.FactoryOrchestrator.UWP
             scrollView.ChangeView(null, scrollView.ScrollableHeight, null, true);
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _cmdSem?.Dispose();
+                    _outSem?.Dispose();
+                    _taskRunPoller.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
         private TaskRun _activeCmdTaskRun;
         private bool _newCmd;
         private int _lastOutput;
         private ServerPoller _taskRunPoller;
-        private SemaphoreSlim _cmdSem;
-        private SemaphoreSlim _outSem;
+        private readonly SemaphoreSlim _cmdSem;
+        private readonly SemaphoreSlim _outSem;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
 
-        private const int _maxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
-        private const int _maxLinesPerBlock = 500;
+        private const int MaxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
+        private const int MaxLinesPerBlock = 500;
     }
 }

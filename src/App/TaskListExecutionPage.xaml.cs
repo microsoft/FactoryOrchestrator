@@ -26,7 +26,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class TaskListExecutionPage : Page
+    public sealed partial class TaskListExecutionPage : Page, IDisposable
     {
         public TaskListExecutionPage()
         {
@@ -111,7 +111,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 var taskWithTemplate = (TaskBaseWithTemplate)(e.ClickedItem);
                 // Navigate from the MainPage frame so this is a "full screen" page
-                mainPage.Navigate(typeof(ResultsPage), taskWithTemplate.Task);
+                mainPage?.Navigate(typeof(ResultsPage), taskWithTemplate.Task);
                 this.OnNavigatedFrom(null);
             }
         }
@@ -347,7 +347,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             Client = ((App)Application.Current).Client;
-            mainPage = (Frame)e.Parameter;
+            if (e != null)
+            {
+                mainPage = (Frame)e.Parameter;
+            }
             EndTrackExecution();
 
             if (((App)Application.Current).IsServiceExecutingBootTasks)
@@ -472,13 +475,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             RunListButton_Click(sender, e);
         }
 
-        private void RetryTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            var guid = ((TaskBaseWithTemplate)button.DataContext).Task.Guid;
-            _ = Client.RunTask(guid);
-        }
-
         private void TrackExecutionCheck_Checked(object sender, RoutedEventArgs e)
         {
             _trackExecution = (bool)TrackExecutionCheck.IsChecked;
@@ -493,7 +489,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         /// <param name="list">ListView to check.</param>
         /// <param name="scroller">Scroll view the ListView is a child of.</param>
-        private void EnsureSelectedIndexVisible(ListView list, ScrollViewer scroller)
+        private static void EnsureSelectedIndexVisible(ListView list, ScrollViewer scroller)
         {
             // Get ListItem
             var element = list.ContainerFromIndex(list.SelectedIndex) as FrameworkElement;
@@ -522,7 +518,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <summary>
         /// Given a button associated with a tasklist, returns the tasklist guid.
         /// </summary>
-        private Guid GetTaskListGuidFromButton(Button button)
+        private static Guid GetTaskListGuidFromButton(Button button)
         {
             return ((TaskListSummary)button.DataContext).Guid;
         }
@@ -594,6 +590,33 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _activeListPoller?.Dispose();
+                    _taskListGuidPoller?.Dispose();
+                    ResultsPageEmbedded?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
         private Frame mainPage;
         private ServerPoller _activeListPoller;
         private ServerPoller _taskListGuidPoller;
@@ -601,12 +624,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private Guid _selectedTaskListGuid;
         private Guid _selectedTaskGuid;
         private bool _trackExecution;
-        private object _headerUpdateLock;
+        private readonly object _headerUpdateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        public ObservableCollection<TaskListSummary> TaskListCollection;
-        public ObservableCollection<TaskBaseWithTemplate> ActiveListCollection;
+        public ObservableCollection<TaskListSummary> TaskListCollection { get; private set; }
+        public ObservableCollection<TaskBaseWithTemplate> ActiveListCollection { get; private set; }
         public bool FollowOutput { get; set; }
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 
     /// <summary>
@@ -622,7 +645,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// A basic wrapper struct to associate a Task with the DataTemplate it should use in the UI.
     /// This is needed since the UI is dependent on the TaskList state, not just the Task.
     /// </summary>
-    public struct TaskBaseWithTemplate
+    public struct TaskBaseWithTemplate : IEquatable<TaskBaseWithTemplate>
     {
         public TaskBaseWithTemplate(TaskBase task, TaskViewTemplate template)
         {
@@ -633,5 +656,45 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public TaskBase Task { get; set; }
 
         public TaskViewTemplate Template { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is TaskBaseWithTemplate))
+            {
+                return false;
+            }
+
+            return Equals((TaskBaseWithTemplate)obj);
+        }
+
+        public bool Equals(TaskBaseWithTemplate other)
+        {
+            if (other.Task != this.Task)
+            {
+                return false;
+            }
+
+            if (other.Template != this.Template)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public static bool operator ==(TaskBaseWithTemplate left, TaskBaseWithTemplate right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TaskBaseWithTemplate left, TaskBaseWithTemplate right)
+        {
+            return !(left == right);
+        }
     }
 }

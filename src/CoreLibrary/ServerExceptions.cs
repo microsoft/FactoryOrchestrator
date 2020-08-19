@@ -3,6 +3,7 @@
 
 using Newtonsoft.Json;
 using System;
+using System.Globalization;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -11,7 +12,23 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// </summary>
     [JsonObject(MemberSerialization.Fields)]
     public class FactoryOrchestratorException : Exception
-    {
+    {  
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorException"/> class.
+        /// </summary>
+        public FactoryOrchestratorException() : base() { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the error.</param>
+        public FactoryOrchestratorException(string message) : base(message) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        public FactoryOrchestratorException(string message, Exception innerException) : base(message, innerException) { }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -36,16 +53,26 @@ namespace Microsoft.FactoryOrchestrator.Core
     public class FactoryOrchestratorTaskListRunningException : FactoryOrchestratorException
     {
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorTaskListRunningException"/> class.
         /// </summary>
-        public FactoryOrchestratorTaskListRunningException() : base(Resources.FactoryOrchestratorTaskListRunningException)
-        { }
+        public FactoryOrchestratorTaskListRunningException() : base(Resources.FactoryOrchestratorTaskListRunningException) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorTaskListRunningException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the error.</param>
+        public FactoryOrchestratorTaskListRunningException(string message) : base(message) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorTaskListRunningException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        public FactoryOrchestratorTaskListRunningException(string message, Exception innerException) : base(message, innerException) { }
 
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorTaskListRunningException"/> class.
         /// </summary>
         /// <param name="guid">The TaskList GUID.</param>
-        public FactoryOrchestratorTaskListRunningException(Guid guid) : base(string.Format(Resources.FactoryOrchestratorTaskListRunningExceptionWithGuid, guid.ToString()), guid)
+        public FactoryOrchestratorTaskListRunningException(Guid guid) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorTaskListRunningExceptionWithGuid, guid.ToString()), guid)
         { }
     }
 
@@ -56,24 +83,34 @@ namespace Microsoft.FactoryOrchestrator.Core
     public class FactoryOrchestratorUnkownGuidException : FactoryOrchestratorException
     {
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorUnkownGuidException"/> class.
         /// </summary>
-        public FactoryOrchestratorUnkownGuidException() : base(Resources.FactoryOrchestratorUnkownGuidException)
-        { }
+        public FactoryOrchestratorUnkownGuidException() : base(Resources.FactoryOrchestratorUnkownGuidException) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorUnkownGuidException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the error.</param>
+        public FactoryOrchestratorUnkownGuidException(string message) : base(message) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorUnkownGuidException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        public FactoryOrchestratorUnkownGuidException(string message, Exception innerException) : base(message, innerException) { }
 
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorUnkownGuidException"/> class.
         /// </summary>
         /// <param name="guid">The unkonwn GUID.</param>
-        public FactoryOrchestratorUnkownGuidException(Guid guid) : base(string.Format(Resources.FactoryOrchestratorUnkownGuidExceptionWithGuid, guid.ToString()), guid)
+        public FactoryOrchestratorUnkownGuidException(Guid guid) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorUnkownGuidExceptionWithGuid, guid.ToString()), guid)
         { }
 
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorUnkownGuidException"/> class.
         /// </summary>
         /// <param name="guid">The unkonwn GUID.</param>
         /// <param name="type">The type of the GUID.</param>
-        public FactoryOrchestratorUnkownGuidException(Guid guid, Type type) : base(string.Format(Resources.FactoryOrchestratorUnkownGuidExceptionWithGuidAndType, guid.ToString(), type.ToString()), guid)
+        public FactoryOrchestratorUnkownGuidException(Guid guid, Type type) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorUnkownGuidExceptionWithGuidAndType, guid.ToString(), type?.ToString()), guid)
         { }
     }
 
@@ -84,7 +121,23 @@ namespace Microsoft.FactoryOrchestrator.Core
     public class FactoryOrchestratorContainerException : FactoryOrchestratorException
     {
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorContainerException"/> class.
+        /// </summary>
+        public FactoryOrchestratorContainerException() : base() { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorContainerException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the error.</param>
+        public FactoryOrchestratorContainerException(string message) : base(message) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorContainerException"/> class.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        public FactoryOrchestratorContainerException(string message, Exception innerException) : base(message, innerException) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryOrchestratorContainerException"/> class.
         /// </summary>
         /// <param name="message">Error message.</param>
         /// <param name="guid">The GUID this Exception relates to.</param>

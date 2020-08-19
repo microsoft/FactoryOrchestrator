@@ -64,19 +64,16 @@
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="obj\AssemblyInfo.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
   <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile" Condition="'$(IsTFSBuild)' != 'true' And '$(Configuration)' == 'Debug'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
   </Target>
-
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

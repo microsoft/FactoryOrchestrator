@@ -26,7 +26,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
     /// A result entry page that queries the user if a given TaskRun for an external/UWP task passed or failed on the DUT.
     /// The page is automatically navigated from if the TaskRun is "completed" by a remote FO client.
     /// </summary>
-    public sealed partial class ExternalTestResultPage : Page
+    public sealed partial class ExternalTestResultPage : Page, IDisposable
     {
         public ExternalTestResultPage()
         {
@@ -128,8 +128,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 string newPath = Path.Combine(localFolder.Path, desiredName);
                 await Client.GetFileFromDevice(devicePath, newPath);
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.UriSource = new Uri(img.BaseUri, newPath);
+                BitmapImage bitmapImage = new BitmapImage
+                {
+                    UriSource = new Uri(img.BaseUri, newPath)
+                };
                 img.Source = bitmapImage;
                 img.Visibility = Visibility.Visible;
             }
@@ -166,7 +168,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
 
-        private void TaskRunPoller_OnException(object source, ServerPollerExceptionHandlerArgs e)
+        private void TaskRunPoller_OnException(object source, ServerPollerExceptionHandlerEventArgs e)
         {
             if (e.Exception.GetType() == typeof(FactoryOrchestratorUnkownGuidException))
             {
@@ -325,6 +327,31 @@ namespace Microsoft.FactoryOrchestrator.UWP
             InstructionalVideo.MediaPlayer.Play();
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    taskRunPoller?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
         private enum MediaType
         {
             Image,
@@ -339,8 +366,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool testReportReady;
         private TaskRun taskRun;
         private ServerPoller taskRunPoller;
-        private object updateLock;
+        private readonly object updateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }

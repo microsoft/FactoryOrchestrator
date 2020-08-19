@@ -1,21 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+#pragma warning disable IDE0060 // Remove unused parameter
 
 using Microsoft.Extensions.Logging;
 using Microsoft.FactoryOrchestrator.Core;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
-    public class LogFileProvider : ILoggerProvider
+    public sealed class LogFileProvider : ILoggerProvider
     {
         // Log to file next to the service binary
-        private static readonly String _logName = "FactoryOrchestratorService.log";
+        private const String LogName = "FactoryOrchestratorService.log";
         private static StreamWriter _logStream = null;
         private static uint _logCount = 0;
-        private static object _logLock = new object();
+        private static readonly object _logLock = new object();
 
         public ILogger CreateLogger(string categoryName)
         {
@@ -23,7 +25,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             lock (_logLock)
             {
                 _logCount++;
-                String _logPath = Path.Combine(FOServiceExe.ServiceLogFolder, _logName);
+                String _logPath = Path.Combine(FOServiceExe.ServiceLogFolder, LogName);
 
                 if (_logStream == null)
                 {
@@ -34,7 +36,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                     catch (Exception)
                     {
-                        Console.Error.WriteLine(string.Format(Resources.LogFileCreationFailed));
+                        Console.Error.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.LogFileCreationFailed, _logPath));
                     }
                 }
             }
@@ -58,7 +60,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public void AddMessage(DateTimeOffset timestamp, string message)
+        public static void AddMessage(DateTimeOffset timestamp, string message)
         {
             // Synchronize to ensure messages are printed in order
             lock (_logLock)
@@ -74,8 +76,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
     public class FileLogger : ILogger
     {
-        LogFileProvider _provider;
-        string _category;
+        readonly LogFileProvider _provider;
+        readonly string _category;
         public FileLogger(LogFileProvider provider, string categoryName)
         {
             _provider = provider;
@@ -97,13 +99,18 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            if (formatter == null)
+            {
+                throw new ArgumentNullException(nameof(formatter));
+            }
+
             if (!IsEnabled(logLevel))
             {
                 return;
             }
 
             var builder = new StringBuilder();
-            builder.Append(timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
+            builder.Append(timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff zzz", CultureInfo.CurrentCulture));
             builder.Append(" [");
             builder.Append(logLevel.ToString());
             builder.Append("] ");
@@ -116,7 +123,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 builder.AppendLine(exception.ToString());
             }
 
-            _provider.AddMessage(timestamp, builder.ToString());
+            LogFileProvider.AddMessage(timestamp, builder.ToString());
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -125,3 +132,4 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
     }
 }
+#pragma warning restore IDE0060 // Remove unused parameter

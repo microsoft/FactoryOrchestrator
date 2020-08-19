@@ -17,7 +17,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// Chunk size in bytes for file transfers.
         /// </summary>
-        public const int FILE_TRANSFER_CHUNK_SIZE = 1048576;
+        public const int FileTransferChunkSize = 1048576;
     }
 
     /// <summary>
@@ -134,19 +134,19 @@ namespace Microsoft.FactoryOrchestrator.Core
         public String Message { get => _message; }
 
         [JsonRequired]
-        private ulong _eventIndex;
+        private readonly ulong _eventIndex;
 
         [JsonRequired]
-        private ServiceEventType _eventType;
+        private readonly ServiceEventType _eventType;
 
         [JsonRequired]
-        private DateTime _eventTime;
+        private readonly DateTime _eventTime;
 
         [JsonRequired]
-        private string _message;
+        private readonly string _message;
 
         [JsonRequired]
-        private string _guidStr;
+        private readonly string _guidStr;
 
         private static ulong _indexCount = 0;
     }

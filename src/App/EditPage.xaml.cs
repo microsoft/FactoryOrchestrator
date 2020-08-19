@@ -21,6 +21,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.ApplicationModel.Resources;
+using System.Globalization;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -34,11 +35,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.InitializeComponent();
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             BackButton.IsEnabled = this.Frame.CanGoBack;
 
-            if (e.Parameter != null)
+            if (e != null && e.Parameter != null)
             {
                 isNewList = false;
                 activeList = (TaskList)e.Parameter;
@@ -142,7 +143,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void BgDeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            BackgroundTasksCollection.Remove(GetTestFromButton(sender as Button));
+            BackgroundTasksCollection.Remove(GetTaskFromButton(sender as Button));
             listEdited = true;
 
             if (BackgroundTasksCollection.Count == 0)
@@ -153,7 +154,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void BgEditButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTask = GetTestFromButton(sender as Button);
+            activeTask = GetTaskFromButton(sender as Button);
             activeTaskIndex = BackgroundTasksCollection.IndexOf(activeTask);
             ConfigureFlyout(activeTask.Type, true);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
@@ -165,7 +166,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            TasksCollection.Remove(GetTestFromButton(sender as Button));
+            TasksCollection.Remove(GetTaskFromButton(sender as Button));
             listEdited = true;
 
             if (TasksCollection.Count == 0)
@@ -176,7 +177,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            activeTask = GetTestFromButton(sender as Button);
+            activeTask = GetTaskFromButton(sender as Button);
             activeTaskIndex = TasksCollection.IndexOf(activeTask);
             ConfigureFlyout(activeTask.Type);
             EditFlyout.ShowAt(LayoutRoot, new FlyoutShowOptions()
@@ -220,11 +221,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeTask.Name = TestNameBox.Text;
             }
 
-            if (TimeoutBox.Text != "")
+            if (!string.IsNullOrWhiteSpace(TimeoutBox.Text))
             {
                 try
                 {
-                    activeTask.TimeoutSeconds = Int32.Parse(TimeoutBox.Text);
+                    activeTask.TimeoutSeconds = Int32.Parse(TimeoutBox.Text, CultureInfo.CurrentCulture);
                 }
                 catch (Exception)
                 {
@@ -236,11 +237,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 activeTask.TimeoutSeconds = -1;
             }
 
-            if (RetryBox.Text != "")
+            if (!string.IsNullOrWhiteSpace(RetryBox.Text))
             {
                 try
                 {
-                    activeTask.MaxNumberOfRetries = UInt32.Parse(RetryBox.Text);
+                    activeTask.MaxNumberOfRetries = UInt32.Parse(RetryBox.Text, CultureInfo.CurrentCulture);
                 }
                 catch (Exception)
                 {
@@ -298,7 +299,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             try
             {
-                Int32.Parse(TimeoutBox.Text);
+                Int32.Parse(TimeoutBox.Text, CultureInfo.CurrentCulture);
             }
             catch (Exception)
             {
@@ -310,7 +311,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             try
             {
-                UInt32.Parse(RetryBox.Text);
+                UInt32.Parse(RetryBox.Text, CultureInfo.CurrentCulture);
             }
             catch (Exception)
             {
@@ -356,8 +357,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (activeTask != null)
             {
                 TestNameBox.Text = activeTask.Name;
-                TimeoutBox.Text = activeTask.TimeoutSeconds.ToString();
-                RetryBox.Text = activeTask.MaxNumberOfRetries.ToString();
+                TimeoutBox.Text = activeTask.TimeoutSeconds.ToString(CultureInfo.CurrentCulture);
+                RetryBox.Text = activeTask.MaxNumberOfRetries.ToString(CultureInfo.CurrentCulture);
                 ContainerBox.IsChecked = activeTask.RunInContainer;
                 AbortOnFailBox.IsChecked = activeTask.AbortTaskListOnFailed;
 
@@ -681,7 +682,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             listEdited = true;
         }
 
-        private TaskBase GetTestFromButton(Button button)
+        private static TaskBase GetTaskFromButton(Button button)
         {
             var stack = button.Parent as StackPanel;
             var grid = stack.Parent as Grid;
@@ -713,7 +714,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 };
                 RenameBox.Text = activeList.Name;
 
-                ContentDialogResult result = await failedEdit.ShowAsync();
+                _ = await failedEdit.ShowAsync();
             }
             else if (!activeList.Name.Equals(RenameBox.Text, StringComparison.InvariantCulture))
             {
@@ -738,7 +739,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool activeTaskIsNowBg;
         private bool isNewList;
         private bool listEdited;
-        private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-        private ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+        private readonly FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
+        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }
 }
