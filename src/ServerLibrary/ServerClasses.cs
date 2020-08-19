@@ -18,6 +18,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using PEUtility;
 using System.Globalization;
+using System.Xml;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
@@ -288,7 +289,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     if (!string.IsNullOrEmpty(dupGuidString))
                     {
-                        throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
+                        throw new XmlException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
                     }
 
                     foreach (var list in xml.TaskLists)

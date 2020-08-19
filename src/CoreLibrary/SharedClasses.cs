@@ -2200,7 +2200,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             
             if (!string.IsNullOrEmpty(dupGuidString))
             {
-                throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
+                throw new XmlSchemaValidationException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
             }
         }
 
@@ -2277,7 +2277,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
             catch (Exception e)
             {
-                throw new FileLoadException(string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, filename), e);
+                throw new XmlException(string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, filename), e);
             }
 
             return xml;
