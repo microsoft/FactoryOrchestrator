@@ -2184,6 +2184,24 @@ namespace Microsoft.FactoryOrchestrator.Core
                     (bgtask as ExecutableTask).BackgroundTask = true;
                 }
             }
+
+            // Check the XML for any duplicate GUIDs
+            var allGuids = TaskLists.Select(x => x.Guid).Concat(TaskLists.SelectMany(y => y.Tasks.Select(z => z.Guid)));
+            var hash = new HashSet<Guid>();
+            var dupGuidString = string.Empty;
+            foreach (var guid in allGuids)
+            {
+                // If false, the GUID already was added, so it's a duplicate
+                if (!hash.Add(guid))
+                {
+                    dupGuidString += $"{guid.ToString()}, ";
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(dupGuidString))
+            {
+                throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
+            }
         }
 
         /// <summary>

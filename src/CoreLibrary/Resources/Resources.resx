@@ -420,4 +420,7 @@
   <data name="ServiceProcessTimedOut" xml:space="preserve">
     <value>{0} did not exit before {1}ms!</value>
   </data>
+  <data name="DuplicateGuidInXml" xml:space="preserve">
+    <value>Duplicate Guid(s) {0}in FactoryOrchestratorXML!</value>
+  </data>
 </root>

@@ -223,6 +223,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Duplicate Guid(s) {0}in FactoryOrchestratorXML!.
+        /// </summary>
+        public static string DuplicateGuidInXml {
+            get {
+                return ResourceManager.GetString("DuplicateGuidInXml", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TaskRun {0} could not be loaded from file as it already exists!.
         /// </summary>
         public static string DuplicateTaskRunGuid {
