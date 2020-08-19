@@ -105,15 +105,16 @@ steps:
     clean: false
     maximumCpuCount: true
 
-    # Disabling this task until we have Visual Studio tests here
-- task: VSTest@1
-  displayName: 'Test Assemblies *test*.dll'
+- task: VSTest@2
+  displayName: 'Run UnitTests'
   inputs:
-    testAssembly: '$(Build.SourcesDirectory)\src\**\*test*.dll;-:**\obj\**'
+    testAssemblyVer2: |
+        bin/Tests/**/*UnitTests*.dll
+    searchFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)'
     codeCoverageEnabled: true
-    runInParallel: False
+    runInParallel: true
     vsTestVersion: latest
-  enabled: false
+    runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\UnitTests\UnitTests.runsettings'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FactoryOrchestratorService x86'

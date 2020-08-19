@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FactoryOrchestratorXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TaskLists>
+    <TaskList Name="Display Tests" RunInParallel="false" AllowOtherTaskListsToRun="false">
+      <Tasks>
+        <Task xsi:type="UWPTask" Name="DeadPixelTest" Path="Microsoft.ColorCycleSample_8wekyb3d8bbwe" Arguments="Did you see any dead pixels?" Guid="8886302c-070c-4e19-b9e3-1b76f8c03f4e" />
+      </Tasks>
+    </TaskList>
+  </TaskLists>
+</FactoryOrchestratorXML>

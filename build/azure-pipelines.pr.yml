@@ -39,4 +39,13 @@ jobs:
         platform: x86
         configuration: 'Debug'
         msbuildArgs: '/p:AppxBundlePlatforms="x86|x64|arm" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
-
+    - task: VSTest@2
+      displayName: 'Run UnitTests'
+      inputs:
+        testAssemblyVer2: |
+          bin/Tests/**/*UnitTests*.dll
+        searchFolder: '$(System.DefaultWorkingDirectory)'
+        codeCoverageEnabled: true
+        runInParallel: true
+        vsTestVersion: latest
+        runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\UnitTests\UnitTests.runsettings'
