@@ -476,7 +476,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             // Try to list TAEF testcases to see if it is a valid TAEF test
             TAEFTest maybeTAEF = new TAEFTest(dllToTest);
             var taskRun = CreateTaskRunForTask(maybeTAEF, LogFolder);
-                bool isTaef = false;
+            bool isTaef = false;
             using (var runner = new TaskRunner(taskRun))
             {
                 try
@@ -609,7 +609,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
         public bool RunAllTaskLists()
         {
-            lock(KnownTaskListLock)
+            lock (KnownTaskListLock)
             {
                 foreach (var list in KnownTaskLists)
                 {
@@ -871,7 +871,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                             }
                         }
 
+#pragma warning disable CA2000 // Dispose objects before losing scope. It is disposed by the runner object itself when it completes or is aborted.
                         runner = new TaskRunner(taskRun);
+#pragma warning restore CA2000
                         waitingForResult = false;
 
                         if (taskRunEventHandler != null)
@@ -1019,7 +1021,6 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 finally
                 {
-                    runner?.Dispose();
                     externalTimeoutTimer?.Dispose();
                 }
 
@@ -1044,9 +1045,9 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                 taskRun.ExitCode = -1;
-                 taskRun.TaskStatus = TaskStatus.Aborted;
-                 taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
+                taskRun.ExitCode = -1;
+                taskRun.TaskStatus = TaskStatus.Aborted;
+                taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
             }
         }
 
@@ -1183,7 +1184,6 @@ namespace Microsoft.FactoryOrchestrator.Server
         {
             lock (RunningTaskListLock)
             {
-
                 if (RunningTaskRunTokens.TryGetValue(taskRunToCancel, out var token))
                 {
                     token.Cancel();
@@ -1310,9 +1310,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 task.TimesRetried = 0;
             }
-
             var run = CreateTaskRunForTask(task, LogFolder);
-
             using (var token = new CancellationTokenSource())
             {
                 if (run.BackgroundTask)
@@ -1359,7 +1357,6 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 throw new ArgumentNullException(nameof(task));
             }
-
             ServerTaskRun run;
             lock (task.TaskLock)
             {
@@ -1386,7 +1383,6 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 throw new ArgumentNullException(nameof(task));
             }
-
             ServerTaskRun run;
             lock (task.TaskLock)
             {
@@ -1664,7 +1660,6 @@ namespace Microsoft.FactoryOrchestrator.Server
             });
         }
 
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -1692,7 +1687,6 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             _isDisposed = true;
         }
-
         private List<TaskList> KnownTaskLists;
         private readonly ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskListTokens;
         private readonly ConcurrentDictionary<Guid, CancellationTokenSource> RunningTaskRunTokens;
@@ -1829,6 +1823,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.FileNotFoundException, newPath), newPath);
                 }
             }
+
         }
 
         public static TaskRunner GetTaskRunnerForTaskRun(Guid taskRunGuid)
@@ -1910,7 +1905,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                startInfo.FileName = ActiveTaskRun.TaskPath; 
+                startInfo.FileName = ActiveTaskRun.TaskPath;
             }
 
             startInfo.Arguments += ActiveTaskRun.Arguments;
@@ -1976,8 +1971,8 @@ namespace Microsoft.FactoryOrchestrator.Server
                     {
                         await Task.Delay(new TimeSpan(0, 0, ActiveTaskRun.TimeoutSeconds), TimeoutToken.Token);
 
-                    // If we hit the timeout and the task didn't finish, stop it now.
-                    if (!TimeoutToken.IsCancellationRequested)
+                        // If we hit the timeout and the task didn't finish, stop it now.
+                        if (!TimeoutToken.IsCancellationRequested)
                         {
                             TimeoutTask();
                         }
@@ -1999,6 +1994,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     // Process.Start() failed. Finish writing the log file, as OnExited will never execute.
                     ActiveTaskRun.WriteLogFooter();
                     OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, Resources.ProcessStartError));
+                    Dispose();
                 }
                 else
                 {
@@ -2105,6 +2101,9 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             // Raise event if event handler exists
             OnTestEvent?.Invoke(this, new TaskRunnerEventArgs(ActiveTaskRun.TaskStatus, ActiveTaskRun.ExitCode, Resources.ProcessExited));
+
+            // Dispose self, we are done executing
+            this.Dispose();
         }
 
         private bool TimeoutTask()
@@ -2144,6 +2143,8 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                 if (IsRunning)
                 {
+                    // OnExited never occurred, so Dispose() wasn't called. Call it ourselves.
+                    Dispose();
                     return false;
                 }
                 else
@@ -2200,7 +2201,8 @@ namespace Microsoft.FactoryOrchestrator.Server
         public bool IsRunning { get; set; }
 
         [JsonIgnore]
-        public Guid ActiveTaskRunGuid {
+        public Guid ActiveTaskRunGuid
+        {
             get
             {
                 return ActiveTaskRun.Guid;
@@ -2225,7 +2227,6 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly object outputLock = new object();
 
         private static readonly ConcurrentDictionary<Guid, TaskRunner> _taskRunnerMap = new ConcurrentDictionary<Guid, TaskRunner>();
-
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -2294,7 +2295,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             OwningTaskListGuid = null;
 
             CtorCommon();
-            
+
             if (logFileOrPath != null)
             {
                 var ext = logFileOrPath.Substring(logFileOrPath.Length - 3);
