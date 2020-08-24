@@ -18,6 +18,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using PEUtility;
 using System.Globalization;
+using System.Xml;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
@@ -275,6 +276,22 @@ namespace Microsoft.FactoryOrchestrator.Server
                 // Add GUIDs to any TaskBase or TaskList objects that don't have one
                 lock (KnownTaskListLock)
                 {
+                    // Check for duplicate GUIDs
+                    var currentGuids = KnownTaskLists.Select(x => x.Guid).Concat(KnownTaskLists.SelectMany(y => y.Tasks).Select(z => z.Guid));
+                    var newGuids = xml.TaskLists.Select(x => x.Guid).Concat(xml.TaskLists.SelectMany(y => y.Tasks).Select(z => z.Guid));
+                    var intersect = currentGuids.Intersect(newGuids);
+                    var dupGuidString = string.Empty;
+
+                    foreach (var guid in intersect)
+                    {
+                        dupGuidString += $"{guid.ToString()}, ";
+                    }
+
+                    if (!string.IsNullOrEmpty(dupGuidString))
+                    {
+                        throw new XmlException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
+                    }
+
                     foreach (var list in xml.TaskLists)
                     {
                         // Mark "running" Tasks as Unknown, as their state is unknown
@@ -289,18 +306,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                             task.LatestTaskRunStatus = TaskStatus.Unknown;
                         }
 
-                        var index = KnownTaskLists.FindIndex(x => x.Guid == list.Guid);
-                        if (index > -1)
-                        {
-                            // todo: consider this an error?
-                            KnownTaskLists[index] = list;
-                            OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.UpdatedTaskList, list.Guid, null));
-                        }
-                        else
-                        {
-                            KnownTaskLists.Add(list);
-                            OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.NewTaskList, list.Guid, null));
-                        }
+                        // Add the list. We already checked it isn't a duplicate GUID.
+                        KnownTaskLists.Add(list);
+                        OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.NewTaskList, list.Guid, null));
                     }
                 }
 
@@ -551,6 +559,10 @@ namespace Microsoft.FactoryOrchestrator.Server
                             OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.UpdatedTaskList, taskList.Guid, null));
                         }
                     }
+                }
+                else
+                {
+                    throw new FactoryOrchestratorUnkownGuidException(taskList.Guid, typeof(TaskList));
                 }
             }
 
