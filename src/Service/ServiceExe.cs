@@ -1511,7 +1511,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            // Start IPC server on port 45684. Only start after all boot tasks are complete.
+            // Start IPC server on port 45684.
+            // Allow 5 concurrent commands to be handled by the service. 5 is chosen as an abritrary but reasonable maximum.
+            // If 5 are already executing, the 6th+ command is automatically blocked by a semaphore in the IPC framework until one of the current 5 completes.
             if (EnableNetworkAccess && !DisableNetworkAccess) 
             {
                 FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684, new JKang.IpcServiceFramework.Tcp.TcpConcurrencyOptions(5))
