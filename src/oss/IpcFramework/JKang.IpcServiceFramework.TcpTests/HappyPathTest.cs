@@ -78,7 +78,7 @@ namespace JKang.IpcServiceFramework.TcpTests
 
             // Execute the method again to validate the socket isn't improperly disposed
             actual = await _client
-                .InvokeAsync(x => x.StringType(input));
+                .InvokeAsync<string>(request);
         }
     }
 }

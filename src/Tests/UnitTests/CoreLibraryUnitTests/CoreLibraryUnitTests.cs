@@ -21,7 +21,7 @@ namespace Microsoft.FactoryOrchestrator.Test
                 FactoryOrchestratorXML.Load(path);
                 Assert.Fail("XML should not have loaded successfully!");
             }
-            catch (XmlException e)
+            catch (FactoryOrchestratorXmlException e)
             {
                 Assert.AreEqual(e.InnerException.GetType(), typeof(XmlSchemaValidationException));
                 foreach (var guid in expectedGuids)

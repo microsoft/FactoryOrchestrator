@@ -53,6 +53,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         private async void GetUpdatedObjectAsync(object state)
         {
             object newObj;
+
             try
             {
                 if (_client.IsConnected)
@@ -115,14 +116,9 @@ namespace Microsoft.FactoryOrchestrator.Client
                             }
                             else
                             {
-                                try
-                                {
-                                    // update object seen as it could be changed when the invoke returns
-                                    _lastEventObject = newObj;
-                                    OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
-                                }
-                                catch (Exception)
-                                { }
+                                // update object seen as it could be changed when the invoke returns
+                                _lastEventObject = newObj;
+                                OnUpdatedObject?.Invoke(this, new ServerPollerEventArgs(newObj));
                             }
                         }
                     }

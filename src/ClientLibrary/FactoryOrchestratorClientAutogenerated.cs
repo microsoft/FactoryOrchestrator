@@ -1070,8 +1070,9 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="path">The folder to search.</param>
         /// <param name="recursive">If true, search recursively.</param>
+        /// <param name="inContainer">If true, look for directories in the container running on the connected device.</param>
         /// <returns></returns>
-        public async Task<List<string>> EnumerateDirectories(string path, bool recursive = false)
+        public async Task<List<string>> EnumerateDirectories(string path, bool recursive = false, bool inContainer = false)
         {
             if (!IsConnected)
             {
@@ -1080,7 +1081,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                return await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateDirectories", path, recursive ));
+                return await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateDirectories", path, recursive , inContainer ));
             }
             catch (Exception ex)
             {
@@ -1093,8 +1094,9 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="path">The folder to search.</param>
         /// <param name="recursive">If true, search recursively.</param>
+        /// <param name="inContainer">If true, look for files in the container running on the connected device.</param>
         /// <returns></returns>
-        public async Task<List<string>> EnumerateFiles(string path, bool recursive = false)
+        public async Task<List<string>> EnumerateFiles(string path, bool recursive = false, bool inContainer = false)
         {
             if (!IsConnected)
             {
@@ -1103,7 +1105,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                return await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateFiles", path, recursive ));
+                return await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateFiles", path, recursive , inContainer ));
             }
             catch (Exception ex)
             {

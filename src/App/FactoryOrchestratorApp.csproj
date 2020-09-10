@@ -273,7 +273,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.9</Version>
+      <Version>6.2.10</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -284,10 +284,6 @@
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj">
       <Project>{5ed97075-7281-4fa3-8e5f-d4b8d273bdcb}</Project>
       <Name>FactoryOrchestratorCoreLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\oss\ipcframework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj">
-      <Project>{52ceb7ed-27e4-40df-810f-4971caf0f55e}</Project>
-      <Name>IpcServiceFramework.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj">
       <Project>{0ed6137e-895f-4941-a136-abb977e1c4ef}</Project>

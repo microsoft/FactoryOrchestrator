@@ -23,14 +23,53 @@ using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using Microsoft.FactoryOrchestrator.Client;
 using System.Globalization;
+using JKang.IpcServiceFramework.Hosting;
+using Microsoft.Extensions.Hosting;
+using JKang.IpcServiceFramework.Hosting.Tcp;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
     class FOServiceExe
     {
-        public static IIpcServiceHost ipcHost;
+        public static IHost ipcHost;
         public static ServiceProvider ipcSvcProvider;
         public static readonly string ServiceLogFolder = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "FactoryOrchestrator");
+
+        public static IHost CreateHost(string[] args, bool allowNetworkAccess) =>
+              Host.CreateDefaultBuilder(args)
+                  .ConfigureServices(services =>
+                  {
+                      services.AddScoped<IFactoryOrchestratorService, FOCommunicationHandler>();
+                  })
+                  .ConfigureIpcHost(builder =>
+                  {
+                      // configure IPC endpoints
+                      if (allowNetworkAccess)
+                      {
+                          builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
+                          {
+                              options.IpEndpoint = IPAddress.Any;
+                              options.Port = 45684;
+                              options.IncludeFailureDetailsInResponse = true;
+                              options.MaxConcurrentCalls = 5;
+                          });
+                      }
+                      else
+                      {
+                          builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
+                          {
+                              options.IpEndpoint = IPAddress.Loopback;
+                              options.Port = 45684;
+                              options.IncludeFailureDetailsInResponse = true;
+                              options.MaxConcurrentCalls = 5;
+                          });
+                      }
+                  })
+                  .ConfigureLogging(builder =>
+                  {
+                        // optionally configure logging
+                        builder.SetMinimumLevel(LogLevel.Trace);
+                  }).Build();
 
         public static void Main(string[] args)
         {
@@ -44,13 +83,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             var services = new ServiceCollection();
 
 
-            // Configure IPC service framework server
-            servicesIpc = (ServiceCollection)servicesIpc.AddIpc(builder =>
-            {
-                builder
-                    .AddTcp()
-                    .AddService<IFactoryOrchestratorService, FOCommunicationHandler>();
-            });
+          
 
             // Configure service providers for logger creation and managment
             ipcSvcProvider = servicesIpc
@@ -395,10 +428,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                     list = FOService.Instance.BootTaskExecutionManager.GetTaskList(taskListGuid);
                 }
 
-                if (list == null)
-                {
-                    throw new FactoryOrchestratorUnkownGuidException(taskListGuid, typeof(TaskList));
-                }
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskList {taskListGuid}");
                 return list;
             }
@@ -441,11 +470,19 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
+                TaskRun ret = null;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: QueryTaskRun {taskRunGuid}");
+
                 // This performs a recursive search that will include both "normal" and "boot" tasks, so BootTaskExecutionManager doesn't need to be queried.
-                var run = FOService.Instance.TaskExecutionManager.GetTaskRunByGuid(taskRunGuid).DeepCopy();
+                var run = FOService.Instance.TaskExecutionManager.GetTaskRunByGuid(taskRunGuid);
+
+                if (run != null)
+                {
+                    ret = run.DeepCopy();
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: QueryTaskRun {taskRunGuid}");
-                return run;
+                return ret;
             }
             catch (Exception e)
             {
@@ -786,7 +823,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 var run = FOService.Instance.TaskExecutionManager.RunExecutableAsBackgroundTask(exeFilePath, arguments, logFilePath, runInContainer);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunExecutable {exeFilePath} {arguments}");
-                return run;
+                return run.DeepCopy() as TaskRun;
             }
             catch (Exception e)
             {
@@ -830,7 +867,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 var run = FOService.Instance.TaskExecutionManager.RunTask(task);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTask {task}");
-                return run;
+                return run.DeepCopy();
             }
             catch (Exception e)
             {
@@ -857,7 +894,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 var run = FOService.Instance.TaskExecutionManager.RunApp(aumid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunApp {aumid}");
-                return run;
+                return run.DeepCopy();
             }
             catch (Exception e)
             {
@@ -952,7 +989,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if (moveInContainer)
                 {
                     FOService.Instance.MoveInContainer(sourcePath, destinationPath).Wait();
-                    FOService.Instance.MoveInContainer(sourcePath, destinationPath).Wait();
                 }
                 else
                 {
@@ -981,13 +1017,24 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public List<string> EnumerateDirectories(string path, bool recursive = false)
+        public List<string> EnumerateDirectories(string path, bool recursive = false, bool inContainer = false)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: EnumerateDirectories {path}");
-                path = Environment.ExpandEnvironmentVariables(path);
-                var dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+
+                List<string> dirs;
+
+                if (inContainer)
+                {
+                    dirs = FOService.Instance.EnumerateDirectoriesInContainer(path, recursive).Result;
+                }
+                else
+                {
+                    path = Environment.ExpandEnvironmentVariables(path);
+                    dirs = Directory.EnumerateDirectories(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: EnumerateDirectories {path}");
                 return dirs;
             }
@@ -998,13 +1045,24 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public List<string> EnumerateFiles(string path, bool recursive = false)
+        public List<string> EnumerateFiles(string path, bool recursive = false, bool inContainer = false)
         {
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: EnumerateFiles {path} {recursive}");
-                path = Environment.ExpandEnvironmentVariables(path);
-                var files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+
+                List<string> files;
+
+                if (inContainer)
+                {
+                    files = FOService.Instance.EnumerateFilesInContainer(path, recursive).Result;
+                }
+                else
+                {
+                    path = Environment.ExpandEnvironmentVariables(path);
+                    files = Directory.EnumerateFiles(path, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToList();
+                }
+
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: EnumerateFiles {path} {recursive}");
                 return files;
             }
@@ -1413,7 +1471,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public static string GetOEMVersionString()
         {
             using var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false);
-            var version = (string)reg.GetValue("OEMVersion");
+            var version = (string)reg?.GetValue("OEMVersion", null);
             return version;
         }
 
@@ -1478,24 +1536,14 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            // Start IPC server on port 45684.
-            // Allow 5 concurrent commands to be handled by the service. 5 is chosen as an abritrary but reasonable maximum.
-            // If 5 are already executing, the 6th+ command is automatically blocked by a semaphore in the IPC framework until one of the current 5 completes.
             if (EnableNetworkAccess && !DisableNetworkAccess) 
             {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Any, 45684, new JKang.IpcServiceFramework.Tcp.TcpConcurrencyOptions(5))
-                                                                .Build();
                 networkAccessEnabled = true;
             }
-            else
-            {
-                FOServiceExe.ipcHost = new IpcServiceHostBuilder(FOServiceExe.ipcSvcProvider).AddTcpEndpoint<IFactoryOrchestratorService>("tcp", IPAddress.Loopback, 45684, new JKang.IpcServiceFramework.Tcp.TcpConcurrencyOptions(5))
-                                                                .Build();
-                networkAccessEnabled = false;
-            }
 
+            // Start IPC server on port 45684. Only start after all boot tasks are complete.
+            FOServiceExe.ipcHost = FOServiceExe.CreateHost(null, networkAccessEnabled);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
-            _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
             if (networkAccessEnabled)
@@ -1958,6 +2006,32 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public async Task<List<string>> EnumerateFilesInContainer(string path, bool recursive)
+        {
+            await ConnectToContainer();
+            try
+            {
+                return await _containerClient.EnumerateFiles(path, recursive);
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException($"", null, e);
+            }
+        }
+
+        public async Task<List<string>> EnumerateDirectoriesInContainer(string path, bool recursive)
+        {
+            await ConnectToContainer();
+            try
+            {
+                return await _containerClient.EnumerateDirectories(path, recursive);
+            }
+            catch (Exception e)
+            {
+                throw new FactoryOrchestratorContainerException($"", null, e);
+            }
+        }
+
         /// <summary>
         /// Opens the file for reading or writing. It is created if it does not exist. After 1 second the file is closed unless the same file is attempted to be reopened before then.
         /// </summary>
@@ -2089,6 +2163,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
 
             _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
+            _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
 
             // Enable local loopback every boot.
             EnableUWPLocalLoopback();
@@ -2116,7 +2191,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _firstBootTasksDefaultPath));
 
                 // Load first boot XML, even if we don't end up executing it, so it can be queried via FO APIs
-                List<Guid> firstBootTaskListGuids = null;
+                List<Guid> firstBootTaskListGuids = new List<Guid>();
                 if (File.Exists(firstBootTaskListPath))
                 {
                     BootTaskExecutionManager = new TaskManager(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), firstBootTaskListPath);
@@ -2183,7 +2258,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _everyBootTasksDefaultPath));
 
                 // Load every boot XML, even if we don't end up executing it, so it can be queried via FO APIs
-                List<Guid> everyBootTaskListGuids = null;
+                List<Guid> everyBootTaskListGuids = new List<Guid>();
                 if (File.Exists(everyBootTaskListPath))
                 {
                     BootTaskExecutionManager.SetLogFolder(Path.Combine(_taskExecutionManager.LogFolder, "EveryBootTaskLists"), false);
