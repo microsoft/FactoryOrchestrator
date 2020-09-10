@@ -38,7 +38,7 @@ namespace JKang.IpcServiceFramework.TcpTests
             var sw = Stopwatch.StartNew();
             await Assert.ThrowsAsync<TimeoutException>(async () =>
             {
-                var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", new object[] { "abc" });
+                var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", false, new object[] { "abc" });
                 string output = await client.InvokeAsync<string>(request);
             });
 
@@ -65,7 +65,7 @@ namespace JKang.IpcServiceFramework.TcpTests
                     {
                         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
                         {
-                            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", new object[] { string.Empty });
+                            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", false, new object[] { string.Empty });
                             await client.InvokeAsync(request, cts.Token);
                         });
                     }),

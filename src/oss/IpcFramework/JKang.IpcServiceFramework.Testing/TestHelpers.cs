@@ -11,13 +11,13 @@ namespace JKang.IpcServiceFramework.Testing
     public static class TestHelpers
     {
         /// <summary>
-        /// Creates an IPC request for the given method in the given interface.
+        /// Creates an IPC request for the given method in the given interface. Does not support generic methods.
         /// </summary>
         /// <param name="interfaceType">The Type of the interface containing the method.</param>
         /// <param name="methodName">Name of the method.</param>
         /// <param name="args">The arguments to the method.</param>
         /// <returns>IpcRequest object</returns>
-        public static IpcRequest CreateIpcRequest(Type interfaceType, string methodName, params object[] args)
+        public static IpcRequest CreateIpcRequest(Type interfaceType, string methodName, bool useIpcRequestParameterType, params object[] args)
         {
             MethodInfo method = null;
 
@@ -39,7 +39,7 @@ namespace JKang.IpcServiceFramework.Testing
 
             if (method.IsGenericMethod)
             {
-                throw new ArgumentException($"{methodName} is generic and not supported!");
+                throw new ArgumentException("Generic methods are not supported!", nameof(methodName));
             }
 
             var methodParams = method.GetParameters();
@@ -50,13 +50,26 @@ namespace JKang.IpcServiceFramework.Testing
                 Parameters = args
             };
 
-            var parameterTypes = new Type[methodParams.Length];
-            for (int i = 0; i < args.Length; i++)
+            if (useIpcRequestParameterType)
             {
-                parameterTypes[i] = methodParams[i].ParameterType; 
-            }
+                var parameterTypesByName = new IpcRequestParameterType[methodParams.Length];
+                for (int i = 0; i < methodParams.Length; i++)
+                {
+                    parameterTypesByName[i] = new IpcRequestParameterType(methodParams[i].ParameterType);
+                }
 
-            request.ParameterTypes = parameterTypes;
+                request.ParameterTypesByName = parameterTypesByName;
+            }
+            else
+            {
+                var parameterTypes = new Type[methodParams.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    parameterTypes[i] = methodParams[i].ParameterType; 
+                }
+
+                request.ParameterTypes = parameterTypes;
+            }
 
             return request;
         }

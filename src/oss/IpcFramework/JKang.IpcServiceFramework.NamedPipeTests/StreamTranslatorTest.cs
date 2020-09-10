@@ -53,7 +53,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", new object[] { input });
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", false, new object[] { input });
             var actual2 = await client.InvokeAsync<string>(request);
 
             Assert.Equal(expected, actual2);
