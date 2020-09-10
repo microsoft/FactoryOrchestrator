@@ -18,15 +18,15 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
     /// <summary>
     /// Validates the IPC pipeline is working end-to-end for a variety of method types.
     /// Tests both dynamically generated IpcRequests (via DispatchProxy) and statically generated ones.
-    /// Tests using full parameter types (UseSimpleTypeNameAssemblyFormatHandling == false).
+    /// Tests using simple parameter types (IpcClentOptions.UseSimpleTypeNameAssemblyFormatHandling == true).
     /// </summary>
     /// <seealso cref="Xunit.IClassFixture{JKang.IpcServiceFramework.Testing.IpcApplicationFactory{JKang.IpcServiceFramework.NamedPipeTests.Fixtures.ITestService}}" />
-    public class ContractTest : IClassFixture<IpcApplicationFactory<ITestService>>
+    public class SimpleTypeNameContractTest : IClassFixture<IpcApplicationFactory<ITestService>>
     {
         private readonly Mock<ITestService> _serviceMock = new Mock<ITestService>();
         private readonly IIpcClient<ITestService> _client;
 
-        public ContractTest(IpcApplicationFactory<ITestService> factory)
+        public SimpleTypeNameContractTest(IpcApplicationFactory<ITestService> factory)
         {
             string pipeName = Guid.NewGuid().ToString();
             _client = factory
@@ -41,7 +41,12 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
                 })
                 .CreateClient((name, services) =>
                 {
-                    services.AddNamedPipeIpcClient<ITestService>(name, pipeName);
+                    services.AddNamedPipeIpcClient<ITestService>(name, (_, options) =>
+                    {
+                        options.UseSimpleTypeNameAssemblyFormatHandling = true;
+                        options.PipeName = pipeName;
+                    }
+                    );
                 });
         }
 
@@ -60,7 +65,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "PrimitiveTypes", false, a, b, c, d, e, f, g, h, i, j, k, l, m);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "PrimitiveTypes", true, a, b, c, d, e, f, g, h, i, j, k, l, m);
             int actual2 = await _client.InvokeAsync<int>(request);
 
             Assert.Equal(expected, actual2);
@@ -80,7 +85,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", true, input);
             string actual2 = await _client.InvokeAsync<string>(request);
 
             Assert.Equal(expected, actual2);
@@ -98,10 +103,11 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ComplexType", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ComplexType", true, input);
             var actual2 = await _client.InvokeAsync<Complex>(request);
 
             Assert.Equal(expected, actual2);
+
         }
 
         [Theory, AutoData]
@@ -118,7 +124,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ComplexTypeArray", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ComplexTypeArray", true, input);
             var actual2 = await _client.InvokeAsync<IEnumerable<Complex>>(request);
 
             Assert.Equal(expected, actual2);
@@ -141,7 +147,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(largeExpected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ComplexTypeArray", false, largeInput);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ComplexTypeArray", true, largeInput);
             var actual2 = await _client.InvokeAsync<IEnumerable<Complex>>(request);
 
             Assert.Equal(largeExpected, actual2);
@@ -169,7 +175,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "DateTime", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "DateTime", true, input);
             DateTime actual2 = await _client.InvokeAsync<DateTime>(request);
 
             Assert.Equal(expected, actual2);
@@ -187,7 +193,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "EnumType", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "EnumType", true, input);
             DateTimeStyles actual2 = await _client.InvokeAsync<DateTimeStyles>(request);
 
             Assert.Equal(expected, actual2);
@@ -205,7 +211,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected, actual);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ByteArray", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "ByteArray", true, input);
             byte[] actual2 = await _client.InvokeAsync<byte[]>(request);
 
             Assert.Equal(expected, actual2);
@@ -230,30 +236,10 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             {
                 MethodName = "GenericMethod",
                 Parameters = new object[1] { input },
-                ParameterTypes = new Type[1] { input.GetType() },
-                GenericArguments = new Type[1] { input.GetType() }
+                ParameterTypesByName = new IpcRequestParameterType[1]{ new IpcRequestParameterType(input.GetType()) },
+                GenericArgumentsByName = new IpcRequestParameterType[1] { new IpcRequestParameterType(input.GetType()) }
             };
             var actual2 = await _client.InvokeAsync<decimal>(request);
-
-            Assert.Equal(expected, actual2);
-        }
-
-        [Theory, AutoData]
-        public async Task AsyncMethod(int expected)
-        {
-            _serviceMock
-                .Setup(x => x.AsyncMethod())
-                .ReturnsAsync(expected);
-
-#if !DISABLE_DYNAMIC_CODE_GENERATION
-            int actual = await _client
-                .InvokeAsync(x => x.AsyncMethod());
-
-            Assert.Equal(expected, actual);
-#endif
-
-            var request = TestHelpers.CreateIpcRequest("AsyncMethod");
-            int actual2 = await _client.InvokeAsync<int>(request);
 
             Assert.Equal(expected, actual2);
         }
@@ -271,7 +257,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             Assert.Equal(expected.Value, actual.Value);
 #endif
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "Abstraction", false, input);
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "Abstraction", true, input);
             ITestDto actual2 = await _client.InvokeAsync<ITestDto>(request);
 
             Assert.Equal(expected.Value, actual2.Value);

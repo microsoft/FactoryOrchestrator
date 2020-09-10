@@ -47,7 +47,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
             var sw2 = Stopwatch.StartNew();
             await Assert.ThrowsAsync<TimeoutException>(async () =>
             {
-                var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", new object[] { "abc" });
+                var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", false, new object[] { "abc" });
                 string output = await client.InvokeAsync<string>(request);
             });
 
