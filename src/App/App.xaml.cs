@@ -526,11 +526,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                 try
                                 {
                                     run = await Client.QueryTaskRun((Guid)evnt.Guid);
-                                }
-                                catch (FactoryOrchestratorUnkownGuidException)
-                                {
-                                    // Run is no longer valid, ignore it
-                                    return;
+
+                                    if (run == null)
+                                    {
+                                        return;
+                                    }
                                 }
                                 catch (FactoryOrchestratorConnectionException)
                                 {

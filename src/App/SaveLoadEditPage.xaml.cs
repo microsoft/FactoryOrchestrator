@@ -183,22 +183,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void EditListButton_Click(object sender, RoutedEventArgs e)
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
-            try
+            var list = await Client.QueryTaskList(guid);
+            if (list != null)
             {
-                var list = await Client.QueryTaskList(guid);
                 mainPage?.Navigate(typeof(EditPage), list);
                 this.OnNavigatedFrom(null);
-            }
-            catch (FactoryOrchestratorUnkownGuidException ex)
-            {
-                ContentDialog failedQueryDialog = new ContentDialog
-                {
-                    Title = resourceLoader.GetString("FailedQuery"),
-                    Content = resourceLoader.GetString("MaybeDeleted") + Environment.NewLine + Environment.NewLine + ex.Message,
-                    CloseButtonText = resourceLoader.GetString("Ok")
-                };
-
-                _ = await failedQueryDialog.ShowAsync();
             }
         }
 

@@ -7,8 +7,7 @@
     <RepositoryUrl>https://github.com/jacqueskang/IpcServiceFramework</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jacqueskang/IpcServiceFramework</PackageProjectUrl>
     <Version>3.0.0</Version>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\IpcServiceFramework.snk</AssemblyOriginatorKeyFile>
+    <DisableDynamicCodeGeneration>true</DisableDynamicCodeGeneration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DisableDynamicCodeGeneration)' == 'true'">
