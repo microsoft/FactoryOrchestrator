@@ -56,7 +56,21 @@ namespace JKang.IpcServiceFramework.TcpTests
                 .Setup(x => x.StringType(input))
                 .Returns(expected);
 
-            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", new object[] { input });
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", false, new object[] { input });
+            string actual = await _client
+                .InvokeAsync<string>(request);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory, AutoData]
+        public async Task HappyPath3(string input, string expected)
+        {
+            _serviceMock
+                .Setup(x => x.StringType(input))
+                .Returns(expected);
+
+            var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "StringType", true, new object[] { input });
             string actual = await _client
                 .InvokeAsync<string>(request);
 

@@ -132,7 +132,7 @@ namespace JKang.IpcServiceFramework.NamedPipeTests
 
             await Assert.ThrowsAnyAsync<IpcSerializationException>(async () =>
             {
-                var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "UnserializableInput", UnserializableObject.Create());
+                var request = TestHelpers.CreateIpcRequest(typeof(ITestService), "UnserializableInput", false, UnserializableObject.Create());
                 await client.InvokeAsync(request);
             });
         }
