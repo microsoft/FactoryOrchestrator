@@ -459,9 +459,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var guid = GetTaskListGuidFromButton(sender as Button);
             var newList = await Client.QueryTaskList(guid);
-            var lastTask = newList.Tasks.Where(x => x.LatestTaskRunStatus == TaskStatus.Aborted).DefaultIfEmpty(null).FirstOrDefault();
-            var index = newList.Tasks.FindIndex(x => x.Guid.Equals(lastTask.Guid));
-            _ = Client.RunTaskList(guid, index);
+            if (newList != null)
+            {
+                var lastTask = newList.Tasks.Where(x => x.LatestTaskRunStatus == TaskStatus.Aborted).DefaultIfEmpty(null).FirstOrDefault();
+                var index = newList.Tasks.FindIndex(x => x.Guid.Equals(lastTask.Guid));
+                _ = Client.RunTaskList(guid, index);
+            }
         }
 
         private void PauseListButton_Click(object sender, RoutedEventArgs e)

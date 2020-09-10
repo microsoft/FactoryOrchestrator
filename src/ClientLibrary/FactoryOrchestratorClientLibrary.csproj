@@ -18,6 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,7 +28,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
-    <ProjectReference Include="..\oss\ipcframework\IpcServiceFramework.Client\IpcServiceFramework.Client.csproj" />
+    <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
+    <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
   </ItemGroup>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">

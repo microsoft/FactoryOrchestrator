@@ -463,15 +463,17 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="path">The folder to search.</param>
         /// <param name="recursive">If true, search recursively.</param>
+        /// <param name="inContainer">If true, look for directories in the container running on the connected device.</param>
         /// <returns></returns>
-        List<string> EnumerateDirectories(string path, bool recursive = false);
+        List<string> EnumerateDirectories(string path, bool recursive = false, bool inContainer = false);
         /// <summary>
         /// Returns a list of all files in a given folder.
         /// </summary>
         /// <param name="path">The folder to search.</param>
         /// <param name="recursive">If true, search recursively.</param>
+        /// <param name="inContainer">If true, look for files in the container running on the connected device.</param>
         /// <returns></returns>
-        List<string> EnumerateFiles(string path, bool recursive = false);
+        List<string> EnumerateFiles(string path, bool recursive = false, bool inContainer = false);
 
     } // IFactoryOrchestratorService. This line is parsed by AutoGenerateInterfaceHelper!
 }

@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 
 using JKang.IpcServiceFramework;
+using JKang.IpcServiceFramework.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
@@ -42,9 +44,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="ignoreVersionMismatch">If true, ignore a Client-Service version mismatch.</param>
         public async Task Connect(bool ignoreVersionMismatch = false)
         {
-            _IpcClient = new IpcServiceClientBuilder<IFactoryOrchestratorService>()
-                .UseTcp(IpAddress, Port)
-                .Build();
+            ServiceProvider serviceProvider = new ServiceCollection()
+                .AddTcpIpcClient<IFactoryOrchestratorService>("Client", (_, options) =>
+                {
+                    options.ConnectionTimeout = 10000;
+                    options.ServerIp = IpAddress;
+                    options.ServerPort = Port;
+                })
+                .BuildServiceProvider();
+
+            // resolve IPC client factory
+            var clientFactory = serviceProvider
+                .GetRequiredService<IIpcClientFactory<IFactoryOrchestratorService>>();
+
+            // create client
+            _IpcClient = clientFactory.CreateClient("Client");
 
             string serviceVersion;
             // Test a command to make sure connection works
@@ -256,8 +270,8 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                var files = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateFiles", serverDirectory, false, getFromContainer));
-                var dirs = await _IpcClient.InvokeAsync<List<string>>(CreateIpcRequest("EnumerateDirectories", serverDirectory, false, getFromContainer));
+                var files = await EnumerateFiles(serverDirectory, false, getFromContainer);
+                var dirs = await EnumerateDirectories(serverDirectory, false, getFromContainer);
                 long bytesReceived = 0;
 
                 clientDirectory = Environment.ExpandEnvironmentVariables(clientDirectory);
@@ -438,15 +452,18 @@ namespace Microsoft.FactoryOrchestrator.Client
                 method = frame.First().GetMethod();
             }
 
-            var parameterTypes = method.GetParameters().Select(x => x.ParameterType);
+            var methodParams = method.GetParameters();
+            var parameterTypes = new IpcRequestParameterType[methodParams.Length];
+            for (int i = 0; i < methodParams.Length; i++)
+            {
+                parameterTypes[i] = new IpcRequestParameterType(methodParams[i].ParameterType);
+            }
 
             var request = new IpcRequest()
             {
                 MethodName = methodName,
                 Parameters = args,
-                ParameterAssemblyNames = parameterTypes.Select(x => x.Assembly.GetName().Name).ToArray(),
-                ParameterTypes = parameterTypes.Select(x => x.FullName).ToArray(),
-                GenericArguments = method.GetGenericArguments()
+                ParameterTypesByName = parameterTypes
             };
 
             return request;
@@ -462,22 +479,32 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             return new IpcRequest()
             {
-                MethodName = methodName,
-                Parameters = Array.Empty<string>(),
-                ParameterAssemblyNames = Array.Empty<string>(),
-                ParameterTypes = Array.Empty<string>()
+                MethodName = methodName
             };
         }
 
         /// <summary>
-        /// Creates a FactoryOrchestratorConnectionException if needed.
+        /// Creates a FactoryOrchestratorConnectionException or promotes the Server exception if needed.
         /// </summary>
         private Exception CreateIpcException(Exception ex)
         {
-            if (ex.HResult == -2147467259 || (ex.GetType() == typeof(ArgumentOutOfRangeException) && ex.Message.Contains("Header length must be 4 but was ")) || (ex.InnerException != null && ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException)))
+            if ((ex is IpcCommunicationException) || (ex.InnerException is System.Net.Sockets.SocketException))
             {
                 IsConnected = false;
                 ex = new FactoryOrchestratorConnectionException(IpAddress);
+            }
+            else if (ex is IpcFaultException ipc)
+            {
+                // Return the actual exception the server threw
+                if ((ipc.Status == IpcStatus.InternalServerError) && (ipc.InnerException != null))
+                {
+                    ex = ipc.InnerException;
+
+                    if ((ex.InnerException != null) && (ex is TargetInvocationException))
+                    {
+                        ex = ex.InnerException;
+                    }
+                }
             }
 
             return ex;
@@ -570,7 +597,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// The IPC client used to communicate with the service.
         /// </summary>
-        private IpcServiceClient<IFactoryOrchestratorService> _IpcClient;
+        private IIpcClient<IFactoryOrchestratorService> _IpcClient;
 
     }
 

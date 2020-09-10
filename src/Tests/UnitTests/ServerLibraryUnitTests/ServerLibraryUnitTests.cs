@@ -57,7 +57,7 @@ namespace Microsoft.FactoryOrchestrator.Test
                 t.LoadTaskListsFromXmlFile(Path.Combine(DeploymentDir, "DupGuid1.xml"));
                 Assert.Fail("XML should not have loaded successfully!");
             }
-            catch (XmlException e)
+            catch (FactoryOrchestratorXmlException e)
             {
                 foreach (var guid in expectedGuids)
                 {
@@ -81,7 +81,7 @@ namespace Microsoft.FactoryOrchestrator.Test
                 t.LoadTaskListsFromXmlFile(Path.Combine(DeploymentDir, "DupGuid2.xml"));
                 Assert.Fail("XML should not have loaded successfully!");
             }
-            catch (XmlException e)
+            catch (FactoryOrchestratorXmlException e)
             {
                 foreach (var guid in expectedGuids)
                 {

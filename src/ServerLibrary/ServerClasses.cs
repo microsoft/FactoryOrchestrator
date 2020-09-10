@@ -289,7 +289,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                     if (!string.IsNullOrEmpty(dupGuidString))
                     {
-                        throw new XmlException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
+                        throw new FactoryOrchestratorXmlException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));
                     }
 
                     foreach (var list in xml.TaskLists)
@@ -733,7 +733,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     lock (RunningTaskListLock)
                     {
                         RunningTaskListTokens.TryRemove(item.TaskListGuid, out var removed);
-                        removed.Dispose();
+                        removed?.Dispose();
                     }
                     if (usedSem)
                     {

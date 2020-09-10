@@ -1682,32 +1682,12 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         /// <summary>
-        /// Create a "deep" copy of the TaskRun.
+        /// Create a "deep" copy of the TaskRun. WARNING: If the object is a ServerTaskRun information is lost!
         /// </summary>
         /// <returns></returns>
         public TaskRun DeepCopy()
         {
-            TaskRun copy = (TaskRun)this.MemberwiseClone();
-            var outputCount = this.TaskOutput.Count;
-            copy.TaskOutput = new List<string>(outputCount);
-            copy.TaskOutput.AddRange(this.TaskOutput.GetRange(0, outputCount));
-
-            var stringProps = typeof(TaskRun).GetProperties().Where(x => x.PropertyType == typeof(string));
-            foreach (var prop in stringProps)
-            {
-                var value = prop.GetValue(this);
-                if (value != null)
-                {
-                    var copyStr = String.Copy(value as string);
-                    prop.SetValue(copy, copyStr);
-                }
-                else
-                {
-                    prop.SetValue(copy, null);
-                }
-            }
-
-            return copy;
+            return JsonConvert.DeserializeObject<TaskRun>(JsonConvert.SerializeObject(this));
         }
 
         /// <summary>
@@ -2277,7 +2257,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
             catch (Exception e)
             {
-                throw new XmlException(string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, filename), e);
+                throw new FactoryOrchestratorXmlException(string.Format(CultureInfo.CurrentCulture, Resources.FOXMLFileLoadException, filename), e);
             }
 
             return xml;
