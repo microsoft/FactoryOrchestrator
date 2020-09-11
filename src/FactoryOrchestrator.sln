@@ -18,6 +18,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IpcFramework", "IpcFramewor
 		oss\IpcFramework\Directory.Build.props = oss\IpcFramework\Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client", "oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj", "{B4F6BB5B-552D-487E-8CA7-1919A357FFCB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Testing", "oss\IpcFramework\JKang.IpcServiceFramework.Testing\JKang.IpcServiceFramework.Testing.csproj", "{156E5859-056E-4B88-AA98-B9B202FF21A8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj", "{D3EAD474-A454-41F9-BF88-D13FFA980261}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting.NamedPipe\JKang.IpcServiceFramework.Hosting.NamedPipe.csproj", "{502E1DB1-0F13-4F02-AE2A-2ACCF8103CAC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core", "oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj", "{964E5437-14C4-42AC-AA00-A9B8541A525D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.TcpTests", "oss\IpcFramework\JKang.IpcServiceFramework.TcpTests\JKang.IpcServiceFramework.TcpTests.csproj", "{8FDFF305-9AE4-403A-A6B8-5831DD4A2937}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.NamedPipeTests", "oss\IpcFramework\JKang.IpcServiceFramework.NamedPipeTests\JKang.IpcServiceFramework.NamedPipeTests.csproj", "{90A3287B-D5B0-4D49-8BA1-27CA0F292291}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj", "{A0E37EDD-8063-4E95-AE92-639240D778D4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core.Tests", "oss\IpcFramework\JKang.IpcServiceFramework.Core.Tests\JKang.IpcServiceFramework.Core.Tests.csproj", "{585BC023-2F06-489E-8285-D83013C674A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj", "{AD011716-1E8C-4D55-9881-E85931B208F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Client.NamedPipe\JKang.IpcServiceFramework.Client.NamedPipe.csproj", "{064091C3-F0AB-4277-BEA1-7301F8CA4E1B}"
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSample\ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
@@ -97,27 +118,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLibraryUnitTests", "Tests\UnitTests\ServerLibraryUnitTests\ServerLibraryUnitTests.csproj", "{A8F10625-D42E-4BA2-967F-F863425C7394}"
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client", "oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj", "{B4F6BB5B-552D-487E-8CA7-1919A357FFCB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Testing", "oss\IpcFramework\JKang.IpcServiceFramework.Testing\JKang.IpcServiceFramework.Testing.csproj", "{156E5859-056E-4B88-AA98-B9B202FF21A8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj", "{D3EAD474-A454-41F9-BF88-D13FFA980261}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting.NamedPipe\JKang.IpcServiceFramework.Hosting.NamedPipe.csproj", "{502E1DB1-0F13-4F02-AE2A-2ACCF8103CAC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core", "oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj", "{964E5437-14C4-42AC-AA00-A9B8541A525D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.TcpTests", "oss\IpcFramework\JKang.IpcServiceFramework.TcpTests\JKang.IpcServiceFramework.TcpTests.csproj", "{8FDFF305-9AE4-403A-A6B8-5831DD4A2937}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.NamedPipeTests", "oss\IpcFramework\JKang.IpcServiceFramework.NamedPipeTests\JKang.IpcServiceFramework.NamedPipeTests.csproj", "{90A3287B-D5B0-4D49-8BA1-27CA0F292291}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj", "{A0E37EDD-8063-4E95-AE92-639240D778D4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core.Tests", "oss\IpcFramework\JKang.IpcServiceFramework.Core.Tests\JKang.IpcServiceFramework.Core.Tests.csproj", "{585BC023-2F06-489E-8285-D83013C674A5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj", "{AD011716-1E8C-4D55-9881-E85931B208F7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Client.NamedPipe\JKang.IpcServiceFramework.Client.NamedPipe.csproj", "{064091C3-F0AB-4277-BEA1-7301F8CA4E1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
