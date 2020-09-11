@@ -126,3 +126,11 @@ $outputContent += "`n$indent}`n}"
 # Save to file
 Copy-Item -Path "$TemplateFile" -Destination "$OutputFile"
 Add-Content -Path "$OutputFile" -Value "$outputContent"
+
+if ($null -ne $env:AGENT_MACHINENAME)
+{
+    # Running in Azure Pipeline. Print entire file for logging.
+    Write-Host "------------ $OutputFile contents ------------"
+    Get-Content $OutputFile | Write-Host
+    Write-Host "`n"
+}

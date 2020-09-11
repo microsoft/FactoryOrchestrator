@@ -26,6 +26,7 @@ $minorVersion = $minorNode.Node."#text"
 
 if ($null -eq $buildNumber)
 {
+    Write-Host "Using build number from custom.props"
     $date = Get-Date
     $month = $date.Month.ToString()
     if ($month.Length -eq 1)
@@ -44,6 +45,7 @@ if ($null -eq $buildNumber)
 }
 else
 {
+    Write-Host "Using build number from Azure Pipeline"
     $tfs = $true
 }
 
@@ -95,6 +97,15 @@ if ($skip -ne $true)
 {
     Write-Host "Moving $tempFile to $destFile"
     Move-Item $tempFile $destFile -force
+
+    if ($null -ne $env:AGENT_MACHINENAME)
+    {
+        # Running in Azure Pipeline. Print entire file for logging.
+        Write-Host "------------ $destFile contents ------------"
+        Get-Content $destFile | Write-Host
+        Write-Host "`n"
+    }
+
     Write-Host "Success!"
 }
 else
