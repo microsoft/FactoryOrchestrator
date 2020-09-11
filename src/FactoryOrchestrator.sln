@@ -39,6 +39,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj", "{AD011716-1E8C-4D55-9881-E85931B208F7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Client.NamedPipe\JKang.IpcServiceFramework.Client.NamedPipe.csproj", "{064091C3-F0AB-4277-BEA1-7301F8CA4E1B}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSample\ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
