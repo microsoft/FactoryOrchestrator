@@ -19,4 +19,11 @@
     <ProjectReference Include="..\JKang.IpcServiceFramework.Testing\JKang.IpcServiceFramework.Testing.csproj" />
   </ItemGroup>
 
+  <!-- Added for Factory Orchestrator -->
+  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
+    <OutputPath>..\..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  </PropertyGroup>
 </Project>

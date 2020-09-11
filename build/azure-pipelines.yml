@@ -52,7 +52,8 @@ jobs:
       displayName: 'Run UnitTests'
       inputs:
         testAssemblyVer2: |
-          bin/Tests/**/*UnitTests*.dll
+          bin/Tests/**/*UnitTests.dll
+          bin/Tests/**/JKang*Tests.dll
         searchFolder: '$(System.DefaultWorkingDirectory)'
         codeCoverageEnabled: true
         runInParallel: true
