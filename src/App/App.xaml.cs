@@ -433,28 +433,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         await Task.Delay(1000);
                     }
                 });
-
-
-                Task.Run(async () =>
-                {
-                    while (true)
-                    {
-                        try
-                        {
-                            IsContainerRunning = await Client.IsContainerRunning();
-                        }
-                        catch (FactoryOrchestratorConnectionException)
-                        {
-                            OnConnectionFailure();
-                            while (OnConnectionPage || (!Client.IsConnected))
-                            {
-                                await Task.Delay(1000);
-                            }
-                        }
-
-                        await Task.Delay(10000);
-                    }
-                });
             }
         }
 
@@ -547,7 +525,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             }
                         }
                         break;
+                    case ServiceEventType.ContainerConnected:
+                        IsContainerRunning = true;
+                        break;
+                    case ServiceEventType.ContainerDisconnected:
+                        IsContainerRunning = false;
+                        break;
                     default:
+                        // Ignore other events
                         break;
                 }
             }

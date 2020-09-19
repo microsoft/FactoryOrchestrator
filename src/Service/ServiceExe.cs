@@ -4,7 +4,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using PeterKottas.DotNetCore.WindowsService;
-using JKang.IpcServiceFramework;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -25,7 +24,6 @@ using Microsoft.FactoryOrchestrator.Client;
 using System.Globalization;
 using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Hosting;
-using JKang.IpcServiceFramework.Hosting.Tcp;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -1209,9 +1207,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetContainerIpAddresses");
-                var ips = FOService.Instance.GetContainerIpAddresses();
+
+                // As of now, there is only one IP for the container but keep this as a list in case that changes
+                var ip = FOService.Instance.ContainerIpAddress;
                 var ipStrings = new List<string>();
-                foreach (var ip in ips)
+                if (ip != null)
                 {
                     ipStrings.Add(ip.ToString());
                 }
@@ -1270,16 +1270,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsContainerRunning");
-                bool ret = false;
-                if (!String.IsNullOrWhiteSpace(FOService.Instance.GetContainerId()))
-                {
-                    ret = true;
-                }
-                else
-                {
-                    ret = false;
-                }
-
+                bool ret = FOService.Instance.ContainerConnected;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
                 return ret;
             }
@@ -1314,6 +1305,12 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _volatileServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator\EveryBootTaskStatus";
+
+        // FactoryOS specific registry
+        private readonly string _volatileFactoryOSContainerRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryUserManager";
+        private readonly string _factoryOSContainerGuidValue = @"ContainerGuid";
+        private readonly string _factoryOSContainerIpv4AddressValue = @"ContainerIPv4Address";
+        private readonly string _disableContainerValue = @"DisableContainerSupport";
 
         private readonly string _loopbackEnabledValue = @"UWPLocalLoopbackEnabled";
 
@@ -1408,8 +1405,24 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool EnableNetworkAccess { get; private set; }
         public int ServiceNetworkPort { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
-
-
+        
+        public bool ContainerConnected
+        {
+            get
+            {
+                try
+                {
+                    return _containerClient.IsConnected;
+                }
+                catch (NullReferenceException)
+                {
+                    return false;
+                }
+            }
+        }
+        public Guid ContainerGuid { get; private set; }
+        public IPAddress ContainerIpAddress { get; private set; }
+        private System.Threading.CancellationTokenSource _containerHeartbeatToken;
 
         /// <summary>
         /// List of apps to enable local loopback on.
@@ -1494,14 +1507,18 @@ namespace Microsoft.FactoryOrchestrator.Service
                 DisableUWPAppsPage = false;
                 DisableManageTasklistsPage = false;
                 DisableFileTransferPage = false;
-                DisableNetworkAccess = false;
+                DisableNetworkAccess = true;
 				EnableNetworkAccess = false;
                 LocalLoopbackApps = new List<string>();
                 TaskManagerLogFolder = _defaultLogFolder;
                 IsExecutingBootTasks = true;
-                _containerClient = null;
                 ServiceNetworkPort = 45684;
                 _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
+
+                ContainerGuid = Guid.Empty;
+                ContainerIpAddress = null;
+                _containerHeartbeatToken = null;
+                _containerClient = null;
             }
         }
 
@@ -1623,8 +1640,12 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Stop()
         {
-            // Disable inter process communication interface
+            // Disable inter process communication interfaces
             _ipcCancellationToken?.Cancel();
+            _containerHeartbeatToken.Cancel();
+            _containerClient = null;
+            ContainerGuid = Guid.Empty;
+            ContainerIpAddress = null;
 
             // Abort everything that's running, except persisted background tasks
             _taskExecutionManager?.AbortAll();
@@ -1785,77 +1806,136 @@ namespace Microsoft.FactoryOrchestrator.Service
             });
         }
 
-        public async Task ConnectToContainer()
-        {
-            if (_containerClient == null || !_containerClient.IsConnected)
-            {
-                foreach (var ip in GetContainerIpAddresses())
-                {
-                    _containerClient = new FactoryOrchestratorClient(ip, ServiceNetworkPort);
-                    if (await _containerClient.TryConnect())
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        _containerClient = null;
-                    }
-                }
-            }
-            else
-            {
-                return;
-            }
-
-            throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
-        }
-
-        public string GetContainerId()
+        public async Task<bool> TryVerifyContainerConnection()
         {
             try
             {
-                // TODO: replace with an API call
-                var cmdiag = RunProcessViaCmd("cmdiag.exe", "list", 5000);
-                var containerGuidString = cmdiag.TaskOutput.Where(x => x.Contains("cmscontainerstaterunning", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
+                await VerifyContainerConnection();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
-                if (containerGuidString != null)
+        public async Task VerifyContainerConnection()
+        {
+            var previousContainerStatus = ContainerConnected;
+            var previousContainerGuid = ContainerGuid;
+
+            try
+            {
+                UpdateContainerId();
+                UpdateContainerIpAddress();
+
+                await ConnectToContainer();
+
+                if (previousContainerStatus == ContainerConnected)
                 {
-                    return containerGuidString.Split(',', StringSplitOptions.RemoveEmptyEntries).First().Trim();
+                    // Verify it is still working properly
+                    await _containerClient.GetServiceVersionString();
+                }
+                else
+                {
+                    // Initial connection made or reconnected
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound, null, e);
+                if (previousContainerStatus == ContainerConnected)
+                {
+                    // Connection lost
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
+                }
+
+                throw;
+            }
+        }
+
+        public async Task ConnectToContainer()
+        {
+            if (ContainerGuid != null)
+            {
+                if (ContainerIpAddress != null)
+                {
+                    if ((_containerClient == null || !_containerClient.IsConnected))
+                    {
+                        _containerClient = new FactoryOrchestratorClient(ContainerIpAddress, ServiceNetworkPort);
+                        if (await _containerClient.TryConnect())
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            _containerClient = null;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
             }
 
             throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
         }
 
-        public List<IPAddress> GetContainerIpAddresses()
+        public void UpdateContainerId()
         {
-            List<IPAddress> ips = new List<IPAddress>();
             try
             {
-                var containerGuid = GetContainerId();
-                var cmdiag = RunProcessViaCmd("cmdiag.exe", $"exec {containerGuid} -runas administrator -command \"ipconfig.exe\"", 5000);
-                var ipStrings = cmdiag.TaskOutput.Where(x => x.Contains("IPv4 address", StringComparison.InvariantCultureIgnoreCase));
+                // FactoryOS puts the container guid in SYSTEM\CurrentControlSet\Control\FactoryUserManager
+                using var reg = Registry.LocalMachine.OpenSubKey(_volatileFactoryOSContainerRegKey, false);
 
-                foreach (var ipString in ipStrings)
+                var guidStr = (string)reg.GetValue(_factoryOSContainerGuidValue, String.Empty);
+                if (!string.IsNullOrEmpty(guidStr))
                 {
-                    if (ipString != null)
-                    {
-                        ips.Add(IPAddress.Parse(ipString.Split(':', StringSplitOptions.RemoveEmptyEntries).Last().Trim()));
-                    }
+                    ContainerGuid = Guid.Parse(guidStr);
                 }
-
-                return ips;
+                else
+                {
+                    ContainerGuid = Guid.Empty;
+                    _containerClient = null;
+                    throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
+                }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound, null, e);
+                ContainerGuid = Guid.Empty;
+                _containerClient = null;
+                throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
             }
+        }
 
-            throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
+        public void UpdateContainerIpAddress()
+        {
+            try
+            {
+                // FactoryOS puts the container IP in SYSTEM\CurrentControlSet\Control\FactoryUserManager
+                using var reg = Registry.LocalMachine.OpenSubKey(_volatileFactoryOSContainerRegKey, false);
+
+                var ipStr = (string)reg.GetValue(_factoryOSContainerIpv4AddressValue, String.Empty);
+                if (!string.IsNullOrEmpty(ipStr))
+                {
+                    ContainerIpAddress = IPAddress.Parse(ipStr);
+                }
+                else
+                {
+                    ContainerIpAddress = null;
+                    _containerClient = null;
+                    throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
+                }
+            }
+            catch (Exception)
+            {
+                ContainerIpAddress = null;
+                _containerClient = null;
+                throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
+            }
         }
 
 
@@ -2164,6 +2244,21 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
+
+            if (!Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue, false), CultureInfo.InvariantCulture)) ;
+            {
+                // Start container heartbeat thread
+                _containerHeartbeatToken = new System.Threading.CancellationTokenSource();
+                Task.Run(async () =>
+                {
+                    while (!_containerHeartbeatToken.Token.IsCancellationRequested)
+                    {
+                        // Poll for container running Factory Orchestrator Service
+                        await TryVerifyContainerConnection();
+                        await Task.Delay(2000);
+                    }
+                });
+            }
 
             // Enable local loopback every boot.
             EnableUWPLocalLoopback();
@@ -2595,6 +2690,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if (disposing)
                 {
                     _ipcCancellationToken?.Dispose();
+                    _containerHeartbeatToken?.Dispose();
                     _mutableKey?.Dispose();
                     _nonMutableKey?.Dispose();
                     _volatileKey?.Dispose();

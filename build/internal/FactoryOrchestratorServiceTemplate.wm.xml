@@ -13,6 +13,7 @@
       objectName="LocalSystem"
       start="auto"
       type="win32OwnProcess"
+      dependOnService="FactoryUserManager"
       >
     <failureActions resetPeriod="1000">
       <actions>

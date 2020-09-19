@@ -50,6 +50,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         BootTasksComplete,
         /// <summary>
+        /// The Factory Orchestrator Serivce is connected to a container also running a compatible version of Factory Orchestrator Serivce.
+        /// </summary>
+        ContainerConnected,
+        /// <summary>
+        /// The Factory Orchestrator Serivce is disconnected from a container also running a compatible version of Factory Orchestrator Serivce.
+        /// </summary>
+        ContainerDisconnected,
+        /// <summary>
         /// An unknown Factory Orchestrator Serivce event occurred.
         /// </summary>
         Unknown = int.MaxValue
