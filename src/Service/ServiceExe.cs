@@ -2248,7 +2248,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
 
-            if (!Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue, false), CultureInfo.InvariantCulture)) ;
+            if (!Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue, false), CultureInfo.InvariantCulture));
             {
                 // Start container heartbeat thread
                 _containerHeartbeatToken = new System.Threading.CancellationTokenSource();
