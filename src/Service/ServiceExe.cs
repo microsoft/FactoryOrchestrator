@@ -1310,8 +1310,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _volatileFactoryOSContainerRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryUserManager";
         private readonly string _factoryOSContainerGuidValue = @"ContainerGuid";
         private readonly string _factoryOSContainerIpv4AddressValue = @"ContainerIPv4Address";
-        private readonly string _disableContainerValue = @"DisableContainerSupport";
 
+        /// <summary>
+        /// Prevents service from polling container status.
+        /// </summary>
+        private readonly string _disableContainerValue = @"DisableContainerSupport";
         private readonly string _loopbackEnabledValue = @"UWPLocalLoopbackEnabled";
 
         // OEM Customization registry values
