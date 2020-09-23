@@ -38,19 +38,27 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         WaitingForContainerTaskRun,
         /// <summary>
-        /// The Factory Orchestrator Serivce threw an exception.
+        /// The Factory Orchestrator Service threw an exception.
         /// </summary>
         ServiceError,
         /// <summary>
-        /// The Factory Orchestrator Serivce is starting. It can now communicate with clients, but boot tasks may not be complete.
+        /// The Factory Orchestrator Service is starting. It can now communicate with clients, but boot tasks may not be complete.
         /// </summary>
         ServiceStart,
         /// <summary>
-        /// The Factory Orchestrator Serivce is fully started. Boot tasks are completed.
+        /// The Factory Orchestrator Service is fully started. Boot tasks are completed.
         /// </summary>
         BootTasksComplete,
         /// <summary>
-        /// An unknown Factory Orchestrator Serivce event occurred.
+        /// The Factory Orchestrator Service is connected to a container also running a compatible version of Factory Orchestrator Service.
+        /// </summary>
+        ContainerConnected,
+        /// <summary>
+        /// The Factory Orchestrator Service is disconnected from a container also running a compatible version of Factory Orchestrator Service.
+        /// </summary>
+        ContainerDisconnected,
+        /// <summary>
+        /// An unknown Factory Orchestrator Service event occurred.
         /// </summary>
         Unknown = int.MaxValue
     }
