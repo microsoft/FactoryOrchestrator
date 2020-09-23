@@ -1270,7 +1270,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsContainerRunning");
-                bool ret = FOService.Instance.ContainerConnected;
+                bool ret = FOService.Instance.IsContainerConnected;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
                 return ret;
             }
@@ -1408,21 +1408,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool EnableNetworkAccess { get; private set; }
         public int ServiceNetworkPort { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
-        
-        public bool ContainerConnected
-        {
-            get
-            {
-                try
-                {
-                    return _containerClient.IsConnected;
-                }
-                catch (NullReferenceException)
-                {
-                    return false;
-                }
-            }
-        }
+
+        public bool IsContainerConnected => _containerClient?.IsConnected ?? false;
         public Guid ContainerGuid { get; private set; }
         public IPAddress ContainerIpAddress { get; private set; }
         private System.Threading.CancellationTokenSource _containerHeartbeatToken;
@@ -1511,7 +1498,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 DisableManageTasklistsPage = false;
                 DisableFileTransferPage = false;
                 DisableNetworkAccess = true;
-				EnableNetworkAccess = false;
+                EnableNetworkAccess = false;
                 LocalLoopbackApps = new List<string>();
                 TaskManagerLogFolder = _defaultLogFolder;
                 IsExecutingBootTasks = true;
@@ -1824,7 +1811,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task VerifyContainerConnection()
         {
-            var previousContainerStatus = ContainerConnected;
+            var previousContainerStatus = IsContainerConnected;
             var previousContainerGuid = ContainerGuid;
 
             try
@@ -1834,7 +1821,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 await ConnectToContainer();
 
-                if (previousContainerStatus == ContainerConnected)
+                if (previousContainerStatus == IsContainerConnected)
                 {
                     // Verify it is still working properly
                     await _containerClient.GetServiceVersionString();
@@ -1847,7 +1834,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception)
             {
-                if (previousContainerStatus == ContainerConnected)
+                if (previousContainerStatus == IsContainerConnected)
                 {
                     // Connection lost
                     LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
