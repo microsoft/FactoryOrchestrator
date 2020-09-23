@@ -423,4 +423,12 @@
   <data name="DuplicateGuidInXml" xml:space="preserve">
     <value>Duplicate Guid(s) {0}in FactoryOrchestratorXML!</value>
   </data>
+  <data name="ContainerConnected" xml:space="preserve">
+    <value>Factory Orchestrator Service is connected to a container running a compatible version of Factory Orchestrator Service.</value>
+    <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
+  </data>
+  <data name="ContainerDisconnected" xml:space="preserve">
+    <value>Factory Orchestrator Service is disconnected from a container running a compatible version of Factory Orchestrator Service.</value>
+    <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
+  </data>
 </root>

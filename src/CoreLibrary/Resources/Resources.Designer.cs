@@ -169,6 +169,24 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service is connected to a container running a compatible version of Factory Orchestrator Service..
+        /// </summary>
+        public static string ContainerConnected {
+            get {
+                return ResourceManager.GetString("ContainerConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service is disconnected from a container running a compatible version of Factory Orchestrator Service..
+        /// </summary>
+        public static string ContainerDisconnected {
+            get {
+                return ResourceManager.GetString("ContainerDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to get file from container!.
         /// </summary>
         public static string ContainerFileGetFailed {
