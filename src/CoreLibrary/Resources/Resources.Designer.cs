@@ -520,6 +520,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory Orchestrator Service did not recognize the command! This is most likely due to a version mismatch between the Client and Service..
+        /// </summary>
+        public static string IpcInvalidOperationError {
+            get {
+                return ResourceManager.GetString("IpcInvalidOperationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to WARNING: Log File {0} could not be created.
         /// </summary>
         public static string LogFileCreationFailed {
@@ -894,6 +903,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string TooManyMethodsFound {
             get {
                 return ResourceManager.GetString("TooManyMethodsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string Unknown {
+            get {
+                return ResourceManager.GetString("Unknown", resourceCulture);
             }
         }
         
