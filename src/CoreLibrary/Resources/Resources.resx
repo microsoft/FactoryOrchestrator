@@ -431,4 +431,11 @@
     <value>Factory Orchestrator Service is disconnected from a container running a compatible version of Factory Orchestrator Service.</value>
     <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
   </data>
+  <data name="IpcInvalidOperationError" xml:space="preserve">
+    <value>Factory Orchestrator Service did not recognize the command! This is most likely due to a version mismatch between the Client and Service.</value>
+    <comment>Error when service does not recognize a command from client. Almost always due to using an older client with a newer service.</comment>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

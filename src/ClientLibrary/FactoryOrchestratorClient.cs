@@ -80,7 +80,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
                 if (clientMajor != serviceMajor)
                 {
-                    throw new FactoryOrchestratorVersionMismatchException(IpAddress, serviceVersion, clientVersion);
+                    throw new FactoryOrchestratorVersionMismatchException(IpAddress, serviceVersion);
                 }
             }
 
@@ -488,7 +488,12 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         private Exception CreateIpcException(Exception ex)
         {
-            if ((ex is IpcCommunicationException) || (ex.InnerException is System.Net.Sockets.SocketException))
+            if (ex is InvalidOperationException && ex.StackTrace.ToUpperInvariant().Contains("CREATEFAULTEXCEPTION") && ex.StackTrace.ToUpperInvariant().Contains("JKANG"))
+            {
+                // This is almost certainly due to a client<->server version mismatch
+                ex = new FactoryOrchestratorVersionMismatchException(Resources.IpcInvalidOperationError, ex);
+            }
+            else if ((ex is IpcCommunicationException) || (ex.InnerException is System.Net.Sockets.SocketException))
             {
                 IsConnected = false;
                 ex = new FactoryOrchestratorConnectionException(IpAddress);
@@ -643,18 +648,30 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
         /// </summary>
-        public FactoryOrchestratorVersionMismatchException() : base() { }
+        public FactoryOrchestratorVersionMismatchException() : base()
+        {
+            ClientVersion = FactoryOrchestratorClient.GetClientVersionString();
+            ServiceVersion = Resources.Unknown;
+        }
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        public FactoryOrchestratorVersionMismatchException(string message) : base(message) { }
+        public FactoryOrchestratorVersionMismatchException(string message) : base(message)
+        {
+            ClientVersion = FactoryOrchestratorClient.GetClientVersionString();
+            ServiceVersion = Resources.Unknown;
+        }
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryOrchestratorVersionMismatchException"/> class.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
-        public FactoryOrchestratorVersionMismatchException(string message, Exception innerException) : base(message, innerException) { }
+        public FactoryOrchestratorVersionMismatchException(string message, Exception innerException) : base(message, innerException)
+        {
+            ClientVersion = FactoryOrchestratorClient.GetClientVersionString();
+            ServiceVersion = Resources.Unknown;
+        }
 
 
         /// <summary>
@@ -662,11 +679,10 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="ip">The ip address of the Service.</param>
         /// <param name="serviceVersion">The service version.</param>
-        /// <param name="clientVersion">The client version.</param>
-        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion, string clientVersion) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorVersionMismatchException, ip?.ToString(), serviceVersion, clientVersion))
+        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorVersionMismatchException, ip?.ToString(), serviceVersion))
         {
             ServiceVersion = serviceVersion;
-            ClientVersion = clientVersion;
+            ClientVersion = FactoryOrchestratorClient.GetClientVersionString();
         }
 
         /// <summary>
