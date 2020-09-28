@@ -170,7 +170,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// Stops all running Tasks and deletes all TaskLists.
         /// </summary>
-        /// <param name="preserveLogs">If true, all logs are deleted.</param>
+        /// <param name="preserveLogs">If true, are logs not deleted.</param>
         /// <param name="factoryReset">If true, the service is restarted as if it is first boot.</param>
         void ResetService(bool preserveLogs = false, bool factoryReset = false);
         /// <summary>

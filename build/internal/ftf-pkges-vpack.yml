@@ -124,7 +124,17 @@ steps:
     codeCoverageEnabled: true
     runInParallel: true
     vsTestVersion: latest
-    runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\UnitTests\UnitTests.runsettings'
+    runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\defaults.runsettings'
+
+- task: PowerShell@2
+  displayName: 'Create NET Core Test Files Zip'
+  inputs:
+    targetType: filePath
+    filePath: ./build/internal/CreateTestZip.ps1
+    arguments: '-TestBinRoot $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\tests\$(BuildConfiguration)\AnyCPU\ -OutFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Tests\TestZip'
+    failOnStderr: true
+  condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
+  timeoutInMinutes: 5
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FactoryOrchestratorService x86'
@@ -165,7 +175,7 @@ steps:
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
-    
+
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop x86'
   inputs:
@@ -179,7 +189,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
-    TargetFolder: $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD'
   condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
@@ -341,7 +351,7 @@ steps:
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(XES_DFSDROP)'
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
+  
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
@@ -413,7 +423,7 @@ steps:
   condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
 
 - task: CopyFiles@2
-  displayName: 'Copy Client Sample to root of drop'
+  displayName: 'Copy Client Sample source to root of drop'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\src\ClientSample'
     Contents: |
@@ -435,7 +445,7 @@ steps:
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack Client Sample'
+  displayName: 'PkgES Create VPack Client Sample WSK'
   inputs:
     sourceDirectory: '$(XES_DFSDROP)\ClientSampleWSK'
     pushPkgName: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
@@ -446,6 +456,26 @@ steps:
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest to Drop Client Sample'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(XES_DFSDROP)'
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack NET Core Tests'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\Tests\TestZip'
+    pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
+    description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
+    version: '$(VPACKVERSION)'
+  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop  NET Core Tests'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
@@ -495,10 +525,8 @@ steps:
     iterationPath: 'OS'
     bugTags: 'FactoryOrchestrator'
     scanAll: false
-    binVersion: Custom
-    binVersionOverride: '1.5.200608006-scNoNative'
     taskLogVerbosity: Diagnostic
-  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: and(succeededOrFailed(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipseccomp'], 'true')))
 
 - task: PkgESFCIBGit@10
   env:
