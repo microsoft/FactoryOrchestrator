@@ -60,4 +60,4 @@ steps:
     codeCoverageEnabled: true
     runInParallel: true
     vsTestVersion: latest
-    runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\UnitTests\UnitTests.runsettings'
+    runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\defaults.runsettings'
