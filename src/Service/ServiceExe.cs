@@ -27,7 +27,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
-    class FOServiceExe
+    public class FOServiceExe
     {
         public static IHost ipcHost;
         public static ServiceProvider ipcSvcProvider;

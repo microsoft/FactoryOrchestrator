@@ -61,7 +61,7 @@ namespace Microsoft.FactoryOrchestrator.ClientSample {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} &lt;IP Address of DUT&gt; &lt;Folder on this PC with test content AND FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;.
+        ///   Looks up a localized string similar to {0} &lt;IP Address of DUT&gt; &lt;Folder on this PC with test content and (Optional) FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;.
         /// </summary>
         public static string ClientSampleUsage {
             get {
@@ -102,6 +102,15 @@ namespace Microsoft.FactoryOrchestrator.ClientSample {
         public static string CopyingFiles {
             get {
                 return ResourceManager.GetString("CopyingFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creating TaskList from files in {0} directory....
+        /// </summary>
+        public static string CreatingListFromDirectory {
+            get {
+                return ResourceManager.GetString("CreatingListFromDirectory", resourceCulture);
             }
         }
         
