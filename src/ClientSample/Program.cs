@@ -17,11 +17,11 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
     /// <summary>
     /// 
     /// </summary>
-    class FactoryOrchestratorNETCoreClientSample
+    public static class FactoryOrchestratorNETCoreClientSample
     {
-        static async Task Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            await RunAsync(args);
+            return await RunAsync(args);
         }
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
         /// 6) Print results
         /// 7) Copy logs to host PC
         /// </summary>
-        private static async Task RunAsync(string[] args)
+        private static async Task<int> RunAsync(string[] args)
         {
             TimeStarted = DateTime.Now;
-
+            bool passed = false;
             try
             {
                 ValidateArgs(args);
@@ -49,15 +49,17 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
                 await InstallAppsOnDUT(Path.Combine(DestDir, "apps"));
                 var taskListSummaries = await LoadFactoryOrchestratorXMLs(DestDir, FOXMLs);
                 await ExecuteTaskLists(taskListSummaries);
-                await PrintFinalResult();
+                passed = await PrintFinalResult();
                 await CopyLogsFromDUT(LogFolder);
                 var TimeFinished = DateTime.Now;
 
                 Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.Completed, TimeFinished - TimeStarted));
+                return passed ? 0 : 1;
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine($"{Resources.Exception} {e.HResult} {e.Message}");
+                return e?.HResult ?? -2147467259; // -2147467259 == E_FAIL
             }
         }
 
@@ -256,11 +258,19 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
         /// <param name="FOXMLs">Filenames of XML files to import</param>
         private static async Task<List<TaskListSummary>> LoadFactoryOrchestratorXMLs(string destDir, List<string> FOXMLs)
         {
-            Console.WriteLine(Resources.LoadingFOXML);
-
-            foreach (var xmlFilename in FOXMLs)
+            if (FOXMLs?.Count > 0)
             {
-                await Client.LoadTaskListsFromXmlFile(Path.Combine(destDir, Path.GetFileName(xmlFilename)));
+                Console.WriteLine(Resources.LoadingFOXML);
+
+                foreach (var xmlFilename in FOXMLs)
+                {
+                    await Client.LoadTaskListsFromXmlFile(Path.Combine(destDir, Path.GetFileName(xmlFilename)));
+                }
+            }
+            else
+            {
+                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.CreatingListFromDirectory, destDir));
+                await Client.CreateTaskListFromDirectory(destDir);
             }
 
             Console.WriteLine($"{Environment.NewLine}TaskLists:");
@@ -319,7 +329,7 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
         /// <summary>
         /// Prints out the final result of all the executed Tasks and TaskLists.
         /// </summary>
-        private static async Task PrintFinalResult()
+        private static async Task<bool> PrintFinalResult()
         {
             var tasklistSummaries = (await Client.GetTaskListSummaries()).OrderBy(x => x.Name);
             var allPassed = tasklistSummaries.All(x => x.Status == TaskStatus.Passed);
@@ -345,6 +355,8 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
                     Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} {Resources.WithExitCode} {task.LatestTaskRunExitCode.GetValueOrDefault()}. {string.Format(CultureInfo.CurrentCulture, Resources.TaskTime, task.LatestTaskRunRunTime.GetValueOrDefault().TotalSeconds)}");
                 }
             }
+
+            return allPassed;
         }
 
         /// <summary>
