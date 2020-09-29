@@ -655,16 +655,16 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser....
+        ///   Looks up a localized string similar to {0} is a Win32 GUI program. Redirecting to run via RunAsRDUser....
         /// </summary>
-        public static string RedirectingToRunAsExplorerUser {
+        public static string RedirectingToRunAsRDUser {
             get {
-                return ResourceManager.GetString("RedirectingToRunAsExplorerUser", resourceCulture);
+                return ResourceManager.GetString("RedirectingToRunAsRDUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsExplorerUser....
+        ///   Looks up a localized string similar to {0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsRDUser....
         /// </summary>
         public static string RedirectingUWPToRunAs {
             get {

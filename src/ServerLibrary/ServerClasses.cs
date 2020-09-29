@@ -867,13 +867,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                         {
                             if ((_supportsWin32Gui) && (System.Security.Principal.WindowsIdentity.GetCurrent().IsSystem) && (GetPeSubsystem(taskRun.TaskPath) == Subsystem.WindowsGui))
                             {
-                                // Program is Win32 GUI, if RunAsExplorerUser is present, redirect to it.
+                                // Program is Win32 GUI, if RunAsRDUser is present, redirect to it.
                                 // This allows the program to run as a user account and show its GUI.
-                                if (File.Exists(Path.Combine(Environment.SystemDirectory, "RunAsExplorerUser.exe")))
+                                if (File.Exists(Path.Combine(Environment.SystemDirectory, "RunAsRDUser.exe")))
                                 {
-                                    taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.RedirectingToRunAsExplorerUser, taskRun.TaskPath));
+                                    taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.RedirectingToRunAsRDUser, taskRun.TaskPath));
                                     var currentPath = taskRun.TaskPath;
-                                    taskRun.TaskPath = Path.Combine(Environment.SystemDirectory, "RunAsExplorerUser.exe");
+                                    taskRun.TaskPath = Path.Combine(Environment.SystemDirectory, "RunAsRDUser.exe");
                                     taskRun.Arguments = $"{currentPath} {taskRun.Arguments}";
                                 }
                                 else
