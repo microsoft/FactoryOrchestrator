@@ -1719,7 +1719,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         // The container doesn't have WDP, translate to a shell execute call
                         hostRun.TaskOutput.Add(Resources.RedirectingUWPToRunAs);
                         var temp = containerTask as UWPTask;
-                        var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsExplorerUser.exe")
+                        var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsRDUser.exe")
                         {
                             Arguments = @"explorer.exe shell:appsFolder\" + temp.Path
                         };

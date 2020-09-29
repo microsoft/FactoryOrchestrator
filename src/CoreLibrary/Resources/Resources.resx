@@ -252,11 +252,11 @@
   <data name="ReadyToCommunicate" xml:space="preserve">
     <value>Factory Orchestrator Service is ready to communicate with client(s).</value>
   </data>
-  <data name="RedirectingToRunAsExplorerUser" xml:space="preserve">
-    <value>{0} is a Win32 GUI program. Redirecting to run via RunAsExplorerUser...</value>
+  <data name="RedirectingToRunAsRDUser" xml:space="preserve">
+    <value>{0} is a Win32 GUI program. Redirecting to run via RunAsRDUser...</value>
   </data>
   <data name="RedirectingUWPToRunAs" xml:space="preserve">
-    <value>{0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsExplorerUser...</value>
+    <value>{0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsRDUser...</value>
   </data>
   <data name="RunningGuiAsSystemWarning" xml:space="preserve">
     <value>WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM</value>
