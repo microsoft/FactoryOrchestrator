@@ -27,10 +27,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
-    public class FOServiceExe
+    public sealed class FOServiceExe
     {
-        public static IHost ipcHost;
-        public static ServiceProvider ipcSvcProvider;
+        public static IHost ipcHost { get; internal set; }
+        private static ServiceProvider ipcSvcProvider;
         public static readonly string ServiceLogFolder = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "FactoryOrchestrator");
 
         public static IHost CreateHost(string[] args, bool allowNetworkAccess) =>
@@ -1726,7 +1726,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         containerTask = uwpContainerTask;
                     }
 
-                    await ConnectToContainer();
+                    await VerifyContainerConnection();
 
                     hostRun.TaskOutput.Add($"----------- {Resources.StartContainerOutput} (stdout, stderr) -----------");
                     var containerRun = await _containerClient.RunTask(containerTask);
@@ -1816,8 +1816,12 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                UpdateContainerId();
-                UpdateContainerIpAddress();
+                if (ContainerGuid == Guid.Empty)
+                {
+                    // If no container info has been found yet, double-check check the registry to
+                    // ensure we never fail a container Task or command due to a race condition.
+                    UpdateContainerInfo();
+                }
 
                 await ConnectToContainer();
 
@@ -1832,7 +1836,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
                 }
             }
-            catch (Exception)
+            catch (FactoryOrchestratorContainerException)
             {
                 if (previousContainerStatus == IsContainerConnected)
                 {
@@ -1853,13 +1857,15 @@ namespace Microsoft.FactoryOrchestrator.Service
                     if ((_containerClient == null || !_containerClient.IsConnected))
                     {
                         _containerClient = new FactoryOrchestratorClient(ContainerIpAddress, ServiceNetworkPort);
-                        if (await _containerClient.TryConnect())
+                        try
                         {
+                            await _containerClient.Connect();
                             return;
                         }
-                        else
+                        catch (Exception e)
                         {
                             _containerClient = null;
+                            throw new FactoryOrchestratorContainerException(Resources.ContainerConnectionFailed, e);
                         }
                     }
                     else
@@ -1874,60 +1880,62 @@ namespace Microsoft.FactoryOrchestrator.Service
             throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
         }
 
-        public void UpdateContainerId()
+        public async Task<bool> TryConnectToContainer()
         {
             try
             {
-                // FactoryOS puts the container guid in SYSTEM\CurrentControlSet\Control\FactoryUserManager
-                using var reg = Registry.LocalMachine.OpenSubKey(_volatileFactoryOSContainerRegKey, false);
+                await ConnectToContainer();
+                return true;
+            }
+            catch (FactoryOrchestratorContainerException)
+            {
+                return false;
+            }
+        }
 
+        public bool UpdateContainerInfo()
+        {
+            // FactoryOS puts the container guid in SYSTEM\CurrentControlSet\Control\FactoryUserManager
+            using var reg = Registry.LocalMachine.OpenSubKey(_volatileFactoryOSContainerRegKey, false);
+            if (reg != null)
+            {
                 var guidStr = (string)reg.GetValue(_factoryOSContainerGuidValue, String.Empty);
-                if (!string.IsNullOrEmpty(guidStr))
+                Guid guid;
+                if (Guid.TryParse(guidStr, out guid))
                 {
-                    ContainerGuid = Guid.Parse(guidStr);
+                    ContainerGuid = guid;
                 }
                 else
                 {
                     ContainerGuid = Guid.Empty;
-                    _containerClient = null;
-                    throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
                 }
-            }
-            catch (Exception)
-            {
-                ContainerGuid = Guid.Empty;
-                _containerClient = null;
-                throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
-            }
-        }
-
-        public void UpdateContainerIpAddress()
-        {
-            try
-            {
-                // FactoryOS puts the container IP in SYSTEM\CurrentControlSet\Control\FactoryUserManager
-                using var reg = Registry.LocalMachine.OpenSubKey(_volatileFactoryOSContainerRegKey, false);
 
                 var ipStr = (string)reg.GetValue(_factoryOSContainerIpv4AddressValue, String.Empty);
-                if (!string.IsNullOrEmpty(ipStr))
+                IPAddress ip;
+                if (IPAddress.TryParse(ipStr, out ip))
                 {
-                    ContainerIpAddress = IPAddress.Parse(ipStr);
+                    ContainerIpAddress = ip;
                 }
                 else
                 {
                     ContainerIpAddress = null;
-                    _containerClient = null;
-                    throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
+                }
+
+                if ((ContainerGuid != Guid.Empty) && (ContainerIpAddress != null))
+                {
+                    return true;
                 }
             }
-            catch (Exception)
+            else
             {
+                // Values not set in registry
+                ContainerGuid = Guid.Empty;
                 ContainerIpAddress = null;
                 _containerClient = null;
-                throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
             }
-        }
 
+            return false;
+        }
 
         public void SendFile(string targetFilename, byte[] fileData, bool appending, bool sendToContainer)
         {
@@ -1970,7 +1978,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 		
         public async Task SendFileToContainer(string containerFilePath, byte[] fileData, bool appending)
         {
-            await ConnectToContainer();
+            await VerifyContainerConnection();
             try
             {
                 await _containerClient.SendFile(containerFilePath, fileData, appending);
@@ -2039,7 +2047,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<byte[]> GetFileFromContainer(string containerFilePath, long offset, int count)
         {
-            await ConnectToContainer();
+            await VerifyContainerConnection();
             try
             {
                 return await _containerClient.GetFile(containerFilePath, offset, count);
@@ -2052,7 +2060,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task MoveInContainer(string sourcePath, string destinationPath)
         {
-            await ConnectToContainer();
+            await VerifyContainerConnection();
             try
             {
                 await _containerClient.MoveFileOrFolder(sourcePath, destinationPath);
@@ -2065,7 +2073,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task DeleteInContainer(string path)
         {
-            await ConnectToContainer();
+            await VerifyContainerConnection();
             try
             {
                 await _containerClient.DeleteFileOrFolder(path);
@@ -2078,7 +2086,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<List<string>> EnumerateFilesInContainer(string path, bool recursive)
         {
-            await ConnectToContainer();
+            await VerifyContainerConnection();
             try
             {
                 return await _containerClient.EnumerateFiles(path, recursive);
@@ -2091,7 +2099,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<List<string>> EnumerateDirectoriesInContainer(string path, bool recursive)
         {
-            await ConnectToContainer();
+            await VerifyContainerConnection();
             try
             {
                 return await _containerClient.EnumerateDirectories(path, recursive);
@@ -2231,7 +2239,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 throw;
             }
 
-
             _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
 
@@ -2243,9 +2250,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     while (!_containerHeartbeatToken.Token.IsCancellationRequested)
                     {
-                        // Poll for container running Factory Orchestrator Service
-                        await TryVerifyContainerConnection();
-                        await Task.Delay(2000);
+                        // Poll every 5s for container running Factory Orchestrator Service.
+                        if (UpdateContainerInfo())
+                        {
+                            await TryVerifyContainerConnection();
+                        }
+                        await Task.Delay(5000);
                     }
                 });
             }
