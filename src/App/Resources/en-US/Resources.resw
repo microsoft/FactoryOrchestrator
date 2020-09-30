@@ -714,4 +714,12 @@ On retry</value>
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="ContainerGuiWarning.Text" xml:space="preserve">
+    <value>⚠ To use the console to run Win32 GUI programs in the container, the exe name must be preceeded by RunAsRDUser.exe and use the full path to the exe ⚠</value>
+    <comment>Warning shown if user is using the console to run executables inside the container</comment>
+  </data>
+  <data name="ContainerGuiWarningExample.Text" xml:space="preserve">
+    <value>For example: RunAsRDUser.exe c:\windows\regedit.exe</value>
+    <comment>Example of how to run win32 gui executables inside the container</comment>
+  </data>
 </root>
