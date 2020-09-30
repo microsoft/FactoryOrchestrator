@@ -438,4 +438,8 @@
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
+  <data name="ContainerConnectionFailed" xml:space="preserve">
+    <value>Failed to connect to Factory Orchestrator Service inside the container!</value>
+    <comment>Error thrown if we cannot connect to the service inside the container for any reason</comment>
+  </data>
 </root>
