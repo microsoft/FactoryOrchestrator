@@ -1068,6 +1068,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             try
             {
                 var pe = new PEUtility.Executable(filename);
+
                 return pe.Subsystem;
             }
             catch (Exception)
@@ -1323,19 +1324,22 @@ namespace Microsoft.FactoryOrchestrator.Server
                 task.TimesRetried = 0;
             }
             var run = CreateTaskRunForTask(task, LogFolder);
-            using (var token = new CancellationTokenSource())
+
+            // TODO: Properly dispose of this token when the task completes.
+            // The overall RunningBackgroundTasks & RunningTaskRunTokens logic could use some improvements.
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            var token = new CancellationTokenSource();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            if (run.BackgroundTask)
             {
-                if (run.BackgroundTask)
-                {
-                    StartTask(run, token.Token);
-                    RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
-                }
-                else
-                {
-                    RunningTaskRunTokens.TryAdd(run.Guid, token);
-                    Task t = new Task(() => { StartTask(run, token.Token); });
-                    t.Start();
-                }
+                StartTask(run, token.Token);
+                RunningBackgroundTasks.TryAdd(run.Guid, new List<TaskRunner>(1) { run.GetOwningTaskRunner() });
+            }
+            else
+            {
+                RunningTaskRunTokens.TryAdd(run.Guid, token);
+                Task t = new Task(() => { StartTask(run, token.Token); });
+                t.Start();
             }
 
             return run;
