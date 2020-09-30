@@ -3,15 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
@@ -35,6 +28,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             _cmdSem = new SemaphoreSlim(1, 1);
             _outSem = new SemaphoreSlim(1, 1);
+            _activeRunSem = new SemaphoreSlim(1, 1);
             _newCmd = false;
             ((App)Application.Current).PropertyChanged += ConsolePage_AppPropertyChanged; ;
         }
@@ -161,7 +155,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _taskRunPoller.StopPolling();
             }
 
-            _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null, (bool)ContainerCheckBox.IsChecked);
+            try
+            {
+                _activeRunSem.Wait();
+                _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null, (bool)ContainerCheckBox.IsChecked);
+            }
+            finally
+            {
+                _activeRunSem.Release();
+            }
 
             // Watch for new output
             _taskRunPoller = new ServerPoller((Guid)_activeCmdTaskRun.Guid, typeof(TaskRun), 1000);
@@ -177,7 +179,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <param name="e"></param>
         private async void OnUpdatedCmdStatusAsync(object source, ServerPollerEventArgs e)
         {
+            _activeRunSem.Wait();
             _activeCmdTaskRun = (TaskRun)e.Result;
+            _activeRunSem.Release();
 
             if (_activeCmdTaskRun != null)
             {
@@ -192,9 +196,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     var blocks = PrepareOutput();
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        _outSem.Wait();
                         try
                         {
+                            _outSem.Wait();
                             UpdateOutput(blocks);
                         }
                         finally
@@ -236,77 +240,86 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private List<(string text, bool isError)> PrepareOutput()
         {
-            List <(string text, bool isError)> ret = new List<(string text, bool isError)>();
+            List<(string text, bool isError)> ret = new List<(string text, bool isError)>();
 
-            if (_newCmd)
+            try
             {
-                _lastOutput = 0;
-                _newCmd = false;
-            }
+                _activeRunSem.Wait();
 
-
-            var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + MaxLinesPerBlock);
-            string text = "";
-            bool errorBlock = false;
-
-            for (int i = _lastOutput; i < endCount; i++)
-            {
-                if (_activeCmdTaskRun.TaskOutput[i] != null)
+                if (_newCmd)
                 {
-                    if (errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCulture))
+                    _lastOutput = 0;
+                    _newCmd = false;
+                }
+
+
+                var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + MaxLinesPerBlock);
+                string text = "";
+                bool errorBlock = false;
+
+                for (int i = _lastOutput; i < endCount; i++)
+                {
+                    if (_activeCmdTaskRun.TaskOutput[i] != null)
                     {
-                        // Append error text
-                        text += _activeCmdTaskRun.TaskOutput[i];
-                        errorBlock = true;
+                        if (errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCulture))
+                        {
+                            // Append error text
+                            text += _activeCmdTaskRun.TaskOutput[i];
+                            errorBlock = true;
+                        }
+                        else if (errorBlock)
+                        {
+                            // Done with error text, write out the error text and start again
+                            var tupl = (text, true);
+                            ret.Add(tupl);
+
+                            text = _activeCmdTaskRun.TaskOutput[i];
+                            errorBlock = false;
+                        }
+                        else if (!errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCulture))
+                        {
+                            // Done with normal text, write out the normal text and start again
+                            var tupl = (text, false);
+                            ret.Add(tupl);
+
+                            text = _activeCmdTaskRun.TaskOutput[i];
+                            errorBlock = true;
+                        }
+                        else
+                        {
+                            // Append normal text
+                            text += _activeCmdTaskRun.TaskOutput[i];
+                            errorBlock = false;
+                        }
                     }
-                    else if (errorBlock)
+
+                    if (i != (endCount - 1))
                     {
-                        // Done with error text, write out the error text and start again
+                        text += System.Environment.NewLine;
+                    }
+                }
+
+                _lastOutput = endCount;
+
+                if (!String.IsNullOrEmpty(text))
+                {
+                    if (errorBlock)
+                    {
                         var tupl = (text, true);
                         ret.Add(tupl);
-
-                        text = _activeCmdTaskRun.TaskOutput[i];
-                        errorBlock = false;
-                    }
-                    else if (!errorBlock && _activeCmdTaskRun.TaskOutput[i].StartsWith("ERROR: ", StringComparison.InvariantCulture))
-                    {
-                        // Done with normal text, write out the normal text and start again
-                        var tupl = (text, false);
-                        ret.Add(tupl);
-
-                        text = _activeCmdTaskRun.TaskOutput[i];
-                        errorBlock = true;
                     }
                     else
                     {
-                        // Append normal text
-                        text += _activeCmdTaskRun.TaskOutput[i];
-                        errorBlock = false;
+                        var tupl = (text, false);
+                        ret.Add(tupl);
                     }
                 }
-
-                if (i != (endCount - 1))
-                {
-                    text += System.Environment.NewLine;
-                }
             }
-
-            _lastOutput = endCount;
-
-            if (!String.IsNullOrEmpty(text))
+            finally
             {
-                if (errorBlock)
-                {
-                    var tupl = (text, true);
-                    ret.Add(tupl);
-                }
-                else
-                {
-                    var tupl = (text, false);
-                    ret.Add(tupl);
-                }
+                _activeRunSem.Release();
             }
-
+            
             return ret;
         }
 
@@ -362,6 +375,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     _cmdSem?.Dispose();
                     _outSem?.Dispose();
+                    _activeRunSem?.Dispose();
                     _taskRunPoller.Dispose();
                 }
 
@@ -384,6 +398,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskRunPoller;
         private readonly SemaphoreSlim _cmdSem;
         private readonly SemaphoreSlim _outSem;
+        private readonly SemaphoreSlim _activeRunSem;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
 
         private const int MaxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
