@@ -345,6 +345,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
             scrollView.ChangeView(null, scrollView.ScrollableHeight, null, true);
         }
 
+        private void ContainerCheckBox_StateChanged(object sender, RoutedEventArgs e)
+        {
+            ContainerGuiWarning.Visibility = (bool)ContainerCheckBox.IsChecked ? Visibility.Visible : Visibility.Collapsed;
+            ContainerGuiWarningExample.Visibility = ContainerGuiWarning.Visibility;
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
