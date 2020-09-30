@@ -67,7 +67,7 @@ namespace PEUtility
         }
     }
 
-    public enum Subsystem
+    public enum Subsystem : ushort
     {
         Unknown = 0,
         Native = 1,
@@ -83,7 +83,7 @@ namespace PEUtility
     }
 
     [Flags]
-    public enum DllCharacteristics
+    public enum DllCharacteristics : ushort
     {
         DynamicBase = 0x0040,
         ForceIntegrity = 0x0080,
@@ -95,7 +95,7 @@ namespace PEUtility
         TerminalServerAware = 0x8000
     }
 
-    public enum ImageOptionalHeaderMagic
+    public enum ImageOptionalHeaderMagic : ushort
     {
         Header32 = 0x10b,
         Header64 = 0x20b,
@@ -387,7 +387,7 @@ namespace PEUtility
 
 #pragma warning disable CA1707 // Identifiers should not contain underscores
     [Flags]
-    public enum ComImageFlags
+    public enum ComImageFlags : uint
     {
         ILOnly = 1,
         _32BitRequired = 2,
