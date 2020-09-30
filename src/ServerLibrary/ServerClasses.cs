@@ -1068,7 +1068,6 @@ namespace Microsoft.FactoryOrchestrator.Server
             try
             {
                 var pe = new PEUtility.Executable(filename);
-
                 return pe.Subsystem;
             }
             catch (Exception)
