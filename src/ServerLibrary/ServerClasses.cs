@@ -1570,11 +1570,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                     var endOutput = lines.Last(x => x.StartsWith("---------------", StringComparison.InvariantCulture));
                     var startIndex = lines.IndexOf(startOutput);
                     var endIndex = lines.IndexOf(endOutput);
-                    run.TaskOutput = lines.GetRange(startIndex + 1, endIndex - startIndex - 1);
+                    run.TaskOutput = new LockingList<string>();
+                    run.TaskOutput.AddRange(lines.GetRange(startIndex + 1, endIndex - startIndex - 1));
                 }
-                catch
+                catch (Exception)
                 {
-                    run.TaskOutput = new List<string>();
+                    run.TaskOutput = new LockingList<string>();
                 }
             }
             catch (Exception)

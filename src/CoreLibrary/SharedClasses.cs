@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Globalization;
+using System.Collections;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -1660,7 +1661,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             TimeFinished = null;
             TimeStarted = null;
             ExitCode = null;
-            TaskOutput = new List<string>();
+            TaskOutput = new LockingList<string>();
             TimeoutSeconds = -1;
             BackgroundTask = false;
 
@@ -1687,13 +1688,16 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns></returns>
         public TaskRun DeepCopy()
         {
-            return JsonConvert.DeserializeObject<TaskRun>(JsonConvert.SerializeObject(this));
+            lock (_taskOutput.SyncRoot)
+            {
+                return JsonConvert.DeserializeObject<TaskRun>(JsonConvert.SerializeObject(this));
+            }
         }
 
         /// <summary>
-        /// The output of the Task.
+        /// The output of the Task. Should not be modified by Add/Insert/Remove.
         /// </summary>
-        public List<string> TaskOutput
+        public LockingList<string> TaskOutput
         {
             get => _taskOutput;
             set
@@ -1705,7 +1709,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 }
             }
         }
-        private List<string> _taskOutput;
+        private LockingList<string> _taskOutput;
 
         /// <summary>
         /// The GUID of the Task which created this run. NULL if this run is not associated with a Task.
@@ -2507,6 +2511,207 @@ namespace Microsoft.FactoryOrchestrator.Core
             get
             {
                 return ((Status == TaskStatus.Running) || (Status == TaskStatus.RunPending));
+            }
+        }
+    }
+
+    /// <summary>
+    /// A wrapper for the List class that locks the list on any modification operations.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <seealso cref="System.Collections.Generic.ICollection{T}" />
+    /// <seealso cref="System.Collections.Generic.IEnumerable{T}" />
+    /// <seealso cref="System.Collections.IEnumerable" />
+    /// <seealso cref="System.Collections.Generic.IList{T}" />
+    /// <seealso cref="System.Collections.Generic.IReadOnlyCollection{T}" />
+    /// <seealso cref="System.Collections.Generic.IReadOnlyList{T}" />
+    [Serializable]
+    public class LockingList<T> : ICollection<T>, IEnumerable<T>, IEnumerable, IList<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
+    {
+        [XmlElement]
+        private List<T> _list = new List<T>();
+
+        [XmlIgnore]
+        private object _lock = new object();
+
+        /// <summary>
+        /// Gets or sets the item T at the specified index.
+        /// </summary>
+        /// <value>
+        /// The item T.
+        /// </value>
+        /// <param name="index">The index.</param>
+        /// <returns></returns>
+        public T this[int index] { get => _list[index]; set => this.Insert(index, value); }
+
+        /// <summary>
+        /// Gets the number of elements contained in the <see cref="System.Collections.ICollection"></see>.
+        /// </summary>
+        public int Count => _list.Count;
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="System.Collections.ICollection"></see> is read-only.
+        /// </summary>
+        public bool IsReadOnly => false;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is fixed size.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is fixed size; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsFixedSize => false;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is synchronized.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is synchronized; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsSynchronized => false;
+
+        /// <summary>
+        /// Gets the synchronize root.
+        /// </summary>
+        /// <value>
+        /// The synchronize root.
+        /// </value>
+        public object SyncRoot => _lock;
+
+        /// <summary>
+        /// Adds an item to the <see cref="System.Collections.ICollection"></see>.
+        /// </summary>
+        /// <param name="item">The object to add to the <see cref="System.Collections.ICollection"></see>.</param>
+        public void Add(T item)
+        {
+            lock (_lock)
+            {
+                _list.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// Removes all items from the <see cref="System.Collections.ICollection"></see>.
+        /// </summary>
+        public void Clear()
+        {
+            lock (_lock)
+            {
+                _list.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether this instance contains the object.
+        /// </summary>
+        /// <param name="item">The object to locate in the <see cref="System.Collections.ICollection"></see>.</param>
+        /// <returns>
+        /// true if <paramref name="item">item</paramref> is found in the <see cref="System.Collections.ICollection"></see>; otherwise, false.
+        /// </returns>
+        public bool Contains(T item)
+        {
+            return _list.Contains(item);
+        }
+
+        /// <summary>
+        /// Copies the elements of the <see cref="System.Collections.ICollection"></see> to an <see cref="System.Array"></see>, starting at a particular <see cref="System.Array"></see> index.
+        /// </summary>
+        /// <param name="array">The one-dimensional <see cref="System.Array"></see> that is the destination of the elements copied from <see cref="System.Collections.ICollection"></see>. The <see cref="System.Array"></see> must have zero-based indexing.</param>
+        /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            _list.CopyTo(array, arrayIndex);
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// An enumerator that can be used to iterate through the collection.
+        /// </returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _list.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Determines the index of a specific item in the <see cref="System.Collections.IList"></see>.
+        /// </summary>
+        /// <param name="item">The object to locate in the <see cref="System.Collections.IList"></see>.</param>
+        /// <returns>
+        /// The index of <paramref name="item">item</paramref> if found in the list; otherwise, -1.
+        /// </returns>
+        public int IndexOf(T item)
+        {
+            return _list.IndexOf(item);
+        }
+
+        /// <summary>
+        /// Inserts an item to the <see cref="System.Collections.IList"></see> at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which item should be inserted.</param>
+        /// <param name="item">The object to insert into the <see cref="System.Collections.IList"></see>.</param>
+        public void Insert(int index, T item)
+        {
+            lock (_lock)
+            {
+                _list.Insert(index, item);
+            }
+        }
+
+        /// <summary>
+        /// Removes the first occurrence of a specific object from the <see cref="System.Collections.ICollection"></see>.
+        /// </summary>
+        /// <param name="item">The object to remove from the <see cref="System.Collections.ICollection"></see>.</param>
+        /// <returns>
+        /// true if <paramref name="item">item</paramref> was successfully removed from the <see cref="System.Collections.ICollection"></see>; otherwise, false. This method also returns false if <paramref name="item">item</paramref> is not found in the original <see cref="System.Collections.ICollection"></see>.
+        /// </returns>
+        public bool Remove(T item)
+        {
+            lock (_lock)
+            {
+                return _list.Remove(item);
+            }
+        }
+
+        /// <summary>
+        /// Removes the <see cref="System.Collections.IList"></see> item at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item to remove.</param>
+        public void RemoveAt(int index)
+        {
+            lock (_lock)
+            {
+                _list.RemoveAt(index);
+            }
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return _list.GetEnumerator();
+        }
+
+        /// <summary>
+        ///  Creates a shallow copy of a range of elements in the source System.Collections.Generic.List`1.
+        /// </summary>
+        /// <param name="index">The zero-based System.Collections.Generic.List`1 index at which the range starts.</param>
+        /// <param name="count">The number of elements in the range.</param>
+        /// <returns></returns>
+        public List<T> GetRange(int index, int count)
+        {
+            return _list.GetRange(index, count);
+        }
+
+        /// <summary>
+        /// Adds the elements of the specified collection to the end of the System.Collections.Generic.List`1.
+        /// </summary>
+        /// <param name="collection">The collection whose elements should be added to the end of the System.Collections.Generic.List`1. 
+        /// The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
+        public void AddRange(IEnumerable<T> collection)
+        {
+            lock (_lock)
+            {
+                _list.AddRange(collection);
             }
         }
     }
