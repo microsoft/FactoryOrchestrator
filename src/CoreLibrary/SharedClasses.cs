@@ -1695,7 +1695,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         /// <summary>
-        /// The output of the Task. Should not be modified by Add/Insert/Remove.
+        /// The output of the Task.
         /// </summary>
         public LockingList<string> TaskOutput
         {
