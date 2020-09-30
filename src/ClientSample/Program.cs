@@ -75,10 +75,12 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
                     throw new ArgumentException(Resources.NotEnoughArgs);
                 }
 
-                if (!IPAddress.TryParse(args[0], out Ip))
+                IPAddress ip;
+                if (!IPAddress.TryParse(args[0], out ip))
                 {
                     throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidIp, args[0]));
                 }
+                Ip = ip;
 
                 TestDir = args[1];
                 if (!Directory.Exists(TestDir))
@@ -371,11 +373,11 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
             Console.WriteLine($"{Resources.LogsCopiedTo} {destinationPath}. {string.Format(CultureInfo.CurrentCulture, Resources.TotalSize, bytes)}");
         }
 
-        public static FactoryOrchestratorClient Client;
-        public static DateTime TimeStarted;
-        public static IPAddress Ip;
-        public static string TestDir;
-        public static string DestDir;
-        public static string LogFolder;
+        private static FactoryOrchestratorClient Client;
+        public static DateTime TimeStarted { get; private set; }
+        public static IPAddress Ip { get; private set; }
+        public static string TestDir { get; private set; }
+        public static string DestDir { get; private set; }
+        public static string LogFolder { get; private set; }
     }
 }
