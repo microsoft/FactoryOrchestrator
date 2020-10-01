@@ -253,13 +253,16 @@
     <value>Factory Orchestrator Service is ready to communicate with client(s).</value>
   </data>
   <data name="RedirectingToRunAsRDUser" xml:space="preserve">
-    <value>{0} is a Win32 GUI program. Redirecting to run via RunAsRDUser...</value>
+    <value>{0} is a Win32 GUI program. Redirecting to run as the remote user...</value>
+    <comment>Message shown when program the user wants to run is detected to be a GUI program, which need to run as a user account, not SYSTEM.</comment>
   </data>
   <data name="RedirectingUWPToRunAs" xml:space="preserve">
-    <value>{0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsRDUser...</value>
+    <value>{0} is a UWP app targeted to run in the container. Redirecting to run in the container as the remote user...</value>
+    <comment>Message shown when program the user wants to run in the container is a UWP app, which need to run as a user account, not SYSTEM.</comment>
   </data>
   <data name="RunningGuiAsSystemWarning" xml:space="preserve">
-    <value>WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM</value>
+    <value>WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM.</value>
+    <comment>Message shown when program the user wants to run is detected to be a GUI program, but the code to run as a user account is not present on the device.</comment>
   </data>
   <data name="ServiceAlreadyCreatedError" xml:space="preserve">
     <value>FactoryOrchestratorService already created! Only one instance allowed.</value>

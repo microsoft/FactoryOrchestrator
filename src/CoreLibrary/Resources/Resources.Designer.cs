@@ -664,7 +664,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is a Win32 GUI program. Redirecting to run via RunAsRDUser....
+        ///   Looks up a localized string similar to {0} is a Win32 GUI program. Redirecting to run as the remote user....
         /// </summary>
         public static string RedirectingToRunAsRDUser {
             get {
@@ -673,7 +673,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is a UWP app targeted to run in the container. Redirecting to run in the container via RunAsRDUser....
+        ///   Looks up a localized string similar to {0} is a UWP app targeted to run in the container. Redirecting to run in the container as the remote user....
         /// </summary>
         public static string RedirectingUWPToRunAs {
             get {
@@ -682,7 +682,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM.
+        ///   Looks up a localized string similar to WARNING: {0} is a Win32 GUI program. It may not run properly as SYSTEM..
         /// </summary>
         public static string RunningGuiAsSystemWarning {
             get {
