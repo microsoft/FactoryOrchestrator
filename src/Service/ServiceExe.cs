@@ -1492,15 +1492,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 ServiceEvents = new Dictionary<ulong, ServiceEvent>();
                 LastEventIndex = 0;
                 LastEventTime = DateTime.MinValue;
-                DisableCommandPromptPage = false;
-                DisableWindowsDevicePortalPage = false;
-                DisableUWPAppsPage = false;
-                DisableManageTasklistsPage = false;
-                DisableFileTransferPage = false;
-                DisableNetworkAccess = true;
-                EnableNetworkAccess = false;
                 LocalLoopbackApps = new List<string>();
-                TaskManagerLogFolder = _defaultLogFolder;
                 IsExecutingBootTasks = true;
                 ServiceNetworkPort = 45684;
                 _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
@@ -2572,73 +2564,94 @@ namespace Microsoft.FactoryOrchestrator.Service
             // If a value is set improperly, it will fallback to defaults set in the CTOR.
             try
             {
-                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue, true), CultureInfo.InvariantCulture);
+                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableNetworkAccessValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
-            try
             {
-                EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue, false), CultureInfo.InvariantCulture);
+                DisableNetworkAccess = true;
             }
-            catch (Exception)
-            { }
 
             try
             {
-                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(_disableCmdPromptValue, false), CultureInfo.InvariantCulture);
+                EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_enableNetworkAccessValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                EnableNetworkAccess = false;
+            }
 
             try
             {
-                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(_disableFileTransferValue, false), CultureInfo.InvariantCulture);
+                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(_disableCmdPromptValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableCmdPromptValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                DisableCommandPromptPage = false;
+            }
 
             try
             {
-                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(_disableUWPAppsValue, false), CultureInfo.InvariantCulture);
+                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(_disableFileTransferValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableFileTransferValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                DisableFileTransferPage = false;
+            }
 
             try
             {
-                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(_disableTaskManagerValue, false), CultureInfo.InvariantCulture);
+                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(_disableUWPAppsValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableUWPAppsValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                DisableUWPAppsPage = false;
+            }
 
             try
             {
-                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(_disableWindowsDevicePortalValue, false), CultureInfo.InvariantCulture);
+                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(_disableTaskManagerValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableTaskManagerValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                DisableManageTasklistsPage = false;
+            }
 
             try
             {
-                TaskManagerLogFolder = (string)GetValueFromRegistry(_logFolderValue, _defaultLogFolder);
+                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(_disableWindowsDevicePortalValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableWindowsDevicePortalValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                DisableWindowsDevicePortalPage = false;
+            }
 
             try
             {
-                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetValueFromRegistry(_runOnFirstBootValue, false), CultureInfo.InvariantCulture);
+                TaskManagerLogFolder = (string)GetValueFromRegistry(_logFolderValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_logFolderValue)");
             }
             catch (Exception)
-            { }
+            {
+                TaskManagerLogFolder = _defaultLogFolder;
+            }
 
-            var loopbackAppsString = "";
             try
             {
-                loopbackAppsString = (string)GetValueFromRegistry(_localLoopbackAppsValue, "");
+                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetValueFromRegistry(_runOnFirstBootValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_runOnFirstBootValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
-            { }
+            {
+                RunInitialTaskListsOnFirstBoot = false;
+            }
+
+            String loopbackAppsString;
+            try
+            {
+                loopbackAppsString = (string)GetValueFromRegistry(_localLoopbackAppsValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_localLoopbackAppsValue)");
+            }
+            catch (Exception)
+            {
+                loopbackAppsString = "";
+            }
 
             LocalLoopbackApps = loopbackAppsString.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
