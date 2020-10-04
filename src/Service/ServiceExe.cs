@@ -1396,7 +1396,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </value>
         public ILogger<FOService> ServiceLogger { get; private set; }
 
-        public Dictionary<ulong, ServiceEvent> ServiceEvents { get; private set}
+        public Dictionary<ulong, ServiceEvent> ServiceEvents { get; private set;  }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
         public bool DisableCommandPromptPage { get; private set; }
