@@ -1300,7 +1300,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
-        private readonly Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
+        private Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
 
         private readonly string _nonMutableServiceRegKey = @"SYSTEM\CurrentControlSet\Control\FactoryOrchestrator";
         private readonly string _mutableServiceRegKey = @"OSDATA\CurrentControlSet\Control\FactoryOrchestrator";
@@ -1396,7 +1396,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </value>
         public ILogger<FOService> ServiceLogger { get; private set; }
 
-        public Dictionary<ulong, ServiceEvent> ServiceEvents { get; }
+        public Dictionary<ulong, ServiceEvent> ServiceEvents { get; private set}
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
         public bool DisableCommandPromptPage { get; private set; }
@@ -1489,18 +1489,6 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 ServiceLogger = logger;
                 _singleton = this;
-                ServiceEvents = new Dictionary<ulong, ServiceEvent>();
-                LastEventIndex = 0;
-                LastEventTime = DateTime.MinValue;
-                LocalLoopbackApps = new List<string>();
-                IsExecutingBootTasks = true;
-                ServiceNetworkPort = 45684;
-                _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
-
-                ContainerGuid = Guid.Empty;
-                ContainerIpAddress = null;
-                _containerHeartbeatToken = null;
-                _containerClient = null;
             }
         }
 
@@ -2208,6 +2196,19 @@ namespace Microsoft.FactoryOrchestrator.Service
                 ServiceLogger.LogError($"! {e.Message}");
                 throw;
             }
+
+            ServiceEvents = new Dictionary<ulong, ServiceEvent>();
+            LastEventIndex = 0;
+            LastEventTime = DateTime.MinValue;
+            LocalLoopbackApps = new List<string>();
+            IsExecutingBootTasks = true;
+            ServiceNetworkPort = 45684;
+            _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
+
+            ContainerGuid = Guid.Empty;
+            ContainerIpAddress = null;
+            _containerHeartbeatToken = null;
+            _containerClient = null;
 
             LoadOEMCustomizations();
 
