@@ -1487,6 +1487,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.ServiceAlreadyCreatedError);
                 }
 
+                // Only initialize the bare minimum required fields & properties here. 
+                // Most initialization should be done in ExecuteServerBootTasks() as part of Service Start().
                 ServiceLogger = logger;
                 _singleton = this;
             }
@@ -2562,7 +2564,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         private bool LoadOEMCustomizations()
         {
-            // If a value is set improperly, it will fallback to defaults set in the CTOR.
             try
             {
                 DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableNetworkAccessValue)"), CultureInfo.InvariantCulture);
