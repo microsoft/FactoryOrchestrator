@@ -82,8 +82,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "internal", "internal", "{A3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{B4F05BFC-A45E-4400-814A-12DA0D6FA3D0}"
 	ProjectSection(SolutionItems) = preProject
-		..\build\CredScanSuppressions.json = ..\build\CredScanSuppressions.json
-		..\build\PolicheckExclusions.xml = ..\build\PolicheckExclusions.xml
+		..\build\config\CredScanSuppressions.json = ..\build\config\CredScanSuppressions.json
+		..\build\config\PolicheckExclusions.xml = ..\build\config\PolicheckExclusions.xml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F}"
