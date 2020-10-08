@@ -8,8 +8,7 @@ plugins:
 theme: material
 
 nav:
-  - Overview: 'factory-orchestrator.md'
-  - Setup: 'get-started-with-factory-orchestrator.md'
+  - Get Started: 'get-started-with-factory-orchestrator.md'
   - Tasks & TaskLists Authoring: 'automate-factory-orchestrator.md'
   - Run using the application: 'use-factory-orchestrator.md'
   - Run using the client api: 'using-the-factory-orchestrator-api.md'
