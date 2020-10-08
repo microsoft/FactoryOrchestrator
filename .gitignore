@@ -302,6 +302,13 @@ paket-files/
 __pycache__/
 *.pyc
 
+# Normal Python
+.venv
+venv/
+
+#Mkdocs site out
+site/
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
