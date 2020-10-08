@@ -5,7 +5,6 @@ on:
       - master
       - alhajy/try-github-pages
 
- 
 jobs:
   deploy:
     runs-on: ubuntu-latest
