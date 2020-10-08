@@ -1,0 +1,1203 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Factory Orchestrator Documentation">
+      
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/automate-factory-orchestrator/">
+      
+      
+        <meta name="author" content="themar-msft">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+    
+    
+      
+        <title>Tasks & TaskLists Authoring - Factory Orchestrator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#author-and-manage-factory-orchestrator-tasklists" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Factory Orchestrator
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Tasks & TaskLists Authoring
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Factory Orchestrator
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
+      Get Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Tasks & TaskLists Authoring
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Tasks & TaskLists Authoring
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-types" class="md-nav__link">
+    Task types
+  </a>
+  
+    <nav class="md-nav" aria-label="Task types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#background-tasks" class="md-nav__link">
+    Background tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-tasklists" class="md-nav__link">
+    Managing TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-and-manage-tasklists" class="md-nav__link">
+    Create and manage TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and manage TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-or-import-tasklists" class="md-nav__link">
+    Create or import TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-and-modify-tasklists" class="md-nav__link">
+    Create and modify TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-tasklists" class="md-nav__link">
+    Export TaskLists
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-factoryorchestratorxml-files" class="md-nav__link">
+    Special FactoryOrchestratorXML files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-xml-schema" class="md-nav__link">
+    Factory Orchestrator XML Schema
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator XML Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tasklist-attributes" class="md-nav__link">
+    TaskList attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskList attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-tasklist-element" class="md-nav__link">
+    Sample TaskList element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-attributes" class="md-nav__link">
+    Task attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Task attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#path-definitions" class="md-nav__link">
+    Path definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-task-element" class="md-nav__link">
+    Sample Task element
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-factory-orchestrator-xml" class="md-nav__link">
+    Validate Factory Orchestrator XML
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background-tasks_1" class="md-nav__link">
+    Background tasks
+  </a>
+  
+    <nav class="md-nav" aria-label="Background tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-backgroundtasks-element" class="md-nav__link">
+    Sample BackgroundTasks element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-factory-orchestrator-xml-file" class="md-nav__link">
+    Sample Factory Orchestrator XML file
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../use-factory-orchestrator/" class="md-nav__link">
+      Run using the application
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../using-the-factory-orchestrator-api/" class="md-nav__link">
+      Run using the client api
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../factory-orchestrator-utilities/" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-types" class="md-nav__link">
+    Task types
+  </a>
+  
+    <nav class="md-nav" aria-label="Task types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#background-tasks" class="md-nav__link">
+    Background tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-tasklists" class="md-nav__link">
+    Managing TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-and-manage-tasklists" class="md-nav__link">
+    Create and manage TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and manage TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-or-import-tasklists" class="md-nav__link">
+    Create or import TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-and-modify-tasklists" class="md-nav__link">
+    Create and modify TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-tasklists" class="md-nav__link">
+    Export TaskLists
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-factoryorchestratorxml-files" class="md-nav__link">
+    Special FactoryOrchestratorXML files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-xml-schema" class="md-nav__link">
+    Factory Orchestrator XML Schema
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator XML Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tasklist-attributes" class="md-nav__link">
+    TaskList attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskList attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-tasklist-element" class="md-nav__link">
+    Sample TaskList element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-attributes" class="md-nav__link">
+    Task attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Task attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#path-definitions" class="md-nav__link">
+    Path definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-task-element" class="md-nav__link">
+    Sample Task element
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-factory-orchestrator-xml" class="md-nav__link">
+    Validate Factory Orchestrator XML
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background-tasks_1" class="md-nav__link">
+    Background tasks
+  </a>
+  
+    <nav class="md-nav" aria-label="Background tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-backgroundtasks-element" class="md-nav__link">
+    Sample BackgroundTasks element
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-factory-orchestrator-xml-file" class="md-nav__link">
+    Sample Factory Orchestrator XML file
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/automate-factory-orchestrator.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="author-and-manage-factory-orchestrator-tasklists">Author and manage Factory Orchestrator TaskLists</h1>
+<p>Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.</p>
+<p>The XML can either be hand-authored; or authored, imported, and/or exported using the <a href="#managing-tasklists">Factory Orchestrator app's "Manage TaskLists"</a> section.</p>
+<p>You can get started with Factory Orchestrator by using the <strong>Manage TaskLists</strong> screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See <a href="#managing-tasklists">Managing TaskLists</a> below.</p>
+<p>This topic describes the tasks that are available in Factory Orchestrator, and how to create and manage TaskLists.</p>
+<h2 id="task-types">Task types</h2>
+<p>Factory Orchestrator TaskLists allow adding different types of tasks:</p>
+<ul>
+<li>
+<p><strong>Executable</strong></p>
+<p>These tasks are .exe files which are run directly. When you add this type of task, you can specify additional arguments and if the task should run as a background task.</p>
+</li>
+<li>
+<p><strong>Batch File</strong></p>
+<p>These tasks are .bat or .cmd files which are run by the command prompt (cmd.exe). When you add this type of task, you can specify additional arguments and if the task should run as a background task.</p>
+</li>
+<li>
+<p><strong>PowerShell</strong></p>
+<p>These tasks are .ps1 files which are run by PowerShell Core (pwsh.exe). When you add this type of task, you can specify additional arguments and if the task should run as a background task. Requires the <code>WCOS_POWERSHELLCORE</code> feature is included in your OEMInput.xml file.</p>
+</li>
+<li>
+<p><strong>TAEF</strong></p>
+<p><a href="https://docs.microsoft.com/windows-hardware/drivers/taef/">TAEF tests</a> can be added to a TaskList, and you can specify arguments and if the task should run as a background task.</p>
+</li>
+<li>
+<p><strong>UWP App</strong></p>
+<p>Allows you to run a UWP app as a task.</p>
+<p>UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via a result prompt that the Factory Orchestrator App launches when the UWP app exits. You can also exit apps via ALT+F4 or Windows Device Portal.</p>
+<p>The Factory Orchestrator service can launch apps even if the Factory Orchestrator app isn't running.</p>
+<p>UWP App tasks will only run on DUTs booted into an environment that supports UWP apps.</p>
+</li>
+<li>
+<p><strong>External</strong></p>
+<p>These are tasks that require interaction from a technician before completing. These types of tasks could be used to tell a technician to connect a cable, check a device for scratches, move the device to the next station, etc.</p>
+<p>External Tasks can't automatically return a pass/fail result. The operator must manually specify if the Task passed or failed via a result prompt that the Factory Orchestrator App launches when the Task executes. External tasks will only run on devices that support displaying graphics. Devices configured to boot into a console that can't display graphics won't display external tasks.</p>
+<p>The operator must manually specify if the app passed or failed via a result prompt that the Factory Orchestrator App launches when the app exits, like is shown on this screen:  </p>
+<p><img alt="External task windows" src="../images/externalTaskNoMedia.png" /></p>
+<p>External tasks also support displaying custom images or video as part of the task. These images and videos are intended to allow external tasks to convey more information to technicians on the factory floor. When you create an external task, use <strong>Arguments</strong> to let the operator know what to expect or what actions to take. When you create an external task, use the <strong>Image or Video Path:</strong> field to specify an image or a video.</p>
+<p><img alt="screen shot of external task image" src="../images/externalTaskPicture.png" /> <img alt="screen shot of external task video" src="../images/externalTaskVideo.png" /></p>
+</li>
+</ul>
+<h3 id="background-tasks">Background tasks</h3>
+<p>A BackgroundTask is a type of Task which is not expected to return a pass/fail result. Instead, BackgroundTasks are started before any Tasks defined in the TaskList, and are not tracked by the Factory Orchestrator Service, though their output is logged to a file. BackgroundTasks are intended to be used for logging/monitoring tasks that need to be running before any Task in the TaskList executes.</p>
+<p>BackgroundTasks are defined the exactly the same as a normal Task with the following exceptions:</p>
+<ul>
+<li>BackgroundTasks can only be an Executable, PowerShell, or BatchFile Task</li>
+<li>BackgroundTasks cannot have Timeout or MaxNumberOfRetries set</li>
+</ul>
+<p>When editing a task from the Factory Orchestrator app, you can choose the option of making the task a background task by choosing the "Add as background task?" option.</p>
+<h2 id="managing-tasklists">Managing TaskLists</h2>
+<p>Use the Factory Orchestrator app to manage a TaskList. TaskLists can be made up from a combination of the different task types. You can choose whether the tasks in the TaskList will be run one-at-a-time (series), or in parallel.</p>
+<p>When you run Factory Orchestrator, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app won't show any TaskLists. Once you create a TaskList, it will show on this screen.</p>
+<p>Factory Orchestrator supports using environment variables (ex: %ProgramData%) in all commands.</p>
+<p>To create, modify, and delete TaskLists, click on 'Manage TaskLists'.</p>
+<h3 id="create-and-manage-tasklists">Create and manage TaskLists</h3>
+<p>The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists. </p>
+<h4 id="create-or-import-tasklists">Create or import TaskLists</h4>
+<ul>
+<li>
+<p><strong>Add a whole folder as a TaskList</strong></p>
+<p>Adds the contents of a local folder into a new TaskList. After you've added a folder, you can edit individual tasks to configure additional arguments, timeout settings, etc.</p>
+<p><img alt="Load folder as tasklist menu item" src="../images/load-folder-as-tasklist.png" /></p>
+</li>
+<li>
+<p><strong>Choose individual files to add to a TaskList</strong></p>
+<p>Use <code>Create new TaskList</code> to create a new TaskList where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.</p>
+<p><img alt="Create new TaskList button" src="../images/create-new-tasklist.png" /></p>
+</li>
+<li>
+<p><strong>Import a previously generated TaskLists XML file</strong></p>
+<p>This enables you to generate and export a TaskList on one device, and import it into your device. Once loaded, imported TaskList XML files can be modified like any other Task List.</p>
+<p>To import a TaskList:</p>
+<ol>
+<li>On the <strong>Manage TaskLists</strong> page, click on <strong>Import FactoryOrchestratorXML file</strong></li>
+</ol>
+<p><img alt="Import an existing TaskList" src="./images/import-sxml.png" /></p>
+<ol>
+<li>Enter the full path to the FactoryOrchestratorXML you want to import and click ✓</li>
+</ol>
+<p><img alt="TaskLists XML file to load from dialog box" src="../images/load-tasklist-from.PNG" /></p>
+<p>When you import a TaskList:</p>
+<ul>
+<li>All the TaskLists defined in the file are imported</li>
+<li>If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results</li>
+</ul>
+</li>
+</ul>
+<p>When you create a new TaskList, the Factory Orchestrator app generates a GUID that it assigns as the TaskList's name.</p>
+<h4 id="create-and-modify-tasklists">Create and modify TaskLists</h4>
+<p>Once you've added tasks to a TaskList, you can click the pencil icon to modify as TaskList.</p>
+<p><img alt="Modify TaskList pencil button" src="../images/existing-tasklists.png" /></p>
+<p>When you click the pencil icon, you'll see the following screen:</p>
+<p><img alt="Edit tasklist screen" src="../images/edit-tasklist-page.png" /></p>
+<p>This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks, or edit Tasks.</p>
+<ul>
+<li>
+<p>Use the "New <code>&lt;TaskType&gt;</code> Task" buttons to create a new Task in the TaskList </p>
+</li>
+<li>
+<p>Use the rename icon (<img alt="Rename icon" src="./images/tasklist-rename.png" />) to rename TaskLists</p>
+</li>
+<li>
+<p>Click and drag on the bars to the left of a Task to reorder the Tasks.</p>
+</li>
+<li>
+<p>Use the pencil (edit) button to edit a task. When you click the edit or "New <code>&lt;TaskType&gt;</code> Task" buttons, you'll see something similar to:</p>
+<p><img alt="Task edit screen" src="../images/edit-task.PNG" /></p>
+<p>See <a href="./">FactoryOrchestratorXML</a> for information about the different options on this screen.</p>
+</li>
+<li>
+<p>Use the delete buttons to delete an existing Task.</p>
+</li>
+</ul>
+<h4 id="export-tasklists">Export TaskLists</h4>
+<p>If you create one or more TaskLists, you can export and save them. This allows you to add them onto another device. From the 'Manage TaskLists" screen:</p>
+<ul>
+<li>Save a single TaskList by clicking on the disk icon next to the TaskList name</li>
+<li>Save all your TaskLists by clicking on the button that says 'Save All TaskLists to XML File`</li>
+</ul>
+<p>To export TaskLists:</p>
+<p>Here is an image of the <strong>Manage TaskLists</strong> page with one TaskList loaded:</p>
+<p><img alt="Manage TaskLists page with one TaskList loaded" src="../images/save-tasklists.PNG" /></p>
+<p>From this page, you can:</p>
+<ul>
+<li>Export a specific TaskList by clicking on the save icon (./images/save-icon.PNG) next to the Task</li>
+<li>Export all TaskLists by clicking on the <strong>Save All TaskLists to File</strong> button.</li>
+</ul>
+<p>After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.</p>
+<h2 id="special-factoryorchestratorxml-files">Special FactoryOrchestratorXML files</h2>
+<p>When it starts, the Factory Orchestrator service looks in <code>%DataDrive%\TestContent</code> for the following FactoryOrchestratorXML files that determine startup behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Filename </th>
+<th>Usage </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InitialTaskLists.xml </td>
+<td>These Factory Orchestrator TaskLists are loaded on first boot only. This file defines the default state of Factory Orchestrator, that is the TaskLists &amp; tasks that are shown in the FO UI. </td>
+</tr>
+<tr>
+<td>FirstBootTasks.xml </td>
+<td>These TaskLists are run once, on the first boot of the DUT. </td>
+</tr>
+<tr>
+<td>EveryBootTasks.xml </td>
+<td>These TaskLists are run on every boot of the DUT, including first boot. On first boot, it is always run after FirstBootTasks.</td>
+</tr>
+</tbody>
+</table>
+<p>When Factory Orchestrator is running these tasks, you'll see a warning in the Factory Orchestrator UI:</p>
+<p><img alt="Service is executing Boot tasks, many functions are disabled until finished or aborted" src="../images/fo-background-tasks-executing.png" /></p>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any <code>&lt;Tasks&gt;</code> defined in the relevant *BootTasks.xml files are done executing. </li>
+<li><strong>DO NOT use External or UWP Tasks in these files</strong>, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client. </li>
+<li>While you can author normal <code>&lt;Tasks&gt;</code> in the *BootTasks.xml files, <code>&lt;BackgroundTasks&gt;</code> are very useful for the FirstBootTasks and EveryBootTasks XML files, as you can define <code>&lt;BackgroundTasks&gt;</code> which start on boot, aren't expected to ever exit, and will run in the background forever (provided <code>TerminateBackgroundTasksOnCompletion="false"</code>).</li>
+<li>You can inspect the <a href="factory-orchestrator.md#factory-orchestrator-logs">FactoryOrchestrator log files</a> for details about the execution of these special FactoryOrchestratorXML files.</li>
+</ul>
+<h2 id="factory-orchestrator-xml-schema">Factory Orchestrator XML Schema</h2>
+<p>When hand-authoring FactoryOrchestratorXML files, you'll need to follow the FactoryOrchestratorXML schema. At the end of this topic, we've also provided a <a href="#sample-factory-orchestrator-xml-file">sample FactoryOrchestratorXML file</a>:</p>
+<pre><code class="language-XML">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;xs:schema id=&quot;FactoryOrchestratorXML&quot;
+    elementFormDefault=&quot;qualified&quot;
+    xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+&gt;
+  &lt;xs:element name=&quot;TaskRunGuids&quot;&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:sequence&gt;
+          &lt;xs:element name=&quot;Guid&quot; type=&quot;xs:string&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;unbounded&quot;/&gt;
+      &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:complexType name=&quot;TaskType&quot;&gt;
+    &lt;xs:all&gt;
+      &lt;xs:element name=&quot;LatestTaskRunTimeStarted&quot; type=&quot;xs:dateTime&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+      &lt;xs:element name=&quot;LatestTaskRunTimeFinished&quot; type=&quot;xs:dateTime&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+      &lt;xs:element name=&quot;LatestTaskRunStatus&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+      &lt;xs:element name=&quot;LatestTaskRunExitCode&quot; type=&quot;xs:int&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+      &lt;xs:element name=&quot;TimesRetried&quot; type=&quot;xs:int&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+      &lt;xs:element ref=&quot;TaskRunGuids&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+    &lt;/xs:all&gt;
+    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Name&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Path&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Guid&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Arguments&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:int&quot; name=&quot;MaxNumberOfRetries&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:int&quot; name=&quot;Timeout&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:boolean&quot; name=&quot;AbortTaskListOnFailed&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:boolean&quot; name=&quot;AutoPassedIfLaunched&quot; use=&quot;optional&quot;/&gt;
+    &lt;xs:attribute type=&quot;xs:boolean&quot; name=&quot;TerminateOnCompleted&quot; use=&quot;optional&quot;/&gt;
+  &lt;/xs:complexType&gt;
+
+  &lt;xs:complexType name=&quot;TasksType&quot;&gt;
+    &lt;xs:sequence&gt;
+      &lt;xs:element name=&quot;Task&quot; type=&quot;TaskType&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;unbounded&quot;/&gt;
+    &lt;/xs:sequence&gt;
+  &lt;/xs:complexType&gt;
+
+    &lt;xs:element name=&quot;TaskList&quot;&gt;
+      &lt;xs:complexType&gt;
+        &lt;xs:sequence&gt;
+          &lt;xs:element name=&quot;Tasks&quot; type=&quot;TasksType&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+          &lt;xs:element name=&quot;BackgroundTasks&quot; type=&quot;TasksType&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
+        &lt;/xs:sequence&gt;
+        &lt;xs:attribute name=&quot;Name&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+        &lt;xs:attribute name=&quot;Guid&quot; type=&quot;xs:string&quot; use=&quot;optional&quot;/&gt;
+        &lt;xs:attribute name=&quot;RunInParallel&quot; type=&quot;xs:boolean&quot; use=&quot;required&quot;/&gt;
+        &lt;xs:attribute name=&quot;AllowOtherTaskListsToRun&quot; type=&quot;xs:boolean&quot; use=&quot;required&quot;/&gt;
+        &lt;xs:attribute name=&quot;TerminateBackgroundTasksOnCompletion&quot; type=&quot;xs:boolean&quot; use=&quot;optional&quot;/&gt;
+      &lt;/xs:complexType&gt;
+    &lt;/xs:element&gt;
+    &lt;xs:element name=&quot;TaskLists&quot;&gt;
+      &lt;xs:complexType&gt;
+        &lt;xs:sequence&gt;
+          &lt;xs:element ref=&quot;TaskList&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;unbounded&quot;/&gt;
+        &lt;/xs:sequence&gt;
+      &lt;/xs:complexType&gt;
+    &lt;/xs:element&gt;
+    &lt;xs:element name=&quot;FactoryOrchestratorXML&quot;&gt;
+      &lt;xs:complexType&gt;
+        &lt;xs:sequence&gt;
+          &lt;xs:element ref=&quot;TaskLists&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;1&quot;/&gt;
+        &lt;/xs:sequence&gt;
+      &lt;/xs:complexType&gt;
+    &lt;/xs:element&gt;
+
+&lt;/xs:schema&gt;
+</code></pre>
+<h3 id="tasklist-attributes">TaskList attributes</h3>
+<p>A TaskList element defines a Factory Orchestrator TaskList. The following defines that attributes of the <code>TaskList</code> element in the Factory Orchestrator XML schema.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute Name </th>
+<th>Type </th>
+<th>Required? </th>
+<th>Details </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name </td>
+<td>String </td>
+<td>Y </td>
+<td>The "friendly name" of the TaskList. </td>
+</tr>
+<tr>
+<td>Guid </td>
+<td>String </td>
+<td>N </td>
+<td>The GUID used to identify the TaskList. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded. </td>
+</tr>
+<tr>
+<td>RunInParallel </td>
+<td>Bool </td>
+<td>Y </td>
+<td>If "true", the Tasks in this TaskList are executed in parallel. If "false", the Tasks in this TaskList are executed in order, one at a time. </td>
+</tr>
+<tr>
+<td>AllowOtherTaskListsToRun </td>
+<td>Bool </td>
+<td>Y </td>
+<td>If "false", while this TaskList is running all other TaskLists are blocked from executing. If "true", other TaskLists may execute while this TaskList is running.  </td>
+</tr>
+<tr>
+<td>TerminateBackgroundTasksOnCompletion </td>
+<td>Bool </td>
+<td>N </td>
+<td>If "true", any BackgroundTasks defined in this TaskList are forcibly terminated when the TaskList's Tasks complete. If "false", any BackgroundTasks defined in this TaskList continue executing. Defaults to "true".</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sample-tasklist-element">Sample TaskList element</h4>
+<pre><code class="language-xml">&lt;TaskList Guid=&quot;15332a4b-ee08-4c97-a7ad-d69d4210c3a6&quot; Name=&quot;List2&quot; RunInParallel=&quot;true&quot; AllowOtherTaskListsToRun=&quot;true&quot; TerminateBackgroundTasksOnCompletion=&quot;true&quot;&gt;
+</code></pre>
+<h3 id="task-attributes">Task attributes</h3>
+<p>A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executables, apps, or jobs that are run as part of the TaskList that defines them. The following defines that attributes of the <code>Task</code> element in the Factory Orchestrator XML schema.</p>
+<!--Delete this table-->
+<table>
+<thead>
+<tr>
+<th>Attribute Name </th>
+<th>Type </th>
+<th>Required? </th>
+<th>Details </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>xsi:type </td>
+<td>See details </td>
+<td>Y </td>
+<td>The type of the Task. Allowed values are: ExecutableTask, PowerShellTask, BatchFileTask, TAEFTest, UWPTask, and ExternalTask. </td>
+</tr>
+<tr>
+<td>Name </td>
+<td>String </td>
+<td>N </td>
+<td>The "friendly name" of the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded, based on the Task type and other attributes. </td>
+</tr>
+<tr>
+<td>Guid </td>
+<td>String </td>
+<td>N </td>
+<td>The GUID used to identify the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded. </td>
+</tr>
+<tr>
+<td>Path </td>
+<td>String </td>
+<td>Depends</td>
+<td>See the <a href="#path-definitions">Path table below</a> to see which Tasks require you to include a Path element.</td>
+</tr>
+<tr>
+<td>Arguments </td>
+<td>String </td>
+<td>N </td>
+<td>For Executable, PowerShell, BatchFile, and TAEF Tasks: this is the list of arguments to provide to the executable you specified in the "Path".<br><br>   For UWP Tasks: this can be used to provide details about the Task to the client. It is NOT passed to the UWP app.<br><br>For External Tasks: this can be used to provide details about the Task to the client. </td>
+</tr>
+<tr>
+<td>Timeout </td>
+<td>Int </td>
+<td>N </td>
+<td>In seconds, the amount of time to wait for the Task to be completed. Defaults to "-1" (infinite).<br><br> If "-1", the Task will never timeout.<br><br>If the timeout is reached, the Task status is set to "Timeout", a failed state. The Task's executable is also forcibly terminated (if it has one). </td>
+</tr>
+<tr>
+<td>MaxNumberOfRetries </td>
+<td>Int </td>
+<td>N </td>
+<td>The number of times the Task should automatically be re-run if it completes in a failed state (Aborted/Failed/Timeout). Defaults to "0" (do not retry).<br><br>For example, if this is set to "2", the Task could be run up to 3 times automatically.       </td>
+</tr>
+<tr>
+<td>AbortTaskListOnFailed </td>
+<td>Bool </td>
+<td>N </td>
+<td>If "true", if the Task is run during a TaskList and the Task fails (Aborted/Failed/Timeout), the TaskList is aborted in its current state. Any other pending or running Tasks will be aborted.<br><br>This action takes place after any re-runs specified by MaxNumberOfRetries.<br><br>While allowed, it is not recommended to use this for "RunInParallel" TaskLists, as the execution order of such a TaskList is not guaranteed, and Tasks may be aborted mid-execution.         </td>
+</tr>
+<tr>
+<td>TerminateOnCompleted</td>
+<td>Bool</td>
+<td>N</td>
+<td>By default, an app is terminated when the UWPTask completes. Set to false to not terminate after a UWPTask completes.  TerminateOnCompleted is ignored if AutoPassedIfLaunched=<code>true</code></td>
+</tr>
+<tr>
+<td>AutoPassedIfLaunched</td>
+<td>Bool</td>
+<td>N</td>
+<td>By default, a UWPTask waits for its TaskRun to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="path-definitions">Path definitions</h4>
+<table>
+<thead>
+<tr>
+<th>Task type</th>
+<th>Required</th>
+<th>Path definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Executable</td>
+<td>Yes</td>
+<td>The path to the executable file that should be executed for this Task.</td>
+</tr>
+<tr>
+<td>PowerShell</td>
+<td>Yes</td>
+<td>The path to the PowerShell file that should be executed for this Task.</td>
+</tr>
+<tr>
+<td>BatchFile</td>
+<td>Yes</td>
+<td>The path to the Batch file that should be executed for this Task.</td>
+</tr>
+<tr>
+<td>TAEF</td>
+<td>Yes</td>
+<td>The path to the TAEF test that should be executed for this Task.</td>
+</tr>
+<tr>
+<td>UWP</td>
+<td>Yes</td>
+<td>the PackageFamilyName of the app you wish to launch. The PackageFamilyName is found in the package.appxmanifest for your app. It is also shown on the Factory Orchestrator app's "UWP Apps" page.</td>
+</tr>
+<tr>
+<td>External</td>
+<td>No</td>
+<td>This is optional, but can be used to provide details about the Task. </td>
+</tr>
+</tbody>
+</table>
+<h4 id="sample-task-element">Sample Task element</h4>
+<pre><code class="language-xml">&lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Exe with abort tasklist on fail&quot; Path=&quot;%DataDrive%\TestContent\testapp4.exe&quot; Arguments=&quot;&quot; Guid=&quot;6279616a-345d-4469-bba0-fd019c78b531&quot; AbortTaskListOnFailed=&quot;true&quot;/&gt;
+</code></pre>
+<h4 id="validate-factory-orchestrator-xml">Validate Factory Orchestrator XML</h4>
+<p>You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a technician PC.</p>
+<ol>
+<li>Install the Factory Orchestrator app on a technician PC and launch it. </li>
+<li>Click "Validate FactoryOrchestratorXML" in the bottom left of the app.</li>
+<li>Browse to the path of your FactoryOrchestratorXML file and click open. </li>
+<li>
+<p>The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the technician PC, it will only catch XML syntax errors not Factory Orchestrator Service errors such as duplicate GUIDs or invalid file paths. </p>
+<ul>
+<li>
+<p>If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."</p>
+</li>
+<li>
+<p>If the FactoryOrchestratorXML is invalid, you'll see a message that says "FactoryOrchestratorXML failed validation", with a description of why it failed validation.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="background-tasks_1">Background tasks</h3>
+<p>A Background Task is a type of Task which is not expected to return a pass/fail result. Instead, Background Tasks are started before any Tasks defined in the TaskList, and are not tracked by the Factory Orchestrator Service, though their output is logged to a file. Background Tasks are intended to be used for logging/monitoring tasks that need to be running before any Task in the TaskList executes.</p>
+<p>Background Tasks are defined as children of the <code>&lt;BackgroundTasks&gt;</code> element. That element can have any number of child <code>&lt;Task&gt;</code> elements which are run as Background Tasks.</p>
+<p>The <code>TerminateBackgroundTasksOnCompletion</code> attribute on the owning TaskList determines if the Background Tasks are forcibly terminated when the TaskList is done executing.</p>
+<p>Background Tasks are defined the exactly the same as a normal Task with the following exceptions:</p>
+<ul>
+<li>Any Executable, PowerShell, or Batch File Task can be made a Background Task.</li>
+<li>Background Tasks cannot have Timeout or MaxNumberOfRetries set</li>
+</ul>
+<h4 id="sample-backgroundtasks-element">Sample BackgroundTasks element</h4>
+<pre><code class="language-xml">&lt;BackgroundTasks&gt;
+    &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Background Monitor&quot; Path=&quot;%DataDrive%\TestContent\SomeBackgroundProcess.exe&quot; Arguments=&quot;&quot; Guid=&quot;34d3827c-6397-411f-85a6-7e92dca5f364&quot;/&gt;
+&lt;/BackgroundTasks&gt;
+</code></pre>
+<h2 id="sample-factory-orchestrator-xml-file">Sample Factory Orchestrator XML file</h2>
+<p>The following sample FactoryOrchestratorXML file shows two TaskLists containing various types of tests, as well as a BackgroundTask that is part of the first TaskList.</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;FactoryOrchestratorXML xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
+  &lt;TaskLists&gt;
+  &lt;!-- RunInParallel = all tasks can be executed simultaneously. AllowOtherTaskListsToRun = other tasklists can run in parallel with this one. TerminateBackgroundTasksOnCompletion = Any still running background tasks are forcefully terminated when all tasks complete --&gt;
+    &lt;TaskList Guid=&quot;15332a4b-ee08-4c97-a7ad-d69d4210c3a5&quot; Name=&quot;List1&quot; RunInParallel=&quot;false&quot; AllowOtherTaskListsToRun=&quot;true&quot; TerminateBackgroundTasksOnCompletion=&quot;true&quot;&gt;
+      &lt;Tasks&gt;
+        &lt;!-- When a UWPTask is launched from Factory Orchestrator, the Factory Orchestrator app will prompt the user for the result of the app after it terminates. --&gt;
+        &lt;!-- UWPTasks require Factory Orchestrator app is running! --&gt;
+        &lt;Task xsi:type=&quot;UWPTask&quot; Name=&quot;Launch app directly via FO (exit with ALT+F4)&quot; Path=&quot;Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe&quot; Arguments=&quot;&quot; Guid=&quot;6ec52ded-e455-44cb-b861-b8d78996db95&quot;/&gt;
+        &lt;Task xsi:type=&quot;TAEFTest&quot; Name=&quot;TAEF test&quot; Path=&quot;%DataDrive%\TestContent\taeftest1.dll&quot; Arguments=&quot;&quot; Guid=&quot;ff908b05-e491-4a6e-9305-793b3c2d7f97&quot;/&gt;
+        &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Exe with 5 retries&quot; Path=&quot;%DataDrive%\TestContent\testapp1.exe&quot; Arguments=&quot;&quot; Guid=&quot;d75f7c9c-8de9-4d0f-b6dc-d2a51d8818cb&quot; MaxNumberOfRetries=&quot;5&quot;/&gt;
+        &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Exe with 10 second timeout&quot; Path=&quot;%DataDrive%\TestContent\testapp2.exe&quot; Arguments=&quot;&quot; Guid=&quot;7ffd4516-b092-4f22-beec-f12c814f50dc&quot; Timeout=&quot;10&quot;/&gt;
+        &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Exe with arguments&quot; Path=&quot;%DataDrive%\TestContent\testapp3.exe&quot; Arguments=&quot;-arg1 abc -arg2 def&quot; Guid=&quot;186e4b74-280f-45ca-a73b-a0b342fa1cb8&quot; /&gt;
+        &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Exe with abort tasklist on fail&quot; Path=&quot;%DataDrive%\TestContent\testapp4.exe&quot; Arguments=&quot;&quot; Guid=&quot;6279616a-345d-4469-bba0-fd019c78b531&quot; AbortTaskListOnFailed=&quot;true&quot;/&gt;
+        &lt;Task xsi:type=&quot;BatchFileTask&quot; Name=&quot;Cmd/Batch file with arguments&quot; Path=&quot;%DataDrive%\TestContent\cmdfile.cmd&quot; Arguments=&quot;-arg1 abc&quot; Guid=&quot;cf334ad7-4480-4915-b84c-2a38c84b4e8c&quot;/&gt;
+        &lt;Task xsi:type=&quot;PowerShellTask&quot; Name=&quot;RunAppViaDevicePortal.ps1 (PowerShell Core, exit app with ALT+F4)&quot; Path=&quot;%DataDrive%\TestContent\RunAppViaDevicePortal.ps1&quot; Arguments=&quot;-AppId Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe!App&quot; Guid=&quot;1f596b55-7c9b-4e71-97b4-a0c93c098a86&quot;/&gt;
+        &lt;!-- When a ExternalTask is launched from Factory Orchestrator, the Factory Orchestrator app will prompt the user for the result of task --&gt;
+        &lt;Task xsi:type=&quot;ExternalTask&quot; Name=&quot;External Task (No executable code or app)&quot; Path=&quot;User interaction required&quot; Arguments=&quot;Plug in power cord&quot; Guid=&quot;f90ba40d-4982-46dc-b9a2-c1cd7900fef7&quot; AbortTaskListOnFailed=&quot;true&quot;/&gt;
+      &lt;/Tasks&gt;
+      &lt;!-- Background Tasks are started before any other task in the TaskList, they are intended for processes that you want running throughout the entire tasklist, ex: a monitor or logging program --&gt;
+      &lt;!-- BackgroundTasks can be ExecutableTask, BatchFileTask, or PowerShellTask --&gt;
+      &lt;BackgroundTasks&gt;
+        &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Background Monitor&quot; Path=&quot;%DataDrive%\TestContent\SomeBackgroundProcess.exe&quot; Arguments=&quot;&quot; Guid=&quot;34d3827c-6397-411f-85a6-7e92dca5f364&quot;/&gt;
+      &lt;/BackgroundTasks&gt;
+    &lt;/TaskList&gt;
+    &lt;!-- FactoryOrchestratorXML can contain multiple tasklists, so you can define your entire factory flow in one file, if desired. --&gt;
+    &lt;TaskList Guid=&quot;15332a4b-ee08-4c97-a7ad-d69d4210c3a6&quot; Name=&quot;List2&quot; RunInParallel=&quot;true&quot; AllowOtherTaskListsToRun=&quot;true&quot; TerminateBackgroundTasksOnCompletion=&quot;true&quot;&gt;
+      &lt;Tasks&gt;
+        &lt;Task xsi:type=&quot;ExecutableTask&quot; Name=&quot;Exe in another tasklist&quot; Path=&quot;%DataDrive%\TestContent\testapp5.exe&quot; Arguments=&quot;&quot; Guid=&quot;45945e43-d251-4c97-a9ad-63cd52b09801&quot;/&gt;
+      &lt;/Tasks&gt;
+    &lt;/TaskList&gt;
+  &lt;/TaskLists&gt;
+&lt;/FactoryOrchestratorXML&gt;
+</code></pre>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../get-started-with-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Get Started
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../use-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Run using the application
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,506 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Factory Orchestrator Documentation">
+      
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/using-the-factory-orchestrator-api/">
+      
+      
+        <meta name="author" content="themar-msft">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+    
+    
+      
+        <title>Run using the client api - Factory Orchestrator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#using-the-factory-orchestrator-client-api" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Factory Orchestrator
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Run using the client api
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Factory Orchestrator
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
+      Get Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../automate-factory-orchestrator/" class="md-nav__link">
+      Tasks & TaskLists Authoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../use-factory-orchestrator/" class="md-nav__link">
+      Run using the application
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Run using the client api
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Run using the client api
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#using-factoryorchestratoruwpclientdll-in-a-uwp" class="md-nav__link">
+    Using FactoryOrchestratorUWPClient.dll in a UWP
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample" class="md-nav__link">
+    Factory Orchestrator client sample
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator client sample">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample-usage" class="md-nav__link">
+    Factory Orchestrator client sample usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../factory-orchestrator-utilities/" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#using-factoryorchestratoruwpclientdll-in-a-uwp" class="md-nav__link">
+    Using FactoryOrchestratorUWPClient.dll in a UWP
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample" class="md-nav__link">
+    Factory Orchestrator client sample
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator client sample">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample-usage" class="md-nav__link">
+    Factory Orchestrator client sample usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/using-the-factory-orchestrator-api.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="using-the-factory-orchestrator-client-api">Using the Factory Orchestrator client API</h1>
+<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET Standard code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.</p>
+<p>All FactoryOrchestratorClient API calls other than <code>Connect()</code> are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
+<p>The FactoryOrchestator service uses <a href="https://semver.org/">semver</a> versioning. If the target device is running a different Factory Orchestrator build than one used to create the client program, you need to ensure that the program you build will run as expected by calling Client.GetServiceVersionString() and comparaing against the client API version. If there is a major version mismatch your program may not work as expected and either the client program or test device should be updated so the major versions match. You can check the version of the client API by:</p>
+<ul>
+<li>
+<p>Manually inspecting the properties of the FactoryOrchestratorClientLibrary.dll file used by your program</p>
+<p><img alt="version number in the properties of FactoryOrchestratorClientLibrary.dll" src="../images/fo-version-number.png" /></p>
+</li>
+<li>
+<p>Programatically by the following code snippet:</p>
+</li>
+</ul>
+<pre><code class="language-C#">using System.Reflection;
+
+...
+
+var client = new FactoryOrchestratorClient(ipAddress);
+client.GetClientVersionString();
+</code></pre>
+<p>If you are writing a UWP app that uses the Factory Orchestrator Client API, you should use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. The UWP Client is available in FactoryOrchestratorUWPClientLibrary.dll.</p>
+<p>The complete Factory Orchestrator Client API reference is available at: <code>FactoryOrchestrator\Documentation\api\index.html</code>.</p>
+<h2 id="using-factoryorchestratoruwpclientdll-in-a-uwp">Using FactoryOrchestratorUWPClient.dll in a UWP</h2>
+<p>If you're using FactoryOrchestratorUWPClient.dll in a UWP, you have to configure Visual Studio so that it doesn't build with .NET Native.</p>
+<ol>
+<li>Load your app project in visual studio.</li>
+<li>
+<p>Right click the app project and select <strong>Properties</strong>:</p>
+<p><img alt="Right-clicking on app in Visual Studio" src="../images/build-fo-uwp-1.png" />
+<img alt="Selecting properties" src="../images/build-fo-uwp-2.png" /></p>
+</li>
+<li>
+<p>On the <strong>Build</strong> tab, select <strong>All Configurations</strong> and <strong>All Platforms</strong>:</p>
+<p><img alt="Choosing all configurations and All platforms" src="../images/build-fo-uwp-3.png" /></p>
+</li>
+<li>
+<p>Uncheck <strong>Compile with .NET Native tool chain</strong></p>
+<p><img alt="Unchecking compile with .net toolchain" src="../images/build-fo-uwp-4.png" /></p>
+</li>
+<li>
+<p>Rebuild and re-publish your app. The app dependencies will be different for your newly built app, so you'll need to install different framework packages with your app;</p>
+<p><img alt="Rebuild and republishing the app" src="../images/build-fo-uwp-5.png" /></p>
+</li>
+</ol>
+<p>After building without the .NET native tool chain, your app should run successfully.</p>
+<h2 id="factory-orchestrator-client-sample">Factory Orchestrator client sample</h2>
+<p>A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Faactory Orchestrator GitHub repo at: <code>&lt;Link to sample app&gt;</code>. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019. (Visual Studio 2019 is required for working with NET Core 2.2 and newer.)</p>
+<p>The sample shows you how to connect to a remote test device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. </p>
+<h3 id="factory-orchestrator-client-sample-usage">Factory Orchestrator client sample usage</h3>
+<p>Once the sample is built, create a folder on your technican PC with test content and a FactoryOrchestratorXML file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:</p>
+<pre><code class="language-cmd">dotnet ClientSample.dll &lt;IP Address of DUT&gt; &lt;Folder on technician PC with test content AND FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
+</code></pre>
+<p>The sample will then connect to the test device, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. You will be able to monitor the progress of the sample in the console window, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on the Technician PC (if it is connected to the test device).</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../use-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Run using the application
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../factory-orchestrator-utilities/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Utilities
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
