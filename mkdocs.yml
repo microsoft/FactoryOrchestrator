@@ -1,0 +1,16 @@
+site_name: Factory Orchestrator
+repo_url: https://github.com/microsoft/FactoryOrchestrator
+site_description: "Factory Orchestrator Documentation"
+site_url: 'https://microsoft.github.io/FactoryOrchestrator/'
+plugins:
+    - search
+
+theme: material
+
+nav:
+  - Overview: 'overview.md'
+  - Setup: 'get-started-with-factory-orchestrator.md'
+  - Tasks & TaskLists Authoring: 'automate-factory-orchestrator.md'
+  - Run using the application: 'use-factory-orchestrator.md'
+  - Run using the client api: 'using-the-factory-orchestrator-api.md'
+  - Utilities: 'factory-orchestrator-utilities.md'
