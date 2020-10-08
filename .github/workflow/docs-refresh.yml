@@ -3,6 +3,8 @@ on:
   push:
     branches: 
       - master
+      - alhajy/try-github-pages
+
  
 jobs:
   deploy:
