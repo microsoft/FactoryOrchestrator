@@ -1,8 +1,3 @@
----
-ms.author: themar
-author: themar-msft
-ms.date: 09/30/2019
----
 
 # Using the Factory Orchestrator client API
 
@@ -59,9 +54,10 @@ After building without the .NET native tool chain, your app should run successfu
 
 A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Faactory Orchestrator GitHub repo at: `<Link to sample app>`. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019. (Visual Studio 2019 is required for working with NET Core 2.2 and newer.)
 
-The sample shows you how to connect to a remote test device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. 
+The sample shows you how to connect to a remote test device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files.
 
 ### Factory Orchestrator client sample usage
+
 Once the sample is built, create a folder on your technican PC with test content and a FactoryOrchestratorXML file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:
 
 ```cmd

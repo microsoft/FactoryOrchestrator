@@ -1,18 +1,9 @@
----
-ms.author: themar
-author: themar-msft
-ms.date: 09/30/2019
----
 
-# Author and manage Factory Orchestrator TaskLists
+# Tasks and TasksLists
 
-Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
+Factory Orchestrator uses Tasks to capture a single action. Tasks can be executables, TAEF tests, UWP apps, or external tasks. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.
 
-The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](#managing-tasklists) section.
-
-You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
-
-This topic describes the tasks that are available in Factory Orchestrator, and how to create and manage TaskLists.
+## Factory Orchestrator tasks
 
 ## Task types
 
@@ -69,6 +60,18 @@ BackgroundTasks are defined the exactly the same as a normal Task with the follo
 
 When editing a task from the Factory Orchestrator app, you can choose the option of making the task a background task by choosing the "Add as background task?" option.
 
+Once you've run a task, the Factory Orchestrator service creates a **TaskRun** that is the output and results of the task, as well as other details about the task such as runtime.
+
+# Author and manage Factory Orchestrator TaskLists
+
+You can define a collection of tasks in a **TaskList**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.
+
+Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
+
+The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](#managing-tasklists) section.
+
+You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
+
 ## Managing TaskLists
 
 Use the Factory Orchestrator app to manage a TaskList. TaskLists can be made up from a combination of the different task types. You can choose whether the tasks in the TaskList will be run one-at-a-time (series), or in parallel.
@@ -81,7 +84,7 @@ To create, modify, and delete TaskLists, click on 'Manage TaskLists'.
 
 ### Create and manage TaskLists
 
-The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists. 
+The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists.
 
 #### Create or import TaskLists
 
@@ -104,17 +107,16 @@ The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create,
     To import a TaskList:
 
     1. On the **Manage TaskLists** page, click on **Import FactoryOrchestratorXML file**
-
-    ![Import an existing TaskList](./images/import-sxml.png)
+      ![Import an existing TaskList](./images/import-sxml.png)
 
     2. Enter the full path to the FactoryOrchestratorXML you want to import and click ✓
 
-    ![TaskLists XML file to load from dialog box](./images/load-tasklist-from.PNG)
+      ![TaskLists XML file to load from dialog box](./images/load-tasklist-from.png)
 
     When you import a TaskList:
-    
-    - All the TaskLists defined in the file are imported
-    - If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results
+
+  - All the TaskLists defined in the file are imported
+  - If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results
 
 When you create a new TaskList, the Factory Orchestrator app generates a GUID that it assigns as the TaskList's name.
 
@@ -130,7 +132,7 @@ When you click the pencil icon, you'll see the following screen:
 
 This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks, or edit Tasks.
 
-- Use the "New `<TaskType>` Task" buttons to create a new Task in the TaskList 
+- Use the "New `<TaskType>` Task" buttons to create a new Task in the TaskList
 
 - Use the rename icon (![Rename icon](./images/tasklist-rename.png)) to rename TaskLists
 
@@ -138,11 +140,17 @@ This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks
 
 - Use the pencil (edit) button to edit a task. When you click the edit or "New `<TaskType>` Task" buttons, you'll see something similar to:
 
-    ![Task edit screen](./images/edit-task.PNG)
+    ![Task edit screen](./images/edit-task.png)
 
-    See [FactoryOrchestratorXML](automate-factory-orchestrator.md) for information about the different options on this screen.
+    See [FactoryOrchestratorXML](tasks-and-tasklists.md) for information about the different options on this screen.
 
 - Use the delete buttons to delete an existing Task.
+
+#### Configure Factory Orchestrator to automatically load TaskLists when it starts
+
+Factory Orchestrator looks for certain FactoryOrchestratorXML files when it starts. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator, run tasks the first time a device boots, or run tasks every time a device boots.
+
+See [Special FactoryOrchestratorXML files](tasks-and-tasklists.md#special-factoryorchestratorxml-files) for more information.
 
 #### Export TaskLists
 
@@ -155,11 +163,11 @@ To export TaskLists:
 
 Here is an image of the **Manage TaskLists** page with one TaskList loaded:
 
-![Manage TaskLists page with one TaskList loaded](./images/save-tasklists.PNG)
+![Manage TaskLists page with one TaskList loaded](./images/save-tasklists.png)
 
 From this page, you can:
 
-- Export a specific TaskList by clicking on the save icon (./images/save-icon.PNG) next to the Task
+- Export a specific TaskList by clicking on the save icon (./images/save-icon.png) next to the Task
 - Export all TaskLists by clicking on the **Save All TaskLists to File** button.
 
 After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.
@@ -180,86 +188,85 @@ When Factory Orchestrator is running these tasks, you'll see a warning in the Fa
 
 **Notes**:
 
-- The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any `<Tasks>` defined in the relevant *BootTasks.xml files are done executing. 
-- **DO NOT use External or UWP Tasks in these files**, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client. 
+- The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any `<Tasks>` defined in the relevant *BootTasks.xml files are done executing.
+- **DO NOT use External or UWP Tasks in these files**, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client.
 - While you can author normal `<Tasks>` in the *BootTasks.xml files, `<BackgroundTasks>` are very useful for the FirstBootTasks and EveryBootTasks XML files, as you can define `<BackgroundTasks>` which start on boot, aren't expected to ever exit, and will run in the background forever (provided `TerminateBackgroundTasksOnCompletion="false"`).
-- You can inspect the [FactoryOrchestrator log files](factory-orchestrator.md#factory-orchestrator-logs) for details about the execution of these special FactoryOrchestratorXML files.
+- You can inspect the [FactoryOrchestrator log files](index.md#factory-orchestrator-logs) for details about the execution of these special FactoryOrchestratorXML files.
 
 ## Factory Orchestrator XML Schema
 
 When hand-authoring FactoryOrchestratorXML files, you'll need to follow the FactoryOrchestratorXML schema. At the end of this topic, we've also provided a [sample FactoryOrchestratorXML file](#sample-factory-orchestrator-xml-file):
 
-```XML
-<?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="FactoryOrchestratorXML"
-    elementFormDefault="qualified"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
-  <xs:element name="TaskRunGuids">
-    <xs:complexType>
+  ```XML
+  <?xml version="1.0" encoding="utf-8"?>
+  <xs:schema id="FactoryOrchestratorXML"
+      elementFormDefault="qualified"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  >
+    <xs:element name="TaskRunGuids">
+      <xs:complexType>
+        <xs:sequence>
+            <xs:element name="Guid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="TaskType">
+      <xs:all>
+        <xs:element name="LatestTaskRunTimeStarted" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="LatestTaskRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="LatestTaskRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="LatestTaskRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="TimesRetried" type="xs:int" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="TaskRunGuids" minOccurs="0" maxOccurs="1"/>
+      </xs:all>
+      <xs:attribute type="xs:string" name="Name" use="optional"/>
+      <xs:attribute type="xs:string" name="Path" use="optional"/>
+      <xs:attribute type="xs:string" name="Guid" use="optional"/>
+      <xs:attribute type="xs:string" name="Arguments" use="optional"/>
+      <xs:attribute type="xs:int" name="MaxNumberOfRetries" use="optional"/>
+      <xs:attribute type="xs:int" name="Timeout" use="optional"/>
+      <xs:attribute type="xs:boolean" name="AbortTaskListOnFailed" use="optional"/>
+      <xs:attribute type="xs:boolean" name="AutoPassedIfLaunched" use="optional"/>
+      <xs:attribute type="xs:boolean" name="TerminateOnCompleted" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="TasksType">
       <xs:sequence>
-          <xs:element name="Guid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        <xs:element name="Task" type="TaskType" minOccurs="1" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
-  </xs:element>
-  
-  <xs:complexType name="TaskType">
-    <xs:all>
-      <xs:element name="LatestTaskRunTimeStarted" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="LatestTaskRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="LatestTaskRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="LatestTaskRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="TimesRetried" type="xs:int" minOccurs="0" maxOccurs="1"/>
-      <xs:element ref="TaskRunGuids" minOccurs="0" maxOccurs="1"/>
-    </xs:all>
-    <xs:attribute type="xs:string" name="Name" use="optional"/>
-    <xs:attribute type="xs:string" name="Path" use="optional"/>
-    <xs:attribute type="xs:string" name="Guid" use="optional"/>
-    <xs:attribute type="xs:string" name="Arguments" use="optional"/>
-    <xs:attribute type="xs:int" name="MaxNumberOfRetries" use="optional"/>
-    <xs:attribute type="xs:int" name="Timeout" use="optional"/>
-    <xs:attribute type="xs:boolean" name="AbortTaskListOnFailed" use="optional"/>
-    <xs:attribute type="xs:boolean" name="AutoPassedIfLaunched" use="optional"/>
-    <xs:attribute type="xs:boolean" name="TerminateOnCompleted" use="optional"/>
-  </xs:complexType>
 
-  <xs:complexType name="TasksType">
-    <xs:sequence>
-      <xs:element name="Task" type="TaskType" minOccurs="1" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-  
-    <xs:element name="TaskList">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="Tasks" type="TasksType" minOccurs="0" maxOccurs="1"/>
-          <xs:element name="BackgroundTasks" type="TasksType" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="Name" type="xs:string" use="required"/>
-        <xs:attribute name="Guid" type="xs:string" use="optional"/>
-        <xs:attribute name="RunInParallel" type="xs:boolean" use="required"/>
-        <xs:attribute name="AllowOtherTaskListsToRun" type="xs:boolean" use="required"/>
-        <xs:attribute name="TerminateBackgroundTasksOnCompletion" type="xs:boolean" use="optional"/>
-      </xs:complexType>
-    </xs:element>
-    <xs:element name="TaskLists">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element ref="TaskList" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-    <xs:element name="FactoryOrchestratorXML">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element ref="TaskLists" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  
-</xs:schema>
-```
+      <xs:element name="TaskList">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Tasks" type="TasksType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="BackgroundTasks" type="TasksType" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+          <xs:attribute name="Name" type="xs:string" use="required"/>
+          <xs:attribute name="Guid" type="xs:string" use="optional"/>
+          <xs:attribute name="RunInParallel" type="xs:boolean" use="required"/>
+          <xs:attribute name="AllowOtherTaskListsToRun" type="xs:boolean" use="required"/>
+          <xs:attribute name="TerminateBackgroundTasksOnCompletion" type="xs:boolean" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="TaskLists">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="TaskList" minOccurs="1" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FactoryOrchestratorXML">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="TaskLists" minOccurs="1" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>  
+  </xs:schema>
+  ```
 
 ### TaskList attributes
 
@@ -286,14 +293,14 @@ A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executab
 <!--Delete this table-->
 | Attribute Name         | Type         | Required?    | Details                                                                                                                                                                                                                   |
 |------------------------|--------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| xsi:type               | See details  | Y            | The type of the Task. Allowed values are: ExecutableTask, PowerShellTask, BatchFileTask, TAEFTest, UWPTask, and ExternalTask.                                                                                             |            
-| Name                   | String       | N            | The "friendly name" of the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded, based on the Task type and other attributes.                |            
-| Guid                   | String       | N            | The GUID used to identify the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded.                                                          |            
-| Path                   | String       | Depends      | See the [Path table below](#path-definitions) to see which Tasks require you to include a Path element.  |                                                                                                                                     |            
+| xsi:type               | See details  | Y            | The type of the Task. Allowed values are: ExecutableTask, PowerShellTask, BatchFileTask, TAEFTest, UWPTask, and ExternalTask.                                                                                             |
+| Name                   | String       | N            | The "friendly name" of the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded, based on the Task type and other attributes.                |
+| Guid                   | String       | N            | The GUID used to identify the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded.                                                          |
+| Path                   | String       | Depends      | See the [Path table below](#path-definitions) to see which Tasks require you to include a Path element.  |                                                                                                                                     |
 | Arguments              | String       | N            | For Executable, PowerShell, BatchFile, and TAEF Tasks: this is the list of arguments to provide to the executable you specified in the "Path".<br><br>   For UWP Tasks: this can be used to provide details about the Task to the client. It is NOT passed to the UWP app.<br><br>For External Tasks: this can be used to provide details about the Task to the client.       |
 | Timeout                | Int          | N            | In seconds, the amount of time to wait for the Task to be completed. Defaults to "-1" (infinite).<br><br> If "-1", the Task will never timeout.<br><br>If the timeout is reached, the Task status is set to "Timeout", a failed state. The Task's executable is also forcibly terminated (if it has one).                                                                                                                        |
 | MaxNumberOfRetries     | Int          | N            | The number of times the Task should automatically be re-run if it completes in a failed state (Aborted/Failed/Timeout). Defaults to "0" (do not retry).<br><br>For example, if this is set to "2", the Task could be run up to 3 times automatically.                                                                         |
-| AbortTaskListOnFailed  | Bool         | N            | If "true", if the Task is run during a TaskList and the Task fails (Aborted/Failed/Timeout), the TaskList is aborted in its current state. Any other pending or running Tasks will be aborted.<br><br>This action takes place after any re-runs specified by MaxNumberOfRetries.<br><br>While allowed, it is not recommended to use this for "RunInParallel" TaskLists, as the execution order of such a TaskList is not guaranteed, and Tasks may be aborted mid-execution.                                    |            
+| AbortTaskListOnFailed  | Bool         | N            | If "true", if the Task is run during a TaskList and the Task fails (Aborted/Failed/Timeout), the TaskList is aborted in its current state. Any other pending or running Tasks will be aborted.<br><br>This action takes place after any re-runs specified by MaxNumberOfRetries.<br><br>While allowed, it is not recommended to use this for "RunInParallel" TaskLists, as the execution order of such a TaskList is not guaranteed, and Tasks may be aborted mid-execution.                                    |
 | TerminateOnCompleted   | Bool         | N            | By default, an app is terminated when the UWPTask completes. Set to false to not terminate after a UWPTask completes.  TerminateOnCompleted is ignored if AutoPassedIfLaunched=`true` |
 | AutoPassedIfLaunched   | Bool         | N            | By default, a UWPTask waits for its TaskRun to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched. |
 
@@ -318,10 +325,10 @@ A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executab
 
 You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a technician PC.
 
-1. Install the Factory Orchestrator app on a technician PC and launch it. 
+1. Install the Factory Orchestrator app on a technician PC and launch it.
 2. Click "Validate FactoryOrchestratorXML" in the bottom left of the app.
-3. Browse to the path of your FactoryOrchestratorXML file and click open. 
-4. The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the technician PC, it will only catch XML syntax errors not Factory Orchestrator Service errors such as duplicate GUIDs or invalid file paths. 
+3. Browse to the path of your FactoryOrchestratorXML file and click open.
+4. The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the technician PC, it will only catch XML syntax errors not Factory Orchestrator Service errors such as duplicate GUIDs or invalid file paths.
 
     - If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."
 
