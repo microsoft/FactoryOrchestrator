@@ -9,17 +9,15 @@
         <meta name="description" content="Factory Orchestrator Documentation">
       
       
-        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/automate-factory-orchestrator/">
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/tasks-and-tasklists/">
       
-      
-        <meta name="author" content="themar-msft">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
-        <title>Tasks & TaskLists Authoring - Factory Orchestrator</title>
+        <title>Tasks & TaskLists - Factory Orchestrator</title>
       
     
     
@@ -62,7 +60,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#author-and-manage-factory-orchestrator-tasklists" class="md-skip">
+        <a href="#tasks-and-taskslists" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +88,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Tasks & TaskLists Authoring
+              Tasks & TaskLists
             
           </span>
         </div>
@@ -188,6 +186,18 @@
 
 
   <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
       Get Started
     </a>
@@ -209,12 +219,12 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Tasks & TaskLists Authoring
+        Tasks & TaskLists
         <span class="md-nav__icon md-icon"></span>
       </label>
     
     <a href="./" class="md-nav__link md-nav__link--active">
-      Tasks & TaskLists Authoring
+      Tasks & TaskLists
     </a>
     
       
@@ -229,6 +239,13 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-tasks" class="md-nav__link">
+    Factory Orchestrator tasks
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#task-types" class="md-nav__link">
@@ -250,154 +267,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#managing-tasklists" class="md-nav__link">
-    Managing TaskLists
-  </a>
-  
-    <nav class="md-nav" aria-label="Managing TaskLists">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#create-and-manage-tasklists" class="md-nav__link">
-    Create and manage TaskLists
-  </a>
-  
-    <nav class="md-nav" aria-label="Create and manage TaskLists">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#create-or-import-tasklists" class="md-nav__link">
-    Create or import TaskLists
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#create-and-modify-tasklists" class="md-nav__link">
-    Create and modify TaskLists
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#export-tasklists" class="md-nav__link">
-    Export TaskLists
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-factoryorchestratorxml-files" class="md-nav__link">
-    Special FactoryOrchestratorXML files
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#factory-orchestrator-xml-schema" class="md-nav__link">
-    Factory Orchestrator XML Schema
-  </a>
-  
-    <nav class="md-nav" aria-label="Factory Orchestrator XML Schema">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tasklist-attributes" class="md-nav__link">
-    TaskList attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="TaskList attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sample-tasklist-element" class="md-nav__link">
-    Sample TaskList element
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#task-attributes" class="md-nav__link">
-    Task attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="Task attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#path-definitions" class="md-nav__link">
-    Path definitions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sample-task-element" class="md-nav__link">
-    Sample Task element
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#validate-factory-orchestrator-xml" class="md-nav__link">
-    Validate Factory Orchestrator XML
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#background-tasks_1" class="md-nav__link">
-    Background tasks
-  </a>
-  
-    <nav class="md-nav" aria-label="Background tasks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sample-backgroundtasks-element" class="md-nav__link">
-    Sample BackgroundTasks element
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sample-factory-orchestrator-xml-file" class="md-nav__link">
-    Sample Factory Orchestrator XML file
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -411,7 +280,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../use-factory-orchestrator/" class="md-nav__link">
+    <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
       Run using the application
     </a>
   </li>
@@ -423,7 +292,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../using-the-factory-orchestrator-api/" class="md-nav__link">
+    <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
       Run using the client api
     </a>
   </li>
@@ -436,7 +305,7 @@
 
   <li class="md-nav__item">
     <a href="../factory-orchestrator-utilities/" class="md-nav__link">
-      Utilities
+      Built-In Utilities
     </a>
   </li>
 
@@ -465,6 +334,13 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#factory-orchestrator-tasks" class="md-nav__link">
+    Factory Orchestrator tasks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#task-types" class="md-nav__link">
     Task types
   </a>
@@ -484,154 +360,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#managing-tasklists" class="md-nav__link">
-    Managing TaskLists
-  </a>
-  
-    <nav class="md-nav" aria-label="Managing TaskLists">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#create-and-manage-tasklists" class="md-nav__link">
-    Create and manage TaskLists
-  </a>
-  
-    <nav class="md-nav" aria-label="Create and manage TaskLists">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#create-or-import-tasklists" class="md-nav__link">
-    Create or import TaskLists
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#create-and-modify-tasklists" class="md-nav__link">
-    Create and modify TaskLists
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#export-tasklists" class="md-nav__link">
-    Export TaskLists
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#special-factoryorchestratorxml-files" class="md-nav__link">
-    Special FactoryOrchestratorXML files
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#factory-orchestrator-xml-schema" class="md-nav__link">
-    Factory Orchestrator XML Schema
-  </a>
-  
-    <nav class="md-nav" aria-label="Factory Orchestrator XML Schema">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tasklist-attributes" class="md-nav__link">
-    TaskList attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="TaskList attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sample-tasklist-element" class="md-nav__link">
-    Sample TaskList element
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#task-attributes" class="md-nav__link">
-    Task attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="Task attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#path-definitions" class="md-nav__link">
-    Path definitions
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sample-task-element" class="md-nav__link">
-    Sample Task element
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#validate-factory-orchestrator-xml" class="md-nav__link">
-    Validate Factory Orchestrator XML
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#background-tasks_1" class="md-nav__link">
-    Background tasks
-  </a>
-  
-    <nav class="md-nav" aria-label="Background tasks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sample-backgroundtasks-element" class="md-nav__link">
-    Sample BackgroundTasks element
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sample-factory-orchestrator-xml-file" class="md-nav__link">
-    Sample Factory Orchestrator XML file
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -644,16 +372,14 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/automate-factory-orchestrator.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/tasks-and-tasklists.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="author-and-manage-factory-orchestrator-tasklists">Author and manage Factory Orchestrator TaskLists</h1>
-<p>Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.</p>
-<p>The XML can either be hand-authored; or authored, imported, and/or exported using the <a href="#managing-tasklists">Factory Orchestrator app's "Manage TaskLists"</a> section.</p>
-<p>You can get started with Factory Orchestrator by using the <strong>Manage TaskLists</strong> screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See <a href="#managing-tasklists">Managing TaskLists</a> below.</p>
-<p>This topic describes the tasks that are available in Factory Orchestrator, and how to create and manage TaskLists.</p>
+                <h1 id="tasks-and-taskslists">Tasks and TasksLists</h1>
+<p>Factory Orchestrator uses Tasks to capture a single action. Tasks can be executables, TAEF tests, UWP apps, or external tasks. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.</p>
+<h2 id="factory-orchestrator-tasks">Factory Orchestrator tasks</h2>
 <h2 id="task-types">Task types</h2>
 <p>Factory Orchestrator TaskLists allow adding different types of tasks:</p>
 <ul>
@@ -698,13 +424,19 @@
 <li>BackgroundTasks cannot have Timeout or MaxNumberOfRetries set</li>
 </ul>
 <p>When editing a task from the Factory Orchestrator app, you can choose the option of making the task a background task by choosing the "Add as background task?" option.</p>
+<p>Once you've run a task, the Factory Orchestrator service creates a <strong>TaskRun</strong> that is the output and results of the task, as well as other details about the task such as runtime.</p>
+<h1 id="author-and-manage-factory-orchestrator-tasklists">Author and manage Factory Orchestrator TaskLists</h1>
+<p>You can define a collection of tasks in a <strong>TaskList</strong>. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.</p>
+<p>Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.</p>
+<p>The XML can either be hand-authored; or authored, imported, and/or exported using the <a href="#managing-tasklists">Factory Orchestrator app's "Manage TaskLists"</a> section.</p>
+<p>You can get started with Factory Orchestrator by using the <strong>Manage TaskLists</strong> screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See <a href="#managing-tasklists">Managing TaskLists</a> below.</p>
 <h2 id="managing-tasklists">Managing TaskLists</h2>
 <p>Use the Factory Orchestrator app to manage a TaskList. TaskLists can be made up from a combination of the different task types. You can choose whether the tasks in the TaskList will be run one-at-a-time (series), or in parallel.</p>
 <p>When you run Factory Orchestrator, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app won't show any TaskLists. Once you create a TaskList, it will show on this screen.</p>
 <p>Factory Orchestrator supports using environment variables (ex: %ProgramData%) in all commands.</p>
 <p>To create, modify, and delete TaskLists, click on 'Manage TaskLists'.</p>
 <h3 id="create-and-manage-tasklists">Create and manage TaskLists</h3>
-<p>The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists. </p>
+<p>The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists.</p>
 <h4 id="create-or-import-tasklists">Create or import TaskLists</h4>
 <ul>
 <li>
@@ -722,19 +454,21 @@
 <p>This enables you to generate and export a TaskList on one device, and import it into your device. Once loaded, imported TaskList XML files can be modified like any other Task List.</p>
 <p>To import a TaskList:</p>
 <ol>
-<li>On the <strong>Manage TaskLists</strong> page, click on <strong>Import FactoryOrchestratorXML file</strong></li>
-</ol>
-<p><img alt="Import an existing TaskList" src="./images/import-sxml.png" /></p>
-<ol>
-<li>Enter the full path to the FactoryOrchestratorXML you want to import and click ✓</li>
-</ol>
-<p><img alt="TaskLists XML file to load from dialog box" src="../images/load-tasklist-from.PNG" /></p>
-<p>When you import a TaskList:</p>
-<ul>
-<li>All the TaskLists defined in the file are imported</li>
-<li>If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results</li>
-</ul>
+<li>
+<p>On the <strong>Manage TaskLists</strong> page, click on <strong>Import FactoryOrchestratorXML file</strong>
+  <img alt="Import an existing TaskList" src="../images/import-sxml.png" /></p>
 </li>
+<li>
+<p>Enter the full path to the FactoryOrchestratorXML you want to import and click ✓</p>
+</li>
+</ol>
+<p><img alt="TaskLists XML file to load from dialog box" src="../images/load-tasklist-from.png" /></p>
+<p>When you import a TaskList:</p>
+</li>
+<li>
+<p>All the TaskLists defined in the file are imported</p>
+</li>
+<li>If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results</li>
 </ul>
 <p>When you create a new TaskList, the Factory Orchestrator app generates a GUID that it assigns as the TaskList's name.</p>
 <h4 id="create-and-modify-tasklists">Create and modify TaskLists</h4>
@@ -745,23 +479,26 @@
 <p>This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks, or edit Tasks.</p>
 <ul>
 <li>
-<p>Use the "New <code>&lt;TaskType&gt;</code> Task" buttons to create a new Task in the TaskList </p>
+<p>Use the "New <code>&lt;TaskType&gt;</code> Task" buttons to create a new Task in the TaskList</p>
 </li>
 <li>
-<p>Use the rename icon (<img alt="Rename icon" src="./images/tasklist-rename.png" />) to rename TaskLists</p>
+<p>Use the rename icon (<img alt="Rename icon" src="../images/tasklist-rename.png" />) to rename TaskLists</p>
 </li>
 <li>
 <p>Click and drag on the bars to the left of a Task to reorder the Tasks.</p>
 </li>
 <li>
 <p>Use the pencil (edit) button to edit a task. When you click the edit or "New <code>&lt;TaskType&gt;</code> Task" buttons, you'll see something similar to:</p>
-<p><img alt="Task edit screen" src="../images/edit-task.PNG" /></p>
+<p><img alt="Task edit screen" src="../images/edit-task.png" /></p>
 <p>See <a href="./">FactoryOrchestratorXML</a> for information about the different options on this screen.</p>
 </li>
 <li>
 <p>Use the delete buttons to delete an existing Task.</p>
 </li>
 </ul>
+<h4 id="configure-factory-orchestrator-to-automatically-load-tasklists-when-it-starts">Configure Factory Orchestrator to automatically load TaskLists when it starts</h4>
+<p>Factory Orchestrator looks for certain FactoryOrchestratorXML files when it starts. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator, run tasks the first time a device boots, or run tasks every time a device boots.</p>
+<p>See <a href="./#special-factoryorchestratorxml-files">Special FactoryOrchestratorXML files</a> for more information.</p>
 <h4 id="export-tasklists">Export TaskLists</h4>
 <p>If you create one or more TaskLists, you can export and save them. This allows you to add them onto another device. From the 'Manage TaskLists" screen:</p>
 <ul>
@@ -770,10 +507,10 @@
 </ul>
 <p>To export TaskLists:</p>
 <p>Here is an image of the <strong>Manage TaskLists</strong> page with one TaskList loaded:</p>
-<p><img alt="Manage TaskLists page with one TaskList loaded" src="../images/save-tasklists.PNG" /></p>
+<p><img alt="Manage TaskLists page with one TaskList loaded" src="../images/save-tasklists.png" /></p>
 <p>From this page, you can:</p>
 <ul>
-<li>Export a specific TaskList by clicking on the save icon (./images/save-icon.PNG) next to the Task</li>
+<li>Export a specific TaskList by clicking on the save icon (./images/save-icon.png) next to the Task</li>
 <li>Export all TaskLists by clicking on the <strong>Save All TaskLists to File</strong> button.</li>
 </ul>
 <p>After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.</p>
@@ -805,83 +542,85 @@
 <p><img alt="Service is executing Boot tasks, many functions are disabled until finished or aborted" src="../images/fo-background-tasks-executing.png" /></p>
 <p><strong>Notes</strong>:</p>
 <ul>
-<li>The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any <code>&lt;Tasks&gt;</code> defined in the relevant *BootTasks.xml files are done executing. </li>
-<li><strong>DO NOT use External or UWP Tasks in these files</strong>, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client. </li>
+<li>The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any <code>&lt;Tasks&gt;</code> defined in the relevant *BootTasks.xml files are done executing.</li>
+<li><strong>DO NOT use External or UWP Tasks in these files</strong>, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client.</li>
 <li>While you can author normal <code>&lt;Tasks&gt;</code> in the *BootTasks.xml files, <code>&lt;BackgroundTasks&gt;</code> are very useful for the FirstBootTasks and EveryBootTasks XML files, as you can define <code>&lt;BackgroundTasks&gt;</code> which start on boot, aren't expected to ever exit, and will run in the background forever (provided <code>TerminateBackgroundTasksOnCompletion="false"</code>).</li>
-<li>You can inspect the <a href="factory-orchestrator.md#factory-orchestrator-logs">FactoryOrchestrator log files</a> for details about the execution of these special FactoryOrchestratorXML files.</li>
+<li>You can inspect the <a href="..#factory-orchestrator-logs">FactoryOrchestrator log files</a> for details about the execution of these special FactoryOrchestratorXML files.</li>
 </ul>
 <h2 id="factory-orchestrator-xml-schema">Factory Orchestrator XML Schema</h2>
 <p>When hand-authoring FactoryOrchestratorXML files, you'll need to follow the FactoryOrchestratorXML schema. At the end of this topic, we've also provided a <a href="#sample-factory-orchestrator-xml-file">sample FactoryOrchestratorXML file</a>:</p>
-<pre><code class="language-XML">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-&lt;xs:schema id=&quot;FactoryOrchestratorXML&quot;
-    elementFormDefault=&quot;qualified&quot;
-    xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-&gt;
-  &lt;xs:element name=&quot;TaskRunGuids&quot;&gt;
+<p>```XML
+  <?xml version="1.0" encoding="utf-8"?></p>
+<p>&lt;xs:schema id="FactoryOrchestratorXML"
+      elementFormDefault="qualified"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</p>
+<blockquote>
+<pre><code>&lt;xs:element name="TaskRunGuids"&gt;
+  &lt;xs:complexType&gt;
+    &lt;xs:sequence&gt;
+        &lt;xs:element name="Guid" type="xs:string" minOccurs="1" maxOccurs="unbounded"/&gt;
+    &lt;/xs:sequence&gt;
+  &lt;/xs:complexType&gt;
+&lt;/xs:element&gt;
+</code></pre>
+</blockquote>
+<pre><code>&lt;xs:complexType name="TaskType"&gt;
+  &lt;xs:all&gt;
+    &lt;xs:element name="LatestTaskRunTimeStarted" type="xs:dateTime" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;xs:element name="LatestTaskRunTimeFinished" type="xs:dateTime" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;xs:element name="LatestTaskRunStatus" type="xs:string" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;xs:element name="LatestTaskRunExitCode" type="xs:int" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;xs:element name="TimesRetried" type="xs:int" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;xs:element ref="TaskRunGuids" minOccurs="0" maxOccurs="1"/&gt;
+  &lt;/xs:all&gt;
+  &lt;xs:attribute type="xs:string" name="Name" use="optional"/&gt;
+  &lt;xs:attribute type="xs:string" name="Path" use="optional"/&gt;
+  &lt;xs:attribute type="xs:string" name="Guid" use="optional"/&gt;
+  &lt;xs:attribute type="xs:string" name="Arguments" use="optional"/&gt;
+  &lt;xs:attribute type="xs:int" name="MaxNumberOfRetries" use="optional"/&gt;
+  &lt;xs:attribute type="xs:int" name="Timeout" use="optional"/&gt;
+  &lt;xs:attribute type="xs:boolean" name="AbortTaskListOnFailed" use="optional"/&gt;
+  &lt;xs:attribute type="xs:boolean" name="AutoPassedIfLaunched" use="optional"/&gt;
+  &lt;xs:attribute type="xs:boolean" name="TerminateOnCompleted" use="optional"/&gt;
+&lt;/xs:complexType&gt;
+
+&lt;xs:complexType name="TasksType"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="Task" type="TaskType" minOccurs="1" maxOccurs="unbounded"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;
+
+  &lt;xs:element name="TaskList"&gt;
     &lt;xs:complexType&gt;
       &lt;xs:sequence&gt;
-          &lt;xs:element name=&quot;Guid&quot; type=&quot;xs:string&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;unbounded&quot;/&gt;
+        &lt;xs:element name="Tasks" type="TasksType" minOccurs="0" maxOccurs="1"/&gt;
+        &lt;xs:element name="BackgroundTasks" type="TasksType" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;/xs:sequence&gt;
+      &lt;xs:attribute name="Name" type="xs:string" use="required"/&gt;
+      &lt;xs:attribute name="Guid" type="xs:string" use="optional"/&gt;
+      &lt;xs:attribute name="RunInParallel" type="xs:boolean" use="required"/&gt;
+      &lt;xs:attribute name="AllowOtherTaskListsToRun" type="xs:boolean" use="required"/&gt;
+      &lt;xs:attribute name="TerminateBackgroundTasksOnCompletion" type="xs:boolean" use="optional"/&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+  &lt;xs:element name="TaskLists"&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:sequence&gt;
+        &lt;xs:element ref="TaskList" minOccurs="1" maxOccurs="unbounded"/&gt;
       &lt;/xs:sequence&gt;
     &lt;/xs:complexType&gt;
   &lt;/xs:element&gt;
-
-  &lt;xs:complexType name=&quot;TaskType&quot;&gt;
-    &lt;xs:all&gt;
-      &lt;xs:element name=&quot;LatestTaskRunTimeStarted&quot; type=&quot;xs:dateTime&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-      &lt;xs:element name=&quot;LatestTaskRunTimeFinished&quot; type=&quot;xs:dateTime&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-      &lt;xs:element name=&quot;LatestTaskRunStatus&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-      &lt;xs:element name=&quot;LatestTaskRunExitCode&quot; type=&quot;xs:int&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-      &lt;xs:element name=&quot;TimesRetried&quot; type=&quot;xs:int&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-      &lt;xs:element ref=&quot;TaskRunGuids&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-    &lt;/xs:all&gt;
-    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Name&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Path&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Guid&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:string&quot; name=&quot;Arguments&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:int&quot; name=&quot;MaxNumberOfRetries&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:int&quot; name=&quot;Timeout&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:boolean&quot; name=&quot;AbortTaskListOnFailed&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:boolean&quot; name=&quot;AutoPassedIfLaunched&quot; use=&quot;optional&quot;/&gt;
-    &lt;xs:attribute type=&quot;xs:boolean&quot; name=&quot;TerminateOnCompleted&quot; use=&quot;optional&quot;/&gt;
-  &lt;/xs:complexType&gt;
-
-  &lt;xs:complexType name=&quot;TasksType&quot;&gt;
-    &lt;xs:sequence&gt;
-      &lt;xs:element name=&quot;Task&quot; type=&quot;TaskType&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;unbounded&quot;/&gt;
-    &lt;/xs:sequence&gt;
-  &lt;/xs:complexType&gt;
-
-    &lt;xs:element name=&quot;TaskList&quot;&gt;
-      &lt;xs:complexType&gt;
-        &lt;xs:sequence&gt;
-          &lt;xs:element name=&quot;Tasks&quot; type=&quot;TasksType&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-          &lt;xs:element name=&quot;BackgroundTasks&quot; type=&quot;TasksType&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot;/&gt;
-        &lt;/xs:sequence&gt;
-        &lt;xs:attribute name=&quot;Name&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
-        &lt;xs:attribute name=&quot;Guid&quot; type=&quot;xs:string&quot; use=&quot;optional&quot;/&gt;
-        &lt;xs:attribute name=&quot;RunInParallel&quot; type=&quot;xs:boolean&quot; use=&quot;required&quot;/&gt;
-        &lt;xs:attribute name=&quot;AllowOtherTaskListsToRun&quot; type=&quot;xs:boolean&quot; use=&quot;required&quot;/&gt;
-        &lt;xs:attribute name=&quot;TerminateBackgroundTasksOnCompletion&quot; type=&quot;xs:boolean&quot; use=&quot;optional&quot;/&gt;
-      &lt;/xs:complexType&gt;
-    &lt;/xs:element&gt;
-    &lt;xs:element name=&quot;TaskLists&quot;&gt;
-      &lt;xs:complexType&gt;
-        &lt;xs:sequence&gt;
-          &lt;xs:element ref=&quot;TaskList&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;unbounded&quot;/&gt;
-        &lt;/xs:sequence&gt;
-      &lt;/xs:complexType&gt;
-    &lt;/xs:element&gt;
-    &lt;xs:element name=&quot;FactoryOrchestratorXML&quot;&gt;
-      &lt;xs:complexType&gt;
-        &lt;xs:sequence&gt;
-          &lt;xs:element ref=&quot;TaskLists&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;1&quot;/&gt;
-        &lt;/xs:sequence&gt;
-      &lt;/xs:complexType&gt;
-    &lt;/xs:element&gt;
-
-&lt;/xs:schema&gt;
+  &lt;xs:element name="FactoryOrchestratorXML"&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:sequence&gt;
+        &lt;xs:element ref="TaskLists" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
 </code></pre>
+<p></xs:schema>
+  ```</p>
 <h3 id="tasklist-attributes">TaskList attributes</h3>
 <p>A TaskList element defines a Factory Orchestrator TaskList. The following defines that attributes of the <code>TaskList</code> element in the Factory Orchestrator XML schema.</p>
 <table>
@@ -1052,11 +791,11 @@
 <h4 id="validate-factory-orchestrator-xml">Validate Factory Orchestrator XML</h4>
 <p>You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a technician PC.</p>
 <ol>
-<li>Install the Factory Orchestrator app on a technician PC and launch it. </li>
+<li>Install the Factory Orchestrator app on a technician PC and launch it.</li>
 <li>Click "Validate FactoryOrchestratorXML" in the bottom left of the app.</li>
-<li>Browse to the path of your FactoryOrchestratorXML file and click open. </li>
+<li>Browse to the path of your FactoryOrchestratorXML file and click open.</li>
 <li>
-<p>The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the technician PC, it will only catch XML syntax errors not Factory Orchestrator Service errors such as duplicate GUIDs or invalid file paths. </p>
+<p>The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the technician PC, it will only catch XML syntax errors not Factory Orchestrator Service errors such as duplicate GUIDs or invalid file paths.</p>
 <ul>
 <li>
 <p>If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."</p>
@@ -1118,8 +857,6 @@
 &lt;/FactoryOrchestratorXML&gt;
 </code></pre>
                 
-                  
-                
               
               
                 
@@ -1152,7 +889,7 @@
           </a>
         
         
-          <a href="../use-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../use-the-factory-orchestrator-app/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">

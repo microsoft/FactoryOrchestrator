@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/">
       
       
-        <meta name="author" content="themar-msft">
+        <meta name="author" content="themar-msft;hajya">
       
       <link rel="shortcut icon" href="assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
@@ -84,8 +84,15 @@
     </label>
     <div class="md-header-nav__title" data-md-component="header-title">
       
-        <div class="md-header-nav__ellipsis md-ellipsis">
-          Factory Orchestrator
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Factory Orchestrator
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Overview
+            
+          </span>
         </div>
       
     </div>
@@ -179,6 +186,76 @@
       
       
 
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Overview
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="." class="md-nav__link md-nav__link--active">
+      Overview
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-logs" class="md-nav__link">
+    Factory Orchestrator logs
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-orchestrator-service-log-file" class="md-nav__link">
+    Factory Orchestrator Service log file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#factory-orchestrator-task-log-files" class="md-nav__link">
+    Factory Orchestrator Task log files
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
 
   <li class="md-nav__item">
     <a href="get-started-with-factory-orchestrator/" class="md-nav__link">
@@ -193,8 +270,8 @@
 
 
   <li class="md-nav__item">
-    <a href="automate-factory-orchestrator/" class="md-nav__link">
-      Tasks & TaskLists Authoring
+    <a href="tasks-and-tasklists/" class="md-nav__link">
+      Tasks & TaskLists
     </a>
   </li>
 
@@ -205,7 +282,7 @@
 
 
   <li class="md-nav__item">
-    <a href="use-factory-orchestrator/" class="md-nav__link">
+    <a href="use-the-factory-orchestrator-app/" class="md-nav__link">
       Run using the application
     </a>
   </li>
@@ -217,7 +294,7 @@
 
 
   <li class="md-nav__item">
-    <a href="using-the-factory-orchestrator-api/" class="md-nav__link">
+    <a href="use-the-factory-orchestrator-api/" class="md-nav__link">
       Run using the client api
     </a>
   </li>
@@ -230,7 +307,7 @@
 
   <li class="md-nav__item">
     <a href="factory-orchestrator-utilities/" class="md-nav__link">
-      Utilities
+      Built-In Utilities
     </a>
   </li>
 
@@ -257,20 +334,6 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#factory-orchestrator-features" class="md-nav__link">
-    Factory Orchestrator features
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#factory-orchestrator-tasks" class="md-nav__link">
-    Factory Orchestrator tasks
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#factory-orchestrator-logs" class="md-nav__link">
@@ -317,36 +380,24 @@
                 
                 
                 <h1 id="factory-orchestrator">Factory Orchestrator</h1>
-<p>Factory Orchestrator enables you to run manufacturing tests and tasks for hardware validation and diagnostics during the OEM manufacturing process.</p>
-<p>Factory Orchestrator consists of two components: </p>
+<p>Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various dev inner-loop and diagnostics activities.</p>
+<p>Factory Orchestrator consists of two components:</p>
 <ul>
 <li>
-<p>A UWP app: Communicates with the service to run executable tasks and commands on a device under test (DUT).</p>
+<p>A system service (FactoryOrchestratorService.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure.</p>
 </li>
 <li>
-<p>A system service (FactoryOrchestratorService.exe): The service persists task information, including TaskLists and task results; if you close the app and then reconnect to a device, even from a different PC, you'll see loaded TaskLists, tasks, and their status.</p>
+<p>A UWP app: Communicates with the service to run executable tasks and commands on a device under test (DUT). This app can communicate with the service running  on the same device and/or over a network.</p>
 </li>
 </ul>
-<p>The UWP app can be run on the same device and/or over a network. The service runs on the DUT.</p>
-<p>Factory Orchestrator can run multiple tasks at a time, either in series or in parallel, with minimal overhead.</p>
-<h2 id="factory-orchestrator-features">Factory Orchestrator features</h2>
-<p>Factory Orchestrator includes the following features that enable you to coordinate tasks that validate your manufacturing process:</p>
-<ul>
-<li><strong>TaskLists</strong> - A collection of tasks that can be run in series, parallel, or in the background. Tasks can be executables, TAEF tests, UWP apps, or external tasks. TaskLists can even be configured to <a href="get-started-with-factory-orchestrator/#configure-factory-orchestrator-to-automatically-load-tasklists-when-it-starts">run on first boot or every boot</a>.</li>
-<li><strong>Command prompt</strong> - A simple, non-interactive, command prompt that allows you to troubleshoot without having use other methods to connect to your DUT.</li>
-<li><strong>File transfer</strong> - A basic file transfer function that enables you to transfer files to and from your device when you're connected from a technician PC</li>
-<li>Ability to <strong>launch UWP apps</strong></li>
-</ul>
-<h2 id="factory-orchestrator-tasks">Factory Orchestrator tasks</h2>
-<p>Factory Orchestrator can run executables and <a href="https://docs.microsoft.com/windows-hardware/drivers/taef/getting-started">TAEF tests</a> that have been validated by <a href="https://docs.microsoft.com/windows-hardware/drivers/develop/validating-universal-drivers">ApiValidator</a>. It can also launch UWP apps and run cmd.exe and PowerShell scripts as tasks.</p>
-<p>You can define a collection of tasks in a <strong>TaskList</strong> from within the Factory Orchestrator app. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.</p>
-<p>Once you've run a task, the Factory Orchestrator service creates a <strong>TaskRun</strong> that is the output and results of the task, as well as other details about the task such as runtime.</p>
+<p>Tasks are used to capture actions that the server can executre, and TaskLists are used to organize and manage these Tasks. Learn more about <a href="tasks-and-tasklists/">Tasks and Tasklists</a></p>
+<p><a href="get-started-with-factory-orchestrator/">Getting started with Factory Orchestrator</a></p>
 <h2 id="factory-orchestrator-logs">Factory Orchestrator logs</h2>
 <p>By default, the Factory Orchestrator Service generates log files in the following location on the test device: <code>%ProgramData%\FactoryOrchestrator</code>.</p>
 <h3 id="factory-orchestrator-service-log-file">Factory Orchestrator Service log file</h3>
 <p>The service log file contains details about the operation of the Factory Orchestrator Service. It is always found at <code>%ProgramData%\FactoryOrchestrator\FactoryOrchestratorService.log</code> on a device. Inspect this log for details about the service's operation.</p>
 <h3 id="factory-orchestrator-task-log-files">Factory Orchestrator Task log files</h3>
-<p>The Task log files contain details about the executaion of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task. The files are saved to <code>%ProgramData%\FactoryOrchestrator\Logs\</code> on a device by default, but this location can be changed using the FactoryOrchestratorClient.SetLogFolder() API. Use the FactoryOrchestratorClient.GetLogFolder() API to programmatically retrieve the log folder.</p>
+<p>The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task. The files are saved to <code>%ProgramData%\FactoryOrchestrator\Logs\</code> on a device by default, but this location can be changed using the FactoryOrchestratorClient.SetLogFolder() API. Use the FactoryOrchestratorClient.GetLogFolder() API to programmatically retrieve the log folder.</p>
                 
                   
                 
@@ -363,6 +414,27 @@
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+        
+          <a href="get-started-with-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Get Started
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">

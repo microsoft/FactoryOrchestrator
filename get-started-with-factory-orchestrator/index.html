@@ -12,8 +12,6 @@
         <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/">
       
       
-        <meta name="author" content="themar-msft">
-      
       <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
@@ -186,6 +184,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -259,33 +269,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#configure-factory-orchestrator-to-automatically-load-tasklists-when-it-starts" class="md-nav__link">
-    Configure Factory Orchestrator to automatically load TaskLists when it starts
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-test-content-to-your-device" class="md-nav__link">
-    Add test content to your device
-  </a>
-  
-    <nav class="md-nav" aria-label="Add test content to your device">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#manually-copy-test-content" class="md-nav__link">
-    Manually copy test content
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -299,8 +282,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../automate-factory-orchestrator/" class="md-nav__link">
-      Tasks & TaskLists Authoring
+    <a href="../tasks-and-tasklists/" class="md-nav__link">
+      Tasks & TaskLists
     </a>
   </li>
 
@@ -311,7 +294,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../use-factory-orchestrator/" class="md-nav__link">
+    <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
       Run using the application
     </a>
   </li>
@@ -323,7 +306,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../using-the-factory-orchestrator-api/" class="md-nav__link">
+    <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
       Run using the client api
     </a>
   </li>
@@ -336,7 +319,7 @@
 
   <li class="md-nav__item">
     <a href="../factory-orchestrator-utilities/" class="md-nav__link">
-      Utilities
+      Built-In Utilities
     </a>
   </li>
 
@@ -405,33 +388,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#configure-factory-orchestrator-to-automatically-load-tasklists-when-it-starts" class="md-nav__link">
-    Configure Factory Orchestrator to automatically load TaskLists when it starts
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-test-content-to-your-device" class="md-nav__link">
-    Add test content to your device
-  </a>
-  
-    <nav class="md-nav" aria-label="Add test content to your device">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#manually-copy-test-content" class="md-nav__link">
-    Manually copy test content
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -449,13 +405,16 @@
                   </a>
                 
                 
-                <h1 id="get-started-with-factory-orchestrator">Get started with Factory Orchestrator</h1>
-<p>Get started with Factory Orchestrator by installing the Factory Orchestrator service (FactoryOrchestratorService.exe) on your device to enable you to connect to the service to run Factory Orchestrator tasks. </p>
-<p>To connect to the service, you can use the Factory Orchestrator UWP app, or crete your own app using the Factory Orchestrator client APIs. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself.</p>
+                <h1 id="get-started-with-factory-orchestrator">Get Started with Factory Orchestrator</h1>
 <h2 id="install-the-service">Install the service</h2>
+<p>The Factory Orchestrator service (FactoryOrchestratorService.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself. </p>
 <p>User PowerShell to install the Factory Orchestrator on your device:</p>
-<pre><code class="language-PowerShell">New-Service -Name &quot;FactoryOrchestrator&quot; -BinaryPathName &quot;FactoryOrchestratorService.exe&quot;
+<pre><code class="language-PowerShell">     ## Optionally set it's start up to automatic with: -StartupType Automatic
+    New-Service -Name &quot;FactoryOrchestrator&quot; -BinaryPathName &quot;FactoryOrchestratorService.exe&quot;
+
+    Start-Service -Name &quot;FactoryOrchestrator&quot;
 </code></pre>
+<p>To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service programattically using the Factory Orchestrator client APIs. </p>
 <h2 id="install-the-app">Install the app</h2>
 <p>You can install the Factory Orchestrator app on your DUT or on a technician PC.</p>
 <p>To install the app:</p>
@@ -483,14 +442,6 @@ Need instructions on how to configure a device to run FO automatically</p>
 <li>Click Start</li>
 </ol>
 <p>The Factory Orchestrator app will start on the DUT. The Factory Orchestrator service is always running.</p>
-<h2 id="configure-factory-orchestrator-to-automatically-load-tasklists-when-it-starts">Configure Factory Orchestrator to automatically load TaskLists when it starts</h2>
-<p>Factory Orchestrator looks for certain FactoryOrchestratorXML files when it starts. You can use these FactoryOrchestratorXML files to preload tasks into Factory Orchestrator, run tasks the first time a device boots, or run tasks every time a device boots.</p>
-<p>See <a href="../automate-factory-orchestrator/#special-factoryorchestratorxml-files">Special FactoryOrchestratorXML files</a> for more information.</p>
-<h2 id="add-test-content-to-your-device">Add test content to your device</h2>
-<h3 id="manually-copy-test-content">Manually copy test content</h3>
-<p>If you want to run tasks on a device but haven't preloaded any test content, you can use Factory Orchestrator's file transfer feature, the Factory Orchestrator API, or use TShell or SSH to copy files.</p>
-                
-                  
                 
               
               
@@ -509,14 +460,28 @@ Need instructions on how to configure a device to run FO automatically</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
+          <a href=".." class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Overview
+              </div>
+            </div>
+          </a>
         
-          <a href="../automate-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+        
+          <a href="../tasks-and-tasklists/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Tasks & TaskLists Authoring
+                Tasks & TaskLists
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">

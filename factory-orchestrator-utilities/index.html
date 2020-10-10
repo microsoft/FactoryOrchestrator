@@ -12,14 +12,12 @@
         <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/factory-orchestrator-utilities/">
       
       
-        <meta name="author" content="themar-msft">
-      
       <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
-        <title>Utilities - Factory Orchestrator</title>
+        <title>Built-In Utilities - Factory Orchestrator</title>
       
     
     
@@ -90,7 +88,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Utilities
+              Built-In Utilities
             
           </span>
         </div>
@@ -188,6 +186,18 @@
 
 
   <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
       Get Started
     </a>
@@ -200,8 +210,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../automate-factory-orchestrator/" class="md-nav__link">
-      Tasks & TaskLists Authoring
+    <a href="../tasks-and-tasklists/" class="md-nav__link">
+      Tasks & TaskLists
     </a>
   </li>
 
@@ -212,7 +222,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../use-factory-orchestrator/" class="md-nav__link">
+    <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
       Run using the application
     </a>
   </li>
@@ -224,7 +234,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../using-the-factory-orchestrator-api/" class="md-nav__link">
+    <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
       Run using the client api
     </a>
   </li>
@@ -245,12 +255,12 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Utilities
+        Built-In Utilities
         <span class="md-nav__icon md-icon"></span>
       </label>
     
     <a href="./" class="md-nav__link md-nav__link--active">
-      Utilities
+      Built-In Utilities
     </a>
     
       
@@ -267,13 +277,6 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#uwp-apps" class="md-nav__link">
-    UWP Apps
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#command-prompt" class="md-nav__link">
     Command Prompt
   </a>
@@ -281,11 +284,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transfer-files" class="md-nav__link">
-    Transfer files
+  <a href="#very-basic-file-transfer" class="md-nav__link">
+    (very) basic File Transfer
   </a>
   
-    <nav class="md-nav" aria-label="Transfer files">
+    <nav class="md-nav" aria-label="(very) basic File Transfer">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -345,13 +348,6 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#uwp-apps" class="md-nav__link">
-    UWP Apps
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#command-prompt" class="md-nav__link">
     Command Prompt
   </a>
@@ -359,11 +355,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transfer-files" class="md-nav__link">
-    Transfer files
+  <a href="#very-basic-file-transfer" class="md-nav__link">
+    (very) basic File Transfer
   </a>
   
-    <nav class="md-nav" aria-label="Transfer files">
+    <nav class="md-nav" aria-label="(very) basic File Transfer">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -410,19 +406,25 @@
                 
                 
                 <h1 id="factory-orchestrator-utilities">Factory Orchestrator utilities</h1>
-<p>In addition to the ability to create, manage, and run TaskLists, the Factory Orchestrator app includes some basic utilities that you may be able to leverage while testing devices on the factory floor.</p>
-<h2 id="uwp-apps">UWP Apps</h2>
-<p>This launches a UWP app that's installed on a device under test (DUT). This allows you to launch a UWP directly from the Factory Orchestrator app by clicking on its name in the list of installed UWP apps.</p>
-<p>Your device must be configured to launch into an environment that supports launching UWP apps.</p>
-<p>You can exit a launched UWP with ALT+F4, or from Windows Device Portal.</p>
+<p>In addition to providing a graphical interface to create, manage, and run Tasks and TaskLists. The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.</p>
+<!-- ## UWP Apps
+
+This launches a UWP app that's installed on a device under test (DUT). This allows you to launch a UWP directly from the Factory Orchestrator app by clicking on its name in the list of installed UWP apps.
+
+Your device must be configured to launch into an environment that supports launching UWP apps.
+
+You can exit a launched UWP with ALT+F4, or from Windows Device Portal. -->
+
 <h2 id="command-prompt">Command Prompt</h2>
-<p>A basic, non-interactive, command prompt that allows you to troubleshoot without having use other methods like TSHell or SSH to connect to your DUT.</p>
-<p>While you can run commands and see output when using Factory Orchestrator's Command Prompt, it's not an interactive shell. If you run a command that requires additional input, you won't be able to enter the additional input.</p>
-<p><img alt="The Command Prompt screen" src="../images/fo-cmd.PNG" /></p>
-<h2 id="transfer-files">Transfer files</h2>
+<p>A basic, non-interactive, command prompt that allows you to troubleshoot without having use other methods like SSH or Windows Device Portal to connect to your DUT.</p>
+<p>While you can run commands and see output when using the built-in command prompt in Factory Orchestrator, it's not an interactive shell. If you run a command that requires additional input, you won't be able to enter the additional input.</p>
+<p><img alt="The Command Prompt screen" src="../images/fo-cmd.png" /></p>
+<h2 id="very-basic-file-transfer">(very) basic File Transfer</h2>
 <p>A basic file transfer function that enables you to transfer files to and from your device when you're connected from a technician PC. This feature is not visible in the Factory Orchestrator app when run the app and service on the same device.</p>
 <h3 id="one-time-setup-windows-10-only">One-time setup (Windows 10 only)</h3>
-<p>First, install the Factory Orchestrator app on a Windows 10 system, using the instructions <a href="factory-orchestrator.md#install-the-app-on-a-technician-pc">here</a>.</p>
+<p>First, install the Factory Orchestrator app on a Windows 10 system:</p>
+<p><code>PowerShell
+    Add-AppxPackage -path "FactoryOrchestrator\Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe.msixbundle" -DependencyPath "frameworks\Microsoft.NET.CoreFramework.x64.Debug.2.2.appx" -DependencyPath "frameworks\Microsoft.NET.CoreRuntime.x64.2.2.appx" -DependencyPath "frameworks\Microsoft.VCLibs.x64.14.00.appx"</code></p>
 <p>Next, you need to give the Factory Orchestrator app full file system access for file transfer to work. Follow the directions on the <a href="https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy">Windows 10 file system access and privacy</a> page to give Factory Orchestrator access to the file system. You may need to launch the app at least once before it appears on the Settings app.</p>
 <h3 id="send-file-to-a-dut">Send file to a DUT</h3>
 <ul>
@@ -438,8 +440,6 @@
 <li>In the "Client File" textbox, enter the full path to where you wish the file to be saved on the Windows 10 device.</li>
 <li>Click "Save Server File to Client" to transfer the file to the DUT.</li>
 </ul>
-                
-                  
                 
               
               
@@ -458,7 +458,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../using-the-factory-orchestrator-api/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../use-the-factory-orchestrator-api/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>

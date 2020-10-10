@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
+     <loc>https://microsoft.github.io/FactoryOrchestrator/</loc>
+     <lastmod>2020-10-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/</loc>
-     <lastmod>2020-10-08</lastmod>
+     <lastmod>2020-10-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://microsoft.github.io/FactoryOrchestrator/automate-factory-orchestrator/</loc>
-     <lastmod>2020-10-08</lastmod>
+     <loc>https://microsoft.github.io/FactoryOrchestrator/tasks-and-tasklists/</loc>
+     <lastmod>2020-10-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://microsoft.github.io/FactoryOrchestrator/use-factory-orchestrator/</loc>
-     <lastmod>2020-10-08</lastmod>
+     <loc>https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/</loc>
+     <lastmod>2020-10-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://microsoft.github.io/FactoryOrchestrator/using-the-factory-orchestrator-api/</loc>
-     <lastmod>2020-10-08</lastmod>
+     <loc>https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/</loc>
+     <lastmod>2020-10-10</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/factory-orchestrator-utilities/</loc>
-     <lastmod>2020-10-08</lastmod>
+     <lastmod>2020-10-10</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>

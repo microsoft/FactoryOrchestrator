@@ -9,17 +9,15 @@
         <meta name="description" content="Factory Orchestrator Documentation">
       
       
-        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/use-factory-orchestrator/">
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/">
       
-      
-        <meta name="author" content="themar-msft">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
-        <title>Run using the application - Factory Orchestrator</title>
+        <title>Run using the client api - Factory Orchestrator</title>
       
     
     
@@ -62,7 +60,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#run-tasks-with-factory-orchestrator" class="md-skip">
+        <a href="#using-the-factory-orchestrator-client-api" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +88,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Run using the application
+              Run using the client api
             
           </span>
         </div>
@@ -188,6 +186,18 @@
 
 
   <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
       Get Started
     </a>
@@ -200,8 +210,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../automate-factory-orchestrator/" class="md-nav__link">
-      Tasks & TaskLists Authoring
+    <a href="../tasks-and-tasklists/" class="md-nav__link">
+      Tasks & TaskLists
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
+      Run using the application
     </a>
   </li>
 
@@ -221,12 +243,12 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Run using the application
+        Run using the client api
         <span class="md-nav__icon md-icon"></span>
       </label>
     
     <a href="./" class="md-nav__link md-nav__link--active">
-      Run using the application
+      Run using the client api
     </a>
     
       
@@ -243,9 +265,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#run-a-tasklist" class="md-nav__link">
-    Run a TaskList
+  <a href="#using-factoryorchestratoruwpclientdll-in-a-uwp" class="md-nav__link">
+    Using FactoryOrchestratorUWPClient.dll in a UWP
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample" class="md-nav__link">
+    Factory Orchestrator client sample
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator client sample">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample-usage" class="md-nav__link">
+    Factory Orchestrator client sample usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -262,20 +304,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../using-the-factory-orchestrator-api/" class="md-nav__link">
-      Run using the client api
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
     <a href="../factory-orchestrator-utilities/" class="md-nav__link">
-      Utilities
+      Built-In Utilities
     </a>
   </li>
 
@@ -304,9 +334,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#run-a-tasklist" class="md-nav__link">
-    Run a TaskList
+  <a href="#using-factoryorchestratoruwpclientdll-in-a-uwp" class="md-nav__link">
+    Using FactoryOrchestratorUWPClient.dll in a UWP
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample" class="md-nav__link">
+    Factory Orchestrator client sample
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator client sample">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-orchestrator-client-sample-usage" class="md-nav__link">
+    Factory Orchestrator client sample usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -322,29 +372,64 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/use-factory-orchestrator.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/use-the-factory-orchestrator-api.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                <h1 id="run-tasks-with-factory-orchestrator">Run tasks with Factory Orchestrator</h1>
-<p>Once you've created or imported a TaskList into Factory Orchestrator, you can run it. This topic covers the process of running a TaskList.</p>
-<h2 id="run-a-tasklist">Run a TaskList</h2>
-<p>When you click on the <strong>Run TaskLists</strong> menu item, you'll be see the "Run TaskLists" screen.</p>
-<p>Hit the 'Play' button to run a TaskList. As tasks complete, the tasks' output will show next to the task.</p>
-<p><img alt="TaskList with the Play button" src="../images/run-a-tasklist.PNG" /></p>
-<p>While a TaskList is running, the Factory Orchestrator service will continue to run the tasks, even if you close the Factory Orchestrator app.</p>
-<p>If you're running a task or a tasklist, the Factory Orchestrator UI allows you to easily monitor the status of any running task by displaying task status. You can disable this task status display by going to the <strong>Run TaskLists</strong> page and unchecking <strong>Track Execution</strong>.</p>
-<p><img alt="Image of task status" src="../images/fo-follow-tasks.png" /></p>
-<p>As tasks complete, the Tasks' output will show next to the Task. While a TaskList is running, the Factory Orchestrator service will continue to run the tasks, even if you close the Factory Orchestrator app. A running TaskList can be "Aborted" by clicking the 'Pause' button. </p>
-<p><img alt="Running TaskList" src="../images/running-tasklist.PNG" /></p>
-<p>If a TaskList is aborted you can either click the 'Play' button to resume executing it or the 'Re-run' button to restart the TaskList from the beginning. </p>
-<p>A 'Re-run' button will also appear next to a Task if the TaskList is done executing and that Task failed. Press that button to retry the failed Task. </p>
-<p><img alt="Results of an aborted running TaskList" src="../images/re-run-task.PNG" /></p>
-<p>If you click on a Task, the results page will load and show you the status of the latest "run" (TaskRun) of that Task, including the any output of the Task. The results page also allows you to see the log file path for that run. You can also use the buttons at the top of the page to view older or newer runs of the Task, provided it has been run multiple times. </p>
-<p><img alt="Clicking on a Task that has run" src="./images/test-results.png" /></p>
-                
-                  
+                <h1 id="using-the-factory-orchestrator-client-api">Using the Factory Orchestrator client API</h1>
+<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET Standard code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.</p>
+<p>All FactoryOrchestratorClient API calls other than <code>Connect()</code> are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
+<p>The FactoryOrchestator service uses <a href="https://semver.org/">semver</a> versioning. If the target device is running a different Factory Orchestrator build than one used to create the client program, you need to ensure that the program you build will run as expected by calling Client.GetServiceVersionString() and comparaing against the client API version. If there is a major version mismatch your program may not work as expected and either the client program or test device should be updated so the major versions match. You can check the version of the client API by:</p>
+<ul>
+<li>
+<p>Manually inspecting the properties of the FactoryOrchestratorClientLibrary.dll file used by your program</p>
+<p><img alt="version number in the properties of FactoryOrchestratorClientLibrary.dll" src="../images/fo-version-number.png" /></p>
+</li>
+<li>
+<p>Programatically by the following code snippet:</p>
+</li>
+</ul>
+<pre><code class="language-C#">using System.Reflection;
+
+...
+
+var client = new FactoryOrchestratorClient(ipAddress);
+client.GetClientVersionString();
+</code></pre>
+<p>If you are writing a UWP app that uses the Factory Orchestrator Client API, you should use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. The UWP Client is available in FactoryOrchestratorUWPClientLibrary.dll.</p>
+<p>The complete Factory Orchestrator Client API reference is available at: <code>FactoryOrchestrator\Documentation\api\index.html</code>.</p>
+<h2 id="using-factoryorchestratoruwpclientdll-in-a-uwp">Using FactoryOrchestratorUWPClient.dll in a UWP</h2>
+<p>If you're using FactoryOrchestratorUWPClient.dll in a UWP, you have to configure Visual Studio so that it doesn't build with .NET Native.</p>
+<ol>
+<li>Load your app project in visual studio.</li>
+<li>
+<p>Right click the app project and select <strong>Properties</strong>:</p>
+<p><img alt="Right-clicking on app in Visual Studio" src="../images/build-fo-uwp-1.png" />
+<img alt="Selecting properties" src="../images/build-fo-uwp-2.png" /></p>
+</li>
+<li>
+<p>On the <strong>Build</strong> tab, select <strong>All Configurations</strong> and <strong>All Platforms</strong>:</p>
+<p><img alt="Choosing all configurations and All platforms" src="../images/build-fo-uwp-3.png" /></p>
+</li>
+<li>
+<p>Uncheck <strong>Compile with .NET Native tool chain</strong></p>
+<p><img alt="Unchecking compile with .net toolchain" src="../images/build-fo-uwp-4.png" /></p>
+</li>
+<li>
+<p>Rebuild and re-publish your app. The app dependencies will be different for your newly built app, so you'll need to install different framework packages with your app;</p>
+<p><img alt="Rebuild and republishing the app" src="../images/build-fo-uwp-5.png" /></p>
+</li>
+</ol>
+<p>After building without the .NET native tool chain, your app should run successfully.</p>
+<h2 id="factory-orchestrator-client-sample">Factory Orchestrator client sample</h2>
+<p>A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Faactory Orchestrator GitHub repo at: <code>&lt;Link to sample app&gt;</code>. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019. (Visual Studio 2019 is required for working with NET Core 2.2 and newer.)</p>
+<p>The sample shows you how to connect to a remote test device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files.</p>
+<h3 id="factory-orchestrator-client-sample-usage">Factory Orchestrator client sample usage</h3>
+<p>Once the sample is built, create a folder on your technican PC with test content and a FactoryOrchestratorXML file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:</p>
+<pre><code class="language-cmd">dotnet ClientSample.dll &lt;IP Address of DUT&gt; &lt;Folder on technician PC with test content AND FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
+</code></pre>
+<p>The sample will then connect to the test device, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. You will be able to monitor the progress of the sample in the console window, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on the Technician PC (if it is connected to the test device).</p>
                 
               
               
@@ -363,7 +448,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../automate-factory-orchestrator/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../use-the-factory-orchestrator-app/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -372,19 +457,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Tasks & TaskLists Authoring
+                Run using the application
               </div>
             </div>
           </a>
         
         
-          <a href="../using-the-factory-orchestrator-api/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../factory-orchestrator-utilities/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Run using the client api
+                Built-In Utilities
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">
