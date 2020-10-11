@@ -6,7 +6,13 @@ site_url: 'https://microsoft.github.io/FactoryOrchestrator/'
 plugins:
     - search
 
-theme: material
+theme: 
+  name: material
+  logo: 'images/fo-logo.png'
+  favicon: 'images/fo-logo.png'
+  palette:
+    primary: 'blue grey' 
+    accent: 'amber'
 
 nav: 
   - Overview: 'index.md' 
@@ -15,3 +21,4 @@ nav:
   - Run using the application: 'use-the-factory-orchestrator-app.md'
   - Run using the client api: 'use-the-factory-orchestrator-api.md'
   - Built-In Utilities: 'factory-orchestrator-utilities.md'
+  

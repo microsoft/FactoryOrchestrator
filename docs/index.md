@@ -5,7 +5,7 @@ ms.date: 09/30/2019
 
 # Factory Orchestrator
 
-Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various dev inner-loop and diagnostics activities.
+Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
 
 Factory Orchestrator consists of two components:
 
