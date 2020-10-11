@@ -1,17 +1,14 @@
 # [Factory Orchestrator](https://microsoft.github.io/FactoryOrchestrator/)
 
-
  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)
 
 Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
-
-## Documentation
 
 Learn more this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/). 
 
 The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page would be a great place to go once you've built the binaries for the project.
 
-### **Factory Orchestrator consists of the following projects:**
+## **Factory Orchestrator consists of the following projects:**
 
 * **FactoryOrchestratorCoreLibrary**
  A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
@@ -30,21 +27,26 @@ The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-starte
 
 Factory Orchestrator :green_heart: OSS.
 
-### **OSS Projects currently consumed as source:**
+### **OSS Projects currently consumes:**
 
 * **IpcServiceFramework**
 
-FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). At this time, we are actively working on integrating our version of IpcServiceFramework with the [official IpcServiceFramework repo](https://github.com/jacqueskang/IpcServiceFramework), removing the need for this fork.
+    FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). At this time, we are actively working on integrating our version of IpcServiceFramework with the [official IpcServiceFramework repo](https://github.com/jacqueskang/IpcServiceFramework), removing the need for this fork.
 
 * **Pe-Utility**
 
-FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utility), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
+    FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utility), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
+
 
 **Factory Orchestrator ```src``` directory structure:**
 
 ```
 FactoryOrchestrator
 └──src
+    |   App
+    |   ClientLibrary
+    |   ClientSample
+    |   CoreLibrary
     |   oss
     |   ServerLibrary
     |   Service
@@ -52,38 +54,35 @@ FactoryOrchestrator
     └   UWPClientLibrary
 ```
 
-## Developer Documentation
+## Prerequisites
 
+### Install dependencies
 
-### Setup
+The easiest way to open the project is using any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/). In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.17763.0).
 
- Accept Contributor Licence Agreement (CLA)
- This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
+You can also use [VS Code](https://code.visualstudio.com/), or any whatever editor you prefer. VS provides a sleek [command-line installer](https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio) that can be used to just deploy the necessary dependencies using their [workload component id](https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community).
 
- When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
+### Enable developer mode on Windows
 
- This project has adopted the Microsoft Open Source Code of Conduct. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.
-2. Install Visual Studio
- Any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/) is fine. In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.17763.0).
+https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development
 
- Other development environments such as [Visual Studio Code](https://code.visualstudio.com/) are acceptable if you are not making FactoryOrchestratorApp changes.
-3. Clone the repository
-4. Enable developer mode on Windows
- <https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development>
-5. Address Unsigned Powershell Scripts
-   FactoryOrchestrator contains a series of unsigned powershell scripts. Windows security measures prevent unsigned scripts from executing. In order to develop on FactoryOrchestrator, you need to do one of two things.
-    1. Self-sign
-    More information on how to do this can be found here: <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7>
-    2. Set the Execution Policy to Unrestricted
-    This method is not recommended. Setting the Execution Policy to Unresricted allows any powershell script to run.
+### Addressing Unsigned Powershell Scripts
+FactoryOrchestrator contains a series of unsigned powershell scripts. Windows security measures prevent unsigned scripts from executing. In order to develop on FactoryOrchestrator, you need to do one of two things.
+
+1. Self-sign the scripts
+
+   More information on how to do this can be found here: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7
+
+2. Set the Execution Policy to Unrestricted
+   
+    This method is not recommended. Setting the Execution Policy to Unresricted allows any powershell script to run. 
+
     Documentation on Execution Policy:
-    <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7>
-
-### Building
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7
 
 When building the source code, keep in mind that certain actions only occur when the build is run as part of an Azure DevOps Pipeline or when run in the "Release" configuration locally. For example, [DocFX documentation](https://dotnet.github.io/docfx/) for the Core and Client Libraries is only generated when the build is run in in one of those two modes. These actions are skipped in Debug builds to increase inner-dev-loop speed.
 
-### Debugging
+## Debugging
 
 Run _FactoryOrchestratorApp (Universal Windows)_ and _FactoryOrchestratorService_ in separate Visual Studio 2019+ instances. This will allow the app and the service to communicate with each other.
 Even if you are coding for just the app, you generally need to run the service so the app has something to connect to. The service must be run as administrator.
@@ -100,6 +99,18 @@ Factory Orchestrator uses a slightly modified form of [semver versioning](https:
 The PATCH version is automatically set by the build, and is based on the [date/time the build is run](build/SetSourceVersion.ps1). The PATCH version is only changed when the build is run as part of an Azure Pipeline or when run in the "Release" configuration locally.
 
 When the MAJOR version diverges between a Client and Service, Clients will be prevented from connecting to the Service by default. Changing the signiture of any FactoryOrchestratorCoreLibrary class is therefore usually a MAJOR version change and should be done sparingly.
+
+## Code of Conduct
+
+ This project has adopted the Microsoft Open Source Code of Conduct. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.
+
+## Contributing
+
+ Accepting the Contributor Licence Agreement (CLA)
+
+ This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
+
+ When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
 Happy Coding!
 
