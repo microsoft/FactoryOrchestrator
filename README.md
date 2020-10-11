@@ -27,7 +27,7 @@ Welcome to the source repository for Factory Orchestrator. If you want to learn 
 
 Factory Orchestrator :green_heart: OSS.
 
-### **OSS Projects currently consumes as source:**
+### **OSS Projects currently consumed as source:**
 
 * **IpcServiceFramework**
 
