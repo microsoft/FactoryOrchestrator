@@ -1,12 +1,15 @@
-# Factory Orchestrator
+# [Factory Orchestrator](https://microsoft.github.io/FactoryOrchestrator/)
 
-| CI Build   |
-|----|
-|  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)  |
 
-## Introduction
+ [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)
 
-Welcome to the source repository for Factory Orchestrator. If you want to learn more this tool and how to use it then take a look at our [documentation here](https://microsoft.github.io/FactoryOrchestrator/). The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page would be a great place to go once you've built the binaries for the project.
+Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
+
+## Documentation
+
+Learn more this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/). 
+
+The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page would be a great place to go once you've built the binaries for the project.
 
 ### **Factory Orchestrator consists of the following projects:**
 
@@ -37,11 +40,11 @@ FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com
 
 FactoryOrchestrator minimally forks a portion of the source of [Pe-Utility](https://github.com/AndresTraks/pe-utility), to build it as a .NET Standard library and reduce the code complexity for FactoryOrchestrator's use case.
 
-**Factory Orchestrator src directory structure:
+**Factory Orchestrator ```src``` directory structure:**
 
 ```
 FactoryOrchestrator
-└──Src
+└──src
     |   oss
     |   ServerLibrary
     |   Service
@@ -51,9 +54,10 @@ FactoryOrchestrator
 
 ## Developer Documentation
 
+
 ### Setup
 
-1. Accept Contributor Licence Agreement (CLA)
+ Accept Contributor Licence Agreement (CLA)
  This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
  When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
