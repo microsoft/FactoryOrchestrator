@@ -1,0 +1,27 @@
+#CI Pipeline. Triggers every merge attempt with main branch
+
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
+pool:
+  vmimage: windows-latest
+
+#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+
+trigger:
+  branches:
+    include:
+    - master
+    - alhajy/*
+  paths:
+    include:
+    - docs/
+  steps:
+  - task: PythonScript@0
+    inputs:
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Upgrade pip & install requirements'
+  - script: |
+      mkdocs gh-deploy -c  
+    displayName: 'deploy new site to gh-pages'
+    
