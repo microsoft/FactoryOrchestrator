@@ -19,7 +19,7 @@ Factory Orchestrator TaskLists allow adding different types of tasks:
 
 - **PowerShell**
 
-    These tasks are .ps1 files which are run by PowerShell Core (pwsh.exe). When you add this type of task, you can specify additional arguments and if the task should run as a background task. Requires the `WCOS_POWERSHELLCORE` feature is included in your OEMInput.xml file.
+    These tasks are .ps1 files which are run by PowerShell Core (pwsh.exe). When you add this type of task, you can specify additional arguments and if the task should run as a background task.
 
 - **TAEF**
 

@@ -41,7 +41,7 @@ To install the app:
 
 To run the Factory Orchestrator app:
 
-1. Connect to the Windows Core device with Device Portal
+1. Connect to the device where the app is installed with Device Portal
 2. From Device Portal's Apps manager tab, choose `Factory Orchestrator (App)` from the Installed Apps list.
 3. Click Start
 

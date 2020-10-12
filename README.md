@@ -4,7 +4,7 @@
 
 Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
 
-Learn more this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/). 
+Learn more about this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/).
 
 The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page would be a great place to go once you've built the binaries for the project.
 
