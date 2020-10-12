@@ -13,16 +13,12 @@ trigger:
     - alhajy/*
   paths:
     include:
-    - docs/*
+    - docs/
+
   steps:
-  - task: PythonScript@0
-    inputs:
-    scripsource: inline
-  - script: |
+  - script: 
       python -m pip install --upgrade pip
       pip install -r requirements.txt
     displayName: 'Upgrade pip & install requirements'
-  - script: |
-      mkdocs gh-deploy -c  
+  - script: 'mkdocs gh-deploy -c'
     displayName: 'deploy new site to gh-pages'
-    
