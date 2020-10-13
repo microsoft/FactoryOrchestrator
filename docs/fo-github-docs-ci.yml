@@ -18,7 +18,7 @@ trigger:
 steps:
   - script: 
       python -m pip install --upgrade pip
-      pip install -r requirements.txt
+      pip install -r $(Build.SourcesDirectory)\docs\requirements.txt
     displayName: 'Upgrade pip & install requirements'
-  - script: 'mkdocs gh-deploy -c'
+  - script: 'mkdocs gh-deploy -c --config-file $(Build.SourcesDirectory)\docs\mkdocs.yml'
     displayName: 'deploy new site to gh-pages'
