@@ -9,7 +9,7 @@ pool:
 trigger:
   branches:
     include:
-    - master
+    - release/*
     - alhajy/*
   paths:
     include:
@@ -20,5 +20,8 @@ steps:
       python -m pip install --upgrade pip
       pip install -r $(Build.SourcesDirectory)\docs\requirements.txt
     displayName: 'Upgrade pip & install requirements'
-  - script: 'mkdocs gh-deploy -c --config-file $(Build.SourcesDirectory)\docs\mkdocs.yml'
-    displayName: 'deploy new site to gh-pages'
+  - script: 'mkdocs build --clean --config-file $(Build.SourcesDirectory)\docs\mkdocs.yml'
+    displayName: 'building the latest docs site'
+  - script: 'git checkout gh-pages'
+  - script: 'git push'
+
