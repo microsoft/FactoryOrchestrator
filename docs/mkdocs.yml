@@ -1,6 +1,6 @@
 site_name: Factory Orchestrator
-
-repo_url: https://github.com/microsoft/FactoryOrchestrator/
+site_author: themar-msft;hajya
+repo_url: https://github.com/microsoft/FactoryOrchestrator
 site_description: "Factory Orchestrator Documentation"
 site_url: 'https://microsoft.github.io/FactoryOrchestrator/'
 plugins:
