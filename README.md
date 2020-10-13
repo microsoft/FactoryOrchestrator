@@ -85,9 +85,6 @@ When building the source code, keep in mind that certain actions only occur when
 ## Debugging
 
 Run _FactoryOrchestratorApp (Universal Windows)_ and _FactoryOrchestratorService_ in separate Visual Studio 2019+ instances. This will allow the app and the service to communicate with each other.
-Even if you are coding for just the app, you generally need to run the service so the app has something to connect to. The service must be run as administrator.
-
-At the moment, running either the app or service under a debugger will cause exceptions to be thrown related to certain registry keys (ex: GetOEMVersionString()), but all exceptions are caught and will not result in a crash. This is because they try to access registry keys specific to a Microsoft internal product. You can routinely skip over these exceptions when they occur or disable them.
 
 ## Versioning
 

@@ -1,7 +1,7 @@
 
 # Using the Factory Orchestrator client API
 
-The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET Standard code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.
+The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.
 
 All FactoryOrchestratorClient API calls other than `Connect()` are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 
@@ -11,7 +11,7 @@ The FactoryOrchestator service uses [semver](https://semver.org/) versioning. If
 
     ![version number in the properties of FactoryOrchestratorClientLibrary.dll](./images/fo-version-number.png)
 
-- Programatically by the following code snippet:
+- Programmatically by the following code snippet:
 
 ```C#
 using System.Reflection;
@@ -23,8 +23,6 @@ client.GetClientVersionString();
 ```
 
 If you are writing a UWP app that uses the Factory Orchestrator Client API, you should use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. The UWP Client is available in FactoryOrchestratorUWPClientLibrary.dll.
-
-The complete Factory Orchestrator Client API reference is available at: `FactoryOrchestrator\Documentation\api\index.html`.
 
 ## Using FactoryOrchestratorUWPClient.dll in a UWP
 
