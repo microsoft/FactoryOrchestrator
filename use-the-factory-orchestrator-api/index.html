@@ -380,7 +380,7 @@
                 
                 
                 <h1 id="using-the-factory-orchestrator-client-api">Using the Factory Orchestrator client API</h1>
-<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET Standard code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.</p>
+<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.</p>
 <p>All FactoryOrchestratorClient API calls other than <code>Connect()</code> are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
 <p>The FactoryOrchestator service uses <a href="https://semver.org/">semver</a> versioning. If the target device is running a different Factory Orchestrator build than one used to create the client program, you need to ensure that the program you build will run as expected by calling Client.GetServiceVersionString() and comparaing against the client API version. If there is a major version mismatch your program may not work as expected and either the client program or test device should be updated so the major versions match. You can check the version of the client API by:</p>
 <ul>
@@ -389,7 +389,7 @@
 <p><img alt="version number in the properties of FactoryOrchestratorClientLibrary.dll" src="../images/fo-version-number.png" /></p>
 </li>
 <li>
-<p>Programatically by the following code snippet:</p>
+<p>Programmatically by the following code snippet:</p>
 </li>
 </ul>
 <pre><code class="language-C#">using System.Reflection;
@@ -400,7 +400,6 @@ var client = new FactoryOrchestratorClient(ipAddress);
 client.GetClientVersionString();
 </code></pre>
 <p>If you are writing a UWP app that uses the Factory Orchestrator Client API, you should use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. The UWP Client is available in FactoryOrchestratorUWPClientLibrary.dll.</p>
-<p>The complete Factory Orchestrator Client API reference is available at: <code>FactoryOrchestrator\Documentation\api\index.html</code>.</p>
 <h2 id="using-factoryorchestratoruwpclientdll-in-a-uwp">Using FactoryOrchestratorUWPClient.dll in a UWP</h2>
 <p>If you're using FactoryOrchestratorUWPClient.dll in a UWP, you have to configure Visual Studio so that it doesn't build with .NET Native.</p>
 <ol>
