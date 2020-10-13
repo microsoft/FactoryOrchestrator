@@ -6,7 +6,7 @@ Factory Orchestrator provides a simple and reliable way to run and manage factor
 
 Learn more about this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/).
 
-The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page would be a great place to go once you've built the binaries for the project.
+The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page is a great place to go once you've built the binaries for the project.
 
 ## **Factory Orchestrator consists of the following projects:**
 
@@ -60,7 +60,7 @@ FactoryOrchestrator
 
 The easiest way to open the project is using any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/). In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.17763.0).
 
-You can also use [VS Code](https://code.visualstudio.com/), or any whatever editor you prefer. VS provides a sleek [command-line installer](https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio) that can be used to just deploy the necessary dependencies using their [workload component id](https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community).
+You can also use [Visual Studio Code](https://code.visualstudio.com/), or any whatever editor you prefer. Visual Studio provides a sleek [command-line installer](https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio) that can be used to just deploy the necessary dependencies using their [workload component id](https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community).
 
 ### Enable developer mode on Windows
 
