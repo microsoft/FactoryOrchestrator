@@ -5,7 +5,7 @@ The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a rob
 
 All FactoryOrchestratorClient API calls other than `Connect()` are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 
-The FactoryOrchestator service uses [semver](https://semver.org/) versioning. If the target device is running a different Factory Orchestrator build than one used to create the client program, you need to ensure that the program you build will run as expected by calling Client.GetServiceVersionString() and comparaing against the client API version. If there is a major version mismatch your program may not work as expected and either the client program or test device should be updated so the major versions match. You can check the version of the client API by:
+The FactoryOrchestator service uses [semver](https://semver.org/) versioning. If the target device is running a different Factory Orchestrator build than one used to create the client program, you need to ensure that the program you build will run as expected by calling Client.GetServiceVersionString() and comparing against the client API version. If there is a major version mismatch your program may not work as expected and either the client program or test device should be updated so the major versions match. You can check the version of the client API by:
 
 - Manually inspecting the properties of the FactoryOrchestratorClientLibrary.dll file used by your program
 
