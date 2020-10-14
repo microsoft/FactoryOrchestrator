@@ -1,0 +1,448 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTerminated" xml:space="preserve">
+    <value>已終止的應用程式: {0}</value>
+  </data>
+  <data name="AttemptingContainerTaskRun" xml:space="preserve">
+    <value>正在嘗試在容器中執行工作...</value>
+  </data>
+  <data name="AttemptingFileLoad" xml:space="preserve">
+    <value>找到 {0}，正在嘗試載入...</value>
+  </data>
+  <data name="AUMIDNotValidError" xml:space="preserve">
+    <value>AUMID 不正確!</value>
+  </data>
+  <data name="BackgroundRetryException" xml:space="preserve">
+    <value>BackgroundTasks 不能有重試值!</value>
+  </data>
+  <data name="BackgroundTaskTypeException" xml:space="preserve">
+    <value>BackgroundTasks 必須是 ExecutableTask、PowerShellTask 或 BatchFileTask！</value>
+  </data>
+  <data name="BackgroundTimeoutException" xml:space="preserve">
+    <value>BackgroundTasks 不能有逾時值!</value>
+  </data>
+  <data name="BootTasksExecutingError" xml:space="preserve">
+    <value>服務開機工作仍在執行!請等候其完成或呼叫 AbortAll()。</value>
+  </data>
+  <data name="BootTasksFinished" xml:space="preserve">
+    <value>Factory Orchestrator 服務已完成執行開機工作。</value>
+  </data>
+  <data name="BootTasksStarted" xml:space="preserve">
+    <value>Factory Orchestrator 服務正在執行開機工作...</value>
+  </data>
+  <data name="CheckingForFile" xml:space="preserve">
+    <value>正在檢查 {0}...</value>
+  </data>
+  <data name="ClientNotConnected" xml:space="preserve">
+    <value>請先啟動連線!</value>
+  </data>
+  <data name="ContainerFileGetFailed" xml:space="preserve">
+    <value>無法從容器中取得檔案!</value>
+  </data>
+  <data name="ContainerFileSendFailed" xml:space="preserve">
+    <value>無法將檔案傳送至容器!</value>
+  </data>
+  <data name="ContainerTaskRunFailed" xml:space="preserve">
+    <value>無法完成容器中的 TraskRun</value>
+  </data>
+  <data name="DoneWaitingForExternalTaskRun" xml:space="preserve">
+    <value>外部 TaskRun {0} 收到 {1} 結果，而且已完成。</value>
+  </data>
+  <data name="DuplicateTaskRunGuid" xml:space="preserve">
+    <value>無法從檔案載入 TaskRun {0}，因為檔案已經存在！</value>
+  </data>
+  <data name="EndContainerOutput" xml:space="preserve">
+    <value>結束容器處理程序輸出</value>
+  </data>
+  <data name="EndWaitingForExternalResult" xml:space="preserve">
+    <value>FactoryOrchestratorClient 已完成 TaskRun，狀態為： {0}，結束代碼： {1}</value>
+  </data>
+  <data name="FactoryOrchestratorConnectionException" xml:space="preserve">
+    <value>無法與 {0} 上的 Factory Orchestrator 服務通訊</value>
+  </data>
+  <data name="FactoryOrchestratorTaskListRunningException" xml:space="preserve">
+    <value>無法執行作業，因為一或多個 TaskList 正在執行！</value>
+  </data>
+  <data name="FactoryOrchestratorTaskListRunningExceptionWithGuid" xml:space="preserve">
+    <value>無法執行作業，因為 TaskList {0} 正在執行中！</value>
+  </data>
+  <data name="FactoryOrchestratorUnkownGuidException" xml:space="preserve">
+    <value>GUID 無效!</value>
+  </data>
+  <data name="FactoryOrchestratorUnkownGuidExceptionWithGuid" xml:space="preserve">
+    <value>{0} 無效!</value>
+  </data>
+  <data name="FactoryOrchestratorUnkownGuidExceptionWithGuidAndType" xml:space="preserve">
+    <value>{0} 不是有效的 {1}!</value>
+  </data>
+  <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
+    <value>{ip} 上的 Factory Orchestrator Service 有版本 {serviceVersion}，該版本與 FactoryOrchestratorClient 版本 {clientVersion} 不相容! 使用 Connect(true) 或 TryConnect(true) 在連線時忽略此錯誤。</value>
+  </data>
+  <data name="FileLoadSucceeded" xml:space="preserve">
+    <value>已成功載入 {0}。</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>找不到 {0}。</value>
+  </data>
+  <data name="FileNotFoundException" xml:space="preserve">
+    <value>{0} 不存在!</value>
+  </data>
+  <data name="FileSaveError" xml:space="preserve">
+    <value>無法儲存目標檔案 {0}!</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="FOXMLFileLoadException" xml:space="preserve">
+    <value>無法將 {0} 載入為 FactoryOrchestratorXML!</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>{0} 不是有效的檔案或資料夾！</value>
+  </data>
+  <data name="InvalidTaskRunTypeException" xml:space="preserve">
+    <value>TaskRun 有不正確的 TaskType!</value>
+  </data>
+  <data name="LogFileCreationFailed" xml:space="preserve">
+    <value>警告：無法建立記錄檔 {0}</value>
+  </data>
+  <data name="LogFolderMoveFailed" xml:space="preserve">
+    <value>無法移動記錄檔資料夾!</value>
+  </data>
+  <data name="NetworkAccessDisabled" xml:space="preserve">
+    <value>已停用 Factory Orchestrator 服務網路存取。</value>
+  </data>
+  <data name="NetworkAccessEnabled" xml:space="preserve">
+    <value>已啟用 Factory Orchestrator 服務網路存取。</value>
+  </data>
+  <data name="NoContainerIdFound" xml:space="preserve">
+    <value>找不到有效的容器識別碼!</value>
+  </data>
+  <data name="NoContainerIpFound" xml:space="preserve">
+    <value>找不到有效的容器 IP 位址!</value>
+  </data>
+  <data name="NoMethodFound" xml:space="preserve">
+    <value>找不到名稱為 {0} 的方法</value>
+  </data>
+  <data name="NoTaskListsException" xml:space="preserve">
+    <value>沒有可儲存的 TaskList!</value>
+  </data>
+  <data name="ProcessExited" xml:space="preserve">
+    <value>處理程序已結束。</value>
+  </data>
+  <data name="ProcessStartError" xml:space="preserve">
+    <value>處理程序無法啟動!</value>
+  </data>
+  <data name="ReadyToCommunicate" xml:space="preserve">
+    <value>Factory Orchestrator 服務已準備好與用戶端通訊。</value>
+  </data>
+  <data name="RedirectingToRunAsRDUser" xml:space="preserve">
+    <value>{0} 是 Win32 GUI 程式。正在重新導向以遠端使用者身份執行...</value>
+    <comment>Message shown when program the user wants to run is detected to be a GUI program, which need to run as a user account, not SYSTEM.</comment>
+  </data>
+  <data name="RedirectingUWPToRunAs" xml:space="preserve">
+    <value>{0} 是一個可在容器中執行的 UWP 應用程式。正在重新導向以在容器中作爲遠端使用者執行...</value>
+    <comment>Message shown when program the user wants to run in the container is a UWP app, which need to run as a user account, not SYSTEM.</comment>
+  </data>
+  <data name="RunningGuiAsSystemWarning" xml:space="preserve">
+    <value>警告: {0} 是 Win32 GUI 程式。它可能無法正確地以系統方式執行</value>
+    <comment>Message shown when program the user wants to run is detected to be a GUI program, but the code to run as a user account is not present on the device.</comment>
+  </data>
+  <data name="ServiceAlreadyCreatedError" xml:space="preserve">
+    <value>FactoryOrchestratorService 已建立!只允許一個實例。</value>
+  </data>
+  <data name="ServiceErrored" xml:space="preserve">
+    <value>服務 {0} 因例外狀況而發生錯誤</value>
+  </data>
+  <data name="ServiceStarted" xml:space="preserve">
+    <value>服務 {0} 已啟動</value>
+  </data>
+  <data name="ServiceStarting" xml:space="preserve">
+    <value>服務 {0} 正在啟動</value>
+  </data>
+  <data name="ServiceStopped" xml:space="preserve">
+    <value>服務 {0} 已停止</value>
+  </data>
+  <data name="ServiceStoppedWithName" xml:space="preserve">
+    <value>Factory Orchestrator 服務已停止。</value>
+  </data>
+  <data name="ServiceStopping" xml:space="preserve">
+    <value>正在停止服務 {0}</value>
+  </data>
+  <data name="ServiceStopSaveError" xml:space="preserve">
+    <value>服務停止時無法儲存 TaskList!</value>
+  </data>
+  <data name="SourceDirectoryNotFound" xml:space="preserve">
+    <value>來源目錄不存在或找不到:</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>啟動</value>
+  </data>
+  <data name="StartContainerOutput" xml:space="preserve">
+    <value>啟動容器處理程序輸出</value>
+  </data>
+  <data name="MoveContainerPathFailed" xml:space="preserve">
+    <value>無法將檔案或資料夾 {0} 移動到容器中 {1}！</value>
+  </data>
+  <data name="DeleteContainerPathFailed" xml:space="preserve">
+    <value>無法刪除容器中 {0} 的檔案或資料夾！</value>
+  </data>
+  <data name="OpenNonMutableKeyFailed" xml:space="preserve">
+    <value>無法開啟 NonMutable 登錄機碼!</value>
+  </data>
+  <data name="OpenVolatileKeyFailed" xml:space="preserve">
+    <value>無法開啟可變更的登錄機碼!</value>
+  </data>
+  <data name="CreateDirectoryFailed" xml:space="preserve">
+    <value>無法建立 {0} 目錄!</value>
+  </data>
+  <data name="TaefCheckFailed" xml:space="preserve">
+    <value>無法叫用 TE.exe 來驗證可能的 TAEF 測試： {0}</value>
+  </data>
+  <data name="TaefCheckReturnedError" xml:space="preserve">
+    <value>嘗試驗證可能的 TAEF 測試時，TE.exe 傳回錯誤 {0}： {1}</value>
+  </data>
+  <data name="TaefCheckTimeout" xml:space="preserve">
+    <value>嘗試驗證可能的 TAEF 測試時已超時 TE.exe： {0}</value>
+  </data>
+  <data name="TaefValidationFailed" xml:space="preserve">
+    <value>無法驗證可能的 TAEF 測試: {0}</value>
+  </data>
+  <data name="TaskBaseDeserializationException" xml:space="preserve">
+    <value>正在嘗試將未知的工作類型還原序列化!</value>
+  </data>
+  <data name="TaskBaseSerializationException" xml:space="preserve">
+    <value>正在嘗試將未知的工作類型序列化!</value>
+  </data>
+  <data name="TaskListCountMismatch" xml:space="preserve">
+    <value>伺服器已 {0} TaskLists，但新訂單只 {1} Guid！</value>
+  </data>
+  <data name="TaskListExistsAlready" xml:space="preserve">
+    <value>GUID 為 {0} 的 TaskList 已存在！</value>
+  </data>
+  <data name="TaskListSaveFailed" xml:space="preserve">
+    <value>無法將 TaskList 儲存至 {0}!</value>
+  </data>
+  <data name="TaskListToString" xml:space="preserve">
+    <value>狀態為 {2} 的 TaskList {0} ({1})</value>
+  </data>
+  <data name="TooManyMethodsFound" xml:space="preserve">
+    <value>有一個以上名稱為 {0} 的方法</value>
+  </data>
+  <data name="UnsupportedGuidType" xml:space="preserve">
+    <value>不支援輪詢的 GUID 類型!</value>
+  </data>
+  <data name="WaitingForContainerTaskRun" xml:space="preserve">
+    <value>TaskRun {0} 正在等候容器所執行的結果。</value>
+  </data>
+  <data name="WaitingForExternalTaskRun" xml:space="preserve">
+    <value>TaskRun {0} 正在等候外部結果。</value>
+  </data>
+  <data name="WDPAppLaunchFailed" xml:space="preserve">
+    <value>錯誤: 無法啟動 AUMID: {0}</value>
+  </data>
+  <data name="WDPAppLaunchFailed2" xml:space="preserve">
+    <value>錯誤: 應用程式啟動需要「裝置入口網站」，而且可能未在系統上執行。</value>
+  </data>
+  <data name="WDPAppLaunchFailed3" xml:space="preserve">
+    <value>錯誤: 如果它正在執行，AUMID 可能不正確。</value>
+  </data>
+  <data name="WDPAppLaunchSucceeded" xml:space="preserve">
+    <value>已順利啟動具有 AUMID 的應用程式: {0}</value>
+  </data>
+  <data name="WDPError" xml:space="preserve">
+    <value>Windows 裝置入口網站因錯誤而失敗</value>
+  </data>
+  <data name="WDPHttpError" xml:space="preserve">
+    <value>Windows 裝置入口網站因 HTTP 錯誤而失敗</value>
+  </data>
+  <data name="WDPNotRunningError" xml:space="preserve">
+    <value>Windows 裝置入口網站必須執行，才能呼叫 GetInstalledApps！</value>
+  </data>
+  <data name="WindowsOnlyError" xml:space="preserve">
+    <value>只有在 Windows 上才支援 {0}!</value>
+  </data>
+  <data name="EnablingLoopback" xml:space="preserve">
+    <value>正在啟用 {0} 的 UWP 本機回送...</value>
+  </data>
+  <data name="EnablingLoopbackFailed" xml:space="preserve">
+    <value>無法啟用 {0} 的 UWP 本機回送您可能無法從 {0} 與 Factory Orchestrator 服務通訊。</value>
+  </data>
+  <data name="EveryBootAlreadyComplete" xml:space="preserve">
+    <value>每個開機 TaskList 都已完成。</value>
+  </data>
+  <data name="EveryBootComplete" xml:space="preserve">
+    <value>每個開機 TaskList 完成。</value>
+  </data>
+  <data name="EveryBootFailed" xml:space="preserve">
+    <value>無法完成每個開機 TaskList!</value>
+  </data>
+  <data name="EveryBootRunningTaskList" xml:space="preserve">
+    <value>正在執行每個開機 TaskList {0}...</value>
+  </data>
+  <data name="EveryBootWaiting" xml:space="preserve">
+    <value>正在等候每個開機 TaskList 完成...(如果您不希望測試結束，請將測試標記為 BackgroundTasks。)</value>
+  </data>
+  <data name="FirstBootAlreadyComplete" xml:space="preserve">
+    <value>已完成第一次開機 TaskList!</value>
+  </data>
+  <data name="FirstBootComplete" xml:space="preserve">
+    <value>第一次開機 TaskList 完成。</value>
+  </data>
+  <data name="FirstBootFailed" xml:space="preserve">
+    <value>無法完成第一次開機 TaskList！</value>
+  </data>
+  <data name="FirstBootRunningTaskList" xml:space="preserve">
+    <value>正在執行第一次開機 TaskList {0}...</value>
+  </data>
+  <data name="FirstBootWaiting" xml:space="preserve">
+    <value>正在等候第一次開機 TaskList 完成...(如果您不希望測試結束，請將測試標記為 BackgroundTasks。)</value>
+  </data>
+  <data name="ServiceProcessExitedWithError" xml:space="preserve">
+    <value>{0} 結束 {1}!</value>
+  </data>
+  <data name="ServiceProcessStartFailed" xml:space="preserve">
+    <value>{0} 從未啟動!</value>
+  </data>
+  <data name="ServiceProcessTimedOut" xml:space="preserve">
+    <value>{0} 未在 {1}ms 之前結束!</value>
+  </data>
+  <data name="DuplicateGuidInXml" xml:space="preserve">
+    <value>在 FactoryOrchestratorXML 中有重複的 GUID {0}!</value>
+  </data>
+  <data name="ContainerConnected" xml:space="preserve">
+    <value>Factory Orchestrator Service 已連線到執行相容版本之 Factory Orchestrator Service 的容器。</value>
+    <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
+  </data>
+  <data name="ContainerDisconnected" xml:space="preserve">
+    <value>Factory Orchestrator Service 已與執行相容版本之 Factory Orchestrator Service 的容器中斷連線。</value>
+    <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
+  </data>
+  <data name="IpcInvalidOperationError" xml:space="preserve">
+    <value>Factory Orchestrator 服務無法辨識命令！這很可能是因為用戶端與服務的版本不相符。</value>
+    <comment>Error when service does not recognize a command from client. Almost always due to using an older client with a newer service.</comment>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="ContainerConnectionFailed" xml:space="preserve">
+    <value>無法連線到容器內的 Factory Orchestrator 服務!</value>
+    <comment>Error thrown if we cannot connect to the service inside the container for any reason</comment>
+  </data>
+</root>
