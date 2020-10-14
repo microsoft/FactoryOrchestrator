@@ -46,6 +46,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.FactoryOrchestrator.Core</CustomToolNamespace>
     </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Resources.zh-CN.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Resources.zh-TW.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">

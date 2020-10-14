@@ -161,6 +161,8 @@
   </ItemGroup>
   <ItemGroup>
     <PRIResource Include="Resources\en-US\Resources.resw" />
+    <PRIResource Include="Resources\zh-CN\Resources.resw" />
+    <PRIResource Include="Resources\zh-TW\Resources.resw" />
     <None Include="WindowsDev_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
