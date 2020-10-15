@@ -43,8 +43,8 @@ jobs:
       authId: 1216fd85-09c7-4be1-89bf-ec60647e0d5b
       authKey: $(LocServiceKey)
       isPreview: false
-      relativePathRoot: src/ClientSample/Resources/
-      resourceFilePath: 'Resources.resx'
+      relativePathRoot: src/
+      resourceFilePath: 'ClientSample/Resources/Resources.resx'
       outputDirectoryRoot: src/ClientSample/Resources/
   - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@1
     displayName: Send CoreLibrary resources to Touchdown Build
@@ -53,8 +53,8 @@ jobs:
       authId: 1216fd85-09c7-4be1-89bf-ec60647e0d5b
       authKey: $(LocServiceKey)
       isPreview: false
-      relativePathRoot: src/CoreLibrary/Resources/
-      resourceFilePath: 'Resources.resx'
+      relativePathRoot: src/
+      resourceFilePath: 'CoreLibrary/Resources/Resources.resx'
       outputDirectoryRoot: src/CoreLibrary/Resources/
   - script: |
       cd $(Build.SourcesDirectory)
