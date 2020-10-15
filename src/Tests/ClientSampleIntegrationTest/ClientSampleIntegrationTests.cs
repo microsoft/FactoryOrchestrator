@@ -40,6 +40,7 @@ namespace Microsoft.FactoryOrchestrator.Test
         private static string _testContentDest;
         private static string _logDest;
         private static bool _verifyPassed;
+        private static bool _cleanLogFolder;
         private static bool _testExecuted = false;
 
         [ClassInitialize]
@@ -47,6 +48,7 @@ namespace Microsoft.FactoryOrchestrator.Test
         {
             _classTestContext = context;
             _verifyPassed = (_classTestContext.Properties["verifyPassed"] as bool?) ?? true;
+            _cleanLogFolder = (_classTestContext.Properties["cleanLogFolder"] as bool?) ?? false;
             FactoryOrchestratorClient testClientConnection;
 
             try
@@ -78,6 +80,11 @@ namespace Microsoft.FactoryOrchestrator.Test
             _testExecuted = true;
             Logger.LogMessage($"ClientSample {_serviceIp} {_testContentSrc} {_testContentDest} {_logDest}");
             Logger.LogMessage($"verifyPassed {_verifyPassed}");
+
+            if (_cleanLogFolder && Directory.Exists(_logDest))
+            {
+                Directory.Delete(_logDest, true);
+            }
             // Run client sample, will create a testlist based on files in _testContentSrc if one isn't found in _testContentSrc
             var result = ClientSample.FactoryOrchestratorNETCoreClientSample.Main(new string[] { _serviceIp, _testContentSrc, _testContentDest, _logDest }).Result;
 

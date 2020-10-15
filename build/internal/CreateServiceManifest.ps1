@@ -63,6 +63,13 @@ foreach ($file in $filesToAdd)
     $newElement = $templateXml.CreateElement("file", $wmxmlNs)
     $newElement.SetAttribute("destinationDir", "$fileDestinationDir")
     $newElement.SetAttribute("source", "$source")
+    if ($source.EndsWith(".resources.dll"))
+    {
+        # Resource files always have the same name. They need to use unique names or a collision occurs
+        # even though they are in different source & destination folders.
+        $name = $file.Name;
+        $newElement.SetAttribute("name", "$subfolder\$name")
+    }
     $null = $filesNode.Node.AppendChild($newElement)
 	Write-Host "Added $($file.FullName)."
 	Write-Host "---source: $source"
