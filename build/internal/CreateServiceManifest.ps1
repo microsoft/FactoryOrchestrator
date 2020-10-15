@@ -30,6 +30,7 @@ $filesNode = Select-Xml -Xml $templateXml -XPath "//wmxml:files" -Namespace $ns 
 
 [System.IO.DirectoryInfo] $PublishDir = $PublishFolder
 $filesToAdd = Get-ChildItem $PublishFolder -Recurse -File
+$fileNamesAdded = @{}
 
 foreach ($file in $filesToAdd)
 {
@@ -63,10 +64,22 @@ foreach ($file in $filesToAdd)
     $newElement = $templateXml.CreateElement("file", $wmxmlNs)
     $newElement.SetAttribute("destinationDir", "$fileDestinationDir")
     $newElement.SetAttribute("source", "$source")
+    if ($fileNamesAdded.ContainsKey($file.Name))
+    {
+        # Resource files always have the same name. All files need to use unique wm.xml names or a collision occurs
+        # even though they are in different source & destination folders.
+        $name = $file.Name;
+        $newElement.SetAttribute("name", "$subfolder\$name")
+    }
     $null = $filesNode.Node.AppendChild($newElement)
 	Write-Host "Added $($file.FullName)."
 	Write-Host "---source: $source"
 	Write-Host "---destinationDir: $fileDestinationDir"
+
+    if (!$fileNamesAdded.ContainsKey($file.Name))
+    {
+        $fileNamesAdded.Add($file.Name, 1)
+    }
 }
 
 Write-Host "Saving $OutputFile"
