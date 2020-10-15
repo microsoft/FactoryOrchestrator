@@ -16,6 +16,8 @@ trigger:
     - docs/*
 
 steps:
+  - checkout: self
+    persistCredentials: 'true'
   - script: 
       python -m pip install --upgrade pip
       pip install -r $(Build.SourcesDirectory)\docs\requirements.txt
