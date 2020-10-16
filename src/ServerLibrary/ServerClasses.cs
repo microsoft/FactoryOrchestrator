@@ -1005,31 +1005,6 @@ namespace Microsoft.FactoryOrchestrator.Server
                             }
                         }
                     }
-
-                    if (taskRun.RunByClient)
-                    {
-                        // Mark the run as finished.
-                        taskRun.EndWaitingForExternalResult(waitingForResult);
-
-                        if (waitingForResult)
-                        {
-                            // disable timeout
-                            externalTimeoutTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-
-                            // Exit the app (if desired)
-                            if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
-                                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
-                            {
-                                taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.AppTerminated, taskRun.TaskPath));
-                            }
-                        }
-
-                        // Write log file. Unlike an executable Task, we must do this manually.
-                        taskRun.WriteLogFooter();
-
-                        // Let the service know we got a result
-                        OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunFinished, taskRun.Guid, taskRun.TaskStatus));
-                    }
                 }
                 catch (Exception e)
                 {
@@ -1037,11 +1012,36 @@ namespace Microsoft.FactoryOrchestrator.Server
                     taskRun.TaskOutput.Add(Resources.TaskRunUnhandledExceptionError);
                     taskRun.TaskOutput.Add(e.AllExceptionsToString());
                     taskRun.ExitCode = -1;
+                    taskRun.TimeFinished = DateTime.Now;
                     taskRun.TaskStatus = TaskStatus.Failed;
                 }
                 finally
                 {
+                    // If external Task, disable timeout
+                    externalTimeoutTimer?.Change(Timeout.Infinite, Timeout.Infinite);
                     externalTimeoutTimer?.Dispose();
+                }
+
+                if (taskRun.RunByClient)
+                {
+                    // Mark the run as finished.
+                    taskRun.EndWaitingForExternalResult(waitingForResult);
+
+                    if (waitingForResult)
+                    {
+                        // Exit the app (if desired)
+                        if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
+                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
+                        {
+                            taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.AppTerminated, taskRun.TaskPath));
+                        }
+                    }
+
+                    // Write log file. Unlike an executable Task, we must do this manually.
+                    taskRun.WriteLogFooter();
+
+                    // Let the service know we got a result
+                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunFinished, taskRun.Guid, taskRun.TaskStatus));
                 }
 
                 OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunFinished, taskRun.Guid, taskRun.TaskStatus));
