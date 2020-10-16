@@ -741,7 +741,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         usedSem = false;
                     }
 
-                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListStarted, item.TaskListGuid, GetTaskList(item.TaskListGuid).TaskListStatus));
+                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskListFinished, item.TaskListGuid, GetTaskList(item.TaskListGuid).TaskListStatus));
                 }
             }
             finally
