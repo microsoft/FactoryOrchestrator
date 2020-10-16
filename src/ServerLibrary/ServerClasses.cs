@@ -931,7 +931,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                             }
                             else
                             {
-                                taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.WDPAppLaunchSucceeded));
+                                taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.WDPAppLaunchSucceeded, taskRun.TaskPath));
                                 if (taskRun.OwningTask == null)
                                 {
                                     // App was launched via RunApp(), and is not part of a Task. Complete it.
@@ -1030,6 +1030,14 @@ namespace Microsoft.FactoryOrchestrator.Server
                         // Let the service know we got a result
                         OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.WaitingForExternalTaskRunFinished, taskRun.Guid, taskRun.TaskStatus));
                     }
+                }
+                catch (Exception e)
+                {
+                    // Something went wrong executing the Task. Log the failure and fail the Task. This usually indicates a bug in Factory Orchestrator.
+                    taskRun.TaskOutput.Add(Resources.TaskRunUnhandledExceptionError);
+                    taskRun.TaskOutput.Add(e.AllExceptionsToString());
+                    taskRun.ExitCode = -1;
+                    taskRun.TaskStatus = TaskStatus.Failed;
                 }
                 finally
                 {

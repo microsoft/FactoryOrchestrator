@@ -907,6 +907,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: TaskRun threw an unhandled exception during execution!.
+        /// </summary>
+        public static string TaskRunUnhandledExceptionError {
+            get {
+                return ResourceManager.GetString("TaskRunUnhandledExceptionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More than one method with name {0}.
         /// </summary>
         public static string TooManyMethodsFound {
