@@ -7,6 +7,7 @@
     <TargetName>ClientSample</TargetName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -35,6 +36,12 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.FactoryOrchestrator.ClientSample</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Resources.zh-CN.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Resources.zh-TW.resx">
+      <Generator></Generator>
     </EmbeddedResource>
   </ItemGroup>
 
