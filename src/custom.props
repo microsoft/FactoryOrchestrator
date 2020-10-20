@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Set the major and minor build numbers here -->
   <PropertyGroup Label="Version">
-     <VersionMajor>8</VersionMajor>
+     <VersionMajor>158</VersionMajor>
      <VersionMinor>0</VersionMinor>
      <VersionInfoProductName>Factory Orchestrator</VersionInfoProductName>
  </PropertyGroup>

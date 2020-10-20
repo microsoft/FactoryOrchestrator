@@ -61,19 +61,19 @@ Write-Host "Using temp file $tempFile"
 #now load all content of the original file and rewrite modified to the same file
  if ($tfs -eq $true)
 {
-    Get-Content $file.FullName |
-    ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription("""")]" }  > $tempFile
+    $assemblyContents = Get-Content $file.FullName |
+                        ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription("""")]" }
 }
 else
 {
     Write-Host "Creating assembly info file for:" $file.FullName " build number:" $buildNumber
-    Get-Content $file.FullName |
-    ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }  > $tempFile
+    $assemblyContents = Get-Content $file.FullName |
+                        ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }
 }
 
-Get-Content $tempFile |
-ForEach-Object{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
-ForEach-Object{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } > $tempFile
+$assemblyContents = $assemblyContents | ForEach-Object{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
+                    ForEach-Object{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } |
+                    Set-Content $tempFile
 
 Write-Host "Sucessfully modified $tempFile"
 
