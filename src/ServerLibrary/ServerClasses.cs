@@ -760,9 +760,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                     if (!run.TaskRunComplete)
                     {
                         run.TaskStatus = TaskStatus.Aborted;
-                        run.ExitCode = -1;
+                        run.ExitCode = -2147467260; // E_ABORT
                         run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
-                        run.OwningTask.LatestTaskRunExitCode = -1;
+                        run.OwningTask.LatestTaskRunExitCode = -2147467260; // E_ABORT
                     }
                 }
 
@@ -906,6 +906,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         {
                             HttpWebResponse response = null;
                             bool restFailed = false;
+                            var errorCode = 0;
                             try
                             {
                                 var s = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(taskRun.TaskPath));
@@ -913,9 +914,10 @@ namespace Microsoft.FactoryOrchestrator.Server
                                 request.Method = "POST";
                                 response = (HttpWebResponse)request.GetResponse();
                             }
-                            catch (Exception)
+                            catch (Exception e)
                             {
                                 restFailed = true;
+                                errorCode = e.HResult;
                             }
 
                             if (restFailed || (response.StatusCode != HttpStatusCode.OK))
@@ -925,7 +927,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                                 taskRun.TaskOutput.Add(Resources.WDPAppLaunchFailed2);
                                 taskRun.TaskOutput.Add(Resources.WDPAppLaunchFailed3);
                                 taskRun.TaskStatus = TaskStatus.Failed;
-                                taskRun.ExitCode = -1;
+                                taskRun.ExitCode = (errorCode == 0) ? (int)response.StatusCode : errorCode;
                                 taskRun.TimeFinished = DateTime.Now;
                                 taskRun.WriteLogFooter();
                             }
@@ -1008,10 +1010,10 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 catch (Exception e)
                 {
-                    // Something went wrong executing the Task. Log the failure and fail the Task. This usually indicates a bug in Factory Orchestrator.
+                    // Something went wrong executing the Task. Log the failure and fail the Task.
                     taskRun.TaskOutput.Add(Resources.TaskRunUnhandledExceptionError);
                     taskRun.TaskOutput.Add(e.AllExceptionsToString());
-                    taskRun.ExitCode = -1;
+                    taskRun.ExitCode = (e.HResult == 0) ? -2147467259 : e.HResult; // E_FAIL
                     taskRun.TimeFinished = DateTime.Now;
                     taskRun.TaskStatus = TaskStatus.Failed;
                 }
@@ -1065,7 +1067,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else
             {
-                taskRun.ExitCode = -1;
+                taskRun.ExitCode = -2147467260; // E_ABORT
                 taskRun.TaskStatus = TaskStatus.Aborted;
                 taskRun.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
             }
@@ -1095,7 +1097,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 {
                     KillAppProcess(run);
 
-                    run.ExitCode = -1;
+                    run.ExitCode = -2147467260; // E_ABORT
                     run.TaskStatus = TaskStatus.Timeout;
                 }
             }
@@ -1222,12 +1224,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                     else
                     {
                         run.TaskStatus = TaskStatus.Aborted;
-                        run.ExitCode = -1;
+                        run.ExitCode = -2147467260; // E_ABORT
                         UpdateTaskRun(run);
                         if (run.OwningTask != null)
                         {
                             run.OwningTask.LatestTaskRunStatus = TaskStatus.Aborted;
-                            run.OwningTask.LatestTaskRunExitCode = -1;
+                            run.OwningTask.LatestTaskRunExitCode = -2147467260; // E_ABORT
                         }
                     }
                     RunningBackgroundTasks.TryRemove(taskRunToCancel, out var removed);
@@ -2097,7 +2099,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             // Save the result of the task
             if (TaskAborted)
             {
-                ActiveTaskRun.ExitCode = -1;
+                ActiveTaskRun.ExitCode = -2147467260; // E_ABORT
                 ActiveTaskRun.TaskStatus = TaskTimeout ? TaskStatus.Timeout : TaskStatus.Aborted;
             }
             else
