@@ -445,4 +445,8 @@
     <value>Failed to connect to Factory Orchestrator Service inside the container!</value>
     <comment>Error thrown if we cannot connect to the service inside the container for any reason</comment>
   </data>
+  <data name="TaskRunUnhandledExceptionError" xml:space="preserve">
+    <value>Error: TaskRun threw an unhandled exception during execution!</value>
+    <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
+  </data>
 </root>
