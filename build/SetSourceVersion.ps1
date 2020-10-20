@@ -67,13 +67,13 @@ Write-Host "Using temp file $tempFile"
 else
 {
     Write-Host "Creating assembly info file for:" $file.FullName " build number:" $buildNumber
-
+    Get-Content $file.FullName |
     ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }  > $tempFile
 }
 
-Get-Content $file.FullName |
+Get-Content $tempFile |
 ForEach-Object{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$buildNumber"")" } |
-ForEach-Object{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } |
+ForEach-Object{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$buildNumber"")" } > $tempFile
 
 Write-Host "Sucessfully modified $tempFile"
 
