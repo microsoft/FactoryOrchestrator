@@ -447,6 +447,6 @@
   </data>
   <data name="TaskRunUnhandledExceptionError" xml:space="preserve">
     <value>Error: TaskRun threw an unhandled exception during execution!</value>
-    <comment>Error message shown when TaskRun encouters an unhandled exception while running.</comment>
+    <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
   </data>
 </root>
