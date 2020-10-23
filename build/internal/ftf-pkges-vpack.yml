@@ -141,7 +141,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -151,7 +151,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -161,7 +161,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -171,7 +171,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
