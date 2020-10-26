@@ -1815,11 +1815,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                         UpdateContainerInfo();
                     }
 
+                    // Throws FactoryOrchestratorContainerException if unable to connect
                     await ConnectToContainer();
 
-                    if (IsContainerConnected && (previousContainerStatus == IsContainerConnected))
+                    if (IsContainerConnected && previousContainerStatus)
                     {
-                        // Verify it is still working properly
+                        // We were connected already. Verify it is still working properly.
                         await _containerClient.GetServiceVersionString();
                     }
                     else
@@ -1828,7 +1829,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
                     }
 
-                    // Connection established, exit loop
+                    // Connection is working, exit loop
                     break;
                 }
                 catch (FactoryOrchestratorContainerException)
