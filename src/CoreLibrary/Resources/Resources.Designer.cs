@@ -187,6 +187,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Container support is disabled!.
+        /// </summary>
+        public static string ContainerDisabledException {
+            get {
+                return ResourceManager.GetString("ContainerDisabledException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Factory Orchestrator Service is disconnected from a container running a compatible version of Factory Orchestrator Service..
         /// </summary>
         public static string ContainerDisconnected {
@@ -214,7 +223,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to complete TraskRun in container.
+        ///   Looks up a localized string similar to Unable to complete TaskRun in container.
         /// </summary>
         public static string ContainerTaskRunFailed {
             get {
@@ -403,7 +412,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting..
+        ///   Looks up a localized string similar to Factory Orchestrator Service on {0} has version {1} which is incompatable with FactoryOrchestratorClient version {2}! Use Connect(true) or TryConnect(true) to ignore this error when connecting..
         /// </summary>
         public static string FactoryOrchestratorVersionMismatchException {
             get {

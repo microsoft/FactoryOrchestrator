@@ -160,7 +160,7 @@
     <value>Unable to send file to container!</value>
   </data>
   <data name="ContainerTaskRunFailed" xml:space="preserve">
-    <value>Unable to complete TraskRun in container</value>
+    <value>Unable to complete TaskRun in container</value>
   </data>
   <data name="DoneWaitingForExternalTaskRun" xml:space="preserve">
     <value>External TaskRun {0} received a {1} result and is finished.</value>
@@ -193,7 +193,7 @@
     <value>{0} is not a valid {1}!</value>
   </data>
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
-    <value>Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.</value>
+    <value>Factory Orchestrator Service on {0} has version {1} which is incompatable with FactoryOrchestratorClient version {2}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.</value>
   </data>
   <data name="FileLoadSucceeded" xml:space="preserve">
     <value>Successfully loaded {0}.</value>
@@ -448,5 +448,8 @@
   <data name="TaskRunUnhandledExceptionError" xml:space="preserve">
     <value>Error: TaskRun threw an unhandled exception during execution!</value>
     <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
+  </data>
+  <data name="ContainerDisabledException" xml:space="preserve">
+    <value>Container support is disabled!</value>
   </data>
 </root>

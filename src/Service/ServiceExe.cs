@@ -24,6 +24,7 @@ using Microsoft.FactoryOrchestrator.Client;
 using System.Globalization;
 using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Hosting;
+using System.Threading;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -1299,6 +1300,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static FOService _singleton = null;
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
+        private static readonly SemaphoreSlim _containerConnectionSem = new SemaphoreSlim(1, 1);
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
         private Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
 
@@ -1408,6 +1410,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool EnableNetworkAccess { get; private set; }
         public int ServiceNetworkPort { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
+        public bool DisableContainerSupport { get; private set; }
 
         public bool IsContainerConnected => _containerClient?.IsConnected ?? false;
         public Guid ContainerGuid { get; private set; }
@@ -1677,6 +1680,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private void RunTaskRunInContainer(ServerTaskRun hostRun)
         {
             hostRun.TaskOutput.Add(Resources.AttemptingContainerTaskRun);
+            hostRun.TaskStatus = TaskStatus.Running;
 
             Task.Run(async () =>
             {
@@ -1708,7 +1712,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         containerTask = uwpContainerTask;
                     }
 
-                    await VerifyContainerConnection();
+                    await VerifyContainerConnection(60);
 
                     hostRun.TaskOutput.Add($"----------- {Resources.StartContainerOutput} (stdout, stderr) -----------");
                     var containerRun = await _containerClient.RunTask(containerTask);
@@ -1773,7 +1777,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     hostRun.TaskOutput.Add(Resources.ContainerTaskRunFailed);
                     hostRun.TaskOutput.Add(e.AllExceptionsToString());
                     hostRun.TaskStatus = TaskStatus.Failed;
-                    _containerClient = null;
+                    hostRun.ExitCode = e.HResult;
                 }
             });
         }
@@ -1791,47 +1795,77 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public async Task VerifyContainerConnection()
+        /// <summary>
+        /// Attempts to connect to the container running FactoryOrchestratorService.
+        /// </summary>
+        /// <param name="retrySeconds">Number of seconds to retry before failing, default is 0 (no retries).</param>
+        /// <returns></returns>
+        public async Task VerifyContainerConnection(int retrySeconds = 0)
         {
-            var previousContainerStatus = IsContainerConnected;
-            var previousContainerGuid = ContainerGuid;
-
+            // Use semaphore to ensure ServiceEvents don't fire multiple times
+            await _containerConnectionSem.WaitAsync();
             try
             {
-                if (ContainerGuid == Guid.Empty)
-                {
-                    // If no container info has been found yet, double-check check the registry to
-                    // ensure we never fail a container Task or command due to a race condition.
-                    UpdateContainerInfo();
-                }
+                System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
+                w.Start();
 
-                await ConnectToContainer();
+                while (true)
+                {
+                    var previousContainerStatus = IsContainerConnected;
+                    var previousContainerGuid = ContainerGuid;
 
-                if (previousContainerStatus == IsContainerConnected)
-                {
-                    // Verify it is still working properly
-                    await _containerClient.GetServiceVersionString();
-                }
-                else
-                {
-                    // Initial connection made or reconnected
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
+                    try
+                    {
+                        // Throws FactoryOrchestratorContainerException if unable to connect
+                        await ConnectToContainer();
+
+                        if (IsContainerConnected && previousContainerStatus)
+                        {
+                            // We were connected already. Verify it is still working properly.
+                            await _containerClient.GetServiceVersionString();
+                        }
+                        else
+                        {
+                            // Initial connection made or reconnected
+                            LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
+                        }
+
+                        // Connection is working, exit loop
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        if (previousContainerStatus && !IsContainerConnected)
+                        {
+                            // Connection lost
+                            LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
+                        }
+
+                        if (w.ElapsedMilliseconds / 1000 > retrySeconds)
+                        {
+                            if (!(e is FactoryOrchestratorContainerException))
+                            {
+                                e = new FactoryOrchestratorContainerException(null, e);
+                            }
+
+                            throw e;
+                        }
+                    }
                 }
             }
-            catch (FactoryOrchestratorContainerException)
+            finally
             {
-                if (previousContainerStatus == IsContainerConnected)
-                {
-                    // Connection lost
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
-                }
-
-                throw;
+                _containerConnectionSem.Release();
             }
         }
 
         public async Task ConnectToContainer()
         {
+            if (DisableContainerSupport)
+            {
+                throw new FactoryOrchestratorContainerException(Resources.ContainerDisabledException);
+            }
+
             if (ContainerGuid != null)
             {
                 if (ContainerIpAddress != null)
@@ -1856,9 +1890,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
+                _containerClient = null;
                 throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
             }
 
+            _containerClient = null;
             throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
         }
 
@@ -1960,7 +1996,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 		
         public async Task SendFileToContainer(string containerFilePath, byte[] fileData, bool appending)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 await _containerClient.SendFile(containerFilePath, fileData, appending);
@@ -2029,7 +2065,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<byte[]> GetFileFromContainer(string containerFilePath, long offset, int count)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 return await _containerClient.GetFile(containerFilePath, offset, count);
@@ -2042,7 +2078,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task MoveInContainer(string sourcePath, string destinationPath)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 await _containerClient.MoveFileOrFolder(sourcePath, destinationPath);
@@ -2055,7 +2091,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task DeleteInContainer(string path)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 await _containerClient.DeleteFileOrFolder(path);
@@ -2068,7 +2104,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<List<string>> EnumerateFilesInContainer(string path, bool recursive)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 return await _containerClient.EnumerateFiles(path, recursive);
@@ -2081,7 +2117,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<List<string>> EnumerateDirectoriesInContainer(string path, bool recursive)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 return await _containerClient.EnumerateDirectories(path, recursive);
@@ -2237,7 +2273,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
 
-            if (!Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue, false), CultureInfo.InvariantCulture))
+            if (!DisableContainerSupport)
             {
                 // Start container heartbeat thread
                 _containerHeartbeatToken = new System.Threading.CancellationTokenSource();
@@ -2246,10 +2282,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     while (!_containerHeartbeatToken.Token.IsCancellationRequested)
                     {
                         // Poll every 5s for container running Factory Orchestrator Service.
-                        if (UpdateContainerInfo())
-                        {
-                            await TryVerifyContainerConnection();
-                        }
+                        UpdateContainerInfo();
+                        await TryVerifyContainerConnection();
                         await Task.Delay(5000);
                     }
                 });
@@ -2643,6 +2677,15 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception)
             {
                 RunInitialTaskListsOnFirstBoot = false;
+            }
+
+            try
+            {
+                DisableContainerSupport = Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableContainerValue)"), CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                DisableContainerSupport = false;
             }
 
             String loopbackAppsString;

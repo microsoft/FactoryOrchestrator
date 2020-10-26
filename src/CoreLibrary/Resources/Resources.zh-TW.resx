@@ -160,7 +160,7 @@
     <value>無法將檔案傳送至容器!</value>
   </data>
   <data name="ContainerTaskRunFailed" xml:space="preserve">
-    <value>無法完成容器中的 TraskRun</value>
+    <value>無法完成容器中的 TaskRun</value>
   </data>
   <data name="DoneWaitingForExternalTaskRun" xml:space="preserve">
     <value>外部 TaskRun {0} 收到 {1} 結果，而且已完成。</value>
@@ -193,7 +193,7 @@
     <value>{0} 不是有效的 {1}!</value>
   </data>
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
-    <value>{ip} 上的 Factory Orchestrator Service 有版本 {serviceVersion}，該版本與 FactoryOrchestratorClient 版本 {clientVersion} 不相容! 使用 Connect(true) 或 TryConnect(true) 在連線時忽略此錯誤。</value>
+    <value>{0} 上的 Factory Orchestrator Service 有版本 {1}，該版本與 FactoryOrchestratorClient 版本 {2} 不相容! 使用 Connect(true) 或 TryConnect(true) 在連線時忽略此錯誤。</value>
   </data>
   <data name="FileLoadSucceeded" xml:space="preserve">
     <value>已成功載入 {0}。</value>
