@@ -1874,9 +1874,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
+                _containerClient = null;
                 throw new FactoryOrchestratorContainerException(Resources.NoContainerIpFound);
             }
 
+            _containerClient = null;
             throw new FactoryOrchestratorContainerException(Resources.NoContainerIdFound);
         }
 
@@ -2264,10 +2266,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     while (!_containerHeartbeatToken.Token.IsCancellationRequested)
                     {
                         // Poll every 5s for container running Factory Orchestrator Service.
-                        if (UpdateContainerInfo())
-                        {
-                            await TryVerifyContainerConnection();
-                        }
+                        UpdateContainerInfo();
+                        await TryVerifyContainerConnection();
                         await Task.Delay(5000);
                     }
                 });
