@@ -214,7 +214,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to complete TraskRun in container.
+        ///   Looks up a localized string similar to Unable to complete TaskRun in container.
         /// </summary>
         public static string ContainerTaskRunFailed {
             get {

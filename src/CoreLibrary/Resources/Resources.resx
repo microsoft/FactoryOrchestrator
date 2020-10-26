@@ -160,7 +160,7 @@
     <value>Unable to send file to container!</value>
   </data>
   <data name="ContainerTaskRunFailed" xml:space="preserve">
-    <value>Unable to complete TraskRun in container</value>
+    <value>Unable to complete TaskRun in container</value>
   </data>
   <data name="DoneWaitingForExternalTaskRun" xml:space="preserve">
     <value>External TaskRun {0} received a {1} result and is finished.</value>

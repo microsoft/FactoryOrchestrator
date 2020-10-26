@@ -160,7 +160,7 @@
     <value>無法將檔案傳送至容器!</value>
   </data>
   <data name="ContainerTaskRunFailed" xml:space="preserve">
-    <value>無法完成容器中的 TraskRun</value>
+    <value>無法完成容器中的 TaskRun</value>
   </data>
   <data name="DoneWaitingForExternalTaskRun" xml:space="preserve">
     <value>外部 TaskRun {0} 收到 {1} 結果，而且已完成。</value>
