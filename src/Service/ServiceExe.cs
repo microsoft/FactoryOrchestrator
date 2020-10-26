@@ -1708,7 +1708,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         containerTask = uwpContainerTask;
                     }
 
-                    await VerifyContainerConnection();
+                    await VerifyContainerConnection(60);
 
                     hostRun.TaskOutput.Add($"----------- {Resources.StartContainerOutput} (stdout, stderr) -----------");
                     var containerRun = await _containerClient.RunTask(containerTask);
@@ -1791,42 +1791,58 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public async Task VerifyContainerConnection()
+        /// <summary>
+        /// Attempts to connect to the container running FactoryOrchestratorService.
+        /// </summary>
+        /// <param name="retrySeconds">Number of seconds to retry before failing, default is 0 (no retries).</param>
+        /// <returns></returns>
+        public async Task VerifyContainerConnection(int retrySeconds = 0)
         {
             var previousContainerStatus = IsContainerConnected;
             var previousContainerGuid = ContainerGuid;
+            System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
+            w.Start();
 
-            try
+            while(true)
             {
-                if (ContainerGuid == Guid.Empty)
+                try
                 {
-                    // If no container info has been found yet, double-check check the registry to
-                    // ensure we never fail a container Task or command due to a race condition.
-                    UpdateContainerInfo();
-                }
+                    if (ContainerGuid == Guid.Empty)
+                    {
+                        // If no container info has been found yet, double-check check the registry to
+                        // ensure we never fail a container Task or command due to a race condition.
+                        UpdateContainerInfo();
+                    }
 
-                await ConnectToContainer();
+                    await ConnectToContainer();
 
-                if (previousContainerStatus == IsContainerConnected)
-                {
-                    // Verify it is still working properly
-                    await _containerClient.GetServiceVersionString();
-                }
-                else
-                {
-                    // Initial connection made or reconnected
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
-                }
-            }
-            catch (FactoryOrchestratorContainerException)
-            {
-                if (previousContainerStatus == IsContainerConnected)
-                {
-                    // Connection lost
-                    LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
-                }
+                    if (previousContainerStatus == IsContainerConnected)
+                    {
+                        // Verify it is still working properly
+                        await _containerClient.GetServiceVersionString();
+                    }
+                    else
+                    {
+                        // Initial connection made or reconnected
+                        LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerConnected, ContainerGuid, Resources.ContainerConnected));
+                    }
 
-                throw;
+                    // Connection established, exit loop
+                    break;
+                }
+                catch (FactoryOrchestratorContainerException)
+                {
+                    if (previousContainerStatus == IsContainerConnected)
+                    {
+                        // Connection lost
+                        LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
+                    }
+
+                    if (w.ElapsedMilliseconds * 1000 > retrySeconds)
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
@@ -1960,7 +1976,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 		
         public async Task SendFileToContainer(string containerFilePath, byte[] fileData, bool appending)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 await _containerClient.SendFile(containerFilePath, fileData, appending);
@@ -2029,7 +2045,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<byte[]> GetFileFromContainer(string containerFilePath, long offset, int count)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 return await _containerClient.GetFile(containerFilePath, offset, count);
@@ -2042,7 +2058,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task MoveInContainer(string sourcePath, string destinationPath)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 await _containerClient.MoveFileOrFolder(sourcePath, destinationPath);
@@ -2055,7 +2071,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task DeleteInContainer(string path)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 await _containerClient.DeleteFileOrFolder(path);
@@ -2068,7 +2084,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<List<string>> EnumerateFilesInContainer(string path, bool recursive)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 return await _containerClient.EnumerateFiles(path, recursive);
@@ -2081,7 +2097,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task<List<string>> EnumerateDirectoriesInContainer(string path, bool recursive)
         {
-            await VerifyContainerConnection();
+            await VerifyContainerConnection(30);
             try
             {
                 return await _containerClient.EnumerateDirectories(path, recursive);
