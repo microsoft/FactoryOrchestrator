@@ -193,7 +193,7 @@
     <value>{0} is not a valid {1}!</value>
   </data>
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
-    <value>Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.</value>
+    <value>Factory Orchestrator Service on {0} has version {1} which is incompatable with FactoryOrchestratorClient version {2}! Use Connect(true) or TryConnect(true) to ignore this error when connecting.</value>
   </data>
   <data name="FileLoadSucceeded" xml:space="preserve">
     <value>Successfully loaded {0}.</value>

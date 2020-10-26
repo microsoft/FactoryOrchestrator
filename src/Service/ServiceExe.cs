@@ -1677,6 +1677,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private void RunTaskRunInContainer(ServerTaskRun hostRun)
         {
             hostRun.TaskOutput.Add(Resources.AttemptingContainerTaskRun);
+            hostRun.TaskStatus = TaskStatus.Running;
 
             Task.Run(async () =>
             {
@@ -1773,7 +1774,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     hostRun.TaskOutput.Add(Resources.ContainerTaskRunFailed);
                     hostRun.TaskOutput.Add(e.AllExceptionsToString());
                     hostRun.TaskStatus = TaskStatus.Failed;
-                    _containerClient = null;
+                    hostRun.ExitCode = e.HResult;
                 }
             });
         }
@@ -1816,7 +1817,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     await ConnectToContainer();
 
-                    if (previousContainerStatus == IsContainerConnected)
+                    if (IsContainerConnected && (previousContainerStatus == IsContainerConnected))
                     {
                         // Verify it is still working properly
                         await _containerClient.GetServiceVersionString();
@@ -1832,13 +1833,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (FactoryOrchestratorContainerException)
                 {
-                    if (previousContainerStatus == IsContainerConnected)
+                    if (previousContainerStatus && !IsContainerConnected)
                     {
                         // Connection lost
                         LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisconnected, previousContainerGuid, Resources.ContainerDisconnected));
                     }
 
-                    if (w.ElapsedMilliseconds * 1000 > retrySeconds)
+                    if (w.ElapsedMilliseconds / 1000 > retrySeconds)
                     {
                         throw;
                     }

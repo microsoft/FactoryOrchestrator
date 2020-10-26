@@ -403,7 +403,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Factory Orchestrator Service on {ip} has version {serviceVersion} which is incompatable with FactoryOrchestratorClient version {clientVersion}! Use Connect(true) or TryConnect(true) to ignore this error when connecting..
+        ///   Looks up a localized string similar to Factory Orchestrator Service on {0} has version {1} which is incompatable with FactoryOrchestratorClient version {2}! Use Connect(true) or TryConnect(true) to ignore this error when connecting..
         /// </summary>
         public static string FactoryOrchestratorVersionMismatchException {
             get {

@@ -193,7 +193,7 @@
     <value>{0} 不是有效的 {1}!</value>
   </data>
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
-    <value>{ip} 上的 Factory Orchestrator 服务的版本为 {serviceVersion}，与 FactoryOrchestratorClient 版本 {clientVersion} 不兼容! 连接时使用 Connect(true) 或 TryConnect(true) 忽略此错误。</value>
+    <value>{0} 上的 Factory Orchestrator 服务的版本为 {1}，与 FactoryOrchestratorClient 版本 {2} 不兼容! 连接时使用 Connect(true) 或 TryConnect(true) 忽略此错误。</value>
   </data>
   <data name="FileLoadSucceeded" xml:space="preserve">
     <value>已成功加载 {0}。</value>

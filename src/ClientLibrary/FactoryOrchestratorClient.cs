@@ -679,7 +679,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="ip">The ip address of the Service.</param>
         /// <param name="serviceVersion">The service version.</param>
-        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorVersionMismatchException, ip?.ToString(), serviceVersion))
+        public FactoryOrchestratorVersionMismatchException(IPAddress ip, string serviceVersion) : base(string.Format(CultureInfo.CurrentCulture, Resources.FactoryOrchestratorVersionMismatchException, ip?.ToString() ?? "", serviceVersion, FactoryOrchestratorClient.GetClientVersionString()))
         {
             ServiceVersion = serviceVersion;
             ClientVersion = FactoryOrchestratorClient.GetClientVersionString();
