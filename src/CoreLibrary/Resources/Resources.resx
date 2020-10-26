@@ -449,4 +449,7 @@
     <value>Error: TaskRun threw an unhandled exception during execution!</value>
     <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
   </data>
+  <data name="ContainerDisabledException" xml:space="preserve">
+    <value>Container support is disabled!</value>
+  </data>
 </root>

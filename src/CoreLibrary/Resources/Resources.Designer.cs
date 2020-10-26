@@ -187,6 +187,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Container support is disabled!.
+        /// </summary>
+        public static string ContainerDisabledException {
+            get {
+                return ResourceManager.GetString("ContainerDisabledException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Factory Orchestrator Service is disconnected from a container running a compatible version of Factory Orchestrator Service..
         /// </summary>
         public static string ContainerDisconnected {
