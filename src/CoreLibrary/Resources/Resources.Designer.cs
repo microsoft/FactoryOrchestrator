@@ -952,6 +952,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Waiting for the container to be ready....
+        /// </summary>
+        public static string WaitingForContainerStart {
+            get {
+                return ResourceManager.GetString("WaitingForContainerStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TaskRun {0} is waiting on a result run by the container..
         /// </summary>
         public static string WaitingForContainerTaskRun {
