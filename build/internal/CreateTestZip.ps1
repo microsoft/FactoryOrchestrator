@@ -27,9 +27,10 @@ foreach ($config in $runtimeconfigs)
 
 $testsXml += '</Table>'
 $testsXml += '</Data>'
-$testsXml | Out-File "$OutFolder\NetCoreTests.xml"
+
 if ((Test-Path $OutFolder) -eq $false)
 {
     $Folder = New-Item -Path $OutFolder -ItemType Directory
 }
+$testsXml | Out-File "$OutFolder\NetCoreTests.xml"
 Compress-Archive -Path "$TestBinRoot\*" -DestinationPath "$OutFolder\NetCoreTests.zip" -Force
