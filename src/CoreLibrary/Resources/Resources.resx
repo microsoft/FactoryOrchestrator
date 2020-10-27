@@ -452,4 +452,8 @@
   <data name="ContainerDisabledException" xml:space="preserve">
     <value>Container support is disabled!</value>
   </data>
+  <data name="WaitingForContainerStart" xml:space="preserve">
+    <value>Waiting for the container to be ready...</value>
+    <comment>Message shown when the container inside the host is not yet ready to execute the desired Task.</comment>
+  </data>
 </root>

@@ -1712,7 +1712,22 @@ namespace Microsoft.FactoryOrchestrator.Service
                         containerTask = uwpContainerTask;
                     }
 
-                    await VerifyContainerConnection(60);
+                    // Wait forever for the container to be ready.
+                    // User can abort or add timeout if desired.
+                    while (!await TryVerifyContainerConnection(30) && !hostRun.TaskRunComplete)
+                    {
+                        if (!hostRun.TaskRunComplete)
+                        {
+                            hostRun.TaskOutput.Add(Resources.WaitingForContainerStart);
+                        }
+                    }
+
+                    if (hostRun.TaskRunComplete)
+                    {
+                        // Host task was completed (likely aborted/timeout) while we were waiting for the container to connect.
+                        // No action is needed.
+                        return;
+                    }
 
                     hostRun.TaskOutput.Add($"----------- {Resources.StartContainerOutput} (stdout, stderr) -----------");
                     var containerRun = await _containerClient.RunTask(containerTask);
@@ -1782,11 +1797,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             });
         }
 
-        public async Task<bool> TryVerifyContainerConnection()
+        public async Task<bool> TryVerifyContainerConnection(int retrySeconds = 0)
         {
             try
             {
-                await VerifyContainerConnection();
+                await VerifyContainerConnection(retrySeconds);
                 return true;
             }
             catch (Exception)
