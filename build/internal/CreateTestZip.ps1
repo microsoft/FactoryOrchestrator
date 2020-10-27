@@ -8,16 +8,26 @@ Param
     [string]$OutFolder
 )
 $runtimeconfigs = Get-ChildItem $TestBinRoot -Recurse -Filter "*.runtimeconfig.json"
-$testsTxt = @() 
+$testsXml = @('<?xml version="1.0"?>',
+              '<Data>',
+              '<Table Id="NetCoreTestsRelativePaths">'
+              '<ParameterTypes>',
+              '<ParameterType Name="NetCoreTestRelativePath">String</ParameterType>',
+              '</ParameterTypes>')
+
 foreach ($config in $runtimeconfigs)
 {
-    $testName = $config.Name.Replace('.runtimeconfig.json', '.dll');
+    $testName = $config.Name.Replace('.runtimeconfig.json', '');
     $testRelPath = $config.FullName.Replace((Get-Item $TestBinRoot).FullName, '')
     $testRelPath = $testRelPath.Replace('.runtimeconfig.json', '.dll');
-    $testsTxt += $testRelPath
+    $testsXml += "<Row Name='$testName' Owner=`"mfgcore`">"
+    $testsXml += "<Parameter Name=`"NetCoreTestRelativePath`">$testRelPath</Parameter>"
+    $testsXml += '</Row>'
 }
 
-$testsTxt | Out-File "$TestBinRoot\tests.txt"
+$testsXml += '</Table>'
+$testsXml += '</Data>'
+$testsXml | Out-File "$OutFolder\NetCoreTests.xml"
 if ((Test-Path $OutFolder) -eq $false)
 {
     $Folder = New-Item -Path $OutFolder -ItemType Directory
