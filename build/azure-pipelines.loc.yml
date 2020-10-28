@@ -57,6 +57,10 @@ jobs:
       resourceFilePath: 'CoreLibrary/Resources/Resources.resx'
       outputDirectoryRoot: src/CoreLibrary/Resources/
   - script: |
+      move $(Build.SourcesDirectory)\src\CoreLibrary\Resources\zh-CN\Resources.resx $(Build.SourcesDirectory)\src\CoreLibrary\Resources\Resources.zh-CN.resx
+      move $(Build.SourcesDirectory)\src\CoreLibrary\Resources\zh-TW\Resources.resx $(Build.SourcesDirectory)\src\CoreLibrary\Resources\Resources.zh-TW.resx
+      move $(Build.SourcesDirectory)\src\ClientSample\Resources\zh-CN\Resources.resx $(Build.SourcesDirectory)\src\ClientSample\Resources\Resources.zh-CN.resx
+      move $(Build.SourcesDirectory)\src\ClientSample\Resources\zh-TW\Resources.resx $(Build.SourcesDirectory)\src\ClientSample\Resources\Resources.zh-TW.resx
       cd $(Build.SourcesDirectory)
       git add -A
       git diff --cached --exit-code
