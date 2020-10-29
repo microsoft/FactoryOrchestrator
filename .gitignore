@@ -332,3 +332,10 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Python
+.venv
+venv/
+
+# Mkdocs site out
+site/

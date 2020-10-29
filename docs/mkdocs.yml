@@ -1,0 +1,24 @@
+site_name: Factory Orchestrator
+site_author: themar-msft;hajya
+repo_url: https://github.com/microsoft/FactoryOrchestrator
+site_description: "Factory Orchestrator Documentation"
+site_url: 'https://microsoft.github.io/FactoryOrchestrator/'
+plugins:
+    - search
+
+theme: 
+  name: material
+  logo: 'images/fo-logo.png'
+  favicon: 'images/fo-logo.png'
+  palette:
+    primary: 'blue grey' 
+    accent: 'amber'
+
+nav: 
+  - Overview: 'index.md' 
+  - Get Started: 'get-started-with-factory-orchestrator.md'
+  - Tasks & TaskLists : 'tasks-and-tasklists.md'
+  - Run using the application: 'use-the-factory-orchestrator-app.md'
+  - Run using the client api: 'use-the-factory-orchestrator-api.md'
+  - Built-In Utilities: 'factory-orchestrator-utilities.md'
+  
