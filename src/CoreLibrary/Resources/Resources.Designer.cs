@@ -232,6 +232,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tasks run in the container must be of type ExecutableTask, BatchFileTask, or PowerShellTask!.
+        /// </summary>
+        public static string ContainerTaskTypeException {
+            get {
+                return ResourceManager.GetString("ContainerTaskTypeException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not create {0} directory!.
         /// </summary>
         public static string CreateDirectoryFailed {

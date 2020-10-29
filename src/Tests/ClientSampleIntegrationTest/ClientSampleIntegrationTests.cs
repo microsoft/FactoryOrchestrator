@@ -59,7 +59,7 @@ namespace Microsoft.FactoryOrchestrator.Test
                 // Try to connect to given IP, will throw exception if it fails
                 testClientConnection.Connect().Wait();
             }
-            catch (FactoryOrchestratorConnectionException e)
+            catch (Exception e)
             {
                 // TODO: Create FOServiceExe instance if one isn't detected and localhost (127.0.0.1) was used.
                 Logger.LogMessage(e.ToString());

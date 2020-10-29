@@ -1700,17 +1700,18 @@ namespace Microsoft.FactoryOrchestrator.Service
                     // Set RunInContainer to false so it doesn't try to find another container :)
                     containerTask.RunInContainer = false;
 
-                    if (containerTask.Type == TaskType.UWP)
-                    {
-                        // The container doesn't have WDP, translate to a shell execute call
-                        hostRun.TaskOutput.Add(Resources.RedirectingUWPToRunAs);
-                        var temp = containerTask as UWPTask;
-                        var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsRDUser.exe")
-                        {
-                            Arguments = @"explorer.exe shell:appsFolder\" + temp.Path
-                        };
-                        containerTask = uwpContainerTask;
-                    }
+                    // TODO: UWPs are not currently supported in the container, due to the limited shell UI support
+                    //if (containerTask.Type == TaskType.UWP)
+                    //{
+                    //    // The container doesn't have WDP, translate to a shell execute call
+                    //    hostRun.TaskOutput.Add(Resources.RedirectingUWPToRunAs);
+                    //    var temp = containerTask as UWPTask;
+                    //    var uwpContainerTask = new ExecutableTask(@"%windir%\system32\RunAsRDUser.exe")
+                    //    {
+                    //        Arguments = @"explorer.exe shell:appsFolder\" + temp.Path
+                    //    };
+                    //    containerTask = uwpContainerTask;
+                    //}
 
                     // Wait forever for the container to be ready.
                     // User can abort or add timeout if desired.

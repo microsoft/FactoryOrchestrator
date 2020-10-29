@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Globalization;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -1369,6 +1370,66 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
 
         /// <summary>
+        /// Validates the TaskList is compliant with the XSD schema and other requirements.
+        /// Will assign a random Guid to any Task missing one.
+        /// </summary>
+        /// <exception cref="XmlSchemaValidationException">If the TaskList has an issue</exception>
+        public void ValidateTaskList()
+        {
+            if (Guid == Guid.Empty)
+            {
+                Guid = Guid.NewGuid();
+            }
+
+            foreach (var task in Tasks)
+            {
+                if (task.Guid == Guid.Empty)
+                {
+                    task.Guid = Guid.NewGuid();
+                }
+
+                if (task.RunInContainer)
+                {
+                    if (task is UWPTask || task is ExternalTask || task is TAEFTest)
+                    {
+                        throw new XmlSchemaValidationException(Resources.ContainerTaskTypeException);
+                    }
+                }
+
+                if (task is UWPTask && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new XmlSchemaValidationException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "UWPTask"));
+                }
+            }
+
+            foreach (var bgtask in BackgroundTasks)
+            {
+                // Validate background tasks meet requirements
+                if ((bgtask as ExecutableTask) == null)
+                {
+                    throw new XmlSchemaValidationException(Resources.BackgroundTaskTypeException);
+                }
+
+                if (bgtask.TimeoutSeconds != -1)
+                {
+                    throw new XmlSchemaValidationException(Resources.BackgroundTimeoutException);
+                }
+
+                if (bgtask.MaxNumberOfRetries != 0)
+                {
+                    throw new XmlSchemaValidationException(Resources.BackgroundRetryException);
+                }
+
+                if (bgtask.Guid == Guid.Empty)
+                {
+                    bgtask.Guid = Guid.NewGuid();
+                }
+
+                (bgtask as ExecutableTask).BackgroundTask = true;
+            }
+        }
+
+        /// <summary>
         /// The status of the TaskList.
         /// </summary>
         public TaskStatus TaskListStatus
@@ -2129,44 +2190,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         {
             foreach (var list in TaskLists)
             {
-                if (list.Guid == Guid.Empty)
-                {
-                    list.Guid = Guid.NewGuid();
-                }
-
-                foreach (var task in list.Tasks)
-                {
-                    if (task.Guid == Guid.Empty)
-                    {
-                        task.Guid = Guid.NewGuid();
-                    }
-                }
-
-                foreach (var bgtask in list.BackgroundTasks)
-                {
-                    // Validate background tasks meet requirements
-                    if ((bgtask as ExecutableTask) == null)
-                    {
-                        throw new XmlSchemaValidationException(Resources.BackgroundTaskTypeException);
-                    }
-
-                    if (bgtask.TimeoutSeconds != -1)
-                    {
-                        throw new XmlSchemaValidationException(Resources.BackgroundTimeoutException);
-                    }
-
-                    if (bgtask.MaxNumberOfRetries != 0)
-                    {
-                        throw new XmlSchemaValidationException(Resources.BackgroundRetryException);
-                    }
-
-                    if (bgtask.Guid == Guid.Empty)
-                    {
-                        bgtask.Guid = Guid.NewGuid();
-                    }
-
-                    (bgtask as ExecutableTask).BackgroundTask = true;
-                }
+                list.ValidateTaskList();
             }
 
             // Check the XML for any duplicate GUIDs
@@ -2181,7 +2205,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                     dupGuidString += $"{guid.ToString()}, ";
                 }
             }
-            
+
             if (!string.IsNullOrEmpty(dupGuidString))
             {
                 throw new XmlSchemaValidationException(string.Format(CultureInfo.CurrentCulture, Resources.DuplicateGuidInXml, dupGuidString));

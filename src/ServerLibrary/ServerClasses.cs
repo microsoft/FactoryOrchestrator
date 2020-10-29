@@ -420,6 +420,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                 }
                 else
                 {
+                    taskList.ValidateTaskList();
                     KnownTaskLists.Add(taskList);
                     OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.NewTaskList, taskList.Guid, null));
                 }
@@ -1921,7 +1922,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else if (ActiveTaskRun.TaskType == TaskType.PowerShell)
             {
-                startInfo.FileName = "pwsh.exe";
+                if (FindFileInPath("pwsh.exe") != "pwsh.exe")
+                {
+                    // pwsh.exe (PowerShell Core 6, PowerShell 7+) is installed on the system, use it
+                    startInfo.FileName = "pwsh.exe";
+                }
+                else
+                {
+                    // Assume legacy powershell.exe is present. If it isn't, StartProcess() will fail gracefully.
+                    startInfo.FileName = "powershell.exe";
+                }
+
                 startInfo.Arguments += $"-NonInteractive -File \"{ActiveTaskRun.TaskPath}\" ";
             }
             else if (ActiveTaskRun.TaskType == TaskType.BatchFile)
