@@ -6,9 +6,20 @@ We welcome contributions on our documentation as well under the same code of con
 
 To build & locally view the docs you can follow [these steps](https://www.mkdocs.org/#building-the-site):
 
+From the root:
+
 1. pip install --upgrade -r requirements.txt
 2. mkdocs build --clean
 3. mkdocs serve
+   
+Once you are happy with the changes, you can prepare a pull request to update the checked in docs as you would with any other code change. 
+
+When completed, then you will have to manually update the live docs by do the following from the root (todo: make better):
+
+   1. (optional- in case you rev'd it) mkdocs build --clean --config-file .\docs\mkdocs.yml 
+   2. git checkout gh-pages
+   3. git checkout -b <topic branch with>
+   4. Commit your changes, open a pull request. Once approved and the remote 'gh-branch' has the last changes then it will update the website.
 
 ## ## Open Source Software Acknowledgments
 
