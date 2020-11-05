@@ -30,7 +30,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _outSem = new SemaphoreSlim(1, 1);
             _activeRunSem = new SemaphoreSlim(1, 1);
             _newCmd = false;
-            ((App)Application.Current).PropertyChanged += ConsolePage_AppPropertyChanged; ;
+            ((App)Application.Current).PropertyChanged += ConsolePage_AppPropertyChanged;
         }
 
         private async void ConsolePage_AppPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -50,6 +50,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 });
             }
+            else if (e.PropertyName.Equals("IsContainerDisabled", StringComparison.Ordinal))
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (((App)Application.Current).IsContainerDisabled)
+                    {
+                        ContainerCheckBox.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        ContainerCheckBox.Visibility = Visibility.Visible;
+                    }
+                });
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -62,14 +76,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _taskRunPoller.StartPolling(Client);
             }
 
-            if (((App)Application.Current).IsContainerRunning)
+            if (((App)Application.Current).IsContainerDisabled)
             {
-                ContainerCheckBox.IsEnabled = true;
+                ContainerCheckBox.Visibility = Visibility.Collapsed;
             }
             else
             {
-                ContainerCheckBox.IsEnabled = false;
-                ContainerCheckBox.IsChecked = false;
+                ContainerCheckBox.Visibility = Visibility.Visible;
+                if (((App)Application.Current).IsContainerRunning)
+                {
+                    ContainerCheckBox.IsEnabled = true;
+                }
+                else
+                {
+                    ContainerCheckBox.IsEnabled = false;
+                    ContainerCheckBox.IsChecked = false;
+                }
             }
 
             base.OnNavigatedTo(e);

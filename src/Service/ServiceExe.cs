@@ -1209,6 +1209,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetContainerIpAddresses");
 
+                if (FOService.Instance.DisableContainerSupport)
+                {
+                    throw new FactoryOrchestratorContainerDisabledException(Resources.ContainerDisabledException);
+                }
+
                 // As of now, there is only one IP for the container but keep this as a list in case that changes
                 var ip = FOService.Instance.ContainerIpAddress;
                 var ipStrings = new List<string>();
@@ -1271,14 +1276,15 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsContainerRunning");
+
+                if (FOService.Instance.DisableContainerSupport)
+                {
+                    throw new FactoryOrchestratorContainerDisabledException(Resources.ContainerDisabledException);
+                }
+
                 bool ret = FOService.Instance.IsContainerConnected;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
                 return ret;
-            }
-            catch (FactoryOrchestratorContainerException)
-            {
-                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
-                return false;
             }
             catch (Exception e)
             {
@@ -1544,7 +1550,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             else 
             {
-                ServiceLogger.LogInformation($"{Resources.NetworkAccessDisabled}\n");
+                LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
             }
 
             ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
@@ -2303,6 +2309,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                         await Task.Delay(5000);
                     }
                 });
+            }
+            else
+            {
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisabled, null, Resources.ContainerDisabledException));
             }
 
             // Enable local loopback every boot.

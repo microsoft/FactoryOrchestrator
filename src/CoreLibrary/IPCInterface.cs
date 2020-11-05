@@ -58,6 +58,14 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         ContainerDisconnected,
         /// <summary>
+        /// The Factory Orchestrator Service container support is disabled by policy.
+        /// </summary>
+        ContainerDisabled,
+        /// <summary>
+        /// The Factory Orchestrator Service network access is disabled by policy.
+        /// </summary>
+        NetworkAccessDisabled,
+        /// <summary>
         /// An unknown Factory Orchestrator Service event occurred.
         /// </summary>
         Unknown = int.MaxValue
