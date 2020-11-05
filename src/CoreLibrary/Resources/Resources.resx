@@ -450,7 +450,8 @@
     <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
   </data>
   <data name="ContainerDisabledException" xml:space="preserve">
-    <value>Container support is disabled!</value>
+    <value>Container support is disabled or not supported by the OS!</value>
+    <comment>Message shown when a container operation is requested by the user but containers are disabled by policy or the operating system doesn't support containers.</comment>
   </data>
   <data name="WaitingForContainerStart" xml:space="preserve">
     <value>Waiting for the container to be ready...</value>
@@ -459,5 +460,9 @@
   <data name="ContainerTaskTypeException" xml:space="preserve">
     <value>Tasks run in the container must be of type ExecutableTask, BatchFileTask, or PowerShellTask!</value>
     <comment>Exception message when a Task the user wants run in the container is of an invalid type</comment>
+  </data>
+  <data name="ContainerSupportNotPresent" xml:space="preserve">
+    <value>OS does not support containers. Disabling container support.</value>
+    <comment>Message shown when the operating system doesn't support containers.</comment>
   </data>
 </root>

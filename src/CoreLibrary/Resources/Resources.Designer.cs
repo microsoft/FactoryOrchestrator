@@ -187,7 +187,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Container support is disabled!.
+        ///   Looks up a localized string similar to Container support is disabled or not supported by the OS!.
         /// </summary>
         public static string ContainerDisabledException {
             get {
@@ -219,6 +219,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         public static string ContainerFileSendFailed {
             get {
                 return ResourceManager.GetString("ContainerFileSendFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OS does not support containers. Disabling container support..
+        /// </summary>
+        public static string ContainerSupportNotPresent {
+            get {
+                return ResourceManager.GetString("ContainerSupportNotPresent", resourceCulture);
             }
         }
         

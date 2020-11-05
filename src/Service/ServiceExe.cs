@@ -2714,6 +2714,14 @@ namespace Microsoft.FactoryOrchestrator.Service
                 DisableContainerSupport = false;
             }
 
+            if (!File.Exists(Path.Combine(Environment.GetEnvironmentVariable("windir"), "system32", "cmservice.dll")))
+            {
+                // Missing required binary for container support. Disable it.
+                // TODO: this assumes we are running on a Windows OS
+                ServiceLogger.LogInformation(Resources.ContainerSupportNotPresent);
+                DisableContainerSupport = true;
+            }
+
             String loopbackAppsString;
             try
             {
