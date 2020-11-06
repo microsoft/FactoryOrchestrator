@@ -223,7 +223,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OS does not support containers. Disabling container support..
+        ///   Looks up a localized string similar to Operating System does not support containers. Disabling container support..
         /// </summary>
         public static string ContainerSupportNotPresent {
             get {

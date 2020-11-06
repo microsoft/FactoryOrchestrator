@@ -251,7 +251,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <returns><c>true</c> is the service is executing boot tasks.</returns>
         bool IsExecutingBootTasks();
-
         /// <summary>
         /// Determines whether the connected device has a container present and running.
         /// </summary>
@@ -259,12 +258,16 @@ namespace Microsoft.FactoryOrchestrator.Core
         ///   <c>true</c> if container is present and running; otherwise, <c>false</c>.
         /// </returns>
         bool IsContainerRunning();
-
         /// <summary>
         /// Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.
         /// </summary>
         /// <returns>A list of page tags that should be disabled.</returns>
         List<string> GetDisabledPages();
+        /// <summary>
+        /// Checks if the service supports network access.
+        /// </summary>
+        /// <returns><c>true</c> if the service allows connections over the local network.</returns>
+        bool IsNetworkAccessEnabled();
 
         // TaskList APIs
         /// <summary>

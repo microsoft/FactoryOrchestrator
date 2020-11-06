@@ -462,7 +462,7 @@
     <comment>Exception message when a Task the user wants run in the container is of an invalid type</comment>
   </data>
   <data name="ContainerSupportNotPresent" xml:space="preserve">
-    <value>OS does not support containers. Disabling container support.</value>
+    <value>Operating System does not support containers. Disabling container support.</value>
     <comment>Message shown when the operating system doesn't support containers.</comment>
   </data>
 </root>
