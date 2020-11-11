@@ -493,7 +493,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                 // This is almost certainly due to a client<->server version mismatch
                 ex = new FactoryOrchestratorVersionMismatchException(Resources.IpcInvalidOperationError, ex);
             }
-            else if ((ex is IpcCommunicationException) || (ex.InnerException is System.Net.Sockets.SocketException))
+            else if ((ex is IpcCommunicationException) || (ex is TimeoutException && ex.StackTrace.ToUpperInvariant().Contains("CONNECTTOSERVERASYNC")) || (ex.InnerException is System.Net.Sockets.SocketException))
             {
                 IsConnected = false;
                 ex = new FactoryOrchestratorConnectionException(IpAddress);

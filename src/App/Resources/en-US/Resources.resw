@@ -722,4 +722,20 @@ On retry</value>
     <value>For example: RunAsRDUser.exe c:\windows\regedit.exe</value>
     <comment>Example of how to run win32 gui executables inside the container</comment>
   </data>
+  <data name="ContainerSupport.Text" xml:space="preserve">
+    <value>Container Support Enabled</value>
+    <comment>text field showing if the Service allows container support.</comment>
+  </data>
+  <data name="ContainerRunning.Text" xml:space="preserve">
+    <value>Container Running</value>
+    <comment>text field showing if the Service has a container running.</comment>
+  </data>
+  <data name="NetworkAccess.Text" xml:space="preserve">
+    <value>Network Access Allowed</value>
+    <comment>text field showing if the Service allows network connections.</comment>
+  </data>
+  <data name="ServiceInformation.Text" xml:space="preserve">
+    <value>Factory Orchestrator Service Information</value>
+    <comment>text field header for showing info that relate to what features are enabled / disabled in the Service.</comment>
+  </data>
 </root>

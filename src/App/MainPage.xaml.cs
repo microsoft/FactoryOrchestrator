@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Microsoft.FactoryOrchestrator.Core;
 using Windows.ApplicationModel.Resources;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -34,12 +35,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             // Put Client ipaddress in header
             Header.Text += Client.IsLocalHost ? $" ({resourceLoader.GetString("LocalDevice")})" : $" ({Client.IpAddress.ToString()})";
-
-            // If localhost connection, hide file transfer page
-            if (Client.IsLocalHost && !((App)Application.Current).IsContainerRunning)
-            {
-                HidePage("files");
-            }
 
             // Update visible network information every 7 seconds
             networkTimer = new System.Timers.Timer(7000);
@@ -137,6 +132,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 // Hide tabs disabled by OEM Customization
                 disabledPages = await Client.GetDisabledPages();
+
+                if (Client.IsLocalHost)
+                {
+                    if (((App)Application.Current).IsContainerDisabled)
+                    {
+                        // If localhost connection and no container, disable file transfer page
+                        disabledPages.Add("files");
+                    }
+                }
+
                 foreach (var disabledPage in disabledPages)
                 {
                     HidePage(disabledPage);
@@ -270,6 +275,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void ShowPage((string Tag, Type Page, bool Enabled, bool AllowedDuringBoot) pageMap)
         {
+            if (disabledPages.Contains(pageMap.Tag))
+            {
+                // Page is disabled, don't allow it to be shown
+                return;
+            }
+
+            if ((pageMap.Tag == "files") && (Client.IsLocalHost) && (!((App)Application.Current).IsContainerRunning))
+            {
+                // Special case, only show files page if connected remotely or if a container is running.
+                return;
+            }
+
             NavigationViewItem item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
             item.Visibility = Visibility.Visible;
             item.IsEnabled = true;
@@ -425,11 +442,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 ipAddresses = await Client.GetIpAddressesAndNicNames();
                 if (((App)Application.Current).IsContainerRunning)
                 {
-                    var temp = await Client.GetContainerIpAddresses();
-                    foreach (var ip in temp)
+                    try
                     {
-                        ipAddresses.Add(new Tuple<string, string>(ip, resourceLoader.GetString("ContainerIP")));
+                        var temp = await Client.GetContainerIpAddresses();
+                        foreach (var ip in temp)
+                        {
+                            ipAddresses.Add(new Tuple<string, string>(ip, resourceLoader.GetString("ContainerIP")));
+                        }
                     }
+                    catch (FactoryOrchestratorContainerException)
+                    {}
                 }
             }
             finally

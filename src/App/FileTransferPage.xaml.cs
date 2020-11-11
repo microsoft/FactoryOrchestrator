@@ -28,19 +28,27 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (Client.IsLocalHost)
+            if (((App)Application.Current).IsContainerDisabled)
             {
-                ContainerCheckBox.IsChecked = true;
-                ContainerCheckBox.IsEnabled = false;
-            }
-            else if (((App)Application.Current).IsContainerRunning)
-            {
-                ContainerCheckBox.IsChecked = false;
+                ContainerCheckBox.Visibility = Visibility.Collapsed;
             }
             else
             {
-                ContainerCheckBox.IsChecked = false;
-                ContainerCheckBox.IsEnabled = false;
+                ContainerCheckBox.Visibility = Visibility.Visible;
+                if (Client.IsLocalHost)
+                {
+                    ContainerCheckBox.IsChecked = true;
+                    ContainerCheckBox.IsEnabled = false;
+                }
+                else if (((App)Application.Current).IsContainerRunning)
+                {
+                    ContainerCheckBox.IsChecked = false;
+                }
+                else
+                {
+                    ContainerCheckBox.IsChecked = false;
+                    ContainerCheckBox.IsEnabled = false;
+                }
             }
 
             ((App)Application.Current).PropertyChanged += FileTransferPage_AppPropertyChanged;

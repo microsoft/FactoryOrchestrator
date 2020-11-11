@@ -359,6 +359,27 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
+        /// Checks if the service supports network access.
+        /// </summary>
+        /// <returns><c>true</c> if the service allows connections over the local network.</returns>
+        public async Task<bool> IsNetworkAccessEnabled()
+        {
+            if (!IsConnected)
+            {
+                throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);
+            }
+
+            try
+            {
+                return await _IpcClient.InvokeAsync<bool>(CreateIpcRequest("IsNetworkAccessEnabled"));
+            }
+            catch (Exception ex)
+            {
+                throw CreateIpcException(ex);
+            }
+        }
+
+        /// <summary>
         /// Creates a new TaskList by finding all .exe, .cmd, .bat, .ps1, and TAEF files in a given folder.
         /// </summary>
         /// <param name="path">Path of the directory to search.</param>

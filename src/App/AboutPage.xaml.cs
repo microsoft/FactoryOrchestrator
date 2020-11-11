@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 using Microsoft.FactoryOrchestrator.Client;
+using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,14 +54,32 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (Client != null)
             {
+                ServiceInformationStack.Visibility = Visibility.Visible;
+
                 try
                 {
                     ServiceVersionText.Text = $"{resourceLoader.GetString("ServiceVersion")}: ";
                     ServiceVersionText.Text += await Client.GetServiceVersionString();
+                    NetworkAccess.Text += await Client.IsNetworkAccessEnabled() ? " ✔" : " ❌";
                 }
-                catch (FactoryOrchestratorConnectionException)
+                catch (Exception)
                 {
                     // Just ignore it
+                }
+                try
+                {
+                    // Throws exception if container is missing
+                    ContainerRunning.Text += await Client.IsContainerRunning() ? " ✔" : " ❌";
+                    ContainerSupport.Text += "✔";
+                }
+                catch (FactoryOrchestratorContainerDisabledException)
+                {
+                    ContainerRunning.Visibility = Visibility.Collapsed;
+                    ContainerSupport.Text += "❌";
+                }
+                catch (Exception)
+                {
+                    ContainerRunning.Visibility = Visibility.Collapsed;
                 }
             }
 

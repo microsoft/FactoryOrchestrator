@@ -25,9 +25,19 @@ using System.Globalization;
 using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
+    internal static class NativeMethods
+    {
+        [DllImport("KernelBase.dll", SetLastError = false, ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+        public static extern bool IsApiSetImplemented([MarshalAs(UnmanagedType.LPStr)] string Contract);
+#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
+    }
+
     public sealed class FOServiceExe
     {
         public static IHost ipcHost { get; internal set; }
@@ -1209,6 +1219,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetContainerIpAddresses");
 
+                if (!FOService.Instance.IsContainerSupportEnabled)
+                {
+                    throw new FactoryOrchestratorContainerDisabledException(Resources.ContainerDisabledException);
+                }
+
                 // As of now, there is only one IP for the container but keep this as a list in case that changes
                 var ip = FOService.Instance.ContainerIpAddress;
                 var ipStrings = new List<string>();
@@ -1271,14 +1286,31 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsContainerRunning");
+
+                if (!FOService.Instance.IsContainerSupportEnabled)
+                {
+                    throw new FactoryOrchestratorContainerDisabledException(Resources.ContainerDisabledException);
+                }
+
                 bool ret = FOService.Instance.IsContainerConnected;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
                 return ret;
             }
-            catch (FactoryOrchestratorContainerException)
+            catch (Exception e)
             {
-                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsContainerRunning");
-                return false;
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw;
+            }
+        }
+
+        public bool IsNetworkAccessEnabled()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsNetworkAccessEnabled");
+                bool ret = FOService.Instance.IsNetworkAccessEnabled;
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsNetworkAccessEnabled");
+                return ret;
             }
             catch (Exception e)
             {
@@ -1406,16 +1438,17 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableUWPAppsPage { get; private set; }
         public bool DisableManageTasklistsPage { get; private set; }
         public bool DisableFileTransferPage { get; private set; }
-        public bool DisableNetworkAccess { get; private set; }
-        public bool EnableNetworkAccess { get; private set; }
+        public bool IsNetworkAccessEnabled { get => _networkAccessEnabled && !_networkAccessDisabled; }
         public int ServiceNetworkPort { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
-        public bool DisableContainerSupport { get; private set; }
+        public bool IsContainerSupportEnabled { get; private set; }
 
         public bool IsContainerConnected => _containerClient?.IsConnected ?? false;
         public Guid ContainerGuid { get; private set; }
         public IPAddress ContainerIpAddress { get; private set; }
         private System.Threading.CancellationTokenSource _containerHeartbeatToken;
+        private bool _networkAccessEnabled;
+        private bool _networkAccessDisabled;
 
         /// <summary>
         /// List of apps to enable local loopback on.
@@ -1510,7 +1543,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Start(bool forceUserTaskRerun)
         {
-            bool networkAccessEnabled = false;
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks();
 
@@ -1528,23 +1560,18 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            if (EnableNetworkAccess && !DisableNetworkAccess) 
-            {
-                networkAccessEnabled = true;
-            }
-
             // Start IPC server on port 45684. Only start after all boot tasks are complete.
-            FOServiceExe.ipcHost = FOServiceExe.CreateHost(null, networkAccessEnabled);
+            FOServiceExe.ipcHost = FOServiceExe.CreateHost(null, IsNetworkAccessEnabled);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
-            if (networkAccessEnabled)
+            if (IsNetworkAccessEnabled)
             {
                 ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
             }
             else 
             {
-                ServiceLogger.LogInformation($"{Resources.NetworkAccessDisabled}\n");
+                LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
             }
 
             ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
@@ -1877,7 +1904,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public async Task ConnectToContainer()
         {
-            if (DisableContainerSupport)
+            if (!IsContainerSupportEnabled)
             {
                 throw new FactoryOrchestratorContainerException(Resources.ContainerDisabledException);
             }
@@ -2289,7 +2316,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
 
-            if (!DisableContainerSupport)
+            if (IsContainerSupportEnabled)
             {
                 // Start container heartbeat thread
                 _containerHeartbeatToken = new System.Threading.CancellationTokenSource();
@@ -2303,6 +2330,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                         await Task.Delay(5000);
                     }
                 });
+            }
+            else
+            {
+                LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisabled, null, Resources.ContainerDisabledException));
             }
 
             // Enable local loopback every boot.
@@ -2616,20 +2647,20 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                DisableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableNetworkAccessValue)"), CultureInfo.InvariantCulture);
+                _networkAccessDisabled = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableNetworkAccessValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
-                DisableNetworkAccess = true;
+                _networkAccessDisabled = true;
             }
 
             try
             {
-                EnableNetworkAccess = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_enableNetworkAccessValue)"), CultureInfo.InvariantCulture);
+                _networkAccessEnabled = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_enableNetworkAccessValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
-                EnableNetworkAccess = false;
+                _networkAccessEnabled = false;
             }
 
             try
@@ -2697,11 +2728,19 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableContainerSupport = Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableContainerValue)"), CultureInfo.InvariantCulture);
+                IsContainerSupportEnabled = !Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableContainerValue)"), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
-                DisableContainerSupport = false;
+                IsContainerSupportEnabled = true;
+            }
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !NativeMethods.IsApiSetImplemented("api-ms-win-containers-cmclient-l1-4-0"))
+            {
+                // Missing required ApiSet for container support. Disable it.
+                // Currently container support is restricted to Windows.
+                ServiceLogger.LogInformation(Resources.ContainerSupportNotPresent);
+                IsContainerSupportEnabled = false;
             }
 
             String loopbackAppsString;

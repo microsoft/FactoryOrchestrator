@@ -531,6 +531,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     case ServiceEventType.ContainerDisconnected:
                         IsContainerRunning = false;
                         break;
+                    case ServiceEventType.ContainerDisabled:
+                        IsContainerRunning = false;
+                        IsContainerDisabled = true;
+                        break;
                     default:
                         // Ignore other events
                         break;
@@ -625,7 +629,24 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
         }
-        private bool _isContainerRunning;
+        /// <summary>
+        /// <c>true</c> if the connected device has container support disabled; otherwise, <c>false</c>.
+        /// </summary>
+        public bool IsContainerDisabled
+        {
+            get => _isContainerDisabled;
+            set
+            {
+                if (!Equals(value, _isContainerDisabled))
+                {
+                    _isContainerDisabled = value;
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsContainerDisabled)));
+                }
+            }
+        }
+
+        private bool _isContainerRunning = false;
+        private bool _isContainerDisabled = false;
 
         private readonly SemaphoreSlim connectionFailureSem;
         private readonly SemaphoreSlim pollingFailureSem;
