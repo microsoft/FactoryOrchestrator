@@ -7,7 +7,8 @@ Param
     [string]$InterfaceName,
 	[string]$InterfaceFile,
     [string]$TemplateFile,
-	[string]$OutputFile
+	[string]$OutputFile,
+    [switch]$Async
 )
 
 Write-Host "Autogenerating $OutputFile from $InterfaceName interface in $InterfaceFile"
@@ -24,6 +25,7 @@ foreach ($line in $interfaceContent)
     {
         if ($line -like "*/// <summary>*")
         {
+            $currentSummary = ""
             # add to methodSummaries
             $currentSummary += "$line`n"
         }
@@ -34,12 +36,27 @@ foreach ($line in $interfaceContent)
         }
         elseif ($line -like "*;")
         {
-            # write out summary
-            foreach ($summ in $currentSummary)
+            if ($Async)
             {
-                $outputContent += $summ
+                $summarySplit = $currentSummary.Split("`n")
+                for ($i = 0 ; $i -lt $summarySplit.Count; $i++)
+                {
+                    $summ = $summarySplit[$i];
+                    if ($i -eq 1)
+                    {
+                        $summ = $summ.Replace("///", "/// Asynchronously");
+                    }
+
+                    if ($i -ne $summarySplit.Count - 1)
+                    {
+                        $outputContent += "$summ`n"
+                    }
+                }
             }
-            $currentSummary.Clear()
+            else
+            {
+                $outputContent += $currentSummary
+            }
 
             # line is an API in the interface, parse it
             $api = $line
@@ -51,27 +68,52 @@ foreach ($line in $interfaceContent)
             Write-Host "Found api: $apiName args: $apiArgs ret: $apiRet"
 
             # Create a new API per interface API which wraps the InvokeAsync call
-            if ($apiRet -eq "void")
+            $outputContent += "$indent$indent" + "public "
+
+            if ($Async)
             {
-                $outputContent += "$indent$indent" + "public async Task $apiName$apiArgs"
+                if ($apiRet -eq "void")
+                {
+                    $outputContent += "async Task "
+                }
+                else
+                {
+                    $outputContent += "async Task<$apiRet> "
+                }
             }
             else
             {
-                $outputContent += "$indent$indent" + "public async Task<$apiRet> $apiName$apiArgs"
+                $outputContent += "$apiRet "
             }
 
-            $outputContent += "`n$indent$indent{"
-            $outputContent += "`n$indent$indent$indent" + "if (!IsConnected)" + "`n$indent$indent$indent" + "{`n$indent$indent$indent$indent" + "throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);`n$indent$indent$indent}"
-            $outputContent += "`n`n$indent$indent$indent" + "try`n$indent$indent$indent{"
-            $outputContent += "`n$indent$indent$indent$indent"
-            
-            if ($apiRet -eq "void")
+            $outputContent += "$apiName$apiArgs"
+            $outputContent += "`n$indent$indent{`n$indent$indent$indent"
+
+            if ($Async)
             {
-                $outputContent += " await _IpcClient.InvokeAsync(CreateIpcRequest(`"$apiName`""
+                $outputContent += "if (!IsConnected)" + "`n$indent$indent$indent" + "{`n$indent$indent$indent$indent" + "throw new FactoryOrchestratorConnectionException(Resources.ClientNotConnected);`n$indent$indent$indent}"
+                $outputContent += "`n`n$indent$indent$indent" + "try`n$indent$indent$indent{"
+                $outputContent += "`n$indent$indent$indent$indent"
+            
+                if ($apiRet -eq "void")
+                {
+                    $outputContent += "await _IpcClient.InvokeAsync(CreateIpcRequest(`"$apiName`""
+                }
+                else
+                {
+                    $outputContent += "return await _IpcClient.InvokeAsync<$apiRet>(CreateIpcRequest(`"$apiName`""
+                }
             }
             else
             {
-                $outputContent += "return await _IpcClient.InvokeAsync<$apiRet>(CreateIpcRequest(`"$apiName`""
+                if ($apiRet -eq "void")
+                {
+                    $outputContent += "_client.$apiName("
+                }
+                else
+                {
+                    $outputContent += "return _client.$apiName("
+                }
             }
 
             # Split args, remove default values and variable typesd
@@ -81,33 +123,64 @@ foreach ($line in $interfaceContent)
             }
             else
             {
-                $outputContent += ", "
+                if ($Async)
+                {
+                    $outputContent += ", "
+                }
                 $argsSplit = $apiArgs.Split(',')
+                $invokeAsyncArgs = ""
+
                 for ($i = 0 ; $i -lt $argsSplit.Count; $i++)
                 {
                     $arg = $argsSplit[$i]
                     $equalSplit = $arg.Split('=')[0]
                     [regex]$rx='\s*.+\s+(.+)\s?'
                     $result = $rx.Match($equalSplit)
-                    $outputContent += "$($result.Groups[1].Value)"
+                    $invokeAsyncArgs += "$($result.Groups[1].Value)"
 
                     if ($i -ne $argsSplit.Count - 1)
                     {
-                        $outputContent += ", "
+                        $invokeAsyncArgs += ", "
                     }
                     elseif ("$($result.Groups[1].Value)" -notlike '*)*')
                     {
-                        $outputContent += ")"
+                        $invokeAsyncArgs += ")"
                     }
                 }
+                $outputContent += $invokeAsyncArgs
             }
-            $outputContent += ");"
-            $outputContent += "`n$indent$indent$indent}`n$indent$indent$indent"
-            $outputContent += "catch (Exception ex)`n$indent$indent$indent{`n$indent$indent$indent$indent"
-            $outputContent += "throw CreateIpcException(ex);`n"
-            $outputContent += "$indent$indent$indent}`n"
-            $outputContent += "$indent$indent}`n`n"
 
+            if ($Async)
+            {
+                $outputContent += ")"
+            }
+            else
+            {
+                if ($apiRet -eq "void")
+                {
+                    $outputContent += ".Wait()"
+                }
+                else
+                {
+                    $outputContent += ".Result"
+                }
+            }
+
+            $outputContent += ";"
+
+            if ($Async)
+            {
+                $outputContent += "`n$indent$indent$indent}`n$indent$indent$indent"
+                $outputContent += "catch (Exception ex)`n$indent$indent$indent{`n$indent$indent$indent$indent"
+                $outputContent += "throw CreateIpcException(ex);`n"
+                $outputContent += "$indent$indent$indent}`n"
+            }
+            else
+            {
+                $outputContent += "`n"
+            }
+
+            $outputContent += "$indent$indent}`n`n"
         }
         elseif ($line -like "*}*$InterfaceName")
         {

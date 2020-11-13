@@ -8,7 +8,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetFramework)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -19,7 +19,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" GeneratePathProperty="true"/>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -38,5 +41,11 @@
   </Target>
   <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' != 'true' And '$(Configuration)' == 'Debug'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
+  </Target>
+  <Target Name="CopyDIDll" AfterTargets="Build">
+    <Copy SourceFiles="$(PkgMicrosoft_Extensions_DependencyInjection)\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.dll" DestinationFolder="$(OutputPath)" />
+  </Target>
+  <Target Name="CopyPsd1" AfterTargets="Build">
+    <Copy SourceFiles=".\FactoryOrchestratorClient.psd1" DestinationFolder="$(OutputPath)" />
   </Target>
 </Project>

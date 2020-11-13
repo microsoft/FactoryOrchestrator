@@ -402,6 +402,22 @@ steps:
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries\FactoryOrchestratorDocumentation'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
+- task: CopyFiles@2
+  displayName: 'Copy psd1 to Client Libraries'
+  inputs:
+    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorClientLibrary'
+    Contents: 'FactoryOrchestratorClient.psd1'
+    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
+- task: CopyFiles@2
+  displayName: 'Copy DI dll to Client Libraries'
+  inputs:
+    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorClientLibrary'
+    Contents: 'Microsoft.Extensions.DependencyInjection.dll'
+    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\'
+  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)

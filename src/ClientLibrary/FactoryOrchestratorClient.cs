@@ -15,10 +15,11 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
+// Keep in sync with FactoryOrchestratorClientSync.cs
 namespace Microsoft.FactoryOrchestrator.Client
 {
     /// <summary>
-    /// A helper class for Factory Orchestrator .NET clients. It wraps the inter-process calls in a more usable manner.
+    /// An asynchronous class for Factory Orchestrator .NET clients. Use instances of this class to communicate with Factory Orchestrator Service(s).
     /// WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
     /// </summary>
     public partial class FactoryOrchestratorClient
