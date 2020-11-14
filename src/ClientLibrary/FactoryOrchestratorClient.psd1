@@ -12,7 +12,7 @@
 RootModule = 'FactoryOrchestratorClientLibrary.dll'
 
 # Version number of this module.
-ModuleVersion = '8.3.0.0'
+ModuleVersion = '8.3.2011.1647'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
