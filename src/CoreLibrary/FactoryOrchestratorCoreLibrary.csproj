@@ -67,10 +67,6 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <!--<Target Name="BeforeBuildMkDir" BeforeTargets="Build;CoreCompile">
-    <Message Text="$(DefaultDocumentationFolder)" />
-    <MakeDir Directories="$(DefaultDocumentationFolder)" />
-  </Target>-->
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
