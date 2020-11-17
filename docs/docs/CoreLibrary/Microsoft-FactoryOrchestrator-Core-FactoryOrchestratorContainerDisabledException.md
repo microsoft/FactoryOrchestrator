@@ -1,0 +1,13 @@
+#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
+## FactoryOrchestratorContainerDisabledException Class
+An exception denoting that container support is disabled.  
+```csharp
+public class FactoryOrchestratorContainerDisabledException : FactoryOrchestratorContainerException
+```
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [FactoryOrchestratorException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; [FactoryOrchestratorContainerException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerException') &#129106; FactoryOrchestratorContainerDisabledException  
+### Constructors
+- [FactoryOrchestratorContainerDisabledException()](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerDisabledException-FactoryOrchestratorContainerDisabledException().md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerDisabledException.FactoryOrchestratorContainerDisabledException()')
+- [FactoryOrchestratorContainerDisabledException(string)](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerDisabledException-FactoryOrchestratorContainerDisabledException(string).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerDisabledException.FactoryOrchestratorContainerDisabledException(string)')
+- [FactoryOrchestratorContainerDisabledException(string, System.Exception)](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerDisabledException-FactoryOrchestratorContainerDisabledException(string_System-Exception).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerDisabledException.FactoryOrchestratorContainerDisabledException(string, System.Exception)')
+- [FactoryOrchestratorContainerDisabledException(string, System.Nullable&lt;System.Guid&gt;, System.Exception)](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerDisabledException-FactoryOrchestratorContainerDisabledException(string_System-Nullable-System-Guid-_System-Exception).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerDisabledException.FactoryOrchestratorContainerDisabledException(string, System.Nullable&lt;System.Guid&gt;, System.Exception)')

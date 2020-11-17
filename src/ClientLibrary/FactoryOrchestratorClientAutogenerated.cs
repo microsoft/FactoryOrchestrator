@@ -15,7 +15,7 @@ namespace Microsoft.FactoryOrchestrator.Client
     public partial class FactoryOrchestratorClient
     {
         /// <summary>
-        /// Stops all running Tasks and deletes all TaskLists.
+        /// Asynchronously Stops all running Tasks and deletes all TaskLists.
         /// </summary>
         /// <param name="preserveLogs">If true, are logs not deleted.</param>
         /// <param name="factoryReset">If true, the service is restarted as if it is first boot.</param>
@@ -28,7 +28,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("ResetService", preserveLogs , factoryReset ));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("ResetService", preserveLogs , factoryReset ));
             }
             catch (Exception ex)
             {
@@ -37,7 +37,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets all Service events.
+        /// Asynchronously Gets all Service events.
         /// </summary>
         /// <returns>List of all Service events.</returns>
         public async Task<List<ServiceEvent>> GetServiceEvents()
@@ -58,7 +58,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Get all Service events since given time.
+        /// Asynchronously Get all Service events since given time.
         /// </summary>
         /// <param name="timeLastChecked"></param>
         /// <returns>List of Service events.</returns>
@@ -80,7 +80,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Get all Service events since given index.
+        /// Asynchronously Get all Service events since given index.
         /// </summary>
         /// <param name="lastEventIndex"></param>
         /// <returns>List of Service events.</returns>
@@ -102,7 +102,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Get last Service error.
+        /// Asynchronously Get last Service error.
         /// </summary>
         /// <returns></returns>
         public async Task<ServiceEvent> GetLastServiceError()
@@ -123,7 +123,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Returns the version of Factory Orchestrator Service.
+        /// Asynchronously Returns the version of Factory Orchestrator Service.
         /// </summary>
         /// <returns>string representing the Service version.</returns>
         public async Task<string> GetServiceVersionString()
@@ -144,7 +144,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Returns the version of the Windows OS.
+        /// Asynchronously Returns the version of the Windows OS.
         /// </summary>
         /// <returns>string representing the Windows OS version.</returns>
         public async Task<string> GetOSVersionString()
@@ -165,7 +165,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Returns the version set by the OEM duing WSK Image Customization.
+        /// Asynchronously Returns the version set by the OEM duing WSK Image Customization.
         /// </summary>
         /// <returns>string representing the OEM version.</returns>
         public async Task<string> GetOEMVersionString()
@@ -186,7 +186,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Sets the path to TE.exe, used to run TAEF tests.
+        /// Asynchronously Sets the path to TE.exe, used to run TAEF tests.
         /// </summary>
         /// <param name="teExePath">Path to TE.exe</param>
         /// <returns></returns>
@@ -199,7 +199,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SetTeExePath", teExePath));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("SetTeExePath", teExePath));
             }
             catch (Exception ex)
             {
@@ -208,7 +208,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Sets the log folder path used by Factory Orchestrator.
+        /// Asynchronously Sets the log folder path used by Factory Orchestrator.
         /// </summary>
         /// <param name="path">Path to the desired folder.</param>
         /// <param name="moveExistingLogs">If true, existing logs are moved to the new location.</param>
@@ -222,7 +222,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SetLogFolder", path, moveExistingLogs));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("SetLogFolder", path, moveExistingLogs));
             }
             catch (Exception ex)
             {
@@ -231,7 +231,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets the log folder path used by Factory Orchestrator.
+        /// Asynchronously Gets the log folder path used by Factory Orchestrator.
         /// </summary>
         /// <returns>Path to the log folder.</returns>
         public async Task<string> GetLogFolder()
@@ -252,7 +252,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets a list of IP addresses and the Network Adapter each IP address belongs to.
+        /// Asynchronously Gets a list of IP addresses and the Network Adapter each IP address belongs to.
         /// </summary>
         /// <returns>A list of IP addresses and the Network Adapter each IP address belongs to.</returns>
         public async Task<List<Tuple<string, string>>> GetIpAddressesAndNicNames()
@@ -273,7 +273,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets a list of IP addresses for the container. These IPs are internal, they cannot be accessed outside of the host.
+        /// Asynchronously Gets a list of IP addresses for the container. These IPs are internal, they cannot be accessed outside of the host.
         /// </summary>
         /// <returns>A list of IP addresses for the container.</returns>
         public async Task<List<string>> GetContainerIpAddresses()
@@ -294,7 +294,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Checks if the service is executing boot tasks. While executing boot tasks, many commands cannot be run.
+        /// Asynchronously Checks if the service is executing boot tasks. While executing boot tasks, many commands cannot be run.
         /// </summary>
         /// <returns><c>true</c> is the service is executing boot tasks.</returns>
         public async Task<bool> IsExecutingBootTasks()
@@ -315,7 +315,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Determines whether the connected device has a container present and running.
+        /// Asynchronously Determines whether the connected device has a container present and running.
         /// </summary>
         /// <returns>
         ///   <c>true</c> if container is present and running; otherwise, <c>false</c>.
@@ -338,7 +338,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.
+        /// Asynchronously Gets a list of Factory Orchestrator App pages that were disabled by OEM Customization.
         /// </summary>
         /// <returns>A list of page tags that should be disabled.</returns>
         public async Task<List<string>> GetDisabledPages()
@@ -359,7 +359,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Checks if the service supports network access.
+        /// Asynchronously Checks if the service supports network access.
         /// </summary>
         /// <returns><c>true</c> if the service allows connections over the local network.</returns>
         public async Task<bool> IsNetworkAccessEnabled()
@@ -380,7 +380,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Creates a new TaskList by finding all .exe, .cmd, .bat, .ps1, and TAEF files in a given folder.
+        /// Asynchronously Creates a new TaskList by finding all .exe, .cmd, .bat, .ps1, and TAEF files in a given folder.
         /// </summary>
         /// <param name="path">Path of the directory to search.</param>
         /// <param name="recursive">If true, search recursively.</param>
@@ -403,7 +403,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Creates new TaskLists by loading them from a FactoryOrchestratorXML file.
+        /// Asynchronously Creates new TaskLists by loading them from a FactoryOrchestratorXML file.
         /// </summary>
         /// <param name="filename">The path to the FactoryOrchestratorXML file.</param>
         /// <returns>The GUID(s) of the created TaskList(s)</returns>
@@ -425,7 +425,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Saves a TaskList to a FactoryOrchestratorXML file.
+        /// Asynchronously Saves a TaskList to a FactoryOrchestratorXML file.
         /// </summary>
         /// <param name="guid">The GUID of the TaskList you wish to save.</param>
         /// <param name="filename">The path to the FactoryOrchestratorXML file that will be created.</param>
@@ -439,7 +439,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SaveTaskListToXmlFile", guid, filename));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("SaveTaskListToXmlFile", guid, filename));
             }
             catch (Exception ex)
             {
@@ -448,7 +448,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Saves all TaskLists in the Service to a FactoryOrchestratorXML file.
+        /// Asynchronously Saves all TaskLists in the Service to a FactoryOrchestratorXML file.
         /// </summary>
         /// <param name="filename">The path to the FactoryOrchestratorXML file that will be created.</param>
         /// <returns>true on success</returns>
@@ -461,7 +461,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SaveAllTaskListsToXmlFile", filename));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("SaveAllTaskListsToXmlFile", filename));
             }
             catch (Exception ex)
             {
@@ -470,7 +470,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Creates a TaskList on the Service by copying a TaskList object provided by the Client.
+        /// Asynchronously Creates a TaskList on the Service by copying a TaskList object provided by the Client.
         /// </summary>
         /// <param name="list">The TaskList to add to the Service.</param>
         /// <returns>The created Service TaskList.</returns>
@@ -492,7 +492,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets the GUID of every "active" TaskList on the Service. If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists.
+        /// Asynchronously Gets the GUID of every "active" TaskList on the Service. If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists.
         /// </summary>
         /// <returns>The list of TaskList GUIDs.</returns>
         public async Task<List<Guid>> GetTaskListGuids()
@@ -513,7 +513,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets TaskList summaries for every "active" TaskList on the Service.  If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists. The summary contains basic info about the TaskList.
+        /// Asynchronously Gets TaskList summaries for every "active" TaskList on the Service.  If "IsExecutingBootTasks()" returns true, this returns the "boot" TaskLists. Otherwise, it returns the "normal" TaskLists. The summary contains basic info about the TaskList.
         /// </summary>
         /// <returns>A list of TaskListSummary objects.</returns>
         public async Task<List<TaskListSummary>> GetTaskListSummaries()
@@ -534,7 +534,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets the GUID of every "boot" TaskList on the Service.
+        /// Asynchronously Gets the GUID of every "boot" TaskList on the Service.
         /// </summary>
         /// <returns>The list of TaskList GUIDs.</returns>
         public async Task<List<Guid>> GetBootTaskListGuids()
@@ -555,7 +555,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets "boot" TaskList summaries for every "boot" TaskList on the Service. The summary contains basic info about the TaskList.
+        /// Asynchronously Gets "boot" TaskList summaries for every "boot" TaskList on the Service. The summary contains basic info about the TaskList.
         /// </summary>
         /// <returns>A list of TaskListSummary objects.</returns>
         public async Task<List<TaskListSummary>> GetBootTaskListSummaries()
@@ -576,7 +576,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets the TaskList object for a given TaskList GUID.
+        /// Asynchronously Gets the TaskList object for a given TaskList GUID.
         /// </summary>
         /// <param name="taskListGuid">The TaskList GUID.</param>
         /// <returns>The TaskList object with that GUID.</returns>
@@ -598,7 +598,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Deletes a TaskList on the Service.
+        /// Asynchronously Deletes a TaskList on the Service.
         /// </summary>
         /// <param name="listToDelete">The GUID of the TaskList to delete.</param>
         /// <returns>true if it was deleted successfully.</returns>
@@ -611,7 +611,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("DeleteTaskList", listToDelete));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("DeleteTaskList", listToDelete));
             }
             catch (Exception ex)
             {
@@ -620,7 +620,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Updates an existing TaskList on the Service.
+        /// Asynchronously Updates an existing TaskList on the Service.
         /// </summary>
         /// <param name="taskList">The updated TaskList.</param>
         /// <returns>true if it was updated successfully.</returns>
@@ -633,7 +633,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("UpdateTaskList", taskList));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("UpdateTaskList", taskList));
             }
             catch (Exception ex)
             {
@@ -642,7 +642,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Reorders the TaskLists known to the Service.
+        /// Asynchronously Reorders the TaskLists known to the Service.
         /// </summary>
         /// <param name="newOrder">An ordered list of GUIDs corresponding to the TaskList GUIDs known to the Service.</param>
         public async Task ReorderTaskLists(List<Guid> newOrder)
@@ -654,7 +654,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("ReorderTaskLists", newOrder));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("ReorderTaskLists", newOrder));
             }
             catch (Exception ex)
             {
@@ -663,7 +663,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Returns the Task object for a given Task GUID.
+        /// Asynchronously Returns the Task object for a given Task GUID.
         /// </summary>
         /// <param name="guid">The Task GUID.</param>
         /// <returns></returns>
@@ -685,7 +685,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets the AUMIDs of all installed apps on the OS. Requires Windows Device Portal.
+        /// Asynchronously Gets the AUMIDs of all installed apps on the OS. Requires Windows Device Portal.
         /// </summary>
         /// <returns>The list of app AUMIDs.</returns>
         public async Task<List<string>> GetInstalledApps()
@@ -706,7 +706,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Installs an app package on the Service's computer. The app package must already be on the Service's computer. Requires Windows Device Portal.
+        /// Asynchronously Installs an app package on the Service's computer. The app package must already be on the Service's computer. Requires Windows Device Portal.
         /// If the app package is not on the Service's computer already, use SendAndInstallApp() to copy and install it instead.
         /// </summary>
         /// <param name="appPackagePath">Path on the Service's computer to the app package (.appx, .appxbundle, .msix, .msixbundle).</param>
@@ -721,7 +721,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("InstallApp", appPackagePath, dependentPackages , certificateFile ));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("InstallApp", appPackagePath, dependentPackages , certificateFile ));
             }
             catch (Exception ex)
             {
@@ -730,7 +730,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Enables local loopback on the given UWP app.
+        /// Asynchronously Enables local loopback on the given UWP app.
         /// </summary>
         /// <param name="aumid">The Application User Model ID (AUMID) of the app to enable local loopback on.</param>
         public async Task EnableLocalLoopbackForApp(string aumid)
@@ -742,7 +742,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("EnableLocalLoopbackForApp", aumid));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("EnableLocalLoopbackForApp", aumid));
             }
             catch (Exception ex)
             {
@@ -751,7 +751,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Executes all TaskLists in order.
+        /// Asynchronously Executes all TaskLists in order.
         /// </summary>
         /// <returns><c>true</c> if the TaskLists are successfully queued to run.</returns>
         public async Task<bool> RunAllTaskLists()
@@ -772,7 +772,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Executes a TaskList.
+        /// Asynchronously Executes a TaskList.
         /// </summary>
         /// <param name="taskListGuid">GUID of the TaskList to run.</param>
         /// <param name="initialTask">Index of the Task to start the run from.</param>
@@ -786,7 +786,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("RunTaskList", taskListGuid, initialTask ));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("RunTaskList", taskListGuid, initialTask ));
             }
             catch (Exception ex)
             {
@@ -795,7 +795,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Stops all executing Tasks and/or TaskLists.
+        /// Asynchronously Stops all executing Tasks and/or TaskLists.
         /// </summary>
         public async Task AbortAll()
         {
@@ -806,7 +806,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("AbortAll"));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("AbortAll"));
             }
             catch (Exception ex)
             {
@@ -815,7 +815,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Stops executing a TaskList.
+        /// Asynchronously Stops executing a TaskList.
         /// </summary>
         /// <param name="taskListGuid">The GUID of the TaskList to stop.</param>
         public async Task AbortTaskList(Guid taskListGuid)
@@ -827,7 +827,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("AbortTaskList", taskListGuid));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("AbortTaskList", taskListGuid));
             }
             catch (Exception ex)
             {
@@ -836,7 +836,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Stops executing a TaskRun.
+        /// Asynchronously Stops executing a TaskRun.
         /// </summary>
         /// <param name="taskRunGuid">The GUID of the TaskRun to stop.</param>
         public async Task AbortTaskRun(Guid taskRunGuid)
@@ -848,7 +848,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("AbortTaskRun", taskRunGuid));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("AbortTaskRun", taskRunGuid));
             }
             catch (Exception ex)
             {
@@ -857,7 +857,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Runs an executable (.exe) outside of a Task/TaskList.
+        /// Asynchronously Runs an executable (.exe) outside of a Task/TaskList.
         /// </summary>
         /// <param name="exeFilePath">Full path to the .exe file</param>
         /// <param name="arguments">Arguments to pass to the .exe</param>
@@ -882,7 +882,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Runs a UWP app outside of a Task/TaskList. Requires Windows Device Portal.
+        /// Asynchronously Runs a UWP app outside of a Task/TaskList. Requires Windows Device Portal.
         /// </summary>
         /// <param name="aumid">The Application User Model ID (AUMID) of the app to run.</param>
         /// <returns></returns>
@@ -904,7 +904,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Runs a Task outside of a TaskList.
+        /// Asynchronously Runs a Task outside of a TaskList.
         /// </summary>
         /// <param name="taskGuid">The GUID of the Task to run.</param>
         /// <returns>The TaskRun associated with the run.</returns>
@@ -926,7 +926,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Runs a Task outside of a TaskList.
+        /// Asynchronously Runs a Task outside of a TaskList.
         /// </summary>
         /// <param name="task">The Task to run.</param>
         /// <returns>The TaskRun associated with the run.</returns>
@@ -948,7 +948,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Updates the status of a TaskRun.
+        /// Asynchronously Updates the status of a TaskRun.
         /// </summary>
         /// <param name="taskRun">The TaskRun to update.</param>
         /// <returns>true if it was updated.</returns>
@@ -961,7 +961,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("UpdateTaskRun", taskRun));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("UpdateTaskRun", taskRun));
             }
             catch (Exception ex)
             {
@@ -970,7 +970,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets a TaskRun object.
+        /// Asynchronously Gets a TaskRun object.
         /// </summary>
         /// <param name="taskRunGuid">The GUID of the desired TaskRun</param>
         /// <returns>The TaskRun object.</returns>
@@ -992,7 +992,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Gets all the data in a file on the Service's computer. It is recommended you use FactoryOrchestratorClient::GetFileFromDevice instead.
+        /// Asynchronously Gets all the data in a file on the Service's computer. It is recommended you use FactoryOrchestratorClient::GetFileFromDevice instead.
         /// </summary>
         /// <param name="sourceFilename">The path to the file to retrieve.</param>
         /// <param name="offset">If -1, read the whole file. Otherwise the starting byte to read the file from.</param>
@@ -1017,7 +1017,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToDevice instead.
+        /// Asynchronously Saves data to a file to the Service's computer. It is recommended you use FactoryOrchestratorClient::SendFileToDevice instead.
         /// </summary>
         /// <param name="targetFilename">The name of the file you want created on the Service's computer.</param>
         /// <param name="fileData">The bytes you want saved to that file.</param>
@@ -1033,7 +1033,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", targetFilename, fileData, appendFile , sendToContainer ));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("SendFile", targetFilename, fileData, appendFile , sendToContainer ));
             }
             catch (Exception ex)
             {
@@ -1042,7 +1042,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Permanently deletes a file or folder. If a folder, all contents are deleted.
+        /// Asynchronously Permanently deletes a file or folder. If a folder, all contents are deleted.
         /// </summary>
         /// <param name="path">File or folder to delete</param>
         /// <param name="deleteInContainer">If true, delete the file from the container running on the connected device.</param>
@@ -1055,7 +1055,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("DeleteFileOrFolder", path, deleteInContainer ));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("DeleteFileOrFolder", path, deleteInContainer ));
             }
             catch (Exception ex)
             {
@@ -1064,7 +1064,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Moves a file or folder to a new location.
+        /// Asynchronously Moves a file or folder to a new location.
         /// </summary>
         /// <param name="sourcePath">File or folder to move</param>
         /// <param name="destinationPath">Destination path</param>
@@ -1078,7 +1078,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                 await _IpcClient.InvokeAsync(CreateIpcRequest("MoveFileOrFolder", sourcePath, destinationPath, moveInContainer ));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("MoveFileOrFolder", sourcePath, destinationPath, moveInContainer ));
             }
             catch (Exception ex)
             {
@@ -1087,7 +1087,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Returns a list of all directories in a given folder.
+        /// Asynchronously Returns a list of all directories in a given folder.
         /// </summary>
         /// <param name="path">The folder to search.</param>
         /// <param name="recursive">If true, search recursively.</param>
@@ -1111,7 +1111,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         }
 
         /// <summary>
-        /// Returns a list of all files in a given folder.
+        /// Asynchronously Returns a list of all files in a given folder.
         /// </summary>
         /// <param name="path">The folder to search.</param>
         /// <param name="recursive">If true, search recursively.</param>

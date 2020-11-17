@@ -2739,24 +2739,24 @@ namespace Microsoft.FactoryOrchestrator.Core
             }
         }
     }
-}
-
-/// <summary>
-/// Abstract class to implement INotifyPropertyChanged
-/// </summary>
-public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged
-{
-    /// <summary>
-    /// Event when a Property changes.
-    /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
-    /// Call when a Property changes.
+    /// Abstract class to implement INotifyPropertyChanged
     /// </summary>
-    /// <param name="propertyName">Name of the Property that changed.</param>
-    protected void NotifyPropertyChanged([CallerMemberName]string propertyName = "")
+    public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        /// <summary>
+        /// Event when a Property changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Call when a Property changes.
+        /// </summary>
+        /// <param name="propertyName">Name of the Property that changed.</param>
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

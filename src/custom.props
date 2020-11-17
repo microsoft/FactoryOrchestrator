@@ -3,7 +3,7 @@
   <!-- Set the major and minor build numbers here, used by PackageES and SetSourceVersion.ps1 -->
   <PropertyGroup Label="Version">
      <VersionMajor>8</VersionMajor>
-     <VersionMinor>2</VersionMinor>
+     <VersionMinor>3</VersionMinor>
      <VersionInfoProductName>Factory Orchestrator</VersionInfoProductName>
  </PropertyGroup>
 </Project>

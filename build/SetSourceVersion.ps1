@@ -114,3 +114,27 @@ else
 {
     Write-Host "Version did not need updating, it is $buildNumber"
 }
+
+$psds = Get-ChildItem -Path $SrcPath -Filter "*.psd1"
+ForEach ($psd in $psds)
+{
+    $currentFileContent = Get-Content $psd
+    $versionStr = $currentFileContent | Where-Object {$_ -like "*ModuleVersion*"}
+    if ($null -ne $versionStr)
+    {
+        if ($versionStr -match $buildNumber)
+        {
+            continue
+        }
+    }
+
+    [string]$randString = Get-Random
+    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+
+    $psdContents = Get-Content $psd.FullName |
+                        ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$buildNumber'"} |
+                        Set-Content $tempFile
+
+    Write-Host "Moving $tempFile to $psd"
+    Move-Item $tempFile $psd -force
+}
