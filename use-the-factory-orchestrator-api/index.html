@@ -12,6 +12,8 @@
         <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/">
       
       
+        <meta name="author" content="themar-msft;hajya">
+      
       <link rel="shortcut icon" href="../images/fo-logo.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
@@ -267,8 +269,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-factoryorchestratoruwpclientdll-in-a-uwp" class="md-nav__link">
-    Using FactoryOrchestratorUWPClient.dll in a UWP
+  <a href="#using-factoryorchestratorclient-in-powershell" class="md-nav__link">
+    Using FactoryOrchestratorClient in PowerShell
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-factoryorchestratoruwpclient-in-a-uwp" class="md-nav__link">
+    Using FactoryOrchestratorUWPClient in a UWP
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-versioning" class="md-nav__link">
+    Factory Orchestrator Versioning
   </a>
   
 </li>
@@ -312,6 +328,30 @@
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      ClientLibrary Class Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      CoreLibrary Class Reference
+    </a>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -336,8 +376,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#using-factoryorchestratoruwpclientdll-in-a-uwp" class="md-nav__link">
-    Using FactoryOrchestratorUWPClient.dll in a UWP
+  <a href="#using-factoryorchestratorclient-in-powershell" class="md-nav__link">
+    Using FactoryOrchestratorClient in PowerShell
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-factoryorchestratoruwpclient-in-a-uwp" class="md-nav__link">
+    Using FactoryOrchestratorUWPClient in a UWP
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-versioning" class="md-nav__link">
+    Factory Orchestrator Versioning
   </a>
   
 </li>
@@ -380,57 +434,118 @@
                 
                 
                 <h1 id="using-the-factory-orchestrator-client-api">Using the Factory Orchestrator client API</h1>
-<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a robust API surface for clients to interact with test devices via .NET code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides.</p>
-<p>All FactoryOrchestratorClient API calls other than <code>Connect()</code> are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
-<p>The FactoryOrchestator service uses <a href="https://semver.org/">semver</a> versioning. If the target device is running a different Factory Orchestrator build than one used to create the client program, you need to ensure that the program you build will run as expected by calling Client.GetServiceVersionString() and comparaing against the client API version. If there is a major version mismatch your program may not work as expected and either the client program or test device should be updated so the major versions match. You can check the version of the client API by:</p>
+<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/">robust API surface</a> for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.</p>
+<p>All FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# (.NET and UWP) API calls are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
+<p>You can see <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/">the full API reference for the FactoryOrchestratorClientLibrary here</a>. You can also see <a href="../CoreLibrary/FactoryOrchestratorCoreLibrary/">the FactoryOrchestratorCoreLibrary reference here</a>. The CoreLibrary contains class definitions for objects some client APIs return, such as TaskRun instances.</p>
+<p>Before executing other APIs, the Connect() or TryConnect() API must be called. Once the Connect() or TryConnect() API succeeds, you can use all other APIs.</p>
+<pre><code class="language-csharp">// Create client instance targeting service at desired IP Address
+var client = new FactoryOrchestratorClient(new IPAddress(&quot;192.168.0.50&quot;));
+
+// Establish connection
+await Client.Connect();
+
+// Do things!
+await Client.RunExecutable(@&quot;%windir%\system32\ping.exe&quot;);
+</code></pre>
+<h2 id="using-factoryorchestratorclient-in-powershell">Using FactoryOrchestratorClient in PowerShell</h2>
+<p>The FactoryOrchestratorClient PowerShell module is available in FactoryOrchestratorClient.psd1.</p>
+<p>To use the PowerShell module, import FactoryOrchestratorClient.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.</p>
+<p>Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new TaskBase, TaskList, and ServerPoller objects respectively.</p>
+<pre><code class="language-powershell"># Import client module
+Import-Module FactoryOrchestratorClient.psd1
+
+# Create client instance targeting service at desired IP Address (127.0.0.1 == loopback)
+$client = New-FactoryOrchestratorClient -IpAddress &quot;127.0.0.1&quot;
+
+# Establish connection. Unlike C# FactoryOrchestratorClient, this is synchronous
+$client.Connect();
+
+# Do things! For example...
+# Create a TaskList. Create as global for event handling to work.
+$global:tasklist = New-FactoryOrchestratorTaskList &quot;My TaskList&quot;
+
+# Create Tasks
+$task = New-FactoryOrchestratorTask -Type Executable -Path &quot;C:\TestContent\PathToMyExe.exe&quot;
+$task2 = New-FactoryOrchestratorTask -Type External -Name &quot;External Task&quot;
+
+# Add the Tasks to the TaskList
+$global:tasklist.Tasks.Add($task);
+$global:tasklist.Tasks.Add($task2);
+
+# Add the TaskList to the service
+$global:tasklist = $client.CreateTaskListFromTaskList($global:tasklist)
+
+# Create and start a poller for the TaskList
+$poller = New-FactoryOrchestratorServerPoller -GuidToPoll $global:tasklist.Guid -GuidType TaskList
+# Register for OnUpdatedObject event
+$pollEvent = Register-ObjectEvent -InputObject $poller -EventName OnUpdatedObject -Action { $global:tasklist = $Event.SourceEventArgs.Result }
+# PowerShell only: you must pass the AsyncClient to the ServerPoller!
+$poller.StartPolling($client.AsyncClient)
+
+# Run the TaskList
+$client.RunTaskList($global:tasklist.Guid)
+
+# Wait for ExternalTask to be waiting on result
+$externalTaskrunGuid = $null
+while ($externalTaskrunGuid -eq $null)
+{
+    $externalTaskrunGuid = ($global:tasklist.Tasks | Where-Object {$_.LatestTaskRunStatus -eq [Microsoft.FactoryOrchestrator.Core.TaskStatus]::WaitingForExternalResult}).LatestTaskRunGuid
+    Start-Sleep -seconds 1
+}
+
+# Get the TaskRun
+$externalRun = $client.QueryTaskRun($externalTaskrunGuid)
+
+# Complete the ExternalTask TaskRun
+$externalRun.TaskOutput.Add(&quot;Completed via PowerShell!&quot;)
+$externalRun.TaskStatus = [Microsoft.FactoryOrchestrator.Core.TaskStatus]::Passed
+$externalRun.ExitCode = 0
+$client.UpdateTaskRun($externalRun)
+
+# Wait for the TaskList to fully complete
+while ($global:tasklist.IsRunningOrPending -eq $true)
+{
+    Start-Sleep -seconds 1
+}
+
+# Stop polling
+$poller.StopPolling()
+Get-EventSubscriber | Unregister-Event
+
+# Write out results
+foreach ($t in $global:tasklist.Tasks)
+{
+    Write-Host &quot;$($t.Name) finished in $($t.LatestTaskRunRunTime) with result $($t.LatestTaskRunStatus)&quot;
+    Write-Host &quot;Output:&quot;
+    $output = ($client.QueryTaskRun($t.LatestTaskRunGuid)).TaskOutput
+    Write-Host $output
+}
+</code></pre>
+<h2 id="using-factoryorchestratoruwpclient-in-a-uwp">Using FactoryOrchestratorUWPClient in a UWP</h2>
+<p>If you are writing a UWP app that uses the Factory Orchestrator Client API, you must use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. The FactoryOrchestratorUWPClient class is available in FactoryOrchestratorUWPClientLibrary.dll. Like the FactoryOrchestratorClient C# class, all FactoryOrchestratorUWPClient API calls are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
+<h2 id="factory-orchestrator-versioning">Factory Orchestrator Versioning</h2>
+<p>Factory Orchestator uses <a href="https://semver.org/">semver</a> versioning. If there is a major version mismatch between the client and service your program may not work as expected and either the client program or target service should be updated so the major versions match. Major versions are checked when the client connects to the service. You can also manually check the version of the client API by:</p>
 <ul>
 <li>
 <p>Manually inspecting the properties of the FactoryOrchestratorClientLibrary.dll file used by your program</p>
 <p><img alt="version number in the properties of FactoryOrchestratorClientLibrary.dll" src="../images/fo-version-number.png" /></p>
 </li>
 <li>
-<p>Programmatically by the following code snippet:</p>
+<p>Programmatically with the following code snippets:</p>
 </li>
 </ul>
-<pre><code class="language-C#">using System.Reflection;
-
-...
-
-var client = new FactoryOrchestratorClient(ipAddress);
-client.GetClientVersionString();
+<pre><code class="language-C#">FactoryOrchestratorClient.GetClientVersionString();
 </code></pre>
-<p>If you are writing a UWP app that uses the Factory Orchestrator Client API, you should use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. The UWP Client is available in FactoryOrchestratorUWPClientLibrary.dll.</p>
-<h2 id="using-factoryorchestratoruwpclientdll-in-a-uwp">Using FactoryOrchestratorUWPClient.dll in a UWP</h2>
-<p>If you're using FactoryOrchestratorUWPClient.dll in a UWP, you have to configure Visual Studio so that it doesn't build with .NET Native.</p>
-<ol>
-<li>Load your app project in visual studio.</li>
-<li>
-<p>Right click the app project and select <strong>Properties</strong>:</p>
-<p><img alt="Right-clicking on app in Visual Studio" src="../images/build-fo-uwp-1.png" />
-<img alt="Selecting properties" src="../images/build-fo-uwp-2.png" /></p>
-</li>
-<li>
-<p>On the <strong>Build</strong> tab, select <strong>All Configurations</strong> and <strong>All Platforms</strong>:</p>
-<p><img alt="Choosing all configurations and All platforms" src="../images/build-fo-uwp-3.png" /></p>
-</li>
-<li>
-<p>Uncheck <strong>Compile with .NET Native tool chain</strong></p>
-<p><img alt="Unchecking compile with .net toolchain" src="../images/build-fo-uwp-4.png" /></p>
-</li>
-<li>
-<p>Rebuild and re-publish your app. The app dependencies will be different for your newly built app, so you'll need to install different framework packages with your app;</p>
-<p><img alt="Rebuild and republishing the app" src="../images/build-fo-uwp-5.png" /></p>
-</li>
-</ol>
-<p>After building without the .NET native tool chain, your app should run successfully.</p>
+<pre><code class="language-powershell">Get-Module FactoryOrchestratorClient
+</code></pre>
 <h2 id="factory-orchestrator-client-sample">Factory Orchestrator client sample</h2>
-<p>A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Faactory Orchestrator GitHub repo at: <code>&lt;Link to sample app&gt;</code>. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019. (Visual Studio 2019 is required for working with NET Core 2.2 and newer.)</p>
-<p>The sample shows you how to connect to a remote test device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files.</p>
+<p>A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019 or build it with the dotnet CLI SDK.</p>
+<p>The sample shows you how to connect to a remote (or local) device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retrieving the service's log files.</p>
 <h3 id="factory-orchestrator-client-sample-usage">Factory Orchestrator client sample usage</h3>
-<p>Once the sample is built, create a folder on your technican PC with test content and a FactoryOrchestratorXML file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:</p>
+<p>Once the sample is built, create a folder on your PC with test content and a FactoryOrchestratorXML file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:</p>
 <pre><code class="language-cmd">dotnet ClientSample.dll &lt;IP Address of DUT&gt; &lt;Folder on technician PC with test content AND FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
 </code></pre>
-<p>The sample will then connect to the test device, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. You will be able to monitor the progress of the sample in the console window, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on the Technician PC (if it is connected to the test device).</p>
+<p>The sample will then connect to the test device, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. You will be able to monitor the progress of the sample in the ClientSample console window, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on the PC (if it is connected to the test device).</p>
                 
               
               

@@ -1,0 +1,531 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Factory Orchestrator Documentation">
+      
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync/">
+      
+      
+        <meta name="author" content="themar-msft;hajya">
+      
+      <link rel="shortcut icon" href="../../images/fo-logo.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+    
+    
+      
+        <title>Microsoft FactoryOrchestrator Client FactoryOrchestratorClientSync - Factory Orchestrator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#546d78">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="blue-grey" data-md-color-accent="amber">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#factoryorchestratorclientlibrary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  <img src="../../images/fo-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Factory Orchestrator
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Microsoft FactoryOrchestrator Client FactoryOrchestratorClientSync
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  <img src="../../images/fo-logo.png" alt="logo">
+
+    </a>
+    Factory Orchestrator
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../get-started-with-factory-orchestrator/" class="md-nav__link">
+      Get Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks-and-tasklists/" class="md-nav__link">
+      Tasks & TaskLists
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../use-the-factory-orchestrator-app/" class="md-nav__link">
+      Run using the application
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../use-the-factory-orchestrator-api/" class="md-nav__link">
+      Run using the client api
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../factory-orchestrator-utilities/" class="md-nav__link">
+      Built-In Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      ClientLibrary Class Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      CoreLibrary Class Reference
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#factoryorchestratorclientlibrary" class="md-nav__link">
+    FactoryOrchestratorClientLibrary
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#microsoftfactoryorchestratorclient" class="md-nav__link">
+    Microsoft.FactoryOrchestrator.Client
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factoryorchestratorclientsync-class" class="md-nav__link">
+    FactoryOrchestratorClientSync Class
+  </a>
+  
+    <nav class="md-nav" aria-label="FactoryOrchestratorClientSync Class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructors" class="md-nav__link">
+    Constructors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    Fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    Properties
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#events" class="md-nav__link">
+    Events
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>Microsoft FactoryOrchestrator Client FactoryOrchestratorClientSync</h1>
+                
+                <h4 id="factoryorchestratorclientlibrary"><a href="../FactoryOrchestratorClientLibrary/" title="FactoryOrchestratorClientLibrary">FactoryOrchestratorClientLibrary</a></h4>
+<h3 id="microsoftfactoryorchestratorclient"><a href="../Microsoft-FactoryOrchestrator-Client/" title="Microsoft.FactoryOrchestrator.Client">Microsoft.FactoryOrchestrator.Client</a></h3>
+<h2 id="factoryorchestratorclientsync-class">FactoryOrchestratorClientSync Class</h2>
+<p>A fully synchronous class for Factory Orchestrator .NET clients. Use instances of this class to communicate with Factory Orchestrator Service(s).<br />
+Most .NET clients are recommended to use FactoryOrchestratorClient instead which is fully asynchronous.<br />
+WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!  </p>
+<pre><code class="language-csharp">public class FactoryOrchestratorClientSync :
+IFactoryOrchestratorService
+</code></pre>
+<p>Inheritance <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Object" title="System.Object">System.Object</a> &#129106; FactoryOrchestratorClientSync  </p>
+<p>Implements <a href="https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService" title="Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService">Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService</a>  </p>
+<h3 id="constructors">Constructors</h3>
+<ul>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-FactoryOrchestratorClientSync%28System-Net-IPAddress_int%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.FactoryOrchestratorClientSync(System.Net.IPAddress, int)">FactoryOrchestratorClientSync(System.Net.IPAddress, int)</a></li>
+</ul>
+<h3 id="fields">Fields</h3>
+<ul>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-_client/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync._client">_client</a></li>
+</ul>
+<h3 id="properties">Properties</h3>
+<ul>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-IpAddress/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.IpAddress">IpAddress</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-IsConnected/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.IsConnected">IsConnected</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-IsLocalHost/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.IsLocalHost">IsLocalHost</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-Port/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.Port">Port</a></li>
+</ul>
+<h3 id="methods">Methods</h3>
+<ul>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-AbortAll%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.AbortAll()">AbortAll()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-AbortTaskList%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.AbortTaskList(System.Guid)">AbortTaskList(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-AbortTaskRun%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.AbortTaskRun(System.Guid)">AbortTaskRun(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-Connect%28bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.Connect(bool)">Connect(bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-CreateClientFileReader%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.CreateClientFileReader(string)">CreateClientFileReader(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-CreateClientFileWriter%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.CreateClientFileWriter(string)">CreateClientFileWriter(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-CreateDirectory%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.CreateDirectory(string)">CreateDirectory(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-CreateTaskListFromDirectory%28string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.CreateTaskListFromDirectory(string, bool)">CreateTaskListFromDirectory(string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-CreateTaskListFromTaskList%28Microsoft-FactoryOrchestrator-Core-TaskList%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.CreateTaskListFromTaskList(Microsoft.FactoryOrchestrator.Core.TaskList)">CreateTaskListFromTaskList(Microsoft.FactoryOrchestrator.Core.TaskList)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-DeleteFileOrFolder%28string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.DeleteFileOrFolder(string, bool)">DeleteFileOrFolder(string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-DeleteTaskList%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.DeleteTaskList(System.Guid)">DeleteTaskList(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-EnableLocalLoopbackForApp%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.EnableLocalLoopbackForApp(string)">EnableLocalLoopbackForApp(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-EnumerateDirectories%28string_bool_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.EnumerateDirectories(string, bool, bool)">EnumerateDirectories(string, bool, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-EnumerateFiles%28string_bool_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.EnumerateFiles(string, bool, bool)">EnumerateFiles(string, bool, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-EnumerateLocalDirectories%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.EnumerateLocalDirectories(string)">EnumerateLocalDirectories(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-EnumerateLocalFiles%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.EnumerateLocalFiles(string)">EnumerateLocalFiles(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetBootTaskListGuids%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetBootTaskListGuids()">GetBootTaskListGuids()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetBootTaskListSummaries%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetBootTaskListSummaries()">GetBootTaskListSummaries()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetClientVersionString%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetClientVersionString()">GetClientVersionString()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetContainerIpAddresses%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetContainerIpAddresses()">GetContainerIpAddresses()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetDirectoryFromDevice%28string_string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetDirectoryFromDevice(string, string, bool)">GetDirectoryFromDevice(string, string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetDisabledPages%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetDisabledPages()">GetDisabledPages()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetFile%28string_long_int_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetFile(string, long, int, bool)">GetFile(string, long, int, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetFileFromDevice%28string_string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetFileFromDevice(string, string, bool)">GetFileFromDevice(string, string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetInstalledApps%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetInstalledApps()">GetInstalledApps()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetIpAddressesAndNicNames%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetIpAddressesAndNicNames()">GetIpAddressesAndNicNames()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetLastServiceError%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetLastServiceError()">GetLastServiceError()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetLogFolder%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetLogFolder()">GetLogFolder()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetOEMVersionString%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetOEMVersionString()">GetOEMVersionString()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetOSVersionString%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetOSVersionString()">GetOSVersionString()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetServiceEvents%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetServiceEvents()">GetServiceEvents()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetServiceEvents%28System-DateTime%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetServiceEvents(System.DateTime)">GetServiceEvents(System.DateTime)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetServiceEvents%28ulong%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetServiceEvents(ulong)">GetServiceEvents(ulong)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetServiceVersionString%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetServiceVersionString()">GetServiceVersionString()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetTaskListGuids%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetTaskListGuids()">GetTaskListGuids()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-GetTaskListSummaries%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.GetTaskListSummaries()">GetTaskListSummaries()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-InstallApp%28string_System-Collections-Generic-List-string-_string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.InstallApp(string, System.Collections.Generic.List&lt;string&gt;, string)">InstallApp(string, System.Collections.Generic.List&lt;string&gt;, string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-IsContainerRunning%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.IsContainerRunning()">IsContainerRunning()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-IsExecutingBootTasks%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.IsExecutingBootTasks()">IsExecutingBootTasks()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-IsNetworkAccessEnabled%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.IsNetworkAccessEnabled()">IsNetworkAccessEnabled()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-LoadTaskListsFromXmlFile%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.LoadTaskListsFromXmlFile(string)">LoadTaskListsFromXmlFile(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-MoveFileOrFolder%28string_string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.MoveFileOrFolder(string, string, bool)">MoveFileOrFolder(string, string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-QueryTask%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.QueryTask(System.Guid)">QueryTask(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-QueryTaskList%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.QueryTaskList(System.Guid)">QueryTaskList(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-QueryTaskRun%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.QueryTaskRun(System.Guid)">QueryTaskRun(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RebootDevice%28uint%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RebootDevice(uint)">RebootDevice(uint)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-ReorderTaskLists%28System-Collections-Generic-List-System-Guid-%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.ReorderTaskLists(System.Collections.Generic.List&lt;System.Guid&gt;)">ReorderTaskLists(System.Collections.Generic.List&lt;System.Guid&gt;)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-ResetService%28bool_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.ResetService(bool, bool)">ResetService(bool, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RunAllTaskLists%28%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RunAllTaskLists()">RunAllTaskLists()</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RunApp%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RunApp(string)">RunApp(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RunExecutable%28string_string_string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RunExecutable(string, string, string, bool)">RunExecutable(string, string, string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RunTask%28Microsoft-FactoryOrchestrator-Core-TaskBase%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RunTask(Microsoft.FactoryOrchestrator.Core.TaskBase)">RunTask(Microsoft.FactoryOrchestrator.Core.TaskBase)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RunTask%28System-Guid%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RunTask(System.Guid)">RunTask(System.Guid)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-RunTaskList%28System-Guid_int%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.RunTaskList(System.Guid, int)">RunTaskList(System.Guid, int)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SaveAllTaskListsToXmlFile%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SaveAllTaskListsToXmlFile(string)">SaveAllTaskListsToXmlFile(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SaveTaskListToXmlFile%28System-Guid_string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SaveTaskListToXmlFile(System.Guid, string)">SaveTaskListToXmlFile(System.Guid, string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SendAndInstallApp%28string_System-Collections-Generic-List-string-_string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SendAndInstallApp(string, System.Collections.Generic.List&lt;string&gt;, string)">SendAndInstallApp(string, System.Collections.Generic.List&lt;string&gt;, string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SendDirectoryToDevice%28string_string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SendDirectoryToDevice(string, string, bool)">SendDirectoryToDevice(string, string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SendFile%28string_byte--_bool_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SendFile(string, byte[], bool, bool)">SendFile(string, byte[], bool, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SendFileToDevice%28string_string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SendFileToDevice(string, string, bool)">SendFileToDevice(string, string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SetLogFolder%28string_bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SetLogFolder(string, bool)">SetLogFolder(string, bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-SetTeExePath%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.SetTeExePath(string)">SetTeExePath(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-ShutdownDevice%28uint%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.ShutdownDevice(uint)">ShutdownDevice(uint)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-TryConnect%28bool%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.TryConnect(bool)">TryConnect(bool)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-TryDeleteLocalFile%28string%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.TryDeleteLocalFile(string)">TryDeleteLocalFile(string)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-UpdateTaskList%28Microsoft-FactoryOrchestrator-Core-TaskList%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.UpdateTaskList(Microsoft.FactoryOrchestrator.Core.TaskList)">UpdateTaskList(Microsoft.FactoryOrchestrator.Core.TaskList)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-UpdateTaskRun%28Microsoft-FactoryOrchestrator-Core-TaskRun%29/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.UpdateTaskRun(Microsoft.FactoryOrchestrator.Core.TaskRun)">UpdateTaskRun(Microsoft.FactoryOrchestrator.Core.TaskRun)</a></li>
+</ul>
+<h3 id="events">Events</h3>
+<ul>
+<li><a href="../Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync-OnConnected/" title="Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync.OnConnected">OnConnected</a></li>
+</ul>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

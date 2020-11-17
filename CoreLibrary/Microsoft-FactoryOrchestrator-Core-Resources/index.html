@@ -1,0 +1,527 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Factory Orchestrator Documentation">
+      
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/CoreLibrary/Microsoft-FactoryOrchestrator-Core-Resources/">
+      
+      
+        <meta name="author" content="themar-msft;hajya">
+      
+      <link rel="shortcut icon" href="../../images/fo-logo.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+    
+    
+      
+        <title>Microsoft FactoryOrchestrator Core Resources - Factory Orchestrator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#546d78">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="blue-grey" data-md-color-accent="amber">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#factoryorchestratorcorelibrary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  <img src="../../images/fo-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Factory Orchestrator
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Microsoft FactoryOrchestrator Core Resources
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  <img src="../../images/fo-logo.png" alt="logo">
+
+    </a>
+    Factory Orchestrator
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../get-started-with-factory-orchestrator/" class="md-nav__link">
+      Get Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks-and-tasklists/" class="md-nav__link">
+      Tasks & TaskLists
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../use-the-factory-orchestrator-app/" class="md-nav__link">
+      Run using the application
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../use-the-factory-orchestrator-api/" class="md-nav__link">
+      Run using the client api
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../factory-orchestrator-utilities/" class="md-nav__link">
+      Built-In Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      ClientLibrary Class Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      CoreLibrary Class Reference
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#factoryorchestratorcorelibrary" class="md-nav__link">
+    FactoryOrchestratorCoreLibrary
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#microsoftfactoryorchestratorcore" class="md-nav__link">
+    Microsoft.FactoryOrchestrator.Core
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources-class" class="md-nav__link">
+    Resources Class
+  </a>
+  
+    <nav class="md-nav" aria-label="Resources Class">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    Properties
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/CoreLibrary/Microsoft-FactoryOrchestrator-Core-Resources.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>Microsoft FactoryOrchestrator Core Resources</h1>
+                
+                <h4 id="factoryorchestratorcorelibrary"><a href="../FactoryOrchestratorCoreLibrary/" title="FactoryOrchestratorCoreLibrary">FactoryOrchestratorCoreLibrary</a></h4>
+<h3 id="microsoftfactoryorchestratorcore"><a href="../Microsoft-FactoryOrchestrator-Core/" title="Microsoft.FactoryOrchestrator.Core">Microsoft.FactoryOrchestrator.Core</a></h3>
+<h2 id="resources-class">Resources Class</h2>
+<p>A strongly-typed resource class, for looking up localized strings, etc.  </p>
+<pre><code class="language-csharp">public class Resources
+</code></pre>
+<p>Inheritance <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Object" title="System.Object">System.Object</a> &#129106; Resources  </p>
+<h3 id="properties">Properties</h3>
+<ul>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-AppTerminated/" title="Microsoft.FactoryOrchestrator.Core.Resources.AppTerminated">AppTerminated</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-AttemptingContainerTaskRun/" title="Microsoft.FactoryOrchestrator.Core.Resources.AttemptingContainerTaskRun">AttemptingContainerTaskRun</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-AttemptingFileLoad/" title="Microsoft.FactoryOrchestrator.Core.Resources.AttemptingFileLoad">AttemptingFileLoad</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-AUMIDNotValidError/" title="Microsoft.FactoryOrchestrator.Core.Resources.AUMIDNotValidError">AUMIDNotValidError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-BackgroundRetryException/" title="Microsoft.FactoryOrchestrator.Core.Resources.BackgroundRetryException">BackgroundRetryException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-BackgroundTaskTypeException/" title="Microsoft.FactoryOrchestrator.Core.Resources.BackgroundTaskTypeException">BackgroundTaskTypeException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-BackgroundTimeoutException/" title="Microsoft.FactoryOrchestrator.Core.Resources.BackgroundTimeoutException">BackgroundTimeoutException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-BootTasksExecutingError/" title="Microsoft.FactoryOrchestrator.Core.Resources.BootTasksExecutingError">BootTasksExecutingError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-BootTasksFinished/" title="Microsoft.FactoryOrchestrator.Core.Resources.BootTasksFinished">BootTasksFinished</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-BootTasksStarted/" title="Microsoft.FactoryOrchestrator.Core.Resources.BootTasksStarted">BootTasksStarted</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-CheckingForFile/" title="Microsoft.FactoryOrchestrator.Core.Resources.CheckingForFile">CheckingForFile</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ClientNotConnected/" title="Microsoft.FactoryOrchestrator.Core.Resources.ClientNotConnected">ClientNotConnected</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerConnected/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerConnected">ContainerConnected</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerConnectionFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerConnectionFailed">ContainerConnectionFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerDisabledException/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerDisabledException">ContainerDisabledException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerDisconnected/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerDisconnected">ContainerDisconnected</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerFileGetFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerFileGetFailed">ContainerFileGetFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerFileSendFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerFileSendFailed">ContainerFileSendFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerSupportNotPresent/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerSupportNotPresent">ContainerSupportNotPresent</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerTaskRunFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerTaskRunFailed">ContainerTaskRunFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ContainerTaskTypeException/" title="Microsoft.FactoryOrchestrator.Core.Resources.ContainerTaskTypeException">ContainerTaskTypeException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-CreateDirectoryFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.CreateDirectoryFailed">CreateDirectoryFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-Culture/" title="Microsoft.FactoryOrchestrator.Core.Resources.Culture">Culture</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-DeleteContainerPathFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.DeleteContainerPathFailed">DeleteContainerPathFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-DoneWaitingForExternalTaskRun/" title="Microsoft.FactoryOrchestrator.Core.Resources.DoneWaitingForExternalTaskRun">DoneWaitingForExternalTaskRun</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-DuplicateGuidInXml/" title="Microsoft.FactoryOrchestrator.Core.Resources.DuplicateGuidInXml">DuplicateGuidInXml</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-DuplicateTaskRunGuid/" title="Microsoft.FactoryOrchestrator.Core.Resources.DuplicateTaskRunGuid">DuplicateTaskRunGuid</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EnablingLoopback/" title="Microsoft.FactoryOrchestrator.Core.Resources.EnablingLoopback">EnablingLoopback</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EnablingLoopbackFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.EnablingLoopbackFailed">EnablingLoopbackFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EndContainerOutput/" title="Microsoft.FactoryOrchestrator.Core.Resources.EndContainerOutput">EndContainerOutput</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EndWaitingForExternalResult/" title="Microsoft.FactoryOrchestrator.Core.Resources.EndWaitingForExternalResult">EndWaitingForExternalResult</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EveryBootAlreadyComplete/" title="Microsoft.FactoryOrchestrator.Core.Resources.EveryBootAlreadyComplete">EveryBootAlreadyComplete</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EveryBootComplete/" title="Microsoft.FactoryOrchestrator.Core.Resources.EveryBootComplete">EveryBootComplete</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EveryBootFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.EveryBootFailed">EveryBootFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EveryBootRunningTaskList/" title="Microsoft.FactoryOrchestrator.Core.Resources.EveryBootRunningTaskList">EveryBootRunningTaskList</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-EveryBootWaiting/" title="Microsoft.FactoryOrchestrator.Core.Resources.EveryBootWaiting">EveryBootWaiting</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorConnectionException/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorConnectionException">FactoryOrchestratorConnectionException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorTaskListRunningException/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorTaskListRunningException">FactoryOrchestratorTaskListRunningException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorTaskListRunningExceptionWithGuid/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorTaskListRunningExceptionWithGuid">FactoryOrchestratorTaskListRunningExceptionWithGuid</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorUnkownGuidException/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorUnkownGuidException">FactoryOrchestratorUnkownGuidException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorUnkownGuidExceptionWithGuid/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorUnkownGuidExceptionWithGuid">FactoryOrchestratorUnkownGuidExceptionWithGuid</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorUnkownGuidExceptionWithGuidAndType/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorUnkownGuidExceptionWithGuidAndType">FactoryOrchestratorUnkownGuidExceptionWithGuidAndType</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FactoryOrchestratorVersionMismatchException/" title="Microsoft.FactoryOrchestrator.Core.Resources.FactoryOrchestratorVersionMismatchException">FactoryOrchestratorVersionMismatchException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FileLoadSucceeded/" title="Microsoft.FactoryOrchestrator.Core.Resources.FileLoadSucceeded">FileLoadSucceeded</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FileNotFound/" title="Microsoft.FactoryOrchestrator.Core.Resources.FileNotFound">FileNotFound</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FileNotFoundException/" title="Microsoft.FactoryOrchestrator.Core.Resources.FileNotFoundException">FileNotFoundException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FileSaveError/" title="Microsoft.FactoryOrchestrator.Core.Resources.FileSaveError">FileSaveError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-Finish/" title="Microsoft.FactoryOrchestrator.Core.Resources.Finish">Finish</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FirstBootAlreadyComplete/" title="Microsoft.FactoryOrchestrator.Core.Resources.FirstBootAlreadyComplete">FirstBootAlreadyComplete</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FirstBootComplete/" title="Microsoft.FactoryOrchestrator.Core.Resources.FirstBootComplete">FirstBootComplete</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FirstBootFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.FirstBootFailed">FirstBootFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FirstBootRunningTaskList/" title="Microsoft.FactoryOrchestrator.Core.Resources.FirstBootRunningTaskList">FirstBootRunningTaskList</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FirstBootWaiting/" title="Microsoft.FactoryOrchestrator.Core.Resources.FirstBootWaiting">FirstBootWaiting</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-FOXMLFileLoadException/" title="Microsoft.FactoryOrchestrator.Core.Resources.FOXMLFileLoadException">FOXMLFileLoadException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-InvalidPathError/" title="Microsoft.FactoryOrchestrator.Core.Resources.InvalidPathError">InvalidPathError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-InvalidTaskRunTypeException/" title="Microsoft.FactoryOrchestrator.Core.Resources.InvalidTaskRunTypeException">InvalidTaskRunTypeException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-IpcInvalidOperationError/" title="Microsoft.FactoryOrchestrator.Core.Resources.IpcInvalidOperationError">IpcInvalidOperationError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-LogFileCreationFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.LogFileCreationFailed">LogFileCreationFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-LogFolderMoveFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.LogFolderMoveFailed">LogFolderMoveFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-MoveContainerPathFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.MoveContainerPathFailed">MoveContainerPathFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-NetworkAccessDisabled/" title="Microsoft.FactoryOrchestrator.Core.Resources.NetworkAccessDisabled">NetworkAccessDisabled</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-NetworkAccessEnabled/" title="Microsoft.FactoryOrchestrator.Core.Resources.NetworkAccessEnabled">NetworkAccessEnabled</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-NoContainerIdFound/" title="Microsoft.FactoryOrchestrator.Core.Resources.NoContainerIdFound">NoContainerIdFound</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-NoContainerIpFound/" title="Microsoft.FactoryOrchestrator.Core.Resources.NoContainerIpFound">NoContainerIpFound</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-NoMethodFound/" title="Microsoft.FactoryOrchestrator.Core.Resources.NoMethodFound">NoMethodFound</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-NoTaskListsException/" title="Microsoft.FactoryOrchestrator.Core.Resources.NoTaskListsException">NoTaskListsException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-OpenNonMutableKeyFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.OpenNonMutableKeyFailed">OpenNonMutableKeyFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-OpenVolatileKeyFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.OpenVolatileKeyFailed">OpenVolatileKeyFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ProcessExited/" title="Microsoft.FactoryOrchestrator.Core.Resources.ProcessExited">ProcessExited</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ProcessStartError/" title="Microsoft.FactoryOrchestrator.Core.Resources.ProcessStartError">ProcessStartError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ReadyToCommunicate/" title="Microsoft.FactoryOrchestrator.Core.Resources.ReadyToCommunicate">ReadyToCommunicate</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-RedirectingToRunAsRDUser/" title="Microsoft.FactoryOrchestrator.Core.Resources.RedirectingToRunAsRDUser">RedirectingToRunAsRDUser</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-RedirectingUWPToRunAs/" title="Microsoft.FactoryOrchestrator.Core.Resources.RedirectingUWPToRunAs">RedirectingUWPToRunAs</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ResourceManager/" title="Microsoft.FactoryOrchestrator.Core.Resources.ResourceManager">ResourceManager</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-RunningGuiAsSystemWarning/" title="Microsoft.FactoryOrchestrator.Core.Resources.RunningGuiAsSystemWarning">RunningGuiAsSystemWarning</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceAlreadyCreatedError/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceAlreadyCreatedError">ServiceAlreadyCreatedError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceErrored/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceErrored">ServiceErrored</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceProcessExitedWithError/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceProcessExitedWithError">ServiceProcessExitedWithError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceProcessStartFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceProcessStartFailed">ServiceProcessStartFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceProcessTimedOut/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceProcessTimedOut">ServiceProcessTimedOut</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceStarted/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceStarted">ServiceStarted</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceStarting/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceStarting">ServiceStarting</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceStopped/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceStopped">ServiceStopped</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceStoppedWithName/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceStoppedWithName">ServiceStoppedWithName</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceStopping/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceStopping">ServiceStopping</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-ServiceStopSaveError/" title="Microsoft.FactoryOrchestrator.Core.Resources.ServiceStopSaveError">ServiceStopSaveError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-SourceDirectoryNotFound/" title="Microsoft.FactoryOrchestrator.Core.Resources.SourceDirectoryNotFound">SourceDirectoryNotFound</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-Start/" title="Microsoft.FactoryOrchestrator.Core.Resources.Start">Start</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-StartContainerOutput/" title="Microsoft.FactoryOrchestrator.Core.Resources.StartContainerOutput">StartContainerOutput</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaefCheckFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaefCheckFailed">TaefCheckFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaefCheckReturnedError/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaefCheckReturnedError">TaefCheckReturnedError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaefCheckTimeout/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaefCheckTimeout">TaefCheckTimeout</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaefValidationFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaefValidationFailed">TaefValidationFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskBaseDeserializationException/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskBaseDeserializationException">TaskBaseDeserializationException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskBaseSerializationException/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskBaseSerializationException">TaskBaseSerializationException</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskListCountMismatch/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskListCountMismatch">TaskListCountMismatch</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskListExistsAlready/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskListExistsAlready">TaskListExistsAlready</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskListSaveFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskListSaveFailed">TaskListSaveFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskListToString/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskListToString">TaskListToString</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TaskRunUnhandledExceptionError/" title="Microsoft.FactoryOrchestrator.Core.Resources.TaskRunUnhandledExceptionError">TaskRunUnhandledExceptionError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-TooManyMethodsFound/" title="Microsoft.FactoryOrchestrator.Core.Resources.TooManyMethodsFound">TooManyMethodsFound</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-Unknown/" title="Microsoft.FactoryOrchestrator.Core.Resources.Unknown">Unknown</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-UnsupportedGuidType/" title="Microsoft.FactoryOrchestrator.Core.Resources.UnsupportedGuidType">UnsupportedGuidType</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WaitingForContainerStart/" title="Microsoft.FactoryOrchestrator.Core.Resources.WaitingForContainerStart">WaitingForContainerStart</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WaitingForContainerTaskRun/" title="Microsoft.FactoryOrchestrator.Core.Resources.WaitingForContainerTaskRun">WaitingForContainerTaskRun</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WaitingForExternalTaskRun/" title="Microsoft.FactoryOrchestrator.Core.Resources.WaitingForExternalTaskRun">WaitingForExternalTaskRun</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPAppLaunchFailed/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPAppLaunchFailed">WDPAppLaunchFailed</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPAppLaunchFailed2/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPAppLaunchFailed2">WDPAppLaunchFailed2</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPAppLaunchFailed3/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPAppLaunchFailed3">WDPAppLaunchFailed3</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPAppLaunchSucceeded/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPAppLaunchSucceeded">WDPAppLaunchSucceeded</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPError/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPError">WDPError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPHttpError/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPHttpError">WDPHttpError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WDPNotRunningError/" title="Microsoft.FactoryOrchestrator.Core.Resources.WDPNotRunningError">WDPNotRunningError</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-Resources-WindowsOnlyError/" title="Microsoft.FactoryOrchestrator.Core.Resources.WindowsOnlyError">WindowsOnlyError</a></li>
+</ul>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

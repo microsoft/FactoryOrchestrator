@@ -314,6 +314,30 @@
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      ClientLibrary Class Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
+      CoreLibrary Class Reference
+    </a>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -382,24 +406,24 @@
                 
                 
                 <h1 id="factory-orchestrator">Factory Orchestrator</h1>
-<p>Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.</p>
+<p>Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor, Factory Orchestrator can be used during OS and hardware development to support various developer inner-loop and diagnostics activities.</p>
 <p>Factory Orchestrator consists of two components:</p>
 <ul>
 <li>
 <p>A system service (FactoryOrchestratorService.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure.</p>
 </li>
 <li>
-<p>A UWP app: Communicates with the service to run executable tasks and commands on a device under test (DUT). This app can communicate with the service running  on the same device and/or over a network.</p>
+<p>A UWP app: Communicates with the service to run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional, the service does not depend on the app.</p>
 </li>
 </ul>
 <p>Tasks are used to capture actions that the server can executre, and TaskLists are used to organize and manage these Tasks. Learn more about <a href="tasks-and-tasklists/">Tasks and Tasklists</a></p>
 <p><a href="get-started-with-factory-orchestrator/">Getting started with Factory Orchestrator</a></p>
 <h2 id="factory-orchestrator-logs">Factory Orchestrator logs</h2>
-<p>By default, the Factory Orchestrator Service generates log files in the following location on the test device: <code>%ProgramData%\FactoryOrchestrator</code>.</p>
+<p>By default, the Factory Orchestrator Service generates log files in the following location on the device: <code>%ProgramData%\FactoryOrchestrator</code>.</p>
 <h3 id="factory-orchestrator-service-log-file">Factory Orchestrator Service log file</h3>
-<p>The service log file contains details about the operation of the Factory Orchestrator Service. It is always found at <code>%ProgramData%\FactoryOrchestrator\FactoryOrchestratorService.log</code> on a device. Inspect this log for details about the service's operation.</p>
+<p>The service log file contains details about the operation of the Factory Orchestrator service. It is always found at <code>%ProgramData%\FactoryOrchestrator\FactoryOrchestratorService.log</code> on a device. Inspect this log for details about the service's operation.</p>
 <h3 id="factory-orchestrator-task-log-files">Factory Orchestrator Task log files</h3>
-<p>The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task. The files are saved to <code>%ProgramData%\FactoryOrchestrator\Logs\</code> on a device by default, but this location can be changed using the FactoryOrchestratorClient.SetLogFolder() API. Use the FactoryOrchestratorClient.GetLogFolder() API to programmatically retrieve the log folder.</p>
+<p>The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task (TaskRun). The files are saved to <code>%ProgramData%\FactoryOrchestrator\Logs\</code> on a device by default, but this location can be changed using the FactoryOrchestratorClient.SetLogFolder() API. Use the FactoryOrchestratorClient.GetLogFolder() API to programmatically retrieve the log folder.</p>
                 
                   
                 
