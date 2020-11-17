@@ -9,10 +9,10 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'FactoryOrchestratorClientLibrary.dll'
+RootModule = 'FactoryOrchestratorPowerShellLibrary.dll'
 
 # Version number of this module.
-ModuleVersion = '8.3.2011.1647'
+ModuleVersion = '8.3.0.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -54,7 +54,7 @@ Description = 'PowerShell wrapper for the FactoryOrchestratorClient class. https
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-#RequiredAssemblies = @()
+# RequiredAssemblies = @("FactoryOrchestratorCoreLibrary.dll")
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -72,7 +72,7 @@ Description = 'PowerShell wrapper for the FactoryOrchestratorClient class. https
 FunctionsToExport = @()
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @("New-FactoryOrchestratorClient")
+CmdletsToExport = @("New-FactoryOrchestratorClient", "New-FactoryOrchestratorServerPoller", "New-FactoryOrchestratorTaskList", "New-FactoryOrchestratorTask")
 
 # Variables to export from this module
 VariablesToExport = '*'

@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Net;
-// Keep in sync with FactoryOrchestratorClient.cs
+// Keep in sync with CoreLibrary\FactoryOrchestratorClient.cs
 namespace Microsoft.FactoryOrchestrator.Client
 {
     /// <summary>
-    /// A fully synchronous class for Factory Orchestrator .NET clients. Use instances of this class to communicate with Factory Orchestrator Service(s).
-    /// Most .NET clients are recommended to use FactoryOrchestratorClient instead which is fully asynchronous.
-    /// WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
+    /// A fully synchronous class for Factory Orchestrator .NET clients. Use instances of this class to communicate with Factory Orchestrator Service(s) via PowerShell.
+    /// .NET clients are recommended to use FactoryOrchestratorClient instead which is fully asynchronous.
     /// </summary>
     public partial class FactoryOrchestratorClientSync : IFactoryOrchestratorService
     {
@@ -24,7 +23,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         public FactoryOrchestratorClientSync(IPAddress host, int port = 45684)
         {
             OnConnected = null;
-            _client = new FactoryOrchestratorClient(host, port);
+            AsyncClient = new FactoryOrchestratorClient(host, port);
         }
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="ignoreVersionMismatch">If true, ignore a Client-Service version mismatch.</param>
         public void Connect(bool ignoreVersionMismatch = false)
         {
-            _client.Connect().Wait();
+            AsyncClient.Connect().Wait();
             OnConnected?.Invoke();
         }
 
@@ -65,7 +64,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="certificateFile">Path on the Client's computer to the app's certificate file, if needed. Microsoft Store signed apps do not need a certificate.</param>
         public void SendAndInstallApp(string appFilename, List<string> dependentPackages = null, string certificateFile = null)
         {
-            _client.SendAndInstallApp(appFilename, dependentPackages, certificateFile).Wait();
+            AsyncClient.SendAndInstallApp(appFilename, dependentPackages, certificateFile).Wait();
         }
 
         /// <summary>
@@ -76,7 +75,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="sendToContainer">If true, send the file to the container running on the connected device.</param>
         public long SendFileToDevice(string clientFilename, string serverFilename, bool sendToContainer = false)
         {
-            return _client.SendFileToDevice(clientFilename, serverFilename, sendToContainer).Result;
+            return AsyncClient.SendFileToDevice(clientFilename, serverFilename, sendToContainer).Result;
         }
 
         /// <summary>
@@ -87,7 +86,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="getFromContainer">If true, get the file from the container running on the connected device.</param>
         public long GetFileFromDevice(string serverFilename, string clientFilename, bool getFromContainer = false)
         {
-            return _client.GetFileFromDevice(serverFilename, clientFilename, getFromContainer).Result;
+            return AsyncClient.GetFileFromDevice(serverFilename, clientFilename, getFromContainer).Result;
         }
 
         /// <summary>
@@ -116,7 +115,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="getFromContainer">If true, get the file from the container running on the connected device.</param>
         public long GetDirectoryFromDevice(string serverDirectory, string clientDirectory, bool getFromContainer = false)
         {
-            return _client.GetDirectoryFromDevice(serverDirectory, clientDirectory, getFromContainer).Result;
+            return AsyncClient.GetDirectoryFromDevice(serverDirectory, clientDirectory, getFromContainer).Result;
         }
 
         /// <summary>
@@ -127,7 +126,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="sendToContainer">If true, copy the folder to the container running on the connected device.</param>
         public long SendDirectoryToDevice(string clientDirectory, string serverDirectory, bool sendToContainer = false)
         {
-            return _client.SendDirectoryToDevice(clientDirectory, serverDirectory, sendToContainer).Result;
+            return AsyncClient.SendDirectoryToDevice(clientDirectory, serverDirectory, sendToContainer).Result;
         }
 
 
@@ -137,7 +136,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="secondsUntilShutdown">How long to delay shutdown, in seconds.</param>
         public void ShutdownDevice(uint secondsUntilShutdown = 0)
         {
-            _client.ShutdownDevice(secondsUntilShutdown);
+            AsyncClient.ShutdownDevice(secondsUntilShutdown);
         }
 
         /// <summary>
@@ -146,7 +145,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="secondsUntilReboot">How long to delay reboot, in seconds.</param>
         public void RebootDevice(uint secondsUntilReboot = 0)
         {
-            _client.RebootDevice(secondsUntilReboot);
+            AsyncClient.RebootDevice(secondsUntilReboot);
         }
 
         /// <summary>
@@ -230,58 +229,22 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// True if the Client-Service connection is successfully established.
         /// </summary>
-        public bool IsConnected { get => _client.IsConnected; }
+        public bool IsConnected { get => AsyncClient.IsConnected; }
 
         /// <summary>
         /// The IP address of the connected device.
         /// </summary>
-        public IPAddress IpAddress { get => _client.IpAddress; }
+        public IPAddress IpAddress { get => AsyncClient.IpAddress; }
 
         /// <summary>
         /// The port of the connected device used. Factory Orchestrator Service defaults to 45684.
         /// </summary>
-        public int Port { get => _client.Port; }
+        public int Port { get => AsyncClient.Port; }
 
         /// <summary>
-        /// The async client used to communicate with the service.
+        /// The async client used to communicate with the service. Needed for using the ServerPoller class in PowerShell.
         /// </summary>
-        private FactoryOrchestratorClient _client;
+        public FactoryOrchestratorClient AsyncClient { get; private set; }
 
-    }
-
-    /// <summary>
-    /// Cmdlet class. Intended for PowerShell use only.
-    /// </summary>
-    [Cmdlet(VerbsCommon.New, "FactoryOrchestratorClient")]
-    [OutputType(typeof(FactoryOrchestratorClient))]
-    public class FactoryOrchestratorClientCmdlet : Cmdlet
-    {
-        /// <summary>
-        /// IP Address to connect to.
-        /// </summary>
-        [Parameter (Mandatory = true, Position = 0)]
-        public string IpAddress { get; set; }
-
-        /// <summary>
-        /// TCP port to use for connection.
-        /// </summary>
-        [Parameter(Mandatory = false)]
-        public int Port { get; set; }
-
-        /// <summary>
-        /// CTOR.
-        /// </summary>
-        public FactoryOrchestratorClientCmdlet()
-        {
-            Port = 45684;
-        }
-
-        /// <summary>
-        /// Creates a PowerShell object.
-        /// </summary>
-        protected override void ProcessRecord()
-        {
-            this.WriteObject(new FactoryOrchestratorClientSync(IPAddress.Parse(IpAddress), Port));
-        }
     }
 }

@@ -176,6 +176,16 @@ steps:
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet publish FactoryOrchestratorClient PowerShell'
+  inputs:
+    command: publish
+    publishWebProjects: False
+    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorPowerShellLibrary.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish --force --verbosity Detailed'
+    zipAfterPublish: false
+  condition: eq(variables['BuildConfiguration'], 'Release')
+  enabled: true
+
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop x86'
   inputs:
@@ -403,19 +413,10 @@ steps:
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
-  displayName: 'Copy psd1 to Client Libraries'
+  displayName: 'Copy PowerShell Publish to Client Libraries'
   inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorClientLibrary'
-    Contents: 'FactoryOrchestratorClient.psd1'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: CopyFiles@2
-  displayName: 'Copy DI dll to Client Libraries'
-  inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorClientLibrary'
-    Contents: 'Microsoft.Extensions.DependencyInjection.dll'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\'
+    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish'
+    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\PowerShell'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10

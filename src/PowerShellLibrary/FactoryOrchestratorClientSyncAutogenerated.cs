@@ -21,7 +21,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="factoryReset">If true, the service is restarted as if it is first boot.</param>
         public void ResetService(bool preserveLogs = false, bool factoryReset = false)
         {
-            _client.ResetService(preserveLogs , factoryReset ).Wait();
+            AsyncClient.ResetService(preserveLogs , factoryReset ).Wait();
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>List of all Service events.</returns>
         public List<ServiceEvent> GetServiceEvents()
         {
-            return _client.GetServiceEvents().Result;
+            return AsyncClient.GetServiceEvents().Result;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>List of Service events.</returns>
         public List<ServiceEvent> GetServiceEvents(DateTime timeLastChecked)
         {
-            return _client.GetServiceEvents(timeLastChecked).Result;
+            return AsyncClient.GetServiceEvents(timeLastChecked).Result;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>List of Service events.</returns>
         public List<ServiceEvent> GetServiceEvents(ulong lastEventIndex)
         {
-            return _client.GetServiceEvents(lastEventIndex).Result;
+            return AsyncClient.GetServiceEvents(lastEventIndex).Result;
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public ServiceEvent GetLastServiceError()
         {
-            return _client.GetLastServiceError().Result;
+            return AsyncClient.GetLastServiceError().Result;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>string representing the Service version.</returns>
         public string GetServiceVersionString()
         {
-            return _client.GetServiceVersionString().Result;
+            return AsyncClient.GetServiceVersionString().Result;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>string representing the Windows OS version.</returns>
         public string GetOSVersionString()
         {
-            return _client.GetOSVersionString().Result;
+            return AsyncClient.GetOSVersionString().Result;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>string representing the OEM version.</returns>
         public string GetOEMVersionString()
         {
-            return _client.GetOEMVersionString().Result;
+            return AsyncClient.GetOEMVersionString().Result;
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public void SetTeExePath(string teExePath)
         {
-            _client.SetTeExePath(teExePath).Wait();
+            AsyncClient.SetTeExePath(teExePath).Wait();
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public void SetLogFolder(string path, bool moveExistingLogs)
         {
-            _client.SetLogFolder(path, moveExistingLogs).Wait();
+            AsyncClient.SetLogFolder(path, moveExistingLogs).Wait();
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>Path to the log folder.</returns>
         public string GetLogFolder()
         {
-            return _client.GetLogFolder().Result;
+            return AsyncClient.GetLogFolder().Result;
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>A list of IP addresses and the Network Adapter each IP address belongs to.</returns>
         public List<Tuple<string, string>> GetIpAddressesAndNicNames()
         {
-            return _client.GetIpAddressesAndNicNames().Result;
+            return AsyncClient.GetIpAddressesAndNicNames().Result;
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>A list of IP addresses for the container.</returns>
         public List<string> GetContainerIpAddresses()
         {
-            return _client.GetContainerIpAddresses().Result;
+            return AsyncClient.GetContainerIpAddresses().Result;
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns><c>true</c> is the service is executing boot tasks.</returns>
         public bool IsExecutingBootTasks()
         {
-            return _client.IsExecutingBootTasks().Result;
+            return AsyncClient.IsExecutingBootTasks().Result;
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </returns>
         public bool IsContainerRunning()
         {
-            return _client.IsContainerRunning().Result;
+            return AsyncClient.IsContainerRunning().Result;
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>A list of page tags that should be disabled.</returns>
         public List<string> GetDisabledPages()
         {
-            return _client.GetDisabledPages().Result;
+            return AsyncClient.GetDisabledPages().Result;
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns><c>true</c> if the service allows connections over the local network.</returns>
         public bool IsNetworkAccessEnabled()
         {
-            return _client.IsNetworkAccessEnabled().Result;
+            return AsyncClient.IsNetworkAccessEnabled().Result;
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The created TaskList</returns>
         public TaskList CreateTaskListFromDirectory(string path, bool recursive = false)
         {
-            return _client.CreateTaskListFromDirectory(path, recursive ).Result;
+            return AsyncClient.CreateTaskListFromDirectory(path, recursive ).Result;
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The GUID(s) of the created TaskList(s)</returns>
         public List<Guid> LoadTaskListsFromXmlFile(string filename)
         {
-            return _client.LoadTaskListsFromXmlFile(filename).Result;
+            return AsyncClient.LoadTaskListsFromXmlFile(filename).Result;
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>true on success</returns>
         public void SaveTaskListToXmlFile(Guid guid, string filename)
         {
-            _client.SaveTaskListToXmlFile(guid, filename).Wait();
+            AsyncClient.SaveTaskListToXmlFile(guid, filename).Wait();
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>true on success</returns>
         public void SaveAllTaskListsToXmlFile(string filename)
         {
-            _client.SaveAllTaskListsToXmlFile(filename).Wait();
+            AsyncClient.SaveAllTaskListsToXmlFile(filename).Wait();
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The created Service TaskList.</returns>
         public TaskList CreateTaskListFromTaskList(TaskList list)
         {
-            return _client.CreateTaskListFromTaskList(list).Result;
+            return AsyncClient.CreateTaskListFromTaskList(list).Result;
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The list of TaskList GUIDs.</returns>
         public List<Guid> GetTaskListGuids()
         {
-            return _client.GetTaskListGuids().Result;
+            return AsyncClient.GetTaskListGuids().Result;
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>A list of TaskListSummary objects.</returns>
         public List<TaskListSummary> GetTaskListSummaries()
         {
-            return _client.GetTaskListSummaries().Result;
+            return AsyncClient.GetTaskListSummaries().Result;
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The list of TaskList GUIDs.</returns>
         public List<Guid> GetBootTaskListGuids()
         {
-            return _client.GetBootTaskListGuids().Result;
+            return AsyncClient.GetBootTaskListGuids().Result;
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>A list of TaskListSummary objects.</returns>
         public List<TaskListSummary> GetBootTaskListSummaries()
         {
-            return _client.GetBootTaskListSummaries().Result;
+            return AsyncClient.GetBootTaskListSummaries().Result;
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The TaskList object with that GUID.</returns>
         public TaskList QueryTaskList(Guid taskListGuid)
         {
-            return _client.QueryTaskList(taskListGuid).Result;
+            return AsyncClient.QueryTaskList(taskListGuid).Result;
         }
 
         /// <summary>
@@ -280,7 +280,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>true if it was deleted successfully.</returns>
         public void DeleteTaskList(Guid listToDelete)
         {
-            _client.DeleteTaskList(listToDelete).Wait();
+            AsyncClient.DeleteTaskList(listToDelete).Wait();
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>true if it was updated successfully.</returns>
         public void UpdateTaskList(TaskList taskList)
         {
-            _client.UpdateTaskList(taskList).Wait();
+            AsyncClient.UpdateTaskList(taskList).Wait();
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="newOrder">An ordered list of GUIDs corresponding to the TaskList GUIDs known to the Service.</param>
         public void ReorderTaskLists(List<Guid> newOrder)
         {
-            _client.ReorderTaskLists(newOrder).Wait();
+            AsyncClient.ReorderTaskLists(newOrder).Wait();
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public TaskBase QueryTask(Guid guid)
         {
-            return _client.QueryTask(guid).Result;
+            return AsyncClient.QueryTask(guid).Result;
         }
 
         /// <summary>
@@ -318,7 +318,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The list of app AUMIDs.</returns>
         public List<string> GetInstalledApps()
         {
-            return _client.GetInstalledApps().Result;
+            return AsyncClient.GetInstalledApps().Result;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="certificateFile">Path on the Service's computer to the app's certificate file, if needed. Microsoft Store signed apps do not need a certificate.</param>
         public void InstallApp(string appPackagePath, List<string> dependentPackages = null, string certificateFile = null)
         {
-            _client.InstallApp(appPackagePath, dependentPackages , certificateFile ).Wait();
+            AsyncClient.InstallApp(appPackagePath, dependentPackages , certificateFile ).Wait();
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="aumid">The Application User Model ID (AUMID) of the app to enable local loopback on.</param>
         public void EnableLocalLoopbackForApp(string aumid)
         {
-            _client.EnableLocalLoopbackForApp(aumid).Wait();
+            AsyncClient.EnableLocalLoopbackForApp(aumid).Wait();
         }
 
         /// <summary>
@@ -348,7 +348,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns><c>true</c> if the TaskLists are successfully queued to run.</returns>
         public bool RunAllTaskLists()
         {
-            return _client.RunAllTaskLists().Result;
+            return AsyncClient.RunAllTaskLists().Result;
         }
 
         /// <summary>
@@ -359,7 +359,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public void RunTaskList(Guid taskListGuid, int initialTask = 0)
         {
-            _client.RunTaskList(taskListGuid, initialTask ).Wait();
+            AsyncClient.RunTaskList(taskListGuid, initialTask ).Wait();
         }
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         public void AbortAll()
         {
-            _client.AbortAll().Wait();
+            AsyncClient.AbortAll().Wait();
         }
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="taskListGuid">The GUID of the TaskList to stop.</param>
         public void AbortTaskList(Guid taskListGuid)
         {
-            _client.AbortTaskList(taskListGuid).Wait();
+            AsyncClient.AbortTaskList(taskListGuid).Wait();
         }
 
         /// <summary>
@@ -385,7 +385,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="taskRunGuid">The GUID of the TaskRun to stop.</param>
         public void AbortTaskRun(Guid taskRunGuid)
         {
-            _client.AbortTaskRun(taskRunGuid).Wait();
+            AsyncClient.AbortTaskRun(taskRunGuid).Wait();
         }
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The TaskRun associated with the .exe</returns>
         public TaskRun RunExecutable(string exeFilePath, string arguments, string logFilePath = null, bool runInContainer = false)
         {
-            return _client.RunExecutable(exeFilePath, arguments, logFilePath , runInContainer ).Result;
+            return AsyncClient.RunExecutable(exeFilePath, arguments, logFilePath , runInContainer ).Result;
         }
 
         /// <summary>
@@ -408,7 +408,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public TaskRun RunApp(string aumid)
         {
-            return _client.RunApp(aumid).Result;
+            return AsyncClient.RunApp(aumid).Result;
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The TaskRun associated with the run.</returns>
         public TaskRun RunTask(Guid taskGuid)
         {
-            return _client.RunTask(taskGuid).Result;
+            return AsyncClient.RunTask(taskGuid).Result;
         }
 
         /// <summary>
@@ -428,7 +428,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The TaskRun associated with the run.</returns>
         public TaskRun RunTask(TaskBase task)
         {
-            return _client.RunTask(task).Result;
+            return AsyncClient.RunTask(task).Result;
         }
 
         /// <summary>
@@ -438,7 +438,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>true if it was updated.</returns>
         public void UpdateTaskRun(TaskRun taskRun)
         {
-            _client.UpdateTaskRun(taskRun).Wait();
+            AsyncClient.UpdateTaskRun(taskRun).Wait();
         }
 
         /// <summary>
@@ -448,7 +448,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The TaskRun object.</returns>
         public TaskRun QueryTaskRun(Guid taskRunGuid)
         {
-            return _client.QueryTaskRun(taskRunGuid).Result;
+            return AsyncClient.QueryTaskRun(taskRunGuid).Result;
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>The bytes in the file.</returns>
         public byte[] GetFile(string sourceFilename, long offset = -1, int count = 0, bool getFromContainer = false)
         {
-            return _client.GetFile(sourceFilename, offset , count , getFromContainer ).Result;
+            return AsyncClient.GetFile(sourceFilename, offset , count , getFromContainer ).Result;
         }
 
         /// <summary>
@@ -474,7 +474,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns>true if the file was sucessfully created.</returns>
         public void SendFile(string targetFilename, byte[] fileData, bool appendFile = false, bool sendToContainer = false)
         {
-            _client.SendFile(targetFilename, fileData, appendFile , sendToContainer ).Wait();
+            AsyncClient.SendFile(targetFilename, fileData, appendFile , sendToContainer ).Wait();
         }
 
         /// <summary>
@@ -484,7 +484,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="deleteInContainer">If true, delete the file from the container running on the connected device.</param>
         public void DeleteFileOrFolder(string path, bool deleteInContainer = false)
         {
-            _client.DeleteFileOrFolder(path, deleteInContainer ).Wait();
+            AsyncClient.DeleteFileOrFolder(path, deleteInContainer ).Wait();
         }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="moveInContainer">If true, move the file from the container running on the connected device.</param>
         public void MoveFileOrFolder(string sourcePath, string destinationPath, bool moveInContainer = false)
         {
-            _client.MoveFileOrFolder(sourcePath, destinationPath, moveInContainer ).Wait();
+            AsyncClient.MoveFileOrFolder(sourcePath, destinationPath, moveInContainer ).Wait();
         }
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public List<string> EnumerateDirectories(string path, bool recursive = false, bool inContainer = false)
         {
-            return _client.EnumerateDirectories(path, recursive , inContainer ).Result;
+            return AsyncClient.EnumerateDirectories(path, recursive , inContainer ).Result;
         }
 
         /// <summary>
@@ -519,7 +519,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <returns></returns>
         public List<string> EnumerateFiles(string path, bool recursive = false, bool inContainer = false)
         {
-            return _client.EnumerateFiles(path, recursive , inContainer ).Result;
+            return AsyncClient.EnumerateFiles(path, recursive , inContainer ).Result;
         }
 
 

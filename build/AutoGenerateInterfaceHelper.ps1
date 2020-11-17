@@ -108,11 +108,11 @@ foreach ($line in $interfaceContent)
             {
                 if ($apiRet -eq "void")
                 {
-                    $outputContent += "_client.$apiName("
+                    $outputContent += "AsyncClient.$apiName("
                 }
                 else
                 {
-                    $outputContent += "return _client.$apiName("
+                    $outputContent += "return AsyncClient.$apiName("
                 }
             }
 

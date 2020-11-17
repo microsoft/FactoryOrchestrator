@@ -21,7 +21,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// If it is NULL and the guidType is TaskList, a List of TaskListSummary objects is returned.
         /// </summary>
         /// <param name="guidToPoll">GUID of the object you want to poll</param>
-        /// <param name="guidType">The type of object that GUID is for</param>
+        /// <param name="guidType">The type of object that GuidToPoll is</param>
         /// <param name="pollingIntervalMs">How frequently the polling should be done, in milliseconds. Defaults to 500ms.</param>
         /// <param name="adaptiveInterval">If true, automatically adjust the polling interval for best performance. Defaults to true.</param>
         /// <param name="maxAdaptiveModifier">If adaptiveInterval is set, this defines the maximum multiplier/divisor that will be applied to the polling interval. For example, if maxAdaptiveModifier=2 and pollingIntervalMs=100, the object would be polled at a rate between 50ms to 200ms. Defaults to 5.</param>

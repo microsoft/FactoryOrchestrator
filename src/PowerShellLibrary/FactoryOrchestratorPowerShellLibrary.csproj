@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetName>FactoryOrchestratorClientLibrary</TargetName>
+    <TargetName>FactoryOrchestratorPowerShellLibrary</TargetName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
@@ -14,29 +14,21 @@
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup>
-    <DefaultDocumentationHome>$(TargetName)</DefaultDocumentationHome>
-    <DefaultDocumentationFolder>$(OutputRootPath)\DefaultDocumentation\ClientLibrary</DefaultDocumentationFolder>
-  </PropertyGroup>
   <ItemGroup>
-    <!--TODO: Remove docfx once docs are migrated to github.io-->
-    <PackageReference Include="docfx.console" Version="2.47.0" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="DefaultDocumentation" Version="0.6.12">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7"/>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="obj\AssemblyInfo.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
+    <None Include="FactoryOrchestratorClient.psd1" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
     <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
     <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
@@ -47,11 +39,5 @@
   </Target>
   <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' != 'true' And '$(Configuration)' == 'Debug'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
-  </Target>
-  <Target Name="CopyMd" AfterTargets="Build">
-    <ItemGroup>
-      <FilesToMove Include="$(DefaultDocumentationFolder)\*.md"/>
-    </ItemGroup>
-    <Move SourceFiles="@(FilesToMove)" DestinationFolder="$(SolutionDir)\..\docs\docs\ClientLibrary" />
   </Target>
 </Project>

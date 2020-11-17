@@ -2,8 +2,6 @@
 ## Microsoft.FactoryOrchestrator.Client Namespace
 ### Classes
 - [FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')
-- [FactoryOrchestratorClientCmdlet](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientCmdlet.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientCmdlet')
-- [FactoryOrchestratorClientSync](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClientSync.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClientSync')
 - [FactoryOrchestratorConnectionException](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorConnectionException.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorConnectionException')
 - [FactoryOrchestratorVersionMismatchException](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorVersionMismatchException.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorVersionMismatchException')
 - [ServerPoller](./Microsoft-FactoryOrchestrator-Client-ServerPoller.md 'Microsoft.FactoryOrchestrator.Client.ServerPoller')

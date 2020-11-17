@@ -19,9 +19,11 @@ await Client.RunExecutable(@"%windir%\system32\ping.exe");
 ```
 
 ## Using FactoryOrchestratorClient in PowerShell
-The FactoryOrchestratorClient PowerShell module is available in FactoryOrchestratorClient.psd1. Unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.
+The FactoryOrchestratorClient PowerShell module is available in FactoryOrchestratorClient.psd1.
 
-To use the PowerShell module, import FactoryOrchestratorClient.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell instance exposes the exact same APIs as the C# classes. 
+To use the PowerShell module, import FactoryOrchestratorClient.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.
+
+Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new TaskBase, TaskList, and ServerPoller objects respectively.
 
 ```powershell
 # Import client module
@@ -33,8 +35,66 @@ $client = New-FactoryOrchestratorClient -IpAddress "127.0.0.1"
 # Establish connection. Unlike C# FactoryOrchestratorClient, this is synchronous
 $client.Connect();
 
-# Do things!
-$client.RunExecutable("$ENV:windir\system32\ping.exe")
+# Do things! For example...
+# Create a TaskList. Create as global for event handling to work.
+$global:tasklist = New-FactoryOrchestratorTaskList "My TaskList"
+
+# Create Tasks
+$task = New-FactoryOrchestratorTask -Type Executable -Path "C:\TestContent\PathToMyExe.exe"
+$task2 = New-FactoryOrchestratorTask -Type External -Name "External Task"
+
+# Add the Tasks to the TaskList
+$global:tasklist.Tasks.Add($task);
+$global:tasklist.Tasks.Add($task2);
+
+# Add the TaskList to the service
+$global:tasklist = $client.CreateTaskListFromTaskList($global:tasklist)
+
+# Create and start a poller for the TaskList
+$poller = New-FactoryOrchestratorServerPoller -GuidToPoll $global:tasklist.Guid -GuidType TaskList
+# Register for OnUpdatedObject event
+$pollEvent = Register-ObjectEvent -InputObject $poller -EventName OnUpdatedObject -Action { $global:tasklist = $Event.SourceEventArgs.Result }
+# PowerShell only: you must pass the AsyncClient to the ServerPoller!
+$poller.StartPolling($client.AsyncClient)
+
+# Run the TaskList
+$client.RunTaskList($global:tasklist.Guid)
+
+# Wait for ExternalTask to be waiting on result
+$externalTaskrunGuid = $null
+while ($externalTaskrunGuid -eq $null)
+{
+    $externalTaskrunGuid = ($global:tasklist.Tasks | Where-Object {$_.LatestTaskRunStatus -eq [Microsoft.FactoryOrchestrator.Core.TaskStatus]::WaitingForExternalResult}).LatestTaskRunGuid
+    Start-Sleep -seconds 1
+}
+
+# Get the TaskRun
+$externalRun = $client.QueryTaskRun($externalTaskrunGuid)
+
+# Complete the ExternalTask TaskRun
+$externalRun.TaskOutput.Add("Completed via PowerShell!")
+$externalRun.TaskStatus = [Microsoft.FactoryOrchestrator.Core.TaskStatus]::Passed
+$externalRun.ExitCode = 0
+$client.UpdateTaskRun($externalRun)
+
+# Wait for the TaskList to fully complete
+while ($global:tasklist.IsRunningOrPending -eq $true)
+{
+    Start-Sleep -seconds 1
+}
+
+# Stop polling
+$poller.StopPolling()
+Get-EventSubscriber | Unregister-Event
+
+# Write out results
+foreach ($t in $global:tasklist.Tasks)
+{
+    Write-Host "$($t.Name) finished in $($t.LatestTaskRunRunTime) with result $($t.LatestTaskRunStatus)"
+    Write-Host "Output:"
+    $output = ($client.QueryTaskRun($t.LatestTaskRunGuid)).TaskOutput
+    Write-Host $output
+}
 ```
 
 ## Using FactoryOrchestratorUWPClient in a UWP

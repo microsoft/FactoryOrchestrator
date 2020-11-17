@@ -22,6 +22,9 @@ The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-starte
 * **FactoryOrchestratorClientLibrary**
  .NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with FactoryOrchestratorService. Also contains optional helper classes.
 
+* **FactoryOrchestratorPowerShellLibrary**
+ .NET Standard library containing a synchronous client-side FactoryOrchestrator class and Cmdlet wrapper classes, designed to be used via PowerShell.
+
 * **FactoryOrchestratorApp**
  C# UWP app project for FactoryOrchestratorApp.exe, the UWP provides a GUI (Graphical User Interface) to manually interact with FactoryOrchestratorService.
 

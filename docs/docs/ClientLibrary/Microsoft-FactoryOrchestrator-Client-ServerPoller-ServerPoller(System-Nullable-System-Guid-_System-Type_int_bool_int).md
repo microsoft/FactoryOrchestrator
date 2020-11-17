@@ -13,7 +13,7 @@ GUID of the object you want to poll
   
 <a name='Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller(System-Nullable-System-Guid-_System-Type_int_bool_int)-guidType'></a>
 `guidType` [System.Type](https://docs.microsoft.com/en-us/dotnet/api/System.Type 'System.Type')  
-The type of object that GUID is for  
+The type of object that GuidToPoll is  
   
 <a name='Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller(System-Nullable-System-Guid-_System-Type_int_bool_int)-pollingIntervalMs'></a>
 `pollingIntervalMs` [System.Int32](https://docs.microsoft.com/en-us/dotnet/api/System.Int32 'System.Int32')  

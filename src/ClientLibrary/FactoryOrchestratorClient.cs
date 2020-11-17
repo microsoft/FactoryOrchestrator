@@ -15,7 +15,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
-// Keep in sync with FactoryOrchestratorClientSync.cs
+// Keep in sync with PowerShellLibrary\FactoryOrchestratorClientSync.cs
 namespace Microsoft.FactoryOrchestrator.Client
 {
     /// <summary>
