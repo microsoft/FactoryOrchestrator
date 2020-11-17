@@ -8,7 +8,7 @@ public ServerPoller(System.Nullable<System.Guid> guidToPoll, System.Type guidTyp
 ```
 #### Parameters
 <a name='Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller(System-Nullable-System-Guid-_System-Type_int_bool_int)-guidToPoll'></a>
-`guidToPoll` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[System.Guid](https://docs.microsoft.com/en-us/dotnet/api/System.Guid 'System.Guid')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
+`guidToPoll` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable')[System.Guid](https://docs.microsoft.com/en-us/dotnet/api/System.Guid 'System.Guid')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable')  
 GUID of the object you want to poll  
   
 <a name='Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller(System-Nullable-System-Guid-_System-Type_int_bool_int)-guidType'></a>

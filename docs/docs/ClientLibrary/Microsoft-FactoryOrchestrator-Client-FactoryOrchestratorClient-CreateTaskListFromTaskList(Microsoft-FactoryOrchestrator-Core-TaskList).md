@@ -7,9 +7,9 @@ public System.Threading.Tasks.Task<Microsoft.FactoryOrchestrator.Core.TaskList> 
 ```
 #### Parameters
 <a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-CreateTaskListFromTaskList(Microsoft-FactoryOrchestrator-Core-TaskList)-list'></a>
-`list` [Microsoft.FactoryOrchestrator.Core.TaskList](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.TaskList 'Microsoft.FactoryOrchestrator.Core.TaskList')  
+`list` [Microsoft.FactoryOrchestrator.Core.TaskList](/CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList 'Microsoft.FactoryOrchestrator.Core.TaskList')  
 The TaskList to add to the Service.  
   
 #### Returns
-[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[Microsoft.FactoryOrchestrator.Core.TaskList](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.TaskList 'Microsoft.FactoryOrchestrator.Core.TaskList')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
+[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task')[Microsoft.FactoryOrchestrator.Core.TaskList](/CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList 'Microsoft.FactoryOrchestrator.Core.TaskList')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task')  
 The created Service TaskList.  

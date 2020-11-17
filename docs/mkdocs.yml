@@ -22,5 +22,5 @@ nav:
   - Run using the client api: 'use-the-factory-orchestrator-api.md'
   - Built-In Utilities: 'factory-orchestrator-utilities.md'
   - ClientLibrary Class Reference: 'ClientLibrary\FactoryOrchestratorClientLibrary.md'
-  - CoreLibrary Class Reference: 'ClientLibrary\FactoryOrchestratorClientLibrary.md'
+  - CoreLibrary Class Reference: 'CoreLibrary\FactoryOrchestratorCoreLibrary.md'
   

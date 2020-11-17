@@ -6,7 +6,7 @@ A helper class containing basic information about a TaskList. Use to quickly upd
 public struct TaskListSummary :
 IEquatable<TaskListSummary>
 ```
-Implements [System.IEquatable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable`1')[TaskListSummary](./Microsoft-FactoryOrchestrator-Core-TaskListSummary.md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable`1')  
+Implements [System.IEquatable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable')[TaskListSummary](./Microsoft-FactoryOrchestrator-Core-TaskListSummary.md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable')  
 ### Constructors
 - [TaskListSummary(Microsoft.FactoryOrchestrator.Core.TaskListSummary)](./Microsoft-FactoryOrchestrator-Core-TaskListSummary-TaskListSummary(Microsoft-FactoryOrchestrator-Core-TaskListSummary).md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary.TaskListSummary(Microsoft.FactoryOrchestrator.Core.TaskListSummary)')
 - [TaskListSummary(System.Guid, string, Microsoft.FactoryOrchestrator.Core.TaskStatus, bool, bool, bool)](./Microsoft-FactoryOrchestrator-Core-TaskListSummary-TaskListSummary(System-Guid_string_Microsoft-FactoryOrchestrator-Core-TaskStatus_bool_bool_bool).md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary.TaskListSummary(System.Guid, string, Microsoft.FactoryOrchestrator.Core.TaskStatus, bool, bool, bool)')

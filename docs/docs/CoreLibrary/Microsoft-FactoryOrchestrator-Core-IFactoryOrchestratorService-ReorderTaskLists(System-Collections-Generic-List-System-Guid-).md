@@ -7,6 +7,6 @@ void ReorderTaskLists(System.Collections.Generic.List<System.Guid> newOrder);
 ```
 #### Parameters
 <a name='Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-ReorderTaskLists(System-Collections-Generic-List-System-Guid-)-newOrder'></a>
-`newOrder` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.Guid](https://docs.microsoft.com/en-us/dotnet/api/System.Guid 'System.Guid')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+`newOrder` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')[System.Guid](https://docs.microsoft.com/en-us/dotnet/api/System.Guid 'System.Guid')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')  
 An ordered list of GUIDs corresponding to the TaskList GUIDs known to the Service.  
   

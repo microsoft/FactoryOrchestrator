@@ -11,7 +11,7 @@ public static System.Threading.Tasks.Task InstallAppWithWDP(string appFilePath, 
 The app package file path.  
   
 <a name='Microsoft-FactoryOrchestrator-Core-WDPHelpers-InstallAppWithWDP(string_System-Collections-Generic-List-string-_string_string)-dependentAppsFilePaths'></a>
-`dependentAppsFilePaths` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+`dependentAppsFilePaths` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')  
 The dependent app packages file paths.  
   
 <a name='Microsoft-FactoryOrchestrator-Core-WDPHelpers-InstallAppWithWDP(string_System-Collections-Generic-List-string-_string_string)-certFilePath'></a>
