@@ -11,7 +11,7 @@ public ServiceEvent(Microsoft.FactoryOrchestrator.Core.ServiceEventType type, Sy
   
   
 <a name='Microsoft-FactoryOrchestrator-Core-ServiceEvent-ServiceEvent(Microsoft-FactoryOrchestrator-Core-ServiceEventType_System-Nullable-System-Guid-_string)-guid'></a>
-`guid` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[System.Guid](https://docs.microsoft.com/en-us/dotnet/api/System.Guid 'System.Guid')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
+`guid` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable')[System.Guid](https://docs.microsoft.com/en-us/dotnet/api/System.Guid 'System.Guid')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable')  
   
   
 <a name='Microsoft-FactoryOrchestrator-Core-ServiceEvent-ServiceEvent(Microsoft-FactoryOrchestrator-Core-ServiceEventType_System-Nullable-System-Guid-_string)-message'></a>

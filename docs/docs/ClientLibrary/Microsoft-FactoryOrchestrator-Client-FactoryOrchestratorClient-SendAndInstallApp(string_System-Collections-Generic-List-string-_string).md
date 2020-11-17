@@ -12,7 +12,7 @@ public System.Threading.Tasks.Task SendAndInstallApp(string appFilename, System.
 Path on the Client's computer to the app package (.appx, .appxbundle, .msix, .msixbundle).  
   
 <a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SendAndInstallApp(string_System-Collections-Generic-List-string-_string)-dependentPackages'></a>
-`dependentPackages` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+`dependentPackages` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')  
 List of paths on the Client's computer to the app's dependent packages.  
   
 <a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SendAndInstallApp(string_System-Collections-Generic-List-string-_string)-certificateFile'></a>

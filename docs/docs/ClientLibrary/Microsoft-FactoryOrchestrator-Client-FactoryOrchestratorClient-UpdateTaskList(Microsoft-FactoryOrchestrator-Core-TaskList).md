@@ -7,7 +7,7 @@ public System.Threading.Tasks.Task UpdateTaskList(Microsoft.FactoryOrchestrator.
 ```
 #### Parameters
 <a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-UpdateTaskList(Microsoft-FactoryOrchestrator-Core-TaskList)-taskList'></a>
-`taskList` [Microsoft.FactoryOrchestrator.Core.TaskList](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.TaskList 'Microsoft.FactoryOrchestrator.Core.TaskList')  
+`taskList` [Microsoft.FactoryOrchestrator.Core.TaskList](/CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList 'Microsoft.FactoryOrchestrator.Core.TaskList')  
 The updated TaskList.  
   
 #### Returns

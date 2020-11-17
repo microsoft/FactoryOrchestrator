@@ -15,5 +15,5 @@ The zero-based System.Collections.Generic.List`1 index at which the range starts
 The number of elements in the range.  
   
 #### Returns
-[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[T](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md#Microsoft-FactoryOrchestrator-Core-LockingList-T--T 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;.T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')[T](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md#Microsoft-FactoryOrchestrator-Core-LockingList-T--T 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;.T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')  
   

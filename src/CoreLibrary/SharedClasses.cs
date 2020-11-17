@@ -1335,7 +1335,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// A TaskList is a grouping of FTF tests. TaskLists are the only object FTF can "Run".
+    /// A TaskList is a grouping of Factory Orchestrator Tasks.
     /// </summary>
     public class TaskList : NotifyPropertyChangedBase
     {

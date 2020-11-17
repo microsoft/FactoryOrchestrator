@@ -25,6 +25,7 @@ To use the PowerShell module, import FactoryOrchestratorClient.psd1 and then use
 
 Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new TaskBase, TaskList, and ServerPoller objects respectively.
 
+Below is a sample PowerShell script showing how you can use these cmdlets:
 ```powershell
 # Import client module
 Import-Module FactoryOrchestratorClient.psd1

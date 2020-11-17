@@ -11,5 +11,5 @@ public System.Threading.Tasks.Task<Microsoft.FactoryOrchestrator.Core.TaskBase> 
 The Task GUID.  
   
 #### Returns
-[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[Microsoft.FactoryOrchestrator.Core.TaskBase](https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.TaskBase 'Microsoft.FactoryOrchestrator.Core.TaskBase')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
+[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task')[Microsoft.FactoryOrchestrator.Core.TaskBase](/CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase 'Microsoft.FactoryOrchestrator.Core.TaskBase')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task')  
   
