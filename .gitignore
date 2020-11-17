@@ -332,3 +332,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Exclude src/build/docs directories from gh-pages branch
+[Ss]rc/
+[Bb]uild/
+[Dd]ocs/docs
