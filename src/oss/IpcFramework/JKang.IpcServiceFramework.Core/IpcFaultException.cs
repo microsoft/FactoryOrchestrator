@@ -5,7 +5,9 @@ namespace JKang.IpcServiceFramework
     /// <summary>
     /// An exception that can be transfered from server to client
     /// </summary>
+#pragma warning disable CA1032 // Implement standard exception constructors
     public class IpcFaultException : IpcException
+#pragma warning restore CA1032 // Implement standard exception constructors
     {
         public IpcFaultException(IpcStatus status)
         {

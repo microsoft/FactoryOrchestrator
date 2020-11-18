@@ -11,7 +11,9 @@ namespace JKang.IpcServiceFramework.Hosting.NamedPipe
     /// Native API for Named Pipes
     /// https://github.com/PowerShell/PowerShell/blob/master/src/System.Management.Automation/engine/remoting/common/RemoteSessionNamedPipe.cs#L124-L256
     /// </summary>
+#pragma warning disable CA1060 // Move pinvokes to native methods class
     internal static class NamedPipeNative
+#pragma warning restore CA1060 // Move pinvokes to native methods class
     {
         #region Pipe constants
 
@@ -115,6 +117,7 @@ namespace JKang.IpcServiceFramework.Hosting.NamedPipe
             }
 
             // Create named pipe.
+#pragma warning disable CA2000 // Dispose objects before losing scope
             SafePipeHandle pipeHandle = NamedPipeNative.CreateNamedPipe(
                 fullPipeName,
                 openMode,
@@ -124,6 +127,7 @@ namespace JKang.IpcServiceFramework.Hosting.NamedPipe
                 1,
                 0,
                 securityAttributes);
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
             int lastError = Marshal.GetLastWin32Error();
             if (securityDescHandle != null)

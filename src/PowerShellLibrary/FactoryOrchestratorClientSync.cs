@@ -33,7 +33,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="ignoreVersionMismatch">If true, ignore a Client-Service version mismatch.</param>
         public void Connect(bool ignoreVersionMismatch = false)
         {
-            AsyncClient.Connect().Wait();
+            AsyncClient.Connect(ignoreVersionMismatch).Wait();
             OnConnected?.Invoke();
         }
 
@@ -222,7 +222,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             get
             {
-                return (IpAddress == IPAddress.Loopback) ? true : false;
+                return (IpAddress == IPAddress.Loopback);
             }
         }
 
