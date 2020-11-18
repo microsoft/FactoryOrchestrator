@@ -63,12 +63,12 @@ jobs:
       inputs:
         scriptSource: inline
         script: |
-          python -m pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
-          mkdocs build --clean --config-file $(System.DefaultWorkingDirectory)\docs\mkdocs.yml
+          pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
       displayName: 'Rebuild website'
     - script: |
-        robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
         cd $(Build.SourcesDirectory)
+        mkdocs build --clean --config-file $(System.DefaultWorkingDirectory)\docs\mkdocs.yml
+        robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
         git fetch
         git checkout gh-pages
         git add -A
