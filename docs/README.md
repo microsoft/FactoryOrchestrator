@@ -15,17 +15,17 @@ To edit and locally view the docs you can follow [these steps](https://www.mkdoc
 1. From this directory (\docs) run: mkdocs serve
 
 ## Commiting changes to the live site
-Once you are happy with your changes, you will have to manually update the live docs by doing the following from the Git root folder (TODO: make part of the CI build):
+Once you are happy with your changes, you will have to manually update the live docs by doing the following from the root folder (TODO: make part of the CI build):
 
-   1. Checkout a working branch based on the latest code in 'main'. CD to the git root.
+   1. Checkout a working branch based on the latest code in 'main'.
    2. Make your desired documentation changes.
    3. mkdocs build --clean --config-file .\docs\mkdocs.yml
-   4. robocopy /S .\docs\site\ .\
-   5. git checkout gh-pages
-   6. git checkout -b <your branch>
-   7. Commit & push your changes, open a pull request into gh-pages. Once approved and the remote 'gh-pages' has the changes it will update the website automatically.
+   4. git checkout gh-pages
+   5. robocopy /S .\docs\site\ .\
+   6. git checkout -b <your working branch>
+   7. Commit & push your changes, open a pull request into 'gh-pages'. Once approved and the remote 'gh-pages' has the changes it will update the website automatically.
 
-To help prevent documentation<->code mismatches, the GitHub PR build will detect if your code changes will result in any documentation updates. If documentation updates are needed, the build will generate a build warning and publish a Git .patch file. The .patch file can be used in lieu of steps 1-4 above.
+To help prevent documentation<->code mismatches, the GitHub PR build will detect if your code changes will result in any documentation updates. If documentation updates are needed, the build will generate a build warning and publish a Git .patch file. The .patch file can be used to make a PR into 'gh-pages' in lieu of the steps above.
 
 Please note that any changes to the public API surface of the ClientLibrary and/or CoreLibrary classes will result in documentation changes. If you see your changes result in modified files in docs\docs, you must run the above steps to rebuild the website source manually!
 
