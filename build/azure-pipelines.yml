@@ -79,6 +79,6 @@ jobs:
         artifactName: UpdatedDocsPatch
         targetPath: $(Build.ArtifactStagingDirectory)
     - script: |
-        echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published UpdatedDocsPatch artifact to update the gh-pages branch after this PR is completed.
+        echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published UpdatedDocsPatch artifact to update the gh-pages branch.
       displayName: 'Warn if docs changed'
       condition: eq(variables['hasChanges'], '1')
