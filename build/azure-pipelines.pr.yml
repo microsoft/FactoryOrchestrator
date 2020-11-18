@@ -27,6 +27,38 @@ jobs:
       inputs:
         command: 'restore'
         restoreSolution: '**\*.sln'
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln Any CPU'
+      inputs:
+        platform: 'Any CPU'
+        configuration: 'Debug'
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln x64'
+      inputs:
+        platform: x64
+        configuration: 'Debug'
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln ARM'
+      inputs:
+        platform: ARM
+        configuration: 'Debug'
+    - task: VSBuild@1
+      displayName: 'Build solution **\*.sln x86 and all arch AppXPackage'
+      inputs:
+        platform: x86
+        configuration: 'Debug'
+        msbuildArgs: '/p:AppxBundlePlatforms="x86|x64|arm" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
+    - task: VSTest@2
+      displayName: 'Run UnitTests'
+      inputs:
+        testAssemblyVer2: |
+          bin/Tests/**/*UnitTests.dll
+          bin/Tests/**/JKang*Tests.dll
+        searchFolder: '$(System.DefaultWorkingDirectory)'
+        codeCoverageEnabled: true
+        runInParallel: true
+        vsTestVersion: latest
+        runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\defaults.runsettings'
     - script: |
         cd $(Build.SourcesDirectory)
         pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
