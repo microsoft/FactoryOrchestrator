@@ -31,9 +31,10 @@ jobs:
         cd $(Build.SourcesDirectory)
         pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
         mkdocs build --clean --config-file $(System.DefaultWorkingDirectory)\docs\mkdocs.yml
-        robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
         git fetch
         git checkout gh-pages
+        robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
+        git restore sitemap.xml*
         git add -A
         git diff --cached --exit-code
         echo ##vso[task.setvariable variable=hasChanges]%errorlevel%
