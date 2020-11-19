@@ -197,6 +197,12 @@ foreach ($line in $interfaceContent)
 $outputContent += "`n$indent}`n}"
 
 # Save to file
+$OutFolder = [System.IO.Path]::GetDirectoryName($OutputFile)
+if ((Test-Path $OutFolder) -eq $false)
+{
+    $Folder = New-Item -Path $OutFolder -ItemType Directory
+}
+
 Copy-Item -Path "$TemplateFile" -Destination "$OutputFile"
 Add-Content -Path "$OutputFile" -Value "$outputContent"
 
