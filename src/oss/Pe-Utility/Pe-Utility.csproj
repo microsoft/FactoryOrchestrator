@@ -5,4 +5,11 @@
     <RootNamespace>Pe_Utility</RootNamespace>
   </PropertyGroup>
 
+  <!-- Added for Factory Orchestrator -->
+  <PropertyGroup>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <RunAnalyzers>false</RunAnalyzers>
+  </PropertyGroup>
+
 </Project>

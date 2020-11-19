@@ -8,11 +8,16 @@ using Newtonsoft.Json.Serialization;
 
 namespace Microsoft.FactoryOrchestrator.Client
 {
-    public enum GuidTypes
+    /// <summary>
+    /// Type of GUID passed to FactoryOrchestratorServerPoller
+    /// </summary>
+    public enum ServerPollerGuidType
     {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         Task,
         TaskList,
         TaskRun
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 
     /// <summary>
@@ -181,7 +186,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// The type of object that GuidToPoll is.
         /// </summary>
         [Parameter(Mandatory = true, Position = 1)]
-        public GuidTypes GuidType { get; set; }
+        public ServerPollerGuidType GuidType { get; set; }
 
         /// <summary>
         /// How frequently the polling should be done, in milliseconds. Defaults to 500ms.
@@ -219,13 +224,13 @@ namespace Microsoft.FactoryOrchestrator.Client
 #pragma warning disable CA2000 // Dispose objects before losing scope
             switch (GuidType)
             {
-                case GuidTypes.Task:
+                case ServerPollerGuidType.Task:
                     this.WriteObject(new ServerPoller(GuidToPoll, typeof(TaskBase), PollingIntervalMs, AdaptiveInterval, MaxAdaptiveModifier));
                     break;
-                case GuidTypes.TaskList:
+                case ServerPollerGuidType.TaskList:
                     this.WriteObject(new ServerPoller(GuidToPoll, typeof(TaskList), PollingIntervalMs, AdaptiveInterval, MaxAdaptiveModifier));
                     break;
-                case GuidTypes.TaskRun:
+                case ServerPollerGuidType.TaskRun:
                     this.WriteObject(new ServerPoller(GuidToPoll, typeof(TaskRun), PollingIntervalMs, AdaptiveInterval, MaxAdaptiveModifier));
                     break;
                 default:
