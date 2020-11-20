@@ -51,18 +51,20 @@ steps:
         runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\defaults.runsettings'
     - script: |
         cd $(Build.SourcesDirectory)
+        mkdir $(Build.ArtifactStagingDirectory)\Patch
         pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
         mkdocs build --clean --config-file $(System.DefaultWorkingDirectory)\docs\mkdocs.yml
+        git reset HEAD --hard
         git fetch
         git checkout gh-pages
         robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
         git restore sitemap.xml*
         git add -A
-        git diff --cached --exit-code
+        git status > $(Build.ArtifactStagingDirectory)\Patch\GitStatus.txt
+        git diff --cached --exit-code > $(Build.ArtifactStagingDirectory)\Patch\GitDiff.txt
         echo ##vso[task.setvariable variable=hasChanges]%errorlevel%
-        mkdir $(Build.ArtifactStagingDirectory)\Patch
         git diff --cached > $(Build.ArtifactStagingDirectory)\Patch\UpdatedDocs.patch
-      displayName: 'Build and check for changes to website'
+      displayName: 'Build website and check for changes'
     - task: PublishPipelineArtifact@1
       displayName: 'Publish patch file as artifact if website has changes'
       condition: eq(variables['hasChanges'], '1')
