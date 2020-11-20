@@ -1,0 +1,27 @@
+steps:
+    - script: |
+        cd $(Build.SourcesDirectory)
+        mkdir $(Build.ArtifactStagingDirectory)\Patch
+        pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
+        mkdocs build --clean --config-file $(System.DefaultWorkingDirectory)\docs\mkdocs.yml
+        git reset HEAD --hard
+        git fetch
+        git checkout gh-pages
+        robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
+        git restore sitemap.xml*
+        git add -A
+        git status > $(Build.ArtifactStagingDirectory)\Patch\GitStatus.txt
+        git diff --cached --exit-code > $(Build.ArtifactStagingDirectory)\Patch\GitDiff.txt
+        echo ##vso[task.setvariable variable=hasChanges]%errorlevel%
+        git diff --cached > $(Build.ArtifactStagingDirectory)\Patch\UpdatedDocs.patch
+      displayName: 'Build website and check for changes'
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish patch file as artifact if website has changes'
+      condition: eq(variables['hasChanges'], '1')
+      inputs:
+        artifactName: UpdatedDocsPatch
+        targetPath: $(Build.ArtifactStagingDirectory)\Patch
+    - script: |
+        echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published UpdatedDocsPatch artifact to update the gh-pages branch after this PR is completed.
+      displayName: 'Warn if website has changes'
+      condition: eq(variables['hasChanges'], '1')

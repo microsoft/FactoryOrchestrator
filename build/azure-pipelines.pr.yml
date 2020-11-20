@@ -15,3 +15,6 @@ jobs:
 - job: "Build_Test_FactoryOrchestrator"
   steps:
   - template: ./templates/template-build-test-FO.yml
+- job: "Build_Docs_Check_For_Changes"
+  steps:
+  - template: ./templates/template-checkdocs.yml
