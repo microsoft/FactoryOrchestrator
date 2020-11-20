@@ -26,17 +26,17 @@ steps:
       displayName: 'Build solution **\*.sln x64'
       inputs:
         platform: x64
-        configuration: 'Release'
+        configuration: 'Debug'
     - task: VSBuild@1
       displayName: 'Build solution **\*.sln ARM'
       inputs:
         platform: ARM
-        configuration: 'Release'
+        configuration: 'Debug'
     - task: VSBuild@1
       displayName: 'Build solution **\*.sln x86 and all arch AppXPackage'
       inputs:
         platform: x86
-        configuration: 'Release'
+        configuration: 'Debug'
         msbuildArgs: '/p:AppxBundlePlatforms="x86|x64|arm" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
     - task: VSTest@2
       displayName: 'Run UnitTests'
