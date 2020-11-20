@@ -3,8 +3,14 @@ steps:
       displayName: 'Use NuGet 5.7.0'
       inputs:
         versionSpec: 5.7.0
-# In the Microsoft Azure DevOps tenant, NuGetCommand is ambiguous.
-# This should be `task: NuGetCommand@2`
+    - task: NuGetCommand@2
+      inputs:
+        command: 'restore'
+        restoreSolution: '$(System.DefaultWorkingDirectory)\src\App\FactoryOrchestratorApp.csproj'
+    - task: NuGetCommand@2
+      inputs:
+        command: 'restore'
+        restoreSolution: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj'
     - task: DotNetCoreCLI@2
       inputs:
         command: 'restore'
