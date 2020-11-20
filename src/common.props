@@ -6,8 +6,8 @@
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>true</RunAnalyzers>
   </PropertyGroup>
-  <ItemGroup Condition="Exists('$(SolutionDir)\.editorconfig')" >
-    <AdditionalFiles Include="$(SolutionDir)\.editorconfig" />
+  <ItemGroup Condition="Exists('.\.editorconfig')" >
+    <AdditionalFiles Include=".\.editorconfig" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetPlatformIdentifier)' != ''">
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
