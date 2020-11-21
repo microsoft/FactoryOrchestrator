@@ -24,13 +24,13 @@ steps:
       displayName: 'Build solution **\*.sln not x86'
       inputs:
         platform: '$(BuildPlatform)'
-        configuration: 'Release'
+        configuration: '$(BuildConfiguration)'
       condition: and(succeeded(), ne(variables['BuildPlatform'], 'x86'))
     - task: VSBuild@1
       displayName: 'Build solution **\*.sln x86 and all arch AppXPackage'
       inputs:
         platform: x86
-        configuration: 'Debug'
+        configuration: '$(BuildConfiguration)'
         msbuildArgs: '/p:AppxBundlePlatforms="x86|x64|arm" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
       condition: and(succeeded(), eq(variables['BuildPlatform'], 'x86'))
     - task: VSTest@2

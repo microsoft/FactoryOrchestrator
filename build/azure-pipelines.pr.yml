@@ -2,7 +2,7 @@
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 pool:
-  pool: "windevbuildagents"
+  pool: "Hosted Windows 2019 with VS2019"
   demands:
   - msbuild
   - visualstudio
