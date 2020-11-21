@@ -3,19 +3,19 @@ steps:
       displayName: 'Use NuGet 5.7.0'
       inputs:
         versionSpec: 5.7.0
-      condition: ne(variables['BuildPlatform'], 'AnyCPU')
+      condition: ne(variables['BuildPlatform'], 'Any CPU')
     - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
       displayName: 'NuGet restore'
       inputs:
         command: 'restore'
         restoreSolution: '$(System.DefaultWorkingDirectory)\src\App\FactoryOrchestratorApp.csproj'
-      condition: ne(variables['BuildPlatform'], 'AnyCPU')
+      condition: ne(variables['BuildPlatform'], 'Any CPU')
     - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
       displayName: 'NuGet restore'
       inputs:
         command: 'restore'
         restoreSolution: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj'
-      condition: ne(variables['BuildPlatform'], 'AnyCPU')
+      condition: ne(variables['BuildPlatform'], 'Any CPU')
     - task: DotNetCoreCLI@2
       inputs:
         command: 'restore'
@@ -34,7 +34,7 @@ steps:
         msbuildArgs: '/p:AppxBundlePlatforms="x86|x64|arm" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
       condition: and(succeeded(), eq(variables['BuildPlatform'], 'x86'))
     - task: VSTest@2
-      displayName: 'Run UnitTests AnyCPU'
+      displayName: 'Run UnitTests Any CPU'
       inputs:
         testAssemblyVer2: |
           bin/Tests/**/*UnitTests.dll
@@ -44,4 +44,4 @@ steps:
         runInParallel: true
         vsTestVersion: latest
         runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\defaults.runsettings'
-      condition: and(succeeded(), eq(variables['BuildPlatform'], 'AnyCPU'))
+      condition: and(succeeded(), eq(variables['BuildPlatform'], 'Any CPU'))

@@ -12,7 +12,6 @@ pr:
     include:
     - '*'  # must quote since "*" is a YAML reserved character; we want a string
 
-
 jobs:
 - job: "Build_Test_FactoryOrchestrator"
   strategy:
@@ -27,9 +26,9 @@ jobs:
         BuildPlatform: 'ARM'
         BuildConfiguration: 'Release'
       Release_AnyCpu:
-        BuildPlatform: 'AnyCPU'
+        BuildPlatform: 'Any CPU'
         BuildConfiguration: 'Release'
-    maxParallel: 4 # maximum number simultaneous matrix legs to run
+    maxParallel: '4'
   steps:
   - template: ./templates/template-build-test-FO.yml
 - job: "Build_Docs_Check_For_Changes"
