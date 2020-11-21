@@ -2,7 +2,7 @@
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 pool:
-  name: Hosted Windows 2019 with VS2019
+  pool: "windevbuildagents"
   demands:
   - msbuild
   - visualstudio
@@ -11,8 +11,25 @@ pr:
   branches:
     include:
     - '*'  # must quote since "*" is a YAML reserved character; we want a string
+
+
 jobs:
 - job: "Build_Test_FactoryOrchestrator"
+  strategy:
+  matrix:
+    Release_x86:
+      BuildPlatform: 'x86'
+      BuildConfiguration: 'Release'
+    Release_x64:
+      BuildPlatform: 'x64'
+      BuildConfiguration: 'Release'
+    Release_Arm:
+      BuildPlatform: 'ARM'
+      BuildConfiguration: 'Release'
+    Release_AnyCpu:
+      BuildPlatform: 'AnyCPU'
+      BuildConfiguration: 'Release'
+  maxParallel: 4 # maximum number simultaneous matrix legs to run
   steps:
   - template: ./templates/template-build-test-FO.yml
 - job: "Build_Docs_Check_For_Changes"
