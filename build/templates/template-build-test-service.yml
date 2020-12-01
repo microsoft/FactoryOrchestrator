@@ -11,7 +11,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
-      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln --configuration $(BuildConfiguration)'
+      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln --configuration $(BuildConfiguration) --no-restore'
     displayName: 'dotnet build $(BuildConfiguration)'
     condition: succeeded()
   - task: DotNetCoreCLI@2
@@ -20,5 +20,5 @@ steps:
       projects: |
         '**/IpcFramework/**/*Tests.csproj'
         '**/UnitTests/**/*Tests.csproj'
-      arguments: '--configuration $(BuildConfiguration)'
+      arguments: '--configuration $(BuildConfiguration) --no-restore'
     displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration)'
