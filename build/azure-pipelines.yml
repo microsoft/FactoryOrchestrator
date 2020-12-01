@@ -12,6 +12,11 @@ trigger:
 pr: none
 
 jobs:
+- job: "Build_Test_FactoryOrchestrator_Service"
+  variables: 
+    BuildConfiguration: 'Release'
+  steps:
+  - template: ./templates/template-build-test-service.yml
 - job: "Build_FactoryOrchestrator_App"
   strategy:
     matrix:
@@ -27,11 +32,6 @@ jobs:
     maxParallel: '3'
   steps:
   - template: ./templates/template-build-app.yml
-- job: "Build_Test_FactoryOrchestrator_Service"
-  variables: 
-    BuildConfiguration: 'Release'
-  steps:
-  - template: ./templates/template-build-test-service.yml
 - job: "Build_Docs_Check_For_Changes"
   steps:
   - template: ./templates/template-checkdocs.yml
