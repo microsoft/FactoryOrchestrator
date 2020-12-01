@@ -17,8 +17,6 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: test
-      projects: |
-        '**/IpcFramework/**/*Tests.csproj'
-        '**/UnitTests/**/*Tests.csproj'
-      arguments: '--configuration $(BuildConfiguration) --no-restore'
+      projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
+      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build'
     displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration)'
