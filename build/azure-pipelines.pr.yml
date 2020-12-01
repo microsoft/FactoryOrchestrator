@@ -1,4 +1,4 @@
-
+# PR pipeline, triggers on every PR update to main
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 pool:
@@ -9,11 +9,10 @@ pool:
 
 pr:
   branches:
-    include:
-    - '*'  # must quote since "*" is a YAML reserved character; we want a string
+    - 'main'
 
 jobs:
-- job: "Build_Test_FactoryOrchestrator"
+- job: "Build_FactoryOrchestrator_App"
   strategy:
     matrix:
       Release_x86:
@@ -25,12 +24,14 @@ jobs:
       Release_Arm:
         BuildPlatform: 'ARM'
         BuildConfiguration: 'Release'
-      Release_AnyCpu:
-        BuildPlatform: 'Any CPU'
-        BuildConfiguration: 'Release'
-    maxParallel: '4'
+    maxParallel: '3'
   steps:
-  - template: ./templates/template-build-test-FO.yml
+  - template: ./templates/template-build-app.yml
+- job: "Build_Test_FactoryOrchestrator_Service"
+  variables: 
+    BuildConfiguration: 'Release'
+  steps:
+  - template: ./templates/template-build-test-service.yml
 - job: "Build_Docs_Check_For_Changes"
   steps:
   - template: ./templates/template-checkdocs.yml

@@ -2,7 +2,7 @@
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 pool:
-  name: Hosted Windows 2019 with VS2019
+  name: "Hosted Windows 2019 with VS2019"
   demands:
   - msbuild
   - visualstudio
@@ -12,7 +12,7 @@ trigger:
 pr: none
 
 jobs:
-- job: "Build_Test_FactoryOrchestrator"
+- job: "Build_FactoryOrchestrator_App"
   strategy:
     matrix:
       Release_x86:
@@ -24,12 +24,14 @@ jobs:
       Release_Arm:
         BuildPlatform: 'ARM'
         BuildConfiguration: 'Release'
-      Release_AnyCpu:
-        BuildPlatform: 'Any CPU'
-        BuildConfiguration: 'Release'
-    maxParallel: '4'
+    maxParallel: '3'
   steps:
-  - template: ./templates/template-build-test-FO.yml
+  - template: ./templates/template-build-app.yml
+- job: "Build_Test_FactoryOrchestrator_Service"
+  variables: 
+    BuildConfiguration: 'Release'
+  steps:
+  - template: ./templates/template-build-test-service.yml
 - job: "Build_Docs_Check_For_Changes"
   steps:
   - template: ./templates/template-checkdocs.yml
