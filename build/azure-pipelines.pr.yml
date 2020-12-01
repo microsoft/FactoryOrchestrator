@@ -8,8 +8,7 @@ pool:
   - visualstudio
 
 pr:
-  branches:
-    - 'main'
+  - 'main'
 
 jobs:
 - job: "Build_FactoryOrchestrator_App"
