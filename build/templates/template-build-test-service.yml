@@ -18,5 +18,13 @@ steps:
     inputs:
       command: test
       projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
-      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build'
-    displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration)'
+      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build --collect "Code coverage"'
+    displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Windows'
+    condition: and(succeeded(), eq('$(Agent.OS)', 'Windows_NT'))
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: test
+      projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
+      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build --collect "Code coverage"'
+    displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Linux'
+    condition: and(succeeded(), neq('$(Agent.OS)', 'Windows_NT'))
