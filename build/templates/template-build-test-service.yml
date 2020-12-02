@@ -31,5 +31,5 @@ steps:
   - task: PublishPipelineArtifact@1
     displayName: 'Publish build log as artifact'
     inputs:
-      artifactName: MSBuildLog
+      artifactName: MSBuildLog_$(BuildConfiguration)_AnyCPU
       targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log
