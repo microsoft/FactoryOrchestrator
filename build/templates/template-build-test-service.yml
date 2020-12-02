@@ -11,7 +11,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
-      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore'
+      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Detailed'
     displayName: 'dotnet build $(BuildConfiguration)'
     condition: succeeded()
   - task: DotNetCoreCLI@2
@@ -25,6 +25,11 @@ steps:
     inputs:
       command: test
       projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
-      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build --collect "Code coverage"'
+      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build'
     displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Linux'
     condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish build log as artifact'
+    inputs:
+      artifactName: MSBuildLog
+      targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log

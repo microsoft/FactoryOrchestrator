@@ -22,9 +22,18 @@ steps:
       command: 'restore'
       projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
   - task: VSBuild@1
-    displayName: 'Build solution **\*.sln & AppXPackage'
+    displayName: 'Build FactoryOrchestrator.sln'
     inputs:
       platform: $(BuildPlatform)
       configuration: '$(BuildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(BuildPlatform)" /p:AppxPackageDir="$(build.artifactStagingDirectory)\AppxPackages\" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=Sideload'
+      solution: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
+      msbuildArgs: '/fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log;Verbosity=Detailed'
+      createLogFile: true
+      clean: false
+      maximumCpuCount: true
     condition: succeeded()
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish build log as artifact'
+    inputs:
+      artifactName: MSBuildLog
+      targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log
