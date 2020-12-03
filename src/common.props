@@ -18,6 +18,9 @@
     <PackageTags>Microsoft;Factory Orchestrator;Manufacturing;FactoryOS;IPC;Inter-Process Communication;Windows 10X;Testing;Testing Framework;Remote Execution</PackageTags>
     <Authors>GitHub Factory Orchestrator Developers</Authors>
     <Company>Microsoft Corporation</Company>
+    <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
