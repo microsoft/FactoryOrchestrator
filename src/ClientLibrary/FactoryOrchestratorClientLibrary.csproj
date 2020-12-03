@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SolutionDir)\common.props" />
+  <Import Project="..\common.props" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -56,6 +56,6 @@
       <FilesToMove Include="$(DefaultDocumentationFolder)\*.md"/>
     </ItemGroup>
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\FixupAPIMarkdown.ps1 -DefaultDocumentationFolder $(DefaultDocumentationFolder)" />
-    <Move SourceFiles="@(FilesToMove)" DestinationFolder="$(SolutionDir)\..\docs\docs\ClientLibrary" />
+    <Move SourceFiles="@(FilesToMove)" DestinationFolder="..\..\docs\docs\ClientLibrary" />
   </Target>
 </Project>

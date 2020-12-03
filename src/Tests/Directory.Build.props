@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(SolutionDir)\common.props" />
+  <Import Project="..\common.props" />
 
   <!-- Don't run FxCop on Tests -->
   <PropertyGroup>
@@ -8,7 +8,12 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>false</RunAnalyzers>
-    <!-- Default run settings -->
+  </PropertyGroup>
+  <!-- Default run settings -->
+  <PropertyGroup Condition="'$(SolutionDir)' != ''">
     <RunSettingsFilePath>$(SolutionDir)\Tests\defaults.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(SolutionDir)' == ''">
+    <RunSettingsFilePath>..\Tests\defaults.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 </Project>

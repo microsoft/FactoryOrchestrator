@@ -1,0 +1,39 @@
+steps:
+  - task: NuGetToolInstaller@0
+    displayName: 'Use NuGet 5.7.0'
+    inputs:
+      versionSpec: 5.7.0
+  - task: UseDotNet@2
+    inputs:
+      version: '3.1.x'
+      packageType: sdk
+  - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
+    displayName: 'NuGet restore'
+    inputs:
+      command: 'restore'
+      restoreSolution: '$(System.DefaultWorkingDirectory)\src\App\FactoryOrchestratorApp.csproj'
+  - task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
+    displayName: 'NuGet restore'
+    inputs:
+      command: 'restore'
+      restoreSolution: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
+  - task: VSBuild@1
+    displayName: 'Build FactoryOrchestrator.sln'
+    inputs:
+      platform: $(BuildPlatform)
+      configuration: '$(BuildConfiguration)'
+      solution: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
+      msbuildArgs: '/fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log;Verbosity=Detailed'
+      createLogFile: true
+      clean: false
+      maximumCpuCount: true
+    condition: succeeded()
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish build log as artifact'
+    inputs:
+      artifactName: MSBuildLog_$(BuildConfiguration)_$(BuildPlatform)
+      targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log
