@@ -17,30 +17,30 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorServerLi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IpcFramework", "IpcFramework", "{BB6182E5-4177-44D4-A7E8-2590D00941AE}"
 	ProjectSection(SolutionItems) = preProject
-		oss\IpcFramework\Directory.Build.props = oss\IpcFramework\Directory.Build.props
+		..\oss\IpcFramework\Directory.Build.props = ..\oss\IpcFramework\Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client", "oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj", "{B4F6BB5B-552D-487E-8CA7-1919A357FFCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client", "..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj", "{B4F6BB5B-552D-487E-8CA7-1919A357FFCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Testing", "oss\IpcFramework\JKang.IpcServiceFramework.Testing\JKang.IpcServiceFramework.Testing.csproj", "{156E5859-056E-4B88-AA98-B9B202FF21A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Testing", "..\oss\IpcFramework\JKang.IpcServiceFramework.Testing\JKang.IpcServiceFramework.Testing.csproj", "{156E5859-056E-4B88-AA98-B9B202FF21A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj", "{D3EAD474-A454-41F9-BF88-D13FFA980261}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting", "..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj", "{D3EAD474-A454-41F9-BF88-D13FFA980261}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting.NamedPipe\JKang.IpcServiceFramework.Hosting.NamedPipe.csproj", "{502E1DB1-0F13-4F02-AE2A-2ACCF8103CAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.NamedPipe", "..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting.NamedPipe\JKang.IpcServiceFramework.Hosting.NamedPipe.csproj", "{502E1DB1-0F13-4F02-AE2A-2ACCF8103CAC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core", "oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj", "{964E5437-14C4-42AC-AA00-A9B8541A525D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core", "..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj", "{964E5437-14C4-42AC-AA00-A9B8541A525D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.TcpTests", "oss\IpcFramework\JKang.IpcServiceFramework.TcpTests\JKang.IpcServiceFramework.TcpTests.csproj", "{8FDFF305-9AE4-403A-A6B8-5831DD4A2937}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.TcpTests", "..\oss\IpcFramework\JKang.IpcServiceFramework.TcpTests\JKang.IpcServiceFramework.TcpTests.csproj", "{8FDFF305-9AE4-403A-A6B8-5831DD4A2937}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.NamedPipeTests", "oss\IpcFramework\JKang.IpcServiceFramework.NamedPipeTests\JKang.IpcServiceFramework.NamedPipeTests.csproj", "{90A3287B-D5B0-4D49-8BA1-27CA0F292291}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.NamedPipeTests", "..\oss\IpcFramework\JKang.IpcServiceFramework.NamedPipeTests\JKang.IpcServiceFramework.NamedPipeTests.csproj", "{90A3287B-D5B0-4D49-8BA1-27CA0F292291}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj", "{A0E37EDD-8063-4E95-AE92-639240D778D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Hosting.Tcp", "..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj", "{A0E37EDD-8063-4E95-AE92-639240D778D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core.Tests", "oss\IpcFramework\JKang.IpcServiceFramework.Core.Tests\JKang.IpcServiceFramework.Core.Tests.csproj", "{585BC023-2F06-489E-8285-D83013C674A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Core.Tests", "..\oss\IpcFramework\JKang.IpcServiceFramework.Core.Tests\JKang.IpcServiceFramework.Core.Tests.csproj", "{585BC023-2F06-489E-8285-D83013C674A5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.Tcp", "oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj", "{AD011716-1E8C-4D55-9881-E85931B208F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.Tcp", "..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj", "{AD011716-1E8C-4D55-9881-E85931B208F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.NamedPipe", "oss\IpcFramework\JKang.IpcServiceFramework.Client.NamedPipe\JKang.IpcServiceFramework.Client.NamedPipe.csproj", "{064091C3-F0AB-4277-BEA1-7301F8CA4E1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.NamedPipe", "..\oss\IpcFramework\JKang.IpcServiceFramework.Client.NamedPipe\JKang.IpcServiceFramework.Client.NamedPipe.csproj", "{064091C3-F0AB-4277-BEA1-7301F8CA4E1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
@@ -48,15 +48,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSampl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pe-Utility", "Pe-Utility", "{765DEB35-1D5D-41E3-854E-7ACEAE86E4A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pe-Utility", "oss\Pe-Utility\Pe-Utility.csproj", "{049C416B-D3DB-4D9E-88CC-C1157A68CC53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pe-Utility", "..\oss\Pe-Utility\Pe-Utility.csproj", "{049C416B-D3DB-4D9E-88CC-C1157A68CC53}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125C-4D28-B8F5-3A662F2055BC}"
 	ProjectSection(SolutionItems) = preProject
-		oss\cgmanifest.json = oss\cgmanifest.json
-		oss\Directory.Build.props = oss\Directory.Build.props
-		oss\DotNetCore.WindowsService.txt = oss\DotNetCore.WindowsService.txt
-		oss\IpcServiceFramework.txt = oss\IpcServiceFramework.txt
-		oss\Pe-Utility.txt = oss\Pe-Utility.txt
+		..\oss\cgmanifest.json = ..\oss\cgmanifest.json
+		..\oss\Directory.Build.props = ..\oss\Directory.Build.props
+		..\oss\DotNetCore.WindowsService.txt = ..\oss\DotNetCore.WindowsService.txt
+		..\oss\IpcServiceFramework.txt = ..\oss\IpcServiceFramework.txt
+		..\oss\Pe-Utility.txt = ..\oss\Pe-Utility.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A-F7D2-40A1-B311-1416F9CE7A2A}"

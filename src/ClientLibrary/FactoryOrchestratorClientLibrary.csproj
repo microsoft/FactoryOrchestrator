@@ -5,6 +5,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <TargetName>FactoryOrchestratorClientLibrary</TargetName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Microsoft.FactoryOrchestrator.Client</PackageId>
+    <Description>.NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service. Also contains optional helper classes. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -19,11 +21,6 @@
     <DefaultDocumentationFolder>$(OutputRootPath)\DefaultDocumentation\ClientLibrary</DefaultDocumentationFolder>
   </PropertyGroup>
   <ItemGroup>
-    <!--TODO: Remove docfx once docs are migrated to github.io-->
-    <PackageReference Include="docfx.console" Version="2.47.0" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="DefaultDocumentation" Version="0.6.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -41,9 +38,28 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
-    <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
-    <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj"  PrivateAssets="all" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj"  PrivateAssets="all" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
+    <ItemGroup>
+      <!-- Filter out unnecessary files -->
+      <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))"/>
+    </ItemGroup>
+
+    <!-- Print batches for debug purposes -->
+    <Message Text="Batch for .nupkg: ReferenceCopyLocalPaths = @(_ReferenceCopyLocalPaths), ReferenceCopyLocalPaths.DestinationSubDirectory = %(_ReferenceCopyLocalPaths.DestinationSubDirectory) Filename = %(_ReferenceCopyLocalPaths.Filename) Extension = %(_ReferenceCopyLocalPaths.Extension)" Importance="High" Condition="'@(_ReferenceCopyLocalPaths)' != ''" />
+
+    <ItemGroup>
+      <!-- Add file to package with consideration of sub folder. If empty, the root folder is chosen. -->
+      <BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubDirectory)"/>
+    </ItemGroup>
+  </Target>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />

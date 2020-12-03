@@ -44,12 +44,12 @@ Factory Orchestrator :green_heart: OSS.
 
 ```
 FactoryOrchestrator
+└──oss
 └──src
     |   App
     |   ClientLibrary
     |   ClientSample
     |   CoreLibrary
-    |   oss
     |   ServerLibrary
     |   Service
     |   Tests

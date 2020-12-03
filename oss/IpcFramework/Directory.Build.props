@@ -10,6 +10,20 @@
   </PropertyGroup>
 
   <!-- Added for Factory Orchestrator -->
+  <!-- Only the 'closest' directory.build.props file to the current project is used, so this duplicates many things in the higher-level directory.build.props -->
+  <PropertyGroup>
+    <SkipDefaultEditorConfigAsAdditionalFile>true</SkipDefaultEditorConfigAsAdditionalFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+    <!-- Deterministic Builds for source link -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <DisableDynamicCodeGeneration>true</DisableDynamicCodeGeneration>
   </PropertyGroup>

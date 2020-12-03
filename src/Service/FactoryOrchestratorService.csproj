@@ -33,8 +33,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
-    <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj" />
-    <ProjectReference Include="..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj" />
     <ProjectReference Include="..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
   </ItemGroup>
 

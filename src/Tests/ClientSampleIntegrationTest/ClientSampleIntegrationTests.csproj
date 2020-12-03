@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputPath>..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>

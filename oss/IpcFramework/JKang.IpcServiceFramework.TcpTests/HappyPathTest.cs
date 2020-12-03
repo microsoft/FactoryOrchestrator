@@ -34,9 +34,9 @@ namespace JKang.IpcServiceFramework.TcpTests
         }
 
         [Theory, AutoData]
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning disable CS1998,xUnit1026 // Async method lacks 'await' operators and will run synchronously
         public async Task HappyPath(string input, string expected)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning restore CS1998,xUnit1026 // Async method lacks 'await' operators and will run synchronously
         {
 #if !DISABLE_DYNAMIC_CODE_GENERATION
 

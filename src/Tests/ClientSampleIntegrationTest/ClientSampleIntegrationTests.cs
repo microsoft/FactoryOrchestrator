@@ -46,10 +46,12 @@ namespace Microsoft.FactoryOrchestrator.Test
         [ClassInitialize]
         public static void Setup(TestContext context)
         {
+#pragma warning disable CA1062
             _classTestContext = context;
             _verifyPassed = (_classTestContext.Properties["verifyPassed"] as bool?) ?? true;
             _cleanLogFolder = (_classTestContext.Properties["cleanLogFolder"] as bool?) ?? false;
             FactoryOrchestratorClient testClientConnection;
+#pragma warning restore CA1062
 
             try
             {

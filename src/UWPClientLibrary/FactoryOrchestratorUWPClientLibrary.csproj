@@ -4,6 +4,11 @@
   <Import Project="..\common.props" />
 
   <PropertyGroup>
+    <PackageId>Microsoft.FactoryOrchestrator.UWPClient</PackageId>
+    <Description>A UWP class library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service from a UWP app. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0ED6137E-895F-4941-A136-ABB977E1C4EF}</ProjectGuid>
@@ -31,7 +36,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
