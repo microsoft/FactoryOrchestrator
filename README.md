@@ -30,7 +30,7 @@ The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-starte
 
 Factory Orchestrator :green_heart: OSS.
 
-### **OSS Projects currently consumes:**
+### **OSS Projects currently forked in source:**
 
 * **IpcServiceFramework**
 
