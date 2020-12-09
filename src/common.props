@@ -21,13 +21,29 @@
     <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Product>Factory Orchestrator</Product>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <OutputRootPath>$(Build.ArtifactStagingDirectory)\bin\</OutputRootPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(IsTFSBuild)' != 'true' And '$(GITHUB_ACTIONS)' != 'true'">
+    <OutputRootPath>$(MSBuildThisFileDirectory)..\bin\</OutputRootPath>
+  </PropertyGroup>
+
+  <!-- Add notice file to all nuget packages -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeNoticeInPack</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="IncludeNoticeInPack">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(MSBuildThisFileDirectory)..\NOTICE.txt"/>
+    </ItemGroup>
+    <Message Text="IncludeNoticeInPack - found: @(TfmSpecificPackageFile)" Importance="High"/>
+  </Target>
 
   <ItemGroup Condition="Exists('.\.editorconfig')" >
     <AdditionalFiles Include=".\.editorconfig" />

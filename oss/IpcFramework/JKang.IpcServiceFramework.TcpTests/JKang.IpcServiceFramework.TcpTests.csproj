@@ -27,10 +27,10 @@
     <RunAnalyzers>false</RunAnalyzers>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputPath>..\..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+    <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
 </Project>

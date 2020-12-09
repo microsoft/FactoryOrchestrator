@@ -1,0 +1,9 @@
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack all .NET projects $(BuildConfiguration)'
+  inputs:
+    command: pack
+    includesymbols: true
+    nobuild: true
+    arguments: '$(Build.SourcesDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --verbosity Detailed'
+    zipAfterPublish: false

@@ -17,6 +17,7 @@ jobs:
     BuildConfiguration: 'Release'
   steps:
   - template: ./templates/template-build-test-service.yml
+  - template: ./templates/template-ci-compliance.yml
 - job: "Build_FactoryOrchestrator_App"
   strategy:
     matrix:

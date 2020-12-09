@@ -12,7 +12,7 @@
 RootModule = 'FactoryOrchestratorPowerShellLibrary.dll'
 
 # Version number of this module.
-ModuleVersion = '8.3.2012.1438'
+ModuleVersion = '8.3.2012.1811'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

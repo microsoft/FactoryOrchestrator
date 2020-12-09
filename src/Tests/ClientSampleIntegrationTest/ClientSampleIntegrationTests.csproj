@@ -18,11 +18,11 @@
     <ProjectReference Include="..\..\ClientSample\ClientSample.csproj" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
+  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
     <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 
 </Project>

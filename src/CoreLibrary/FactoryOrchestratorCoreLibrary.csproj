@@ -10,14 +10,12 @@
     <PackageId>Microsoft.FactoryOrchestrator.Core</PackageId>
     <Description>A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputRootPath>..\..\bin\</OutputRootPath>
+  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
     <OutputPath>$(OutputRootPath)$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <OutputRootPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\</OutputRootPath>
+  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>

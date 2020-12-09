@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <!-- Added for Factory Orchestrator -->
+  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  </PropertyGroup>
   <PropertyGroup>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>

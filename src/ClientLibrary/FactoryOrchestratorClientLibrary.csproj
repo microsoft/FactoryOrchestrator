@@ -8,13 +8,13 @@
     <PackageId>Microsoft.FactoryOrchestrator.Client</PackageId>
     <Description>.NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service. Also contains optional helper classes. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
+  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetFramework)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
+  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <DefaultDocumentationHome>$(TargetName)</DefaultDocumentationHome>
@@ -38,27 +38,35 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" PrivateAssets="all" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj"  PrivateAssets="all" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj"  PrivateAssets="all" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
-  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
+  
+  <!-- Add IPC OSS binaries to package -->
+  <Target Name="CopyProjectReferencesToPackage">
     <ItemGroup>
-      <!-- Filter out unnecessary files -->
-      <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')->WithMetadataValue('PrivateAssets', 'All'))"/>
+      <BuildOutputInPackage Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\*.dll"/>
     </ItemGroup>
+    
+    <!-- Print for debug purposes -->
+    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\ found: @(BuildOutputInPackage)" Importance="High"/>
+  </Target>
 
-    <!-- Print batches for debug purposes -->
-    <Message Text="Batch for .nupkg: ReferenceCopyLocalPaths = @(_ReferenceCopyLocalPaths), ReferenceCopyLocalPaths.DestinationSubDirectory = %(_ReferenceCopyLocalPaths.DestinationSubDirectory) Filename = %(_ReferenceCopyLocalPaths.Filename) Extension = %(_ReferenceCopyLocalPaths.Extension)" Importance="High" Condition="'@(_ReferenceCopyLocalPaths)' != ''" />
-
-    <ItemGroup>
-      <!-- Add file to package with consideration of sub folder. If empty, the root folder is chosen. -->
-      <BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubDirectory)"/>
-    </ItemGroup>
+  <!-- Add IPC OSS symbols to symbol package -->
+  <Target Name="UpdateSymTfm" BeforeTargets="_GetDebugSymbolsWithTfm">
+      <ItemGroup>
+        <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\*.pdb">
+          <TargetFramework>netstandard2.0</TargetFramework>
+        </_TargetPathsToSymbolsWithTfm>
+      </ItemGroup>
+      
+    <!-- Print for debug purposes -->
+    <Message Text="UpdateSymTfm - $(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\ found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
   </Target>
 
   <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
