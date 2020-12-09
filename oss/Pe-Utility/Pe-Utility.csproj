@@ -6,6 +6,15 @@
   </PropertyGroup>
 
   <!-- Added for Factory Orchestrator -->
+  <PropertyGroup>
+    <Authors>Andres Traks and Factory Orchestrator GitHub contributors</Authors>
+    <Company />
+    <PackageLicenseUrl>https://github.com/AndresTraks/pe-utility/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/AndresTraks/pe-utility</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AndresTraks/pe-utility</PackageProjectUrl>
+    <Version>3.0.0</Version>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>

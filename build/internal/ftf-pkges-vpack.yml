@@ -40,6 +40,7 @@ steps:
     branchVersionExcludeBranch: 'main'
     productName: 'FactoryOrchestrator'
     disableOutputRedirect: true
+    disableMsbuildVersion: true
     useDfs: true
 
 - task: NuGetToolInstaller@0

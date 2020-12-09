@@ -12,10 +12,10 @@
 RootModule = 'FactoryOrchestratorPowerShellLibrary.dll'
 
 # Version number of this module.
-ModuleVersion = '8.3.2012.1811'
+ModuleVersion = '8.4.0'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = @('Core')
 
 # ID used to uniquely identify this module
 GUID = '19a5eca4-a511-481d-ac68-227450fd4323'

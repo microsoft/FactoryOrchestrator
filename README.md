@@ -93,12 +93,11 @@ Run _FactoryOrchestratorApp (Universal Windows)_ and _FactoryOrchestratorService
 
 ## Versioning
 
-Factory Orchestrator uses a slightly modified form of [semver versioning](https://semver.org/). All Factory Orchestrator binaries from the same build share the same version; there is no unique client or service version. In the [src/custom.props](src/custom.props) file, increment the:
+Factory Orchestrator uses [semantic versioning (semver)](https://semver.org/). All Factory Orchestrator binaries from the same build share the same version; there is no unique client or service version. In the [src/common.props](src/common.props) file, increment the:
 
 * MAJOR version when you make incompatible API changes,
 * MINOR version when you add functionality in a backwards compatible manner.
-
-The PATCH version is automatically set by the build, and is based on the [date/time the build is run](build/SetSourceVersion.ps1). The PATCH version is only changed when the build is run as part of an Azure Pipeline or when run in the "Release" configuration locally.
+* PATCH version when you make backwards compatible bug fixes.
 
 When the MAJOR version diverges between a Client and Service, Clients will be prevented from connecting to the Service by default. Changing the signiture of any FactoryOrchestratorCoreLibrary class is therefore usually a MAJOR version change and should be done sparingly.
 

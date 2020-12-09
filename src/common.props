@@ -23,6 +23,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Product>Factory Orchestrator</Product>
   </PropertyGroup>
+  <PropertyGroup Label="Version">
+    <Version>8.4.0</Version>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

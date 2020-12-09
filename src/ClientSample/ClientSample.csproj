@@ -6,7 +6,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <TargetName>ClientSample</TargetName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NeutralLanguage>en-US</NeutralLanguage>
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
@@ -21,10 +20,6 @@
     <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="obj\AssemblyInfo.cs" />
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -46,11 +41,5 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' == 'true' Or '$(Configuration)' == 'Release'">
-    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
-  </Target>
-  <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile" Condition="'$(IsTFSBuild)' != 'true' And '$(Configuration)' == 'Debug'">
-    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir) -MajorMinorOnly" />
-  </Target>
 
 </Project>
