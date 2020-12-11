@@ -4,7 +4,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD --self-contained --runtime win-$(BuildPlatform) --force --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD --self-contained --runtime win-$(BuildPlatform) --verbosity Detailed'
     zipAfterPublish: false
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop'
@@ -17,7 +17,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./build/internal/CreateServiceManifest.ps1
-    arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD" -SourceRootFolder "`$(build.nttree)\$NtTreeRootFolder" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD\Microsoft-OneCore-FactoryOrchestrator-Service-$(BuildPlatform).wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-$(BuildPlatform)" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator'
+    arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD" -SourceRootFolder "`$(build.nttree)\$NtTreeRootFolder" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD\Microsoft-OneCore-FactoryOrchestrator-Service-$(BuildPlatform).wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-$(BuildPlatform)" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator'
     failOnStderr: true
   timeoutInMinutes: 5
 - task: PkgESVPack@10
@@ -25,7 +25,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack $(BuildPlatform)'
   inputs:
-    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD'
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\FactoryOrchestratorService_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.$(BuildPlatform)$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.$(BuildPlatform)$(VPACKNAME)'
     version: '$(VPACKVERSION)'

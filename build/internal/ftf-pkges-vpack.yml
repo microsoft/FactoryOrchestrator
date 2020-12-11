@@ -1,4 +1,11 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
+resources:
+  repositories:
+  - repository: ComplianceRepo
+    type: github
+    endpoint: ComplianceGHRepo
+    name: PowerShell/compliance
+
 queue:
   name: Package ES Standard Build
   timeoutInMinutes: 60
