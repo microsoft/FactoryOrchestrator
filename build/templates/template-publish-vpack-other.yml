@@ -20,8 +20,8 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Client Libraries to root of drop'
   inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorUWPClientLibrary'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\FactoryOrchestratorUWPClientLibrary'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
@@ -29,7 +29,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
@@ -37,21 +37,14 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\src\CoreLibrary'
     Contents: 'FactoryOrchestratorXML.xsd'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: CopyFiles@2
-  displayName: 'Copy Client documentation to Client Libraries'
-  inputs:
-    SourceFolder: '$(XES_DFSDROP)\docfx'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\FactoryOrchestratorDocumentation'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: CopyFiles@2
   displayName: 'Copy PowerShell Publish to Client Libraries'
   inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\PowerShell'
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries\PowerShell'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PkgESVPack@10
@@ -59,29 +52,29 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack Client Libraries'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\ClientLibraries'
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
     pushPkgName: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
     description: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
     version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
   enabled: true
 
 - task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop Client Libraries'
+  displayName: 'Copy VPack Manifest Client Libraries'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
 
 - task: CopyFiles@2
-  displayName: 'Copy Client Sample source to root of drop'
+  displayName: 'Copy Client Sample source'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\src\ClientSample'
     Contents: |
      **\*.cs
      **\*.csproj
-    TargetFolder: '$(XES_DFSDROP)\ClientSampleWSK'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 
 - task: PowerShell@2
@@ -89,7 +82,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./build/internal/UpdateClientSampleForWSK.ps1
-    arguments: '-ProjectFolder $(XES_DFSDROP)\ClientSampleWSK'
+    arguments: '-ProjectFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
     failOnStderr: true
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
   timeoutInMinutes: 5
@@ -99,20 +92,20 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack Client Sample WSK'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\ClientSampleWSK'
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
     pushPkgName: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
     description: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
     version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
   enabled: true
 
 - task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop Client Sample'
+  displayName: 'Copy VPack Manifest Client Sample'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
 
 - task: PkgESVPack@10
   env:
@@ -123,13 +116,13 @@ steps:
     pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
     description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
     version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
   enabled: true
 
 - task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop NET Core Tests'
+  displayName: 'Copy VPack Manifest NET Core Tests'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
