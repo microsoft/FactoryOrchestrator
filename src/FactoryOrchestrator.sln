@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorCoreLibrary", "CoreLibrary\FactoryOrchestratorCoreLibrary.csproj", "{5ED97075-7281-4FA3-8E5F-D4B8D273BDCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.CoreLibrary", "CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj", "{5ED97075-7281-4FA3-8E5F-D4B8D273BDCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorService", "Service\FactoryOrchestratorService.csproj", "{1F7BBB14-DFAF-4FBD-8977-5B2C78025B74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.Service", "Service\Microsoft.FactoryOrchestrator.Service.csproj", "{1F7BBB14-DFAF-4FBD-8977-5B2C78025B74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorApp", "App\FactoryOrchestratorApp.csproj", "{BAD1C9B4-70E1-40F7-92AC-9B1E2049E9C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.FactoryOrchestrator.App", "App\Microsoft.FactoryOrchestrator.App.csproj", "{BAD1C9B4-70E1-40F7-92AC-9B1E2049E9C5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorClientLibrary", "ClientLibrary\FactoryOrchestratorClientLibrary.csproj", "{C5FDA4E1-E631-47B2-BA5F-6558F8506DF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.Client", "ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj", "{C5FDA4E1-E631-47B2-BA5F-6558F8506DF7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorPowerShellLibrary", "PowerShellLibrary\FactoryOrchestratorPowerShellLibrary.csproj", "{FEEBBC93-AA93-491A-A844-CF487D0D9AD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.PowerShell", "PowerShellLibrary\Microsoft.FactoryOrchestrator.PowerShell.csproj", "{FEEBBC93-AA93-491A-A844-CF487D0D9AD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryOrchestratorServerLibrary", "ServerLibrary\FactoryOrchestratorServerLibrary.csproj", "{3F3AD59B-1E8A-4B01-BAE5-D6DABAF43DE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.Server", "ServerLibrary\Microsoft.FactoryOrchestrator.Server.csproj", "{3F3AD59B-1E8A-4B01-BAE5-D6DABAF43DE1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IpcFramework", "IpcFramework", "{BB6182E5-4177-44D4-A7E8-2590D00941AE}"
 	ProjectSection(SolutionItems) = preProject
@@ -42,9 +42,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client.NamedPipe", "..\oss\IpcFramework\JKang.IpcServiceFramework.Client.NamedPipe\JKang.IpcServiceFramework.Client.NamedPipe.csproj", "{064091C3-F0AB-4277-BEA1-7301F8CA4E1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactoryOrchestratorUWPClientLibrary", "UWPClientLibrary\FactoryOrchestratorUWPClientLibrary.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.FactoryOrchestrator.UWPClient", "UWPClientLibrary\Microsoft.FactoryOrchestrator.UWPClient.csproj", "{0ED6137E-895F-4941-A136-ABB977E1C4EF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "ClientSample\ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.ClientSample", "ClientSample\Microsoft.FactoryOrchestrator.ClientSample.csproj", "{2C3B3BF3-C074-434C-BF91-4BD302E1E9D2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pe-Utility", "Pe-Utility", "{765DEB35-1D5D-41E3-854E-7ACEAE86E4A2}"
 EndProject

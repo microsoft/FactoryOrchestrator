@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[Resources](./Microsoft-FactoryOrchestrator-Core-Resources.md 'Microsoft.FactoryOrchestrator.Core.Resources')
 ## Resources.ResourceManager Property
 Returns the cached ResourceManager instance used by this class.  

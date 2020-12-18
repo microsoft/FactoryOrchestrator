@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[Resources](./Microsoft-FactoryOrchestrator-Core-Resources.md 'Microsoft.FactoryOrchestrator.Core.Resources')
 ## Resources.NoMethodFound Property
 Looks up a localized string similar to Could not find method with name {0}.  

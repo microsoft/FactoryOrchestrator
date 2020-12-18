@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetName>FactoryOrchestratorPowerShellLibrary</TargetName>
+    <TargetName>Microsoft.FactoryOrchestrator.PowerShell</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
-    <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[ServiceEvent](./Microsoft-FactoryOrchestrator-Core-ServiceEvent.md 'Microsoft.FactoryOrchestrator.Core.ServiceEvent')
 ## ServiceEvent.Guid Property
 If not NULL, the object GUID associated with the event.  

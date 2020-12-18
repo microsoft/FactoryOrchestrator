@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorClientLibrary](./FactoryOrchestratorClientLibrary.md 'FactoryOrchestratorClientLibrary')
+#### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
 ### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[ServerPoller](./Microsoft-FactoryOrchestrator-Client-ServerPoller.md 'Microsoft.FactoryOrchestrator.Client.ServerPoller')
 ## ServerPoller(System.Nullable&lt;System.Guid&gt;, System.Type, int, bool, int) Constructor
 Create a new ServerPoller. The ServerPoller is associated with a specific FactoryOrchestratorClient and object you want to poll. The desired object is referred to by its GUID. The GUID can be NULL for TaskRun polling.  

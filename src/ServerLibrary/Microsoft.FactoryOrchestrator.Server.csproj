@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetName>FactoryOrchestratorServerLibrary</TargetName>
+    <TargetName>Microsoft.FactoryOrchestrator.Server</TargetName>
     <PackageId>Microsoft.FactoryOrchestrator.Server</PackageId>
     <Description>A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
@@ -17,7 +17,7 @@
     <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
     <ProjectReference Include="..\..\oss\Pe-Utility\Pe-Utility.csproj" />
   </ItemGroup>
 

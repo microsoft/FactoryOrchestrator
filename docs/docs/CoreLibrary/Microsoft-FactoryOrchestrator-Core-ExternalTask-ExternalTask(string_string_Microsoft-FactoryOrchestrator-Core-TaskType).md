@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[ExternalTask](./Microsoft-FactoryOrchestrator-Core-ExternalTask.md 'Microsoft.FactoryOrchestrator.Core.ExternalTask')
 ## ExternalTask(string, string, Microsoft.FactoryOrchestrator.Core.TaskType) Constructor
 Initializes a new instance of the [ExternalTask](./Microsoft-FactoryOrchestrator-Core-ExternalTask.md 'Microsoft.FactoryOrchestrator.Core.ExternalTask') class.  

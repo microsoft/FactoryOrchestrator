@@ -145,41 +145,41 @@ steps:
   timeoutInMinutes: 5
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FactoryOrchestratorService x86'
+  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service x86'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD --self-contained --runtime win-x86 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-x86 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FactoryOrchestratorService x64'
+  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service x64'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD --self-contained --runtime win-x64 --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-x64 --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FactoryOrchestratorService ARM'
+  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service ARM'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD --self-contained --runtime win-arm --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-arm --verbosity Detailed'
     zipAfterPublish: False
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FactoryOrchestratorService ARM64'
+  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service ARM64'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -189,7 +189,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorPowerShellLibrary.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish --force --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish --force --verbosity Detailed'
     zipAfterPublish: false
   condition: eq(variables['BuildConfiguration'], 'Release')
   enabled: true
@@ -199,7 +199,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x86\FactoryOrchestratorService_SCD'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x86\Microsoft.FactoryOrchestrator.Service_SCD'
   condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
@@ -207,7 +207,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x64\FactoryOrchestratorService_SCD'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x64\Microsoft.FactoryOrchestrator.Service_SCD'
   condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
@@ -215,7 +215,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM\FactoryOrchestratorService_SCD'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM\Microsoft.FactoryOrchestrator.Service_SCD'
   condition: eq(variables['BuildConfiguration'], 'Release')
   
 - task: CopyFiles@2
@@ -223,11 +223,11 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM64\FactoryOrchestratorService_SCD'
+    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM64\Microsoft.FactoryOrchestrator.Service_SCD'
   condition: eq(variables['BuildConfiguration'], 'Release')
 
 - task: PowerShell@2
-  displayName: 'Create FactoryOrchestratorService Manifest for VPack'
+  displayName: 'Create Microsoft.FactoryOrchestrator.Service Manifest for VPack'
   inputs:
     targetType: filePath
     filePath: ./build/internal/CreateServiceManifestForPkgES.ps1
@@ -243,7 +243,7 @@ steps:
     TargetFolder: '$(XES_DFSDROP)\'
 
 - task: CopyFiles@2
-  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - FactoryOrchestratorService publish'
+  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - Microsoft.FactoryOrchestrator.Service publish'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\bin\'
     TargetFolder: '$(XES_DFSDROP)\'
@@ -315,7 +315,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ARM'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM\FactoryOrchestratorService_SCD'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM\Microsoft.FactoryOrchestrator.Service_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.ARM$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.ARM$(VPACKNAME)'
     version: '$(VPACKVERSION)'
@@ -335,7 +335,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ARM64'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\FactoryOrchestratorService_SCD'
+    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\Microsoft.FactoryOrchestrator.Service_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.ARM64$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.ARM64$(VPACKNAME)'
     version: '$(VPACKVERSION)'
@@ -355,7 +355,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack x86'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x86\FactoryOrchestratorService_SCD'
+    sourceDirectory: '$(XES_DFSDROP)\Release\x86\Microsoft.FactoryOrchestrator.Service_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.x86$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.x86$(VPACKNAME)'
     version: '$(VPACKVERSION)'
@@ -375,7 +375,7 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack x64'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x64\FactoryOrchestratorService_SCD'
+    sourceDirectory: '$(XES_DFSDROP)\Release\x64\Microsoft.FactoryOrchestrator.Service_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.x64$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.x64$(VPACKNAME)'
     version: '$(VPACKVERSION)'
@@ -393,7 +393,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Client Libraries to root of drop'
   inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorUWPClientLibrary'
+    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\Microsoft.FactoryOrchestrator.UWPClient'
     TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
   condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
 

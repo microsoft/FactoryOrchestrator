@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[LockingList&lt;T&gt;](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;')
 ## LockingList&lt;T&gt;.AddRange(System.Collections.Generic.IEnumerable&lt;T&gt;) Method
 Adds the elements of the specified collection to the end of the System.Collections.Generic.List`1.  

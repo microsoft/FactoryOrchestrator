@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[LockingList&lt;T&gt;](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;')
 ## LockingList&lt;T&gt;.IndexOf(T) Method
 Determines the index of a specific item in the [System.Collections.IList](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.IList 'System.Collections.IList').  

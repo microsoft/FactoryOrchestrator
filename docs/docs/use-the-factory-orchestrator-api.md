@@ -1,9 +1,9 @@
 # Using the Factory Orchestrator client API
-The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a [robust API surface](./ClientLibrary/FactoryOrchestratorClientLibrary.md) for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.
+The Factory Orchestrator service, Microsoft.FactoryOrchestrator.Service.exe, provides a [robust API surface](../ClientLibrary/Microsoft-FactoryOrchestrator-Client) for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.
 
 All FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# (.NET and UWP) API calls are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 
-You can see [the full API reference for the FactoryOrchestratorClientLibrary here](./ClientLibrary/FactoryOrchestratorClientLibrary.md). You can also see [the FactoryOrchestratorCoreLibrary reference here](./CoreLibrary/FactoryOrchestratorCoreLibrary.md). The CoreLibrary contains class definitions for objects some client APIs return, such as TaskRun instances.
+You can see [the full API reference for the Microsoft.FactoryOrchestrator.Client here](../ClientLibrary/Microsoft-FactoryOrchestrator-Client). You can also see [the Microsoft.FactoryOrchestrator.Core reference here](../CoreLibrary/Microsoft-FactoryOrchestrator-Core). The CoreLibrary contains class definitions for objects some client APIs return, such as TaskRun instances.
 
 Before executing other APIs, the Connect() or TryConnect() API must be called. Once the Connect() or TryConnect() API succeeds, you can use all other APIs.
 
@@ -104,9 +104,9 @@ If you are writing a UWP app that uses the Factory Orchestrator Client API, you 
 ## Factory Orchestrator Versioning
 Factory Orchestator uses [semver](https://semver.org/) versioning. If there is a major version mismatch between the client and service your program may not work as expected and either the client program or target service should be updated so the major versions match. Major versions are checked when the client connects to the service. You can also manually check the version of the client API by:
 
-- Manually inspecting the properties of the FactoryOrchestratorClientLibrary.dll file used by your program
+- Manually inspecting the properties of the Microsoft.FactoryOrchestrator.Client.dll file used by your program
 
-    ![version number in the properties of FactoryOrchestratorClientLibrary.dll](./images/fo-version-number.png)
+    ![version number in the properties of Microsoft.FactoryOrchestrator.Client.dll](./images/fo-version-number.png)
 
 - Programmatically with the following code snippets:
 

@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetName>FactoryOrchestratorCoreLibrary</TargetName>
+    <TargetName>Microsoft.FactoryOrchestrator.Core</TargetName>
     <NeutralLanguage>en-US</NeutralLanguage>
     <DefaultLanguage>en-US</DefaultLanguage>
     <PackageId>Microsoft.FactoryOrchestrator.Core</PackageId>

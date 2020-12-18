@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
+    <ProjectReference Include="..\..\..\ServerLibrary\Microsoft.FactoryOrchestrator.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

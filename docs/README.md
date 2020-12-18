@@ -27,7 +27,7 @@ Once you are happy with your changes, you will have to manually update the live 
 
 To help prevent documentation<->code mismatches, the GitHub PR build will detect if your code changes will result in any documentation updates. If documentation updates are needed, the build will generate a build warning and publish a Git .patch file. The .patch file can be used to make a PR into 'gh-pages' in lieu of the steps above.
 
-Please note that any changes to the public API surface of the ClientLibrary and/or CoreLibrary classes will result in documentation changes. If you see your changes result in modified files in docs\docs, you must run the above steps to rebuild the website source manually!
+Please note that any changes to the public API surface of the Microsoft.FactoryOrchestrator.Client and/or Microsoft.FactoryOrchestrator.Core classes will result in documentation changes. If you see your changes result in modified files in docs\docs, you must run the above steps to rebuild the website source manually!
 
 ## Open Source Software Acknowledgments
 

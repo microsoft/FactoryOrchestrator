@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetName>FactoryOrchestratorClientLibrary</TargetName>
+    <TargetName>Microsoft.FactoryOrchestrator.Client</TargetName>
     <PackageId>Microsoft.FactoryOrchestrator.Client</PackageId>
     <Description>.NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service. Also contains optional helper classes. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj" />

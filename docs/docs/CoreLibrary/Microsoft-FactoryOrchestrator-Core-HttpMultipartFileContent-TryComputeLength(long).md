@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[HttpMultipartFileContent](./Microsoft-FactoryOrchestrator-Core-HttpMultipartFileContent.md 'Microsoft.FactoryOrchestrator.Core.HttpMultipartFileContent')
 ## HttpMultipartFileContent.TryComputeLength(long) Method
 Computes required length for the transfer.  

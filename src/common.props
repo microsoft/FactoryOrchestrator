@@ -3,7 +3,7 @@
 
   <!-- Assembly, App, Package version for all non-OSS files. Uses SemVer. -->
   <PropertyGroup Label="Version">
-    <Version>8.4.0</Version>
+    <Version>9.0.0</Version>
   </PropertyGroup>
 
   <!-- Common packaging properties -->

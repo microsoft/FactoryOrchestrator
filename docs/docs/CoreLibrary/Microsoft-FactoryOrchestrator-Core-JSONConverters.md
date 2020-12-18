@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ## Microsoft.FactoryOrchestrator.Core.JSONConverters Namespace
 ### Classes
 - [NoConverter](./Microsoft-FactoryOrchestrator-Core-JSONConverters-NoConverter.md 'Microsoft.FactoryOrchestrator.Core.JSONConverters.NoConverter')

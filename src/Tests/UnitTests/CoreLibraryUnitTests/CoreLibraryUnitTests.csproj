@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\..\..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
   </ItemGroup>
 
 </Project>

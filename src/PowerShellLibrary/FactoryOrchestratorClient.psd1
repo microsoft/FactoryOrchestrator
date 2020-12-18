@@ -9,10 +9,10 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'FactoryOrchestratorPowerShellLibrary.dll'
+RootModule = 'Microsoft.FactoryOrchestrator.PowerShell.dll'
 
 # Version number of this module.
-ModuleVersion = '8.4.0'
+ModuleVersion = '9.0.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core')
@@ -30,7 +30,7 @@ CompanyName = 'Microsoft Corporation'
 Copyright = '(c) Microsoft Corporation. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell wrapper for the FactoryOrchestratorClient class. https://microsoft.github.io/FactoryOrchestrator/'
+Description = 'PowerShell wrapper for Microsoft Factory Orchestrator. https://microsoft.github.io/FactoryOrchestrator/'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -54,7 +54,7 @@ Description = 'PowerShell wrapper for the FactoryOrchestratorClient class. https
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @("FactoryOrchestratorCoreLibrary.dll")
+# RequiredAssemblies = @("Microsoft.FactoryOrchestrator.Core.dll")
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()

@@ -14,9 +14,9 @@
     <ProjectGuid>{0ED6137E-895F-4941-A136-ABB977E1C4EF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FactoryOrchestratorUWPClientLibrary</RootNamespace>
-    <AssemblyName>FactoryOrchestratorUWPClientLibrary</AssemblyName>
-    <TargetName>FactoryOrchestratorUWPClientLibrary</TargetName>
+    <RootNamespace>Microsoft.FactoryOrchestrator.UWP</RootNamespace>
+    <AssemblyName>Microsoft.FactoryOrchestrator.UWPClient</AssemblyName>
+    <TargetName>Microsoft.FactoryOrchestrator.UWPClient</TargetName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.17763.0</TargetPlatformVersion>
@@ -56,7 +56,7 @@
   <ItemGroup>
     <Compile Include="FactoryOrchestratorUWPClient.cs" />
     <Compile Include="obj\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\FactoryOrchestratorUWPClientLibrary.rd.xml" />
+    <EmbeddedResource Include="Properties\Microsoft.FactoryOrchestrator.UWPClient.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
@@ -64,9 +64,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj">
+    <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj">
       <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
-      <Name>FactoryOrchestratorClientLibrary</Name>
+      <Name>Microsoft.FactoryOrchestrator.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

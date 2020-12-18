@@ -4,7 +4,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <TargetName>FactoryOrchestratorService</TargetName>
+    <TargetName>Microsoft.FactoryOrchestrator.Service</TargetName>
     <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
@@ -25,11 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
-    <ProjectReference Include="..\CoreLibrary\FactoryOrchestratorCoreLibrary.csproj" />
+    <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj" />
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj" />
-    <ProjectReference Include="..\ServerLibrary\FactoryOrchestratorServerLibrary.csproj" />
+    <ProjectReference Include="..\ServerLibrary\Microsoft.FactoryOrchestrator.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

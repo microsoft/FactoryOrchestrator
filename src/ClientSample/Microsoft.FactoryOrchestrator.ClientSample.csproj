@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <TargetName>ClientSample</TargetName>
+    <TargetName>Microsoft.FactoryOrchestrator.ClientSample</TargetName>
     <NeutralLanguage>en-US</NeutralLanguage>
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
+    <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

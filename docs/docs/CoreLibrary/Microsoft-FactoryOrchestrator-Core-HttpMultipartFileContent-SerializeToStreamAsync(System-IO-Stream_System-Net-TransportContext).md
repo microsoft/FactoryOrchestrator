@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[HttpMultipartFileContent](./Microsoft-FactoryOrchestrator-Core-HttpMultipartFileContent.md 'Microsoft.FactoryOrchestrator.Core.HttpMultipartFileContent')
 ## HttpMultipartFileContent.SerializeToStreamAsync(System.IO.Stream, System.Net.TransportContext) Method
 Serializes the stream.  

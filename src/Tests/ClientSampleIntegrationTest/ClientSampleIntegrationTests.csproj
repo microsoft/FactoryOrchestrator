@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
-    <ProjectReference Include="..\..\ClientSample\ClientSample.csproj" />
+    <ProjectReference Include="..\..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="..\..\ClientSample\Microsoft.FactoryOrchestrator.ClientSample.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">

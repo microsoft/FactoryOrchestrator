@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[TaskListSummary](./Microsoft-FactoryOrchestrator-Core-TaskListSummary.md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary')
 ## TaskListSummary.operator ==(Microsoft.FactoryOrchestrator.Core.TaskListSummary, Microsoft.FactoryOrchestrator.Core.TaskListSummary) Operator
 Implements the operator ==.  

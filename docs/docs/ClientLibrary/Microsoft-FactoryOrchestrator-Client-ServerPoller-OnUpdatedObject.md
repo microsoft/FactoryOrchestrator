@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorClientLibrary](./FactoryOrchestratorClientLibrary.md 'FactoryOrchestratorClientLibrary')
+#### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
 ### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[ServerPoller](./Microsoft-FactoryOrchestrator-Client-ServerPoller.md 'Microsoft.FactoryOrchestrator.Client.ServerPoller')
 ## ServerPoller.OnUpdatedObject Event
 Event raised when a new object is received. It is only thrown if the object has changed since last polled.  

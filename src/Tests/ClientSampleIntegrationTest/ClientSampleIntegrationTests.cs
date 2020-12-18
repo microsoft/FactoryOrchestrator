@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 namespace Microsoft.FactoryOrchestrator.Test
 {
     /// <summary>
-    /// This is a manual test which uses the ClientSample to verify the FactoryOrchestratorService is functioning properly.
+    /// This is a manual test which uses the Microsoft.FactoryOrchestrator.ClientSample to verify the FactoryOrchestratorService is functioning properly.
     /// 
     /// It validates a variety of service functions, including task execution using the given test content.
     /// The amount of validation done is dependent on the given test content, but it can validate:
@@ -80,7 +80,7 @@ namespace Microsoft.FactoryOrchestrator.Test
         public void RunClientSample()
         {
             _testExecuted = true;
-            Logger.LogMessage($"ClientSample {_serviceIp} {_testContentSrc} {_testContentDest} {_logDest}");
+            Logger.LogMessage($"Microsoft.FactoryOrchestrator.ClientSample {_serviceIp} {_testContentSrc} {_testContentDest} {_logDest}");
             Logger.LogMessage($"verifyPassed {_verifyPassed}");
 
             if (_cleanLogFolder && Directory.Exists(_logDest))
@@ -88,7 +88,7 @@ namespace Microsoft.FactoryOrchestrator.Test
                 Directory.Delete(_logDest, true);
             }
             // Run client sample, will create a testlist based on files in _testContentSrc if one isn't found in _testContentSrc
-            var result = ClientSample.FactoryOrchestratorNETCoreClientSample.Main(new string[] { _serviceIp, _testContentSrc, _testContentDest, _logDest }).Result;
+            var result = Microsoft.FactoryOrchestrator.ClientSample.FactoryOrchestratorNETCoreClientSample.Main(new string[] { _serviceIp, _testContentSrc, _testContentDest, _logDest }).Result;
 
             if (_verifyPassed)
             {
