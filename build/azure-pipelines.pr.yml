@@ -16,8 +16,11 @@ jobs:
     BuildConfiguration: 'Release'
   steps:
   - template: ./templates/template-build-test-service.yml
+  - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\AnyCPU'
+    artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
   - template: ./templates/template-ci-compliance.yml
 - job: "Build_FactoryOrchestrator_App"
+  dependsOn: "Build_Test_FactoryOrchestrator_Service"
   strategy:
     matrix:
       Release_x86:
@@ -31,6 +34,12 @@ jobs:
         BuildConfiguration: 'Release'
     maxParallel: '3'
   steps:
+  - download: current
+    artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+      targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
   - template: ./templates/template-build-app.yml
 - job: "Build_Docs_Check_For_Changes"
   steps:

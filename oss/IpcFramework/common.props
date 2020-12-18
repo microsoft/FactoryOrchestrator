@@ -31,9 +31,9 @@
     <DefineConstants>DISABLE_DYNAMIC_CODE_GENERATION</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
-    <OutputPath>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+    <OutDir>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
-    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+    <OutDir>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

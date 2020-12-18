@@ -1,0 +1,30 @@
+steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      arguments: '$(System.DefaultWorkingDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(System.DefaultWorkingDirectory)\src\ --configuration $(BuildConfiguration) -r win-x64 --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_Service_x64_MsBuild.log;Verbosity=Detailed'
+    displayName: 'dotnet build $(BuildConfiguration)'
+    condition: succeeded()
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      arguments: '$(System.DefaultWorkingDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(System.DefaultWorkingDirectory)\src\ --configuration $(BuildConfiguration) -r win-x86 --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_Service_x86_MsBuild.log;Verbosity=Detailed'
+    displayName: 'dotnet build $(BuildConfiguration)'
+    condition: succeeded()
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      arguments: '$(System.DefaultWorkingDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(System.DefaultWorkingDirectory)\src\ --configuration $(BuildConfiguration) -r win-arm --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_Service_arm_MsBuild.log;Verbosity=Detailed'
+    displayName: 'dotnet build $(BuildConfiguration)'
+    condition: succeeded()
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      arguments: '$(System.DefaultWorkingDirectory)\src\Service\FactoryOrchestratorService.csproj -p:SolutionDir=$(System.DefaultWorkingDirectory)\src\ --configuration $(BuildConfiguration) -r win-arm64 --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_Service_arm64_MsBuild.log;Verbosity=Detailed'
+    displayName: 'dotnet build $(BuildConfiguration)'
+    condition: succeeded()
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish build logs as artifact'
+    inputs:
+      artifactName: MSBuildLog_Service_Runtimes
+      targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\*Service*MsBuild.log

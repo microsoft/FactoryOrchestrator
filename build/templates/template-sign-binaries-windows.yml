@@ -1,8 +1,12 @@
 steps:
-- task: DownloadBuildArtifacts@0
-  inputs:
-    buildType: current
-    artifactName: unsignedbinaries
+- download: current
+  artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+- download: current
+  artifact: UnsignedBin_$(BuildConfiguration)_x86
+- download: current
+  artifact: UnsignedBin_$(BuildConfiguration)_x64
+- download: current
+  artifact: UnsignedBin_$(BuildConfiguration)_arm
 
 - powershell: |
     $vstsCommandString = "vso[task.setvariable variable=SignedOutput]$(Build.ArtifactStagingDirectory)\signedbin\"

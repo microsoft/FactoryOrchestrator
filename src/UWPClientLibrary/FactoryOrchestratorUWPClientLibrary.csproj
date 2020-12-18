@@ -55,6 +55,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FactoryOrchestratorUWPClient.cs" />
+    <Compile Include="obj\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\FactoryOrchestratorUWPClientLibrary.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +73,11 @@
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+
+  <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile">
+    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+  </Target>
+
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

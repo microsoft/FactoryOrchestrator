@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -28,9 +29,9 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
-    <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+    <OutDir>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
-    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+    <OutDir>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

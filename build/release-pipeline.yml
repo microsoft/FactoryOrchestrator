@@ -5,28 +5,16 @@ resources:
     type: github
     endpoint: ComplianceGHRepo
     name: PowerShell/compliance
-
-queue:
-  name: Package ES Standard Build
-  timeoutInMinutes: 60
-  cancelTimeoutInMinutes: 5
-  demands:
-    - msbuild
-    - visualstudio
-    - cmd
-
-name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
-
-trigger:
-  tags:
-    include:
-    - OSBuild*
+    ref: master
 
 variables:
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     VPACKNAME: ''
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     VPACKNAME: '.$(Build.SourceBranchName)'
+    SKIPSIGNING: 'True'
+
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
 stages:
   - stage: 'Build_Test_FactoryOrchestrator_Windows'
@@ -35,15 +23,22 @@ stages:
       demands:
       - msbuild
       - visualstudio
+
     jobs:
     - job: "Build_Test_Publish_FactoryOrchestrator_Service"
       variables: 
         BuildConfiguration: 'Release'
+        BuildPlatform: 'AnyCPU'
       steps:
       - checkout: self
       - checkout: ComplianceRepo
       - template: ./templates/template-build-test-service.yml
-      - template: ./templates/template-publish-build-artifacts.yml
+      - template: ./templates/template-build-service-windows-runtimes.yml
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\AnyCPU' 
+          artifactName: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+
     - job: "Build_FactoryOrchestrator_App"
       strategy:
         matrix:
@@ -59,6 +54,11 @@ stages:
         maxParallel: '3'
       steps:
       - template: ./templates/template-build-app.yml
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin' 
+          artifactName: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+
     - job: "Build_Docs_Check_For_Changes"
       steps:
       - template: ./templates/template-checkdocs.yml
@@ -87,38 +87,99 @@ stages:
         steps:
         - checkout: self
           clean: true
+        
         - checkout: ComplianceRepo
           clean: true
+        
+        - task: PkgESSetupBuild@10
+          displayName: 'Package ES - Setup Build'
+          inputs:
+            branchVersion: true
+            branchVersionExcludeBranch: 'main'
+            productName: 'FactoryOrchestrator'
+            disableOutputRedirect: true
+            disableMsbuildVersion: true
+            useDfs: true
+        
+        - powershell: |
+            if ($env:VPACKNAME -eq "") {
+              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
+              Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
+            }
+            else {
+              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:TFS_PACKAGEVERSIONNUMBER"
+            Write-Output "Using $env:TFS_PACKAGEVERSIONNUMBER as VPack version"
+            }
+          displayName: 'Set VPack version'
+
+        - powershell: |
+            Get-Item -Path env:* | Sort-Object Name
+          displayName: "Print all variables"
+        
         - template: assembly-module-compliance.yml@ComplianceRepo
-        parameters:
-          # binskim
-          AnalyzeTarget: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/**/.dll;$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/**/.exe'
-          AnalyzeSymPath: 'SRV*'
-          # component-governance
-          sourceScanPath: '$(Build.SourcesDirectory)/src'
-          # credscan
-          suppressionsFile: 'build/config/CredScanSuppressions.json'
-          # TermCheck
-          optionsRulesDBPath: ''
-          optionsFTPath: ''
-          # tsa-upload
-          codeBaseName: 'FactoryOrchestrator'
-          # selections
-          APIScan: true # set to false when not using Windows APIs.
+          parameters:
+            # binskim
+            AnalyzeTarget: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/**/.dll;$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/**/.exe'
+            AnalyzeSymPath: 'SRV*'
+            # component-governance
+            sourceScanPath: '$(Build.SourcesDirectory)/src'
+            # credscan
+            suppressionsFile: 'build/config/CredScanSuppressions.json'
+            # TermCheck
+            optionsRulesDBPath: ''
+            optionsFTPath: ''
+            # tsa-upload
+            codeBaseName: 'FactoryOrchestrator'
+            # selections
+            APIScan: true # set to false when not using Windows APIs.
+
+        - task: PkgESLateTasks@10
+          displayName: 'PkgES Finalize and Cleanup'
 
   - stage: 'Publish_vPacks_Sign_Publish_NuGets'
     dependsOn:
     - 'compliance'
+    pool:
+      name: Package ES Standard Build
     jobs:
       - job: Compliance_Job
-        pool:
-          name: Package ES Standard Build
         steps:
         - checkout: self
-          clean: true
+          clean: true          
+
+        - task: PkgESSetupBuild@10
+          displayName: 'Package ES - Setup Build'
+          inputs:
+            branchVersion: true
+            branchVersionExcludeBranch: 'main'
+            productName: 'FactoryOrchestrator'
+            disableOutputRedirect: true
+            disableMsbuildVersion: true
+
+        - powershell: |
+            if ($env:VPACKNAME -eq "") {
+              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
+              Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
+            }
+            else {
+              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:TFS_PACKAGEVERSIONNUMBER"
+            Write-Output "Using $env:TFS_PACKAGEVERSIONNUMBER as VPack version"
+            }
+          displayName: 'Set VPack version'
+
+        - powershell: |
+            Get-Item -Path env:* | Sort-Object Name
+          displayName: "Print all variables"
+
         - template: ./templates/template-publish-vpack-service.yml
+
         - template: ./templates/template-publish-vpack-other.yml
+
         - template: ./templates/template-publish-nuget.yml
+
+        - task: PkgESLateTasks@10
+          displayName: 'PkgES Finalize and Cleanup'
+
 
 
 # NOTES FOR PEOPLE USING THIS BUILD DEFINITION
@@ -127,16 +188,6 @@ stages:
 #Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
 
 steps:
-- task: PkgESSetupBuild@10
-  displayName: 'Package ES - Setup Build'
-  inputs:
-    branchVersion: true
-    branchVersionExcludeBranch: 'main'
-    productName: 'FactoryOrchestrator'
-    disableOutputRedirect: true
-    disableMsbuildVersion: true
-    useDfs: true
-
 - task: NuGetToolInstaller@0
   displayName: 'Use NuGet 5.7.0'
   inputs:

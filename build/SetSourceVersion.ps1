@@ -127,7 +127,7 @@ ForEach ($appx in $appxs)
     $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
 
     $appxContents = $currentFileContent |
-                        ForEach-Object{$_ -replace 'Identity Version="[0-9,.]+?"', "Identity Version=`"$fullVersion`"" } |
+                        ForEach-Object{$_ -replace 'Identity Version="[0-9,.]+?"', "Identity Version=`"$fullVersion.0`"" } |
                         Set-Content -Path $tempFile
 
     Write-Host "Moving $tempFile to $appx"
