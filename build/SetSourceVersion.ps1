@@ -13,8 +13,20 @@ $ErrorActionPreference = "stop"
 [xml]$customprops = Get-Content "$PSScriptRoot\..\src\common.props"
 $msbldns = "http://schemas.microsoft.com/developer/msbuild/2003"
 $ns = @{msbld = "$msbldns"}
-$fullVersion = Select-Xml -Xml $customprops -XPath "//msbld:Version" -Namespace $ns | Select-Object -First 1
-Write-Host "Version is $fullVersion"
+$assemblyVersion = Select-Xml -Xml $customprops -XPath "//msbld:VersionPrefix" -Namespace $ns | Select-Object -First 1
+Write-Host "VersionPrefix/AssemblyFileVersion is $assemblyVersion"
+
+# Version suffix is set in ADO builds if build isn't a "tag" or main branch.
+$versionSuffix = $env:VERSIONSUFFIX
+if ([string]::IsNullOrEmpty($versionSuffix))
+{
+    $productVersion = $assemblyVersion
+}
+else
+{
+    $productVersion = "$assemblyVersion-$env:VersionSuffix"    
+}
+Write-Host "ProductVersion/AssemblyInformationalVersion is $productVersion"
 
 if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
 {
@@ -26,7 +38,7 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
     $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
 
     Write-Host "Using temp file $tempFile"
-    Write-Host "Creating assembly info file for:" $file.FullName " version:" $fullVersion
+    Write-Host "Creating assembly info file for:" $file.FullName " version:" $assemblyVersion
 
     #now load all content of the original file and rewrite modified to the same file
      if ($tfs -eq $true)
@@ -40,8 +52,9 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
                             ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription(""PrivateBuild"")]" }
     }
 
-    $assemblyContents = $assemblyContents | ForEach-Object{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$fullVersion"")" } |
-                        ForEach-Object{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$fullVersion"")" } |
+    $assemblyContents = $assemblyContents | ForEach-Object{$_ -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$assemblyVersion"")" } |
+    ForEach-Object{$_ -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$assemblyVersion"")" } |
+    ForEach-Object{$_ -replace 'AssemblyInformationalVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyInformationalVersion(""$productVersion"")" } |
                         Set-Content $tempFile
 
     Write-Host "Sucessfully modified $tempFile"
@@ -54,10 +67,10 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
     if (Test-Path $destFile -PathType Leaf)
     {
         $currentFileContent = Get-Content $destFile
-        $versionStr = $currentFileContent | Where-Object {$_ -like "*AssemblyVersion(*"}
+        $versionStr = $currentFileContent | Where-Object {$_ -like "*AssemblyInformationalVersion(*"}
         if ($null -ne $versionStr)
         {
-            if ($versionStr -match $buildNumber)
+            if ($versionStr -match $productVersion)
             {
                 $skip = $true
             }
@@ -81,20 +94,28 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
     }
     else
     {
-        Write-Host "Version did not need updating, it is $fullVersion"
+        Write-Host "Version did not need updating, it is $assemblyVersion"
     }
 }
 
 $psds = Get-ChildItem -Path $SrcPath -Filter "*.psd1"
 ForEach ($psd in $psds)
 {
-    $currentFileContent = Get-Content $psd
-    $versionStr = $currentFileContent | Where-Object {$_ -like "*ModuleVersion*"}
-    if ($null -ne $versionStr)
+    $destDir = $psd.DirectoryName + "\obj\"
+    $null = New-Item -Path $destDir -ItemType Directory -Force
+    $destFile = $destDir + $psd.Name
+
+    if (Test-Path $destFile -PathType Leaf)
     {
-        if ($versionStr -match $fullVersion)
+        $currentFileContent = Get-Content $destFile
+        $versionStr = $currentFileContent | Where-Object {$_ -like "*ModuleVersion*"}
+        if ($null -ne $versionStr)
         {
-            continue
+            if ($versionStr -match $assemblyVersion)
+            {
+                Write-Host "$psd version is up-to-date"
+                continue
+            }
         }
     }
 
@@ -102,11 +123,11 @@ ForEach ($psd in $psds)
     $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
 
     $psdContents = Get-Content $psd.FullName |
-                        ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$fullVersion'"} |
+                        ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$assemblyVersion'"} |
                         Set-Content $tempFile
 
-    Write-Host "Moving $tempFile to $psd"
-    Move-Item $tempFile $psd -force
+    Write-Host "Moving $tempFile to $destFile"
+    Move-Item $tempFile $destFile -force
 }
 
 
@@ -117,7 +138,7 @@ ForEach ($appx in $appxs)
     $versionStr = $currentFileContent | Where-Object {$_ -like "*Identity Version=*"}
     if ($null -ne $versionStr)
     {
-        if ($versionStr -match $fullVersion)
+        if ($versionStr -match $assemblyVersion)
         {
             continue
         }
@@ -127,7 +148,7 @@ ForEach ($appx in $appxs)
     $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
 
     $appxContents = $currentFileContent |
-                        ForEach-Object{$_ -replace 'Identity Version="[0-9,.]+?"', "Identity Version=`"$fullVersion.0`"" } |
+                        ForEach-Object{$_ -replace 'Identity Version="[0-9,.]+?"', "Identity Version=`"$assemblyVersion.0`"" } |
                         Set-Content -Path $tempFile
 
     Write-Host "Moving $tempFile to $appx"

@@ -1,3 +1,4 @@
+# Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_$(BuildConfiguration)_$(BuildPlatform).
 steps:
 - download: current
   artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
@@ -14,42 +15,64 @@ steps:
     Write-Host "##$vstsCommandString"
   displayName: Define signedOutput variables
 
+# ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
-      # the folder which contains the binaries to sign
-      buildOutputPath: '$(System.ArtifactsDirectory)\unsignedbinaries\'
-      # the location to put the signed output
-      signOutputPath: '$(SignedOutput)'
-      # the certificate ID to use
-      certificateId: "CP-231522"
-      # The file pattern to use
-      # If not using minimatch: comma separated, with * supported
-      # If using minimatch: newline separated, with !, **, and * supported.
-      # See link in the useMinimatch comments.
-      pattern: |
-        '**/Microsoft.FactoryOrchestrator*.dll'
-        '**/Microsoft.FactoryOrchestrator*.exe'
-      # decides if the task should use minimatch for the pattern matching.
-      # https://github.com/isaacs/minimatch#features
-      useMinimatch: true
+    # the folder which contains the binaries to sign
+    buildOutputPath: '$(System.ArtifactsDirectory)\unsignedbinaries\'
+    # the location to put the signed output
+    signOutputPath: '$(SignedOutput)'
+    # the certificate ID to use
+    certificateId: "​​CP-230012"
+    # The file pattern to use
+    # If not using minimatch: comma separated, with * supported
+    # If using minimatch: newline separated, with !, **, and * supported.
+    # See link in the useMinimatch comments.
+    pattern: |
+      '**/Microsoft.FactoryOrchestrator*.dll'
+      '**/Microsoft.FactoryOrchestrator*.exe'
+    # decides if the task should use minimatch for the pattern matching.
+    # https://github.com/isaacs/minimatch#features
+    useMinimatch: true
+    shouldSign: true
+    signingService: 'FactoryOrchestratorSigning'
+  condition: and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true'))
 
+# CP-231522​ is for 3rd party authored binaries (OSS).
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
-      # the folder which contains the binaries to sign
-      buildOutputPath: '$(System.ArtifactsDirectory)\unsignedbinaries\'
-      # the location to put the signed output
-      signOutputPath: '$(SignedOutput)'
-      # the certificate ID to use
-      certificateId: "CP-230012"
-      # The file pattern to use
-      # If not using minimatch: comma separated, with * supported
-      # If using minimatch: newline separated, with !, **, and * supported.
-      # See link in the useMinimatch comments.
+    # the folder which contains the binaries to sign
+    buildOutputPath: '$(System.ArtifactsDirectory)\unsignedbinaries\'
+    # the location to put the signed output
+    signOutputPath: '$(SignedOutput)'
+    # the certificate ID to use
+    certificateId: "CP-231522​"
+    # The file pattern to use
+    # If not using minimatch: comma separated, with * supported
+    # If using minimatch: newline separated, with !, **, and * supported.
+    # See link in the useMinimatch comments.
+    pattern: |
+      '**/JKang.*.dll'
+      '**/PE-Utility.dll'
+      '**/PeterKottas.*.dll'
+      '**/DasMulli.*.dll'
+    # decides if the task should use minimatch for the pattern matching.
+    # https://github.com/isaacs/minimatch#features
+    useMinimatch: true
+    shouldSign: true
+    signingService: 'FactoryOrchestratorSigning'
+  condition: and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true'))
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: "$(System.ArtifactsDirectory)/unsignedbinaries/"
+    targetFolder: "$(SignedOutput)"
+  displayName: "Copy unsigned binaries as if signed because SKIPSIGNING set"
+  condition: not(and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true')))
+
+- template: EsrpScan.yml@ComplianceRepo
+  parameters:
+      scanPath: $(SignedOutput)
       pattern: |
-        '**/JKang.*.dll'
-        '**/PE-Utility.dll'
-        '**/PeterKottas.*.dll'
-        '**/DasMulli.*.dll'
-      # decides if the task should use minimatch for the pattern matching.
-      # https://github.com/isaacs/minimatch#features
-      useMinimatch: true
+        **\*.dll
+        **\*.exe

@@ -6,8 +6,10 @@
   <PropertyGroup>
     <PackageId>Microsoft.FactoryOrchestrator.UWPClient</PackageId>
     <Description>A UWP class library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service from a UWP app. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
+    <!-- We use the generated nuspec in the release build, but not the package -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageVersion>$(VersionPrefix)$(VersionSuffix)</PackageVersion>
   </PropertyGroup>
-
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -45,6 +47,7 @@
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
@@ -53,6 +56,10 @@
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageOutputPath>$(OutputPath)\..\$(TargetName).NuGet</PackageOutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="FactoryOrchestratorUWPClient.cs" />
     <Compile Include="obj\AssemblyInfo.cs" />
@@ -64,6 +71,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NuGet.Build.Tasks.Pack" Version="5.8.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj">
       <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
       <Name>Microsoft.FactoryOrchestrator.Client</Name>
@@ -73,11 +84,9 @@
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-
   <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
-
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

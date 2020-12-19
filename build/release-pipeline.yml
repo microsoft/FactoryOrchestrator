@@ -9,10 +9,15 @@ resources:
 
 variables:
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
-    VPACKNAME: ''
+    VERSIONSUFFIX: ''
+    VERSIONSUFFIXVPACK: ''
+    VERSIONSUFFIXDOTNET: ' '
+    SKIPSIGNING: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
-    VPACKNAME: '.$(Build.SourceBranchName)'
-    SKIPSIGNING: 'True'
+    VERSIONSUFFIX: '$(Build.SourceBranchName)'
+    VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
+    VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
+    SKIPSIGNING: 'true'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
@@ -32,12 +37,11 @@ stages:
       steps:
       - checkout: self
       - checkout: ComplianceRepo
+      - template: ./templates/template-set-build-version.yml
       - template: ./templates/template-build-test-service.yml
       - template: ./templates/template-build-service-windows-runtimes.yml
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\AnyCPU' 
-          artifactName: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
+        artifact: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
 
     - job: "Build_FactoryOrchestrator_App"
       strategy:
@@ -53,6 +57,7 @@ stages:
             BuildConfiguration: 'Release'
         maxParallel: '3'
       steps:
+      - template: ./templates/template-set-build-version.yml
       - download: current
         artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
       - task: CopyFiles@2
@@ -60,13 +65,15 @@ stages:
           sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
       - template: ./templates/template-build-app.yml
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)' 
-          artifactName: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
+        artifact: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+      - publish: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\obj\$(BuildConfiguration)\*.nuspec'
+        artifact: 'UWPClient_Nuspecs'
+      condition: eq(variables['BuildPlatform'], 'x86')
 
     - job: "Build_Docs_Check_For_Changes"
       steps:
+      - template: ./templates/template-set-build-version.yml
       - template: ./templates/template-checkdocs.yml
 
   - stage: 'Sign_Binaries'
@@ -80,6 +87,7 @@ stages:
     jobs:
       - job: 'Sign_Windows'
         steps:
+        - template: ./templates/template-set-build-version.yml
         - download: current
           artifact: UnsignedBin_*
         - task: CopyFiles@2
@@ -99,6 +107,8 @@ stages:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_ARM"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/ARM"
         - template: ./templates/template-sign-binaries-windows.yml
+        - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\signedbin'
+          artifact: 'SignedBin_$(BuildConfiguration)_AllPlatforms'
 
   - stage: compliance
     displayName: Compliance
@@ -115,6 +125,8 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         
+        - template: ./templates/template-set-build-version.yml
+
         - task: PkgESSetupBuild@10
           displayName: 'Package ES - Setup Build'
           inputs:
@@ -123,27 +135,19 @@ stages:
             productName: 'FactoryOrchestrator'
             disableOutputRedirect: true
             disableMsbuildVersion: true
-            useDfs: true
-        
-        - powershell: |
-            if ($env:VPACKNAME -eq "") {
-              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
-              Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
-            }
-            else {
-              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:TFS_PACKAGEVERSIONNUMBER"
-            Write-Output "Using $env:TFS_PACKAGEVERSIONNUMBER as VPack version"
-            }
-          displayName: 'Set VPack version'
+            useDfs: false
 
         - powershell: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
-        
+
+        - download: 'current'
+          artifact: 'SignedBin_Release_AllPlatforms'
+
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
             # binskim
-            AnalyzeTarget: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/**/.dll;$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/**/.exe'
+            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Release_AllPlatforms/**/*.dll;$(Pipeline.Workspace)/SignedBin_Release_AllPlatforms/**/*.exe'
             AnalyzeSymPath: 'SRV*'
             # component-governance
             sourceScanPath: '$(Build.SourcesDirectory)/src'
@@ -154,22 +158,58 @@ stages:
             optionsFTPath: ''
             # tsa-upload
             codeBaseName: 'FactoryOrchestrator'
-            # selections
+            # API Scan
+            softwareFolder: '$(Pipeline.Workspace)/SignedBin_Release_AllPlatforms'
+            softwareName: 'FactoryOrchestrator'
+            softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
             APIScan: true # set to false when not using Windows APIs.
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
 
-  - stage: 'Publish_vPacks_Sign_Publish_NuGets'
+  - stage: 'Sign_Publish_NuGet'
+    dependsOn:
+    - 'compliance'
+    pool:
+      name: "Hosted Windows 2019 with VS2019"
+      demands:
+      - msbuild
+      - visualstudio
+    jobs:
+      - job: Sign_Publish_NuGet
+        steps:
+        - checkout: self
+          clean: true
+        
+        - template: ./templates/template-set-build-version.yml
+
+        - powershell: |
+            Get-Item -Path env:* | Sort-Object Name
+          displayName: "Print all variables"
+
+        - download: 'current'
+          artifact: 'SignedBin_$(BuildConfiguration)_AllPlatforms'
+
+        - download: 'current'
+          artifact: 'UWPClient_Nuspecs'
+
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: "$(Pipeline.Workspace)/SignedBin_$(BuildConfiguration)_AllPlatforms"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/"
+
+        - template: ./templates/template-sign-publish-nuget.yml
+
+  - stage: 'Publish_vPack'
     dependsOn:
     - 'compliance'
     pool:
       name: Package ES Standard Build
     jobs:
-      - job: Compliance_Job
+      - job: Publish_vPacks
         steps:
         - checkout: self
-          clean: true          
+          clean: true    
 
         - task: PkgESSetupBuild@10
           displayName: 'Package ES - Setup Build'
@@ -179,555 +219,27 @@ stages:
             productName: 'FactoryOrchestrator'
             disableOutputRedirect: true
             disableMsbuildVersion: true
-
-        - powershell: |
-            if ($env:VPACKNAME -eq "") {
-              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
-              Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
-            }
-            else {
-              Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:TFS_PACKAGEVERSIONNUMBER"
-            Write-Output "Using $env:TFS_PACKAGEVERSIONNUMBER as VPack version"
-            }
-          displayName: 'Set VPack version'
+        
+        - template: ./templates/template-set-build-version.yml
 
         - powershell: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
+        - download: 'current'
+          artifact: 'SignedBin_$(BuildConfiguration)_AllPlatforms'
+
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: "$(Pipeline.Workspace)/SignedBin_$(BuildConfiguration)_AllPlatforms"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/"
+
         - template: ./templates/template-publish-vpack-service.yml
 
         - template: ./templates/template-publish-vpack-other.yml
 
-        - template: ./templates/template-publish-nuget.yml
+        - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+          artifact: VPackManifests
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
-
-
-
-# NOTES FOR PEOPLE USING THIS BUILD DEFINITION
-# XES_DfsMsBuildLogDir, XES_OUTDIR, and TFS_BUILDNUMBER are defined by PackageES build agents. If you are using this definition on another pool, you'll need to define these variables for yourself
-#Your build pipeline references the ‘BuildPlatform’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
-#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
-
-steps:
-- task: NuGetToolInstaller@0
-  displayName: 'Use NuGet 5.7.0'
-  inputs:
-    versionSpec: 5.7.0
-
-# In the Microsoft Azure DevOps tenant, NuGetCommand is ambiguous.
-# This should be `task: NuGetCommand@2`
-- task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
-  displayName: 'NuGet restore'
-  inputs:
-    command: 'restore'
-    restoreSolution: '**\*.sln'
-
-- powershell: |
-    if ($env:VPACKNAME -eq "") {
-      Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:XES_NUGETPACKVERSIONNOBETA"
-      Write-Output "Using $env:XES_NUGETPACKVERSIONNOBETA as VPack version"
-    }
-    else {
-      Write-Output "##vso[task.setvariable variable=VPACKVERSION;]$env:TFS_PACKAGEVERSIONNUMBER"
-    Write-Output "Using $env:TFS_PACKAGEVERSIONNUMBER as VPack version"
-    }
-  displayName: 'Set VPack version'
-
-- powershell: |
-    Get-Item -Path env:* | Sort-Object Name
-  displayName: "Print all variables"
-
-- task: VSBuild@1
-  displayName: 'Build solution Any CPU'
-  inputs:
-    solution: 'src/FactoryOrchestrator.sln'
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_anycpu_MsBuild.log;Verbosity=Detailed'
-    platform: 'Any CPU'
-    configuration: '$(BuildConfiguration)'
-    createLogFile: true
-    clean: false
-    maximumCpuCount: true
-
-- task: VSBuild@1
-  displayName: 'Build solution x86'
-  inputs:
-    solution: 'src/FactoryOrchestrator.sln'
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x86_MsBuild.log;Verbosity=Detailed'
-    platform: 'x86'
-    configuration: '$(BuildConfiguration)'
-    createLogFile: true
-    clean: false
-    maximumCpuCount: true
-
-- task: VSBuild@1
-  displayName: 'Build solution x64'
-  inputs:
-    solution: 'src/FactoryOrchestrator.sln'
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_x64_MsBuild.log;Verbosity=Detailed'
-    platform: 'x64'
-    configuration: '$(BuildConfiguration)'
-    createLogFile: true
-    clean: false
-    maximumCpuCount: true
-
-- task: VSBuild@1
-  displayName: 'Build solution ARM'
-  inputs:
-    solution: 'src/FactoryOrchestrator.sln'
-    msbuildArgs: '/fl /flp:LogFile=$(XES_DfsMsBuildLogDir)\$(BuildConfiguration)_arm_MsBuild.log;Verbosity=Detailed'
-    platform: 'ARM'
-    configuration: '$(BuildConfiguration)'
-    createLogFile: true
-    clean: false
-    maximumCpuCount: true
-
-- task: VSTest@2
-  displayName: 'Run UnitTests'
-  inputs:
-    testAssemblyVer2: |
-      bin/Tests/**/*UnitTests.dll
-      bin/Tests/**/JKang*Tests.dll
-    searchFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)'
-    codeCoverageEnabled: true
-    runInParallel: true
-    vsTestVersion: latest
-    runSettingsFile: '$(System.DefaultWorkingDirectory)\src\Tests\defaults.runsettings'
-
-- task: PowerShell@2
-  displayName: 'Create NET Core Test Files Zip'
-  inputs:
-    targetType: filePath
-    filePath: ./build/internal/CreateTestZip.ps1
-    arguments: '-TestBinRoot $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\tests\$(BuildConfiguration)\AnyCPU\ -OutFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Tests\TestZip'
-    failOnStderr: true
-  condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-  timeoutInMinutes: 5
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service x86'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x86\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-x86 --verbosity Detailed'
-    zipAfterPublish: False
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  enabled: true
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service x64'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\x64\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-x64 --verbosity Detailed'
-    zipAfterPublish: False
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  enabled: true
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service ARM'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-arm --verbosity Detailed'
-    zipAfterPublish: False
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  enabled: true
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service ARM64'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\ARM64\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-arm64 --force --verbosity Detailed'
-    zipAfterPublish: false
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  enabled: true
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FactoryOrchestratorClient PowerShell'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\bin\release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish --force --verbosity Detailed'
-    zipAfterPublish: false
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy NOTICE to Drop x86'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x86\Microsoft.FactoryOrchestrator.Service_SCD'
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  
-- task: CopyFiles@2
-  displayName: 'Copy NOTICE to Drop x64'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\x64\Microsoft.FactoryOrchestrator.Service_SCD'
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  
-- task: CopyFiles@2
-  displayName: 'Copy NOTICE to Drop ARM'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM\Microsoft.FactoryOrchestrator.Service_SCD'
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  
-- task: CopyFiles@2
-  displayName: 'Copy NOTICE to Drop ARM64'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.SourcesDirectory)\bin\release\ARM64\Microsoft.FactoryOrchestrator.Service_SCD'
-  condition: eq(variables['BuildConfiguration'], 'Release')
-
-- task: PowerShell@2
-  displayName: 'Create Microsoft.FactoryOrchestrator.Service Manifest for VPack'
-  inputs:
-    targetType: filePath
-    filePath: ./build/internal/CreateServiceManifestForPkgES.ps1
-    arguments: '-BuildConfiguration $(BuildConfiguration) -BinFolder $(Build.SourcesDirectory)\bin -NtTreeRootFolder manufacturing\FactoryOrchestrator'
-    failOnStderr: true
-  condition: and(succeeded(), eq(variables['BuildConfiguration'], 'Release'))
-  timeoutInMinutes: 5
-
-- task: CopyFiles@2
-  displayName: 'Copy Artifacts to DFS DROP for: $(XES_DFSDROP)'
-  inputs:
-    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin'
-    TargetFolder: '$(XES_DFSDROP)\'
-
-- task: CopyFiles@2
-  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - Microsoft.FactoryOrchestrator.Service publish'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\bin\'
-    TargetFolder: '$(XES_DFSDROP)\'
-  condition: eq(variables['BuildConfiguration'], 'Release')
-  enabled: true
-
-- task: PkgESSerializeForPostBuild@10
-  displayName: 'PkgES Post Build Serialization'
-
-#######
-#######
-####### All tasks after here run on only one job.
-#######
-#######
-
-- task: PublishSymbols@1
-  displayName: 'Source Index Symbols'
-  inputs:
-    SearchPattern: '$(XES_DFSDROP)\**\*.pdb'
-  condition: and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipartifacts'], 'true'))
-
-- task: ms-vscs-artifact.build-tasks.artifactSymbolTask-1.artifactSymbolTask@0
-  displayName: 'Publish to Symbols to Artifact Services'
-  inputs:
-    symbolServiceURI: 'https://microsoft.artifacts.visualstudio.com/DefaultCollection'
-    requestName: '$(system.teamProject)/$(Build.BuildNumber)/$(Build.BuildId)'
-    sourcePath: '$(XES_DFSDROP)'
-  condition: and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipartifacts'], 'true'))
-
-- task: BatchScript@1
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'Run script MakeAppxBundle.cmd'
-  inputs:
-    filename: build/internal/MakeAppxBundle.cmd
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy msixbundle to root of drop'
-  inputs:
-    SourceFolder: '$(XES_DFSDROP)\release\msixbundle\Multi\Microsoft.FactoryOrchestrator.App'
-    Contents: 'Microsoft.Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle'
-    TargetFolder: '$(XES_DFSDROP)\msixbundle'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipmsix'], 'true')))
-  
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack msixbundle'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\msixbundle'
-    pushPkgName: 'FactoryOrchestrator.msixbundle$(VPACKNAME)'
-    description: 'FactoryOrchestrator.msixbundle$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), and(ne(variables['skipmsix'], 'true'), ne(variables['skipvpack'], 'true'))))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop msixbundle'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), and(ne(variables['skipmsix'], 'true'), ne(variables['skipvpack'], 'true'))))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack ARM'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM\Microsoft.FactoryOrchestrator.Service_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.ARM$(VPACKNAME)'
-    description: 'FactoryOrchestrator.Service.ARM$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop ARM'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack ARM64'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\ARM64\Microsoft.FactoryOrchestrator.Service_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.ARM64$(VPACKNAME)'
-    description: 'FactoryOrchestrator.Service.ARM64$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop ARM64'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack x86'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x86\Microsoft.FactoryOrchestrator.Service_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.x86$(VPACKNAME)'
-    description: 'FactoryOrchestrator.Service.x86$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop x86'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack x64'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Release\x64\Microsoft.FactoryOrchestrator.Service_SCD'
-    pushPkgName: 'FactoryOrchestrator.Service.x64$(VPACKNAME)'
-    description: 'FactoryOrchestrator.Service.x64$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop x64'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
-- task: CopyFiles@2
-  displayName: 'Copy Client Libraries to root of drop'
-  inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\Microsoft.FactoryOrchestrator.UWPClient'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: CopyFiles@2
-  displayName: 'Copy NOTICE to Client Libraries'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'NOTICE.txt'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: CopyFiles@2
-  displayName: 'Copy XSD to Client Libraries'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\CoreLibrary'
-    Contents: 'FactoryOrchestratorXML.xsd'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: CopyFiles@2
-  displayName: 'Copy Client documentation to Client Libraries'
-  inputs:
-    SourceFolder: '$(XES_DFSDROP)\docfx'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\FactoryOrchestratorDocumentation'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: CopyFiles@2
-  displayName: 'Copy PowerShell Publish to Client Libraries'
-  inputs:
-    SourceFolder: '$(XES_DFSDROP)\Release\AnyCPU\FactoryOrchestratorPowerShellLibrary_Publish'
-    TargetFolder: '$(XES_DFSDROP)\ClientLibraries\PowerShell'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack Client Libraries'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\ClientLibraries'
-    pushPkgName: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
-    description: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop Client Libraries'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
-- task: CopyFiles@2
-  displayName: 'Copy Client Sample source to root of drop'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\ClientSample'
-    Contents: |
-     **\*.cs
-     **\*.csproj
-    TargetFolder: '$(XES_DFSDROP)\ClientSampleWSK'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: PowerShell@2
-  displayName: 'Modify Client Sample for WSK'
-  inputs:
-    targetType: filePath
-    filePath: ./build/internal/UpdateClientSampleForWSK.ps1
-    arguments: '-ProjectFolder $(XES_DFSDROP)\ClientSampleWSK'
-    failOnStderr: true
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-  timeoutInMinutes: 5
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack Client Sample WSK'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\ClientSampleWSK'
-    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
-    description: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop Client Sample'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack NET Core Tests'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Tests\TestZip'
-    pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
-    description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop  NET Core Tests'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-
-- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-  displayName: 'Component Detection'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
-  displayName: 'Run PoliCheck'
-  inputs:
-    targetType: F
-    optionsUEPATH: '$(Build.SourcesDirectory)\build\config\PolicheckExclusions.xml'
-  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
-  displayName: 'Run CredScan'
-  inputs:
-    debugMode: false
-    suppressionsFile: 'build/config/CredScanSuppressions.json'
-  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
-  displayName: 'Publish Security Analysis Logs'
-  inputs:
-    ArtifactName: 'ES_security_and_compliance_task_logs'
-  condition: and(succeededOrFailed(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
-
-- task: PkgESSecComp@11
-  displayName: 'Security and Compliance Bug Filer with vPack (disabled)'
-  inputs:
-    areaPath: 'OS\Core\SiGMa\Device Platform\OC - OneCore\Manufacturing'
-    iterationPath: 'OS'
-    bugTags: 'FactoryOrchestrator'
-    scanAll: false
-    checkInConfigPath: 'build/internal/GitCheckin.json'
-    taskLogVerbosity: Diagnostic
-  condition: and(succeededOrFailed(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: false
-
-- task: PkgESSecComp@11
-  displayName: 'Security and Compliance Bug Filer no vPack'
-  inputs:
-    areaPath: 'OS\Core\SiGMa\Device Platform\OC - OneCore\Manufacturing'
-    iterationPath: 'OS'
-    bugTags: 'FactoryOrchestrator'
-    scanAll: false
-    taskLogVerbosity: Diagnostic
-  condition: and(succeededOrFailed(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipseccomp'], 'true')))
-
-- task: PkgESFCIBGit@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'Package ES - Create PR for VPack Manifest to OS Repo'
-  inputs:
-    configPath: 'build/internal/GitCheckin.json'
-    binVersion: Custom
-    binVersionOverride: 'Production'
-  condition: and(and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')), and(ne(variables['skipgitsubmit'], 'true'), and(ne(variables['skipvpack'], 'true'), eq(variables['VPACKNAME'], ''))))
-  enabled: true
-
-- task: PkgESLateTasks@10
-  displayName: 'PkgES Finalize and Cleanup'
-  inputs:
-    dfsReleaseInPb: true
-  condition: eq(variables['XES_SERIALPOSTBUILDREADY'], 'True')

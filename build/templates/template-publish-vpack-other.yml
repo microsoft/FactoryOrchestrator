@@ -1,3 +1,4 @@
+# Creates vPacks for everything but the Service.
 steps:
 - task: PowerShell@2
   displayName: 'Create NET Core Test Files Zip'
@@ -8,12 +9,32 @@ steps:
     failOnStderr: true
   timeoutInMinutes: 5
 
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack NET Core Tests'
+  inputs:
+    sourceDirectory: '$(XES_DFSDROP)\Tests\TestZip'
+    pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
+    description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest NET Core Tests'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FactoryOrchestratorClient PowerShell'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish --verbosity Detailed --no-build'
+    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
     zipAfterPublish: false
   enabled: true
 
@@ -22,7 +43,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.UWPClient'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: succeeded()
 
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Client Libraries'
@@ -30,7 +51,7 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: 'NOTICE.txt'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: succeeded()
 
 - task: CopyFiles@2
   displayName: 'Copy XSD to Client Libraries'
@@ -38,14 +59,14 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)\src\CoreLibrary'
     Contents: 'FactoryOrchestratorXML.xsd'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: succeeded()
 
 - task: CopyFiles@2
   displayName: 'Copy PowerShell Publish to Client Libraries'
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries\PowerShell'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: succeeded()
 
 - task: PkgESVPack@10
   env:
@@ -55,8 +76,8 @@ steps:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
     pushPkgName: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
     description: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
   enabled: true
 
 - task: CopyFiles@2
@@ -65,7 +86,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 
 - task: CopyFiles@2
   displayName: 'Copy Client Sample source'
@@ -75,7 +96,7 @@ steps:
      **\*.cs
      **\*.csproj
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: succeeded()
 
 - task: PowerShell@2
   displayName: 'Modify Client Sample for WSK'
@@ -84,7 +105,7 @@ steps:
     filePath: ./build/internal/UpdateClientSampleForWSK.ps1
     arguments: '-ProjectFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
     failOnStderr: true
-  condition: and(succeeded(), eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'))
+  condition: succeeded()
   timeoutInMinutes: 5
 
 - task: PkgESVPack@10
@@ -95,8 +116,8 @@ steps:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
     pushPkgName: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
     description: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
   enabled: true
 
 - task: CopyFiles@2
@@ -105,24 +126,4 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
-
-- task: PkgESVPack@10
-  env:
-   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-  displayName: 'PkgES Create VPack NET Core Tests'
-  inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Tests\TestZip'
-    pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
-    description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
-  enabled: true
-
-- task: CopyFiles@2
-  displayName: 'Copy VPack Manifest NET Core Tests'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), ne(variables['skipvpack'], 'true'))
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))

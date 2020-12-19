@@ -1,3 +1,4 @@
+# Runs mkdocs to check if docs need updating on gh-pages.
 steps:
     - script: |
         cd $(Build.SourcesDirectory)

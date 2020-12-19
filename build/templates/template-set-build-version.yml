@@ -1,0 +1,12 @@
+# Retrieves build version.
+steps:
+  - powershell: |
+      [xml]$customprops = Get-Content "$env:SYSTEM_DEFAULTWORKINGDIRECTORY\common.props"
+      $msbldns = "http://schemas.microsoft.com/developer/msbuild/2003"
+      $ns = @{msbld = "$msbldns"}
+      $fullVersion = Select-Xml -Xml $customprops -XPath "//msbld:Version" -Namespace $ns | Select-Object -First 1
+      Write-Host "VersionPrefix is $fullVersion"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONPREFIX]$fullVersion"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    displayName: 'Get build version from common.props'

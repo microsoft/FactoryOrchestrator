@@ -1,10 +1,11 @@
+# Publishes Service. Creates Service vPacks.
 steps:
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service $(BuildPlatform)'
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-$(BuildPlatform) --verbosity Detailed'
+    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-$(BuildPlatform) --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
     zipAfterPublish: false
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop'
@@ -28,18 +29,11 @@ steps:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD'
     pushPkgName: 'FactoryOrchestrator.Service.$(BuildPlatform)$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.$(BuildPlatform)$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-  enabled: true
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 - task: CopyFiles@2
-  displayName: 'Copy VPack Manifest to Drop'
-  inputs:
-    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
-    Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
-  condition: and(succeeded(), and(eq(variables['XES_SERIALPOSTBUILDREADY'], 'True'), ne(variables['skipvpack'], 'true')))
-- task: CopyFiles@2
-  displayName: 'Copy Artifacts to DFS DROP: $(XES_DFSDROP) - Microsoft.FactoryOrchestrator.Service publish'
+  displayName: 'Copy Artifacts to VPackManifests - Microsoft.FactoryOrchestrator.Service publish'
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\'
-    TargetFolder: '$(XES_DFSDROP)\'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+

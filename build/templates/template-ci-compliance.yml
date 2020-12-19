@@ -1,3 +1,4 @@
+# Runs compliance tasks for CI builds.
 steps:
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
     displayName: 'Scan for Secrets'

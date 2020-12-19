@@ -1,3 +1,4 @@
+# Builds UWP library and App for desired architecture. Assumes dotnet build src\FactoryOrchestratorNoApp.sln has already been completed for desired configuration. No msixbundle.
 steps:
   - task: NuGetToolInstaller@0
     displayName: 'Use NuGet 5.7.0'
@@ -17,14 +18,13 @@ steps:
     inputs:
       command: 'restore'
       restoreSolution: '$(System.DefaultWorkingDirectory)\src\App\Microsoft.FactoryOrchestrator.App.csproj'
-# Build only UWP library and App. Assumes dotnet build src\FactoryOrchestratorNoApp.sln has already been completed for desired configuration.
   - task: VSBuild@1
     displayName: 'Build FactoryOrchestrator.sln'
     inputs:
       platform: $(BuildPlatform)
       configuration: '$(BuildConfiguration)'
       solution: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
-      msbuildArgs: '/p:BuildProjectReferences=false /t:Microsoft_FactoryOrchestrator_UWPClient;Microsoft_FactoryOrchestrator_App /fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log;Verbosity=Detailed'
+      msbuildArgs: '/p:BuildProjectReferences=false;VersionSuffix=$(VERSIONSUFFIXVPACK) /t:Microsoft_FactoryOrchestrator_UWPClient;Microsoft_FactoryOrchestrator_App /fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log;Verbosity=Detailed'
       createLogFile: true
       clean: false
       maximumCpuCount: true

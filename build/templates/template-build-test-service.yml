@@ -1,3 +1,4 @@
+# Builds all AnyCPU (MSIL) .NET Core/Standard projects and runs all unit tests.
 steps:
   - task: UseDotNet@2
     inputs:
@@ -11,7 +12,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
-      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Detailed'
+      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Detailed $(VERSIONSUFFIXDOTNET)'
     displayName: 'dotnet build $(BuildConfiguration)'
     condition: succeeded()
   - task: DotNetCoreCLI@2
