@@ -62,7 +62,7 @@ steps:
     Write-Host "##$vstsCommandString"
   displayName: Define signedOutput variables
 
-# ​​CP-230012 is for Microsoft authored NuGets.
+# ​​CP-401405​ is for Microsoft authored NuGets.
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
@@ -81,16 +81,9 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: true
+    shouldSign: '$(SHOULDSIGN)'
+    alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
-  condition: and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true'))
-
-- task: CopyFiles@2
-  inputs:
-    sourceFolder: "$(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget/"
-    targetFolder: "$(SignedOutput)"
-  displayName: "Copy unsigned binaries as if signed because SKIPSIGNING set"
-  condition: not(and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true')))
 
 - template: EsrpScan.yml@ComplianceRepo
   parameters:
