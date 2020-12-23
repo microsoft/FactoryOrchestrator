@@ -10,37 +10,41 @@ pool:
 pr:
   - 'main'
 
-jobs:
-- job: "Build_Test_FactoryOrchestrator_Service"
-  variables: 
-    BuildConfiguration: 'Release'
-  steps:
-  - template: ./templates/template-build-test-service.yml
-  - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\AnyCPU'
-    artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
-  - template: ./templates/template-ci-compliance.yml
-- job: "Build_FactoryOrchestrator_App"
+stages:
+- stage: "Build_Test_FactoryOrchestrator_Service"
+  jobs:
+  - job: "Build_Test_FactoryOrchestrator_Service"
+    variables: 
+      BuildConfiguration: 'Release'
+    steps:
+    - template: ./templates/template-set-build-version.yml
+    - template: ./templates/template-install-netcore.yml
+    - template: ./templates/template-build-test-service.yml
+    - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
+      artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
+    - template: ./templates/template-ci-compliance.yml
+    - template: ./templates/template-checkdocs.yml
+- stage: "Build_FactoryOrchestrator_App"
   dependsOn: "Build_Test_FactoryOrchestrator_Service"
-  strategy:
-    matrix:
-      Release_x86:
-        BuildPlatform: 'x86'
-        BuildConfiguration: 'Release'
-      Release_x64:
-        BuildPlatform: 'x64'
-        BuildConfiguration: 'Release'
-      Release_Arm:
-        BuildPlatform: 'ARM'
-        BuildConfiguration: 'Release'
-    maxParallel: '3'
-  steps:
-  - download: current
-    artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
-      targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
-  - template: ./templates/template-build-app.yml
-- job: "Build_Docs_Check_For_Changes"
-  steps:
-  - template: ./templates/template-checkdocs.yml
+  jobs:
+  - job: "Build_FactoryOrchestrator_App"
+    strategy:
+      matrix:
+        Release_x86:
+          BuildPlatform: 'x86'
+          BuildConfiguration: 'Release'
+        Release_x64:
+          BuildPlatform: 'x64'
+          BuildConfiguration: 'Release'
+        Release_Arm:
+          BuildPlatform: 'ARM'
+          BuildConfiguration: 'Release'
+      maxParallel: '3'
+    steps:
+    - download: current
+      artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
+        targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
+    - template: ./templates/template-build-app.yml

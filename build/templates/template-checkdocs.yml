@@ -1,4 +1,5 @@
 # Runs mkdocs to check if docs need updating on gh-pages.
+# Core and Client projects must be built for it to detect API changes.
 steps:
     - script: |
         cd $(Build.SourcesDirectory)

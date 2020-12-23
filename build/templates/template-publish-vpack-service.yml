@@ -1,3 +1,6 @@
+parameters:
+  BuildConfiguration: 'Release'
+  BuildPlatform: 'x86'
 # Publishes Service. Creates Service vPacks.
 steps:
 - task: DotNetCoreCLI@2
@@ -32,8 +35,9 @@ steps:
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 - task: CopyFiles@2
-  displayName: 'Copy Artifacts to VPackManifests - Microsoft.FactoryOrchestrator.Service publish'
+  displayName: 'Copy VPack Manifest Service $(BuildPlatform)'
   inputs:
-    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\'
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))

@@ -1,25 +1,13 @@
-# Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_$(BuildConfiguration)_$(BuildPlatform).
+# Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform).
+parameters:
+  UnsignedInput: $(Build.ARTIFACTSTAGINGDIRECTORY)\unsignedbin\
+  SignedOutput: $(Build.ArtifactStagingDirectory)\signedbin\
 steps:
-- download: current
-  artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
-- download: current
-  artifact: UnsignedBin_$(BuildConfiguration)_x86
-- download: current
-  artifact: UnsignedBin_$(BuildConfiguration)_x64
-- download: current
-  artifact: UnsignedBin_$(BuildConfiguration)_arm
-
-- powershell: |
-    $vstsCommandString = "vso[task.setvariable variable=SignedOutput]$(Build.ArtifactStagingDirectory)\signedbin\"
-    Write-Host "sending " + $vstsCommandString
-    Write-Host "##$vstsCommandString"
-  displayName: Define signedOutput variables
-
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
-    buildOutputPath: '$(System.ArtifactsDirectory)\unsignedbinaries\'
+    buildOutputPath: '$(UnsignedInput)'
     # the location to put the signed output
     signOutputPath: '$(SignedOutput)'
     # the certificate ID to use
@@ -42,7 +30,7 @@ steps:
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
-    buildOutputPath: '$(System.ArtifactsDirectory)\unsignedbinaries\'
+    buildOutputPath: '$(UnsignedInput)'
     # the location to put the signed output
     signOutputPath: '$(SignedOutput)'
     # the certificate ID to use
@@ -65,7 +53,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    sourceFolder: "$(System.ArtifactsDirectory)/unsignedbinaries/"
+    sourceFolder: "$(UnsignedInput)"
     targetFolder: "$(SignedOutput)"
   displayName: "Copy unsigned binaries as if signed because SKIPSIGNING set"
   condition: not(and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true')))
@@ -76,3 +64,6 @@ steps:
       pattern: |
         **\*.dll
         **\*.exe
+
+- publish: '$(SignedOutput)'
+  artifact: 'SignedBin_Windows_$(BuildConfiguration)_AllPlatforms'

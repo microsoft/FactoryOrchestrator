@@ -38,10 +38,12 @@ stages:
       - checkout: self
       - checkout: ComplianceRepo
       - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-install-netcore.yml
       - template: ./templates/template-build-test-service.yml
       - template: ./templates/template-build-service-windows-runtimes.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
-        artifact: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+        artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
+      - template: ./templates/template-checkdocs.yml
 
     - job: "Build_FactoryOrchestrator_App"
       strategy:
@@ -62,19 +64,14 @@ stages:
         artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
       - task: CopyFiles@2
         inputs:
-          sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
-          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
+          sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
+          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU"
       - template: ./templates/template-build-app.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
-        artifact: 'UnsignedBin_$(BuildConfiguration)_$(BuildPlatform)'
+        artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
       - publish: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\obj\$(BuildConfiguration)\*.nuspec'
         artifact: 'UWPClient_Nuspecs'
       condition: eq(variables['BuildPlatform'], 'x86')
-
-    - job: "Build_Docs_Check_For_Changes"
-      steps:
-      - template: ./templates/template-set-build-version.yml
-      - template: ./templates/template-checkdocs.yml
 
   - stage: 'Sign_Binaries'
     pool:
@@ -89,26 +86,24 @@ stages:
         steps:
         - template: ./templates/template-set-build-version.yml
         - download: current
-          artifact: UnsignedBin_*
+          artifact: UnsignedBin_Windows*
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/AnyCPU"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_x86"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/x86"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/x86"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_x64"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/x64"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/x64"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_ARM"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/ARM"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/ARM"
         - template: ./templates/template-sign-binaries-windows.yml
-        - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\signedbin'
-          artifact: 'SignedBin_$(BuildConfiguration)_AllPlatforms'
 
   - stage: compliance
     displayName: Compliance
@@ -142,12 +137,12 @@ stages:
           displayName: "Print all variables"
 
         - download: 'current'
-          artifact: 'SignedBin_Release_AllPlatforms'
+          artifact: 'SignedBin_Windows_Release_AllPlatforms'
 
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
             # binskim
-            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Release_AllPlatforms/**/*.dll;$(Pipeline.Workspace)/SignedBin_Release_AllPlatforms/**/*.exe'
+            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/**/*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/**/*.exe'
             AnalyzeSymPath: 'SRV*'
             # component-governance
             sourceScanPath: '$(Build.SourcesDirectory)/src'
@@ -159,7 +154,7 @@ stages:
             # tsa-upload
             codeBaseName: 'FactoryOrchestrator'
             # API Scan
-            softwareFolder: '$(Pipeline.Workspace)/SignedBin_Release_AllPlatforms'
+            softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
             APIScan: true # set to false when not using Windows APIs.
@@ -182,21 +177,22 @@ stages:
           clean: true
         
         - template: ./templates/template-set-build-version.yml
+        - template: ./templates/template-install-netcore.yml
 
         - powershell: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
         - download: 'current'
-          artifact: 'SignedBin_$(BuildConfiguration)_AllPlatforms'
+          artifact: 'SignedBin_Windows_Release_AllPlatforms'
 
         - download: 'current'
           artifact: 'UWPClient_Nuspecs'
 
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/SignedBin_$(BuildConfiguration)_AllPlatforms"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/"
+            sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
 
         - template: ./templates/template-sign-publish-nuget.yml
 
@@ -227,19 +223,53 @@ stages:
           displayName: "Print all variables"
 
         - download: 'current'
-          artifact: 'SignedBin_$(BuildConfiguration)_AllPlatforms'
+          artifact: 'SignedBin_Windows_Release_AllPlatforms'
 
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/SignedBin_$(BuildConfiguration)_AllPlatforms"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/"
+            sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
 
         - template: ./templates/template-publish-vpack-service.yml
-
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'x86'
+        - template: ./templates/template-publish-vpack-service.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'x64'
+        - template: ./templates/template-publish-vpack-service.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'arm'
+        - template: ./templates/template-publish-vpack-service.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'arm64'
         - template: ./templates/template-publish-vpack-other.yml
+
+        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
+        - powershell: |
+          $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
+          Write-Host "sending " + $vstsCommandString
+          Write-Host "##$vstsCommandString"
+        displayName: 'Set symbol publish variables'
+
+        # Publishes to microsoftpublicsymbols
+        - task: PublishSymbols@2
+          inputs:
+            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
+            indexSources: 'false'
+            SymbolServerType: 'teamServices'
+            SymbolsArtifactName: 'Symbols_Release_NuGet'
+            SymbolsProduct: 'FactoryOrchestrator'
+            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIX)'
+        condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+        displayName: 'publish symbols to public server'
 
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
+          condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
