@@ -264,12 +264,12 @@ stages:
             SymbolsArtifactName: 'Symbols_Release_NuGet'
             SymbolsProduct: 'FactoryOrchestrator'
             SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIX)'
-        condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
-        displayName: 'publish symbols to public server'
+          condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+          displayName: 'publish symbols to public server'
 
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
-        condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+          condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
