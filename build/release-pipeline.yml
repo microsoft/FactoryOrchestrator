@@ -269,7 +269,7 @@ stages:
 
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
-          condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+        condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
