@@ -38,7 +38,6 @@ stages:
         BuildPlatform: 'AnyCPU'
       steps:
       - checkout: self
-      - checkout: ComplianceRepo
       - template: ./templates/template-set-build-version.yml
       - template: ./templates/template-install-netcore.yml
       - template: ./templates/template-build-test-service.yml
@@ -61,6 +60,7 @@ stages:
             BuildConfiguration: 'Release'
         maxParallel: '3'
       steps:
+      - checkout: self
       - template: ./templates/template-set-build-version.yml
       - download: current
         artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
@@ -86,6 +86,8 @@ stages:
     jobs:
       - job: 'Sign_Windows'
         steps:
+        - checkout: ComplianceRepo
+          clean: true
         - template: ./templates/template-set-build-version.yml
         - download: current
           artifact: UnsignedBin_Windows*
@@ -176,6 +178,8 @@ stages:
       - job: Sign_Publish_NuGet
         steps:
         - checkout: self
+          clean: true
+        - checkout: ComplianceRepo
           clean: true
         
         - template: ./templates/template-set-build-version.yml
