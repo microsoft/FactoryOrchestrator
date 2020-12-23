@@ -13,11 +13,13 @@ variables:
     VERSIONSUFFIXVPACK: ''
     VERSIONSUFFIXDOTNET: ' '
     SKIPSIGNING: 'false'
+    SKIPPUSH: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     VERSIONSUFFIX: '$(Build.SourceBranchName)'
     VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
+    SKIPPUSH: 'true'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
