@@ -253,7 +253,7 @@ stages:
             $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
             Write-Host "sending " + $vstsCommandString
             Write-Host "##$vstsCommandString"
-        displayName: 'Set symbol publish variables'
+          displayName: 'Set symbol publish variables'
 
         # Publishes to microsoftpublicsymbols
         - task: PublishSymbols@2
