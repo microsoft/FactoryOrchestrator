@@ -3,6 +3,7 @@ resources:
   repositories:
   - repository: ComplianceRepo
     type: github
+    endpoint: ComplianceGHRepo
     name: PowerShell/compliance
     ref: master
 
