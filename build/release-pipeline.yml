@@ -250,9 +250,9 @@ stages:
 
         # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
         - powershell: |
-          $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
-          Write-Host "sending " + $vstsCommandString
-          Write-Host "##$vstsCommandString"
+            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
+            Write-Host "sending " + $vstsCommandString
+            Write-Host "##$vstsCommandString"
         displayName: 'Set symbol publish variables'
 
         # Publishes to microsoftpublicsymbols
