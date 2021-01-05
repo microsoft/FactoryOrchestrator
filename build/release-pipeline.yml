@@ -3,7 +3,7 @@ resources:
   repositories:
   - repository: ComplianceRepo
     type: github
-    endpoint: ComplianceGHRepo
+    endpoint: microsoft
     name: spaceisfun/Compliance
     ref: master
 
