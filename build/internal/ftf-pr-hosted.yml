@@ -7,8 +7,9 @@ pool:
   - msbuild
   - visualstudio
 
+trigger: none 
 pr:
-  - 'main'
+  - main
 
 jobs:
 - job: "Build_Test_FactoryOrchestrator_Service"
