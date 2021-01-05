@@ -1,4 +1,9 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
+trigger:
+  tags:
+    include:
+    - OSBuild*
+
 resources:
   repositories:
   - repository: ComplianceRepo
