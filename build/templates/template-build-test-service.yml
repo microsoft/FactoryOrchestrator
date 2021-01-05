@@ -30,7 +30,7 @@ steps:
     displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Linux'
     condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish build log as artifact'
+    displayName: 'Publish msbuild log for AnyCPU build'
     inputs:
       artifactName: MSBuildLog_$(BuildConfiguration)_AnyCPU
       targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log

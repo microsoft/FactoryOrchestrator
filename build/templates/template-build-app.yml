@@ -30,7 +30,7 @@ steps:
       maximumCpuCount: true
     condition: succeeded()
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish build log as artifact'
+    displayName: 'Publish app msbuild log as artifact'
     inputs:
       artifactName: MSBuildLog_$(BuildConfiguration)_$(BuildPlatform)
       targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log

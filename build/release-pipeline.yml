@@ -45,6 +45,9 @@ stages:
       - checkout: self
       - template: ./templates/template-set-build-version.yml
       - template: ./templates/template-install-netcore.yml
+      - powershell: |
+          Get-Item -Path env:* | Sort-Object Name
+        displayName: "Print all variables"
       - template: ./templates/template-build-test-service.yml
       - template: ./templates/template-build-service-windows-runtimes.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
@@ -67,6 +70,10 @@ stages:
       steps:
       - checkout: self
       - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-install-netcore.yml
+      - powershell: |
+          Get-Item -Path env:* | Sort-Object Name
+        displayName: "Print all variables"
       - download: current
         artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
       - task: CopyFiles@2
@@ -76,8 +83,10 @@ stages:
       - template: ./templates/template-build-app.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
+        displayName: 'Publish unsigned Windows bin'
       - publish: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\obj\$(BuildConfiguration)\*.nuspec'
         artifact: 'UWPClient_Nuspecs'
+        displayName: 'Publish unsigned Windows UWPClient nuspecs'
       condition: eq(variables['BuildPlatform'], 'x86')
 
   - stage: 'Sign_Binaries'
