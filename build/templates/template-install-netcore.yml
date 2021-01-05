@@ -3,5 +3,5 @@ steps:
   displayName: 'Use .NET Core 3.1 sdk'
   inputs:
     packageType: sdk
-    version: 3.1.X
+    version: 3.1.x
     installationPath: $(Agent.ToolsDirectory)/dotnet
