@@ -55,6 +55,8 @@ stages:
       - template: ./templates/template-checkdocs.yml
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
+    dependsOn:
+    - 'Build_Test_FactoryOrchestrator_Service'
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:
@@ -104,7 +106,7 @@ stages:
       - msbuild
       - visualstudio
     dependsOn:
-    - 'Build_Test_FactoryOrchestrator_Windows'
+    - 'Build_Test_FactoryOrchestrator_Windows_Apps'
     jobs:
       - job: 'Sign_Windows'
         steps:
