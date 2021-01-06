@@ -293,7 +293,7 @@ stages:
             SymbolServerType: 'teamServices'
             SymbolsArtifactName: 'Symbols_Release_NuGet'
             SymbolsProduct: 'FactoryOrchestrator'
-            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIX)'
+            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
           condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
           displayName: 'publish symbols to public server'
 

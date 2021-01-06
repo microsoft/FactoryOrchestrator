@@ -8,7 +8,7 @@
     <Description>A UWP class library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service from a UWP app. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
     <!-- We use the generated nuspec in the release build, but not the package -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageVersion>$(VersionPrefix)$(VersionSuffix)</PackageVersion>
+    <PackageVersion>$(VersionPrefix)$(VERSIONSUFFIXVPACK)</PackageVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>

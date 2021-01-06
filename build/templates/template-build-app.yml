@@ -24,7 +24,7 @@ steps:
       platform: $(BuildPlatform)
       configuration: '$(BuildConfiguration)'
       solution: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
-      msbuildArgs: '/p:BuildProjectReferences=false;VersionSuffix=$(VERSIONSUFFIXVPACK) /t:Microsoft_FactoryOrchestrator_UWPClient;Microsoft_FactoryOrchestrator_App /fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log;Verbosity=Detailed'
+      msbuildArgs: '/p:BuildProjectReferences=false /t:Microsoft_FactoryOrchestrator_UWPClient;Microsoft_FactoryOrchestrator_App /fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_$(BuildPlatform)_MsBuild.log;Verbosity=Detailed'
       createLogFile: true
       clean: false
       maximumCpuCount: true
