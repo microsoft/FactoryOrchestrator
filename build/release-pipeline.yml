@@ -87,7 +87,7 @@ stages:
       - publish: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\obj\$(BuildConfiguration)\*.nuspec'
         artifact: 'UWPClient_Nuspecs'
         displayName: 'Publish unsigned Windows UWPClient nuspecs'
-      condition: eq(variables['BuildPlatform'], 'x86')
+        condition: eq(variables['BuildPlatform'], 'x86')
 
   - stage: 'Sign_Binaries'
     pool:
