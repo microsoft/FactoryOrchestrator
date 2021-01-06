@@ -34,7 +34,7 @@
     <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
   </ItemGroup>
 
-  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(AGENT_ID)' =! '' Or '$(Configuration)' == 'Release'">
+  <Target Name="BeforeBuildPS_VSO" BeforeTargets="Build;CoreCompile" Condition="'$(AGENT_ID)' != '' Or '$(Configuration)' == 'Release'">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
   <Target Name="BeforeBuildPS_Local" BeforeTargets="Build;CoreCompile" Condition="'$(AGENT_ID)' == '' And '$(Configuration)' == 'Debug'">

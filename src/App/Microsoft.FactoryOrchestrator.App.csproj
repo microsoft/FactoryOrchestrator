@@ -150,7 +150,7 @@
       <DependentUpon>WdpPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup Condition="'$(AGENT_ID)' =! ''">
+  <ItemGroup Condition="'$(AGENT_ID)' != ''">
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
@@ -300,7 +300,7 @@
   <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
-  <Target Name="AfterBuild" Condition="'$(AGENT_ID)' =! ''">
+  <Target Name="AfterBuild" Condition="'$(AGENT_ID)' != ''">
     <Copy SourceFiles="$(AppxPackageOutput)" DestinationFolder="$(OutputPath)" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
