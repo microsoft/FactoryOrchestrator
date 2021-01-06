@@ -29,7 +29,7 @@ variables:
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
 stages:
-  - stage: 'Build_Test_FactoryOrchestrator_Windows'
+  - stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:
@@ -54,6 +54,14 @@ stages:
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
       - template: ./templates/template-checkdocs.yml
 
+  - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
+    pool:
+      name: "Hosted Windows 2019 with VS2019"
+      demands:
+      - msbuild
+      - visualstudio
+
+    jobs:      
     - job: "Build_FactoryOrchestrator_App"
       strategy:
         matrix:
