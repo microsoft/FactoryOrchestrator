@@ -12,8 +12,8 @@
     <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetFramework)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <DocumentationFile>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <DefaultDocumentationHome>$(TargetName)</DefaultDocumentationHome>

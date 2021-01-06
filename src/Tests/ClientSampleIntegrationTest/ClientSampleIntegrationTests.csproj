@@ -22,7 +22,7 @@
     <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 
 </Project>

@@ -32,6 +32,6 @@
     <OutDir>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutDir>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
+    <OutDir>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

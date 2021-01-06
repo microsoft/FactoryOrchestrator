@@ -19,7 +19,7 @@
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>

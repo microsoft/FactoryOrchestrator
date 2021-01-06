@@ -26,7 +26,7 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <OutputRootPath>$(Build.ArtifactStagingDirectory)\bin\</OutputRootPath>
+    <OutputRootPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\</OutputRootPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' == '' And '$(GITHUB_ACTIONS)' != 'true'">
     <OutputRootPath>$(MSBuildThisFileDirectory)..\bin\</OutputRootPath>
