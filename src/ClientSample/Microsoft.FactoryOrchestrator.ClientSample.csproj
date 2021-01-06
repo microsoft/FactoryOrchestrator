@@ -9,10 +9,10 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 

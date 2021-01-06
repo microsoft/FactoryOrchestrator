@@ -15,10 +15,10 @@
     <Version>3.0.0</Version>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
   <PropertyGroup>

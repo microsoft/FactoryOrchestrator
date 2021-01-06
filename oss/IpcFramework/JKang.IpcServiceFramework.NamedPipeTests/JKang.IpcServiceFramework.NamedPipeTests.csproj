@@ -21,10 +21,10 @@
   </ItemGroup>
 
   <!-- Added for Factory Orchestrator -->
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutDir>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutDir>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

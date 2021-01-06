@@ -2,7 +2,7 @@
   <PropertyGroup>
     <SkipDefaultEditorConfigAsAdditionalFile>true</SkipDefaultEditorConfigAsAdditionalFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+  <PropertyGroup Condition="'$(AGENT_ID)' =! '' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->

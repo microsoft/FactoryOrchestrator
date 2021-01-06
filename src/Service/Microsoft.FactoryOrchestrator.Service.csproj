@@ -7,10 +7,10 @@
     <TargetName>Microsoft.FactoryOrchestrator.Service</TargetName>
     <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 

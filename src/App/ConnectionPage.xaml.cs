@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Windows.ApplicationModel.Resources;
 using System.Globalization;
+using System.Diagnostics;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -35,6 +36,27 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            var profs = Windows.Networking.Connectivity.NetworkInformation.GetConnectionProfiles();
+            var hosts = Windows.Networking.Connectivity.NetworkInformation.GetHostNames();
+            foreach (var prof in profs)
+            {
+                Debug.WriteLine("ahhhh");
+                Debug.WriteLine(prof.GetNetworkNames());
+                Debug.WriteLine(prof.NetworkAdapter.NetworkAdapterId);
+                Debug.WriteLine(prof.ServiceProviderGuid);
+                Debug.WriteLine(prof.ProfileName);
+            }
+            foreach (var host in hosts)
+            {
+                Debug.WriteLine("ahhhh");
+                Debug.WriteLine(host.RawName);
+                Debug.WriteLine(host.DisplayName);
+                Debug.WriteLine(host.CanonicalName);
+                Debug.WriteLine(host.IPInformation?.NetworkAdapter?.NetworkAdapterId);
+                var prof2 = host.IPInformation?.NetworkAdapter?.GetConnectedProfileAsync()?.AsTask().Result;
+                Debug.WriteLine(prof2?.ToString());
+            }
+
             if (e == null)
             {
                 lastNavTag = null;

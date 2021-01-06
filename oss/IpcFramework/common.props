@@ -14,7 +14,7 @@
   <PropertyGroup>
     <SkipDefaultEditorConfigAsAdditionalFile>true</SkipDefaultEditorConfigAsAdditionalFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+  <PropertyGroup Condition="'$(AGENT_ID)' =! '' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
@@ -30,10 +30,10 @@
   <PropertyGroup Condition="'$(DisableDynamicCodeGeneration)' == 'true'">
     <DefineConstants>DISABLE_DYNAMIC_CODE_GENERATION</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutDir>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutDir>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

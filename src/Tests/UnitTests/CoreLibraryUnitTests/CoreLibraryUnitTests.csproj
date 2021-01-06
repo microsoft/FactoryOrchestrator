@@ -6,10 +6,10 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>..\..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 

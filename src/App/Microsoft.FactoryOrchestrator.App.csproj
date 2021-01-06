@@ -99,10 +99,10 @@
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
@@ -150,12 +150,12 @@
       <DependentUpon>WdpPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup Condition="'$(IsTFSBuild)' == 'true'">
+  <ItemGroup Condition="'$(AGENT_ID)' =! ''">
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
-  <ItemGroup Condition="'$(IsTFSBuild)' != 'true'">
+  <ItemGroup Condition="'$(AGENT_ID)' == ''">
     <AppxManifest Include="DevPackage.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
@@ -300,7 +300,7 @@
   <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile">
     <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
-  <Target Name="AfterBuild" Condition="'$(IsTFSBuild)' == 'true'">
+  <Target Name="AfterBuild" Condition="'$(AGENT_ID)' =! ''">
     <Copy SourceFiles="$(AppxPackageOutput)" DestinationFolder="$(OutputPath)" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

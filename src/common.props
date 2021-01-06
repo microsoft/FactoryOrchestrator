@@ -21,14 +21,14 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Product>Factory Orchestrator</Product>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+  <PropertyGroup Condition="'$(AGENT_ID)' =! '' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <OutputRootPath>$(Build.ArtifactStagingDirectory)\bin\</OutputRootPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != 'true' And '$(GITHUB_ACTIONS)' != 'true'">
+  <PropertyGroup Condition="'$(AGENT_ID)' == '' And '$(GITHUB_ACTIONS)' != 'true'">
     <OutputRootPath>$(MSBuildThisFileDirectory)..\bin\</OutputRootPath>
   </PropertyGroup>
 

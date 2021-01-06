@@ -48,11 +48,11 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
   </PropertyGroup>

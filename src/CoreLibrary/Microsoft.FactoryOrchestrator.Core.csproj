@@ -9,11 +9,11 @@
     <PackageId>Microsoft.FactoryOrchestrator.Core</PackageId>
     <Description>A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' == ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
     <OutputPath>$(OutputRootPath)$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTFSBuild)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(Build.ArtifactStagingDirectory)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
