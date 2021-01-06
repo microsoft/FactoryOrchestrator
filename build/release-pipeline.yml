@@ -56,7 +56,7 @@ stages:
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
     dependsOn:
-    - 'Build_Test_FactoryOrchestrator_Service'
+    - 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:
