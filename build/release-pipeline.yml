@@ -94,9 +94,16 @@ stages:
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
         displayName: 'Publish unsigned Windows bin'
-      - publish: '$(System.DefaultWorkingDirectory)\src\UWPClientLibrary\obj\$(BuildConfiguration)\*.nuspec'
+      - task: CopyFiles@2
+        inputs:
+          sourceFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibrary/obj/$(BuildConfiguration)/"
+          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/"
+          contents: "*.nuspec"
+        displayName: 'Copy Windows UWPClient nuspecs'
+        condition: eq(variables['BuildPlatform'], 'x86')
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/'
         artifact: 'UWPClient_Nuspecs'
-        displayName: 'Publish unsigned Windows UWPClient nuspecs'
+        displayName: 'Publish Windows UWPClient nuspecs'
         condition: eq(variables['BuildPlatform'], 'x86')
 
   - stage: 'Sign_Binaries'
