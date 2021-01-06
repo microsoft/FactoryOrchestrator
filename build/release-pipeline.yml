@@ -75,7 +75,7 @@ stages:
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
       - download: current
-        artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+        artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
       - task: CopyFiles@2
         inputs:
           sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
