@@ -96,7 +96,7 @@ stages:
         displayName: 'Publish unsigned Windows bin'
       - task: CopyFiles@2
         inputs:
-          sourceFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibrary/obj/$(BuildConfiguration)/"
+          sourceFolder: "$(System.DefaultWorkingDirectory)/src/UWPClientLibrary/obj/$(BuildConfiguration)/"
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/"
           contents: "*.nuspec"
         displayName: 'Copy Windows UWPClient nuspecs'
