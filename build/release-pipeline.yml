@@ -119,7 +119,6 @@ stages:
         steps:
         - checkout: ComplianceRepo
           clean: true
-        - template: ./templates/template-set-build-version.yml
         - download: current
           artifact: UnsignedBin_Windows*
         - task: CopyFiles@2
