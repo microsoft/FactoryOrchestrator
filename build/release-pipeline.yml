@@ -120,7 +120,13 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         - download: current
-          artifact: UnsignedBin_Windows*
+          artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
+        - download: current
+          artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
+        - download: current
+          artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
+        - download: current
+          artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
