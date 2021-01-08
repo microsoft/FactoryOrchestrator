@@ -1,6 +1,6 @@
 # Retrieves build version.
 steps:
-  - powershell: |
+  - pwsh: |
       [xml]$customprops = Get-Content "$env:FORepoRoot\src\common.props"
       $msbldns = "http://schemas.microsoft.com/developer/msbuild/2003"
       $ns = @{msbld = "$msbldns"}

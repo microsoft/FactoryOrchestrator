@@ -46,7 +46,7 @@ stages:
       - checkout: self
       - template: ./templates/template-set-build-version.yml
       - template: ./templates/template-install-netcore.yml
-      - powershell: |
+      - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
       - template: ./templates/template-build-test-service.yml
@@ -81,7 +81,7 @@ stages:
       - checkout: self
       - template: ./templates/template-set-build-version.yml
       - template: ./templates/template-install-netcore.yml
-      - powershell: |
+      - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
       - download: current
@@ -181,7 +181,7 @@ stages:
 
         - template: ./templates/template-set-build-version.yml
 
-        - powershell: |
+        - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
@@ -233,7 +233,7 @@ stages:
         - template: ./templates/template-set-should-sign.yml
         - template: ./templates/template-install-netcore.yml
 
-        - powershell: |
+        - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
@@ -276,7 +276,7 @@ stages:
         
         - template: ./templates/template-set-build-version.yml
 
-        - powershell: |
+        - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
@@ -307,7 +307,7 @@ stages:
         - template: ./templates/template-publish-vpack-other.yml
 
         # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
-        - powershell: |
+        - pwsh: |
             $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
             Write-Host "sending " + $vstsCommandString
             Write-Host "##$vstsCommandString"

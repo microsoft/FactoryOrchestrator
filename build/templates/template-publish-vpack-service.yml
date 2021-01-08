@@ -23,6 +23,7 @@ steps:
     filePath: ./build/internal/CreateServiceManifest.ps1
     arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD" -SourceRootFolder "`$(build.nttree)\$NtTreeRootFolder" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD\Microsoft-OneCore-FactoryOrchestrator-Service-$(BuildPlatform).wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-$(BuildPlatform)" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator'
     failOnStderr: true
+    pwsh: true
   timeoutInMinutes: 5
 - task: PkgESVPack@10
   env:

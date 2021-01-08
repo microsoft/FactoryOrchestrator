@@ -7,6 +7,7 @@ steps:
     filePath: ./build/internal/CreateTestZip.ps1
     arguments: '-TestBinRoot $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\tests\$(BuildConfiguration)\AnyCPU\ -OutFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Tests\TestZip'
     failOnStderr: true
+    pwsh: true
   timeoutInMinutes: 5
 
 - task: PkgESVPack@10
@@ -109,6 +110,7 @@ steps:
     filePath: ./build/internal/UpdateClientSampleForWSK.ps1
     arguments: '-ProjectFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
     failOnStderr: true
+    pwsh: true
   condition: succeeded()
   timeoutInMinutes: 5
 
