@@ -8,7 +8,7 @@ parameters:
     default: "false"
 steps:
 # uniqify binaries to prevent over-signing
-- powershell:
+- task: PowerShell@2
   inputs:
     targetType: filePath
     filePath: ./build/internal/CopyUniqueBins.ps1
