@@ -57,10 +57,11 @@ steps:
 
 - template: EsrpScan.yml@ComplianceRepo
   parameters:
-      scanPath: $(SignedOutput)
+      scanPath: ${{ parameters.SignedOutput }}
       pattern: |
         **\*.dll
         **\*.exe
 
 - publish: '$(SignedOutput)'
   artifact: 'SignedBin_Windows_$(BuildConfiguration)_AllPlatforms'
+  displayName: 'Publish signed binaries - Windows'
