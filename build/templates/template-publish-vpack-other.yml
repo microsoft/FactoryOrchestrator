@@ -38,6 +38,10 @@ steps:
     zipAfterPublish: false
   enabled: true
 
+- publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU/Microsoft.FactoryOrchestrator.PowerShell_Publish'
+  artifact: 'Microsoft.FactoryOrchestrator.PowerShell'
+  displayName: 'Publish PowerShell Client artifact'
+
 - task: CopyFiles@2
   displayName: 'Copy Client Libraries to root of drop'
   inputs:

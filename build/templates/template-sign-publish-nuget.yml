@@ -55,7 +55,7 @@ steps:
       }
     }
   displayName: 'NuGet pack UWPClient'
-  
+
 - powershell: |
     $vstsCommandString = "vso[task.setvariable variable=SignedOutput]$(Build.ArtifactStagingDirectory)/bin/Release/signednuget/"
     Write-Host "sending " + $vstsCommandString

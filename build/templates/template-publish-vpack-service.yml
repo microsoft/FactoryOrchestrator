@@ -34,6 +34,9 @@ steps:
     description: 'FactoryOrchestrator.Service.$(BuildPlatform)$(VPACKNAME)'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+- publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD'
+  artifact: 'Microsoft.FactoryOrchestrator.Service_$(BuildPlatform)'
+  displayName: 'Publish Service SCD $(BuildPlatform) artifact'
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest Service $(BuildPlatform)'
   inputs:
