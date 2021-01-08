@@ -1,7 +1,9 @@
 # Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform).
 parameters:
-  UnsignedInput: $(Build.ARTIFACTSTAGINGDIRECTORY)\unsignedbin\
-  SignedOutput: $(Build.ArtifactStagingDirectory)\signedbin\
+  - name: "UnsignedInput"
+    default: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/"
+  - name: "SignedOutput"
+    default: "$(Build.ArtifactStagingDirectory)/signedbin/"
 steps:
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
