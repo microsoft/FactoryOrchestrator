@@ -130,15 +130,15 @@ stages:
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/AnyCPU"
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_x86"
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/x86"
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_x64"
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/x64"
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_ARM"
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/ARM"
         - template: ./templates/template-sign-binaries-windows.yml
 
