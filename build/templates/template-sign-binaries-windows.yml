@@ -9,9 +9,9 @@ steps:
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
-    buildOutputPath: '$(UnsignedInput)'
+    buildOutputPath: $(UnsignedInput)
     # the location to put the signed output
-    signOutputPath: '$(SignedOutput)'
+    signOutputPath: $(SignedOutput)
     # the certificate ID to use
     certificateId: "​​CP-230012"
     # The file pattern to use
@@ -24,7 +24,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: '$(SHOULDSIGN)'
+    shouldSign: $(SHOULDSIGN)
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -32,9 +32,9 @@ steps:
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
-    buildOutputPath: '$(UnsignedInput)'
+    buildOutputPath: $(UnsignedInput)
     # the location to put the signed output
-    signOutputPath: '$(SignedOutput)'
+    signOutputPath: $(SignedOutput)
     # the certificate ID to use
     certificateId: "CP-231522​"
     # The file pattern to use
@@ -49,7 +49,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: '$(SHOULDSIGN)'
+    shouldSign: $(SHOULDSIGN)
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
