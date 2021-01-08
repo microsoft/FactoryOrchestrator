@@ -114,6 +114,8 @@ stages:
     jobs:
       - job: 'Sign_Windows'
         steps:
+        - checkout: self
+          clean: true
         - checkout: ComplianceRepo
           clean: true
         - template: ./templates/template-set-should-sign.yml
@@ -143,7 +145,7 @@ stages:
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/ARM"
         - template: ./templates/template-sign-binaries-windows.yml
           parameters:
-            ShouldSign: "$(SHOULDSIGN)"
+            ShouldSign: "$[variables.SHOULDSIGN]"
 
   - stage: compliance
     displayName: Compliance
@@ -239,7 +241,7 @@ stages:
 
         - template: ./templates/template-sign-publish-nuget.yml
           parameters:
-            ShouldSign: "$(SHOULDSIGN)"
+            ShouldSign: "$[variables.SHOULDSIGN]"
 
   - stage: 'Publish_vPack'
     dependsOn:
