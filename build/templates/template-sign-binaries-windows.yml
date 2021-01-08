@@ -5,13 +5,24 @@ parameters:
   - name: "SignedOutput"
     default: "$(Build.ArtifactStagingDirectory)/signedbin/"
 steps:
+# uniqify binaries to prevent over-signing
+- powershell:
+  inputs:
+    targetType: filePath
+    filePath: ./build/internal/CopyUniqueBins.ps1
+    arguments: '-SearchPath "${{ parameters.UnsignedInput }}" -CopyDestination "$(System.DefaultWorkingDirectory)/unsigneduniquefiles/" -MappingFileOut "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+    failOnStderr: true
+  displayName: 'Copy unique files to staging directory'
+
+# Per ESRP wiki, files are scanned for malware during signing.
+
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
-    buildOutputPath: ${{ parameters.UnsignedInput }}
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/unsigneduniquefiles/'
     # the location to put the signed output
-    signOutputPath: ${{ parameters.SignedOutput }}
+    signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
     # the certificate ID to use
     certificateId: "​​CP-230012"
     # The file pattern to use
@@ -25,16 +36,16 @@ steps:
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
     shouldSign: $(SHOULDSIGN)
-    alwaysCopy: 'true'
+    alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
 # CP-231522​ is for 3rd party authored binaries (OSS).
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
     # the folder which contains the binaries to sign
-    buildOutputPath: ${{ parameters.UnsignedInput }}
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/unsigneduniquefiles/'
     # the location to put the signed output
-    signOutputPath: ${{ parameters.SignedOutput }}
+    signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
     # the certificate ID to use
     certificateId: "CP-231522​"
     # The file pattern to use
@@ -50,15 +61,24 @@ steps:
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
     shouldSign: $(SHOULDSIGN)
-    alwaysCopy: 'true'
+    alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
-- template: EsrpScan.yml@ComplianceRepo
-  parameters:
-      scanPath: $(SignedOutput)
-      pattern: |
-        **\*.dll
-        **\*.exe
+# undo uniqify. The now signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
+- powershell:
+  inputs:
+    targetType: filePath
+    filePath: ./build/internal/CopyUniqueBins.ps1
+    arguments: '-CopySource "$(System.DefaultWorkingDirectory)/signeduniquefiles/" -CopyDestination "${{ parameters.SignedOutput }}" -MappingFileIn "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+    failOnStderr: true
+  displayName: 'Copy signed, unique files to UnsignedInput directory'
+
+# if not signing this copies the unsigned files. if signing, this will have the signed files due to CopyUniqueBins operation.
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: ${{ parameters.UnsignedInput }}
+    targetFolder: ${{ parameters.SignedOutput }}
+  displayName: "Copy files to output folder"
 
 - publish: '$(SignedOutput)'
   artifact: 'SignedBin_Windows_$(BuildConfiguration)_AllPlatforms'
