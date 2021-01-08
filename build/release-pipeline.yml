@@ -41,6 +41,7 @@ stages:
     - job: "Build_Test_FactoryOrchestrator_Service"
       variables:
         BuildPlatform: 'AnyCPU'
+        FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
       - checkout: self
       - template: ./templates/template-set-build-version.yml
@@ -65,6 +66,8 @@ stages:
 
     jobs:      
     - job: "Build_FactoryOrchestrator_App"
+      variables:
+        FORepoRoot: '$(Build.SourcesDirectory)'
       strategy:
         matrix:
           Release_x86:
@@ -93,7 +96,7 @@ stages:
         displayName: 'Publish unsigned Windows bin'
       - task: CopyFiles@2
         inputs:
-          sourceFolder: "$(System.DefaultWorkingDirectory)/src/UWPClientLibrary/obj/$(BuildConfiguration)/"
+          sourceFolder: "$(FORepoRoot)/src/UWPClientLibrary/obj/$(BuildConfiguration)/"
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/"
           contents: "*.nuspec"
         displayName: 'Copy Windows UWPClient nuspecs'
@@ -113,6 +116,8 @@ stages:
     - 'Build_Test_FactoryOrchestrator_Windows_Apps'
     jobs:
       - job: 'Sign_Windows'
+        variables:
+          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true
@@ -153,6 +158,8 @@ stages:
     - 'Sign_Binaries'
     jobs:
       - job: Compliance_Job
+        variables:
+          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         pool:
           name: Package ES Standard Build
         steps:
@@ -187,9 +194,9 @@ stages:
             AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/**/*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/**/*.exe'
             AnalyzeSymPath: 'SRV*'
             # component-governance
-            sourceScanPath: '$(Build.SourcesDirectory)/src'
+            sourceScanPath: '$(FORepoRoot)/src'
             # credscan
-            suppressionsFile: 'build/config/CredScanSuppressions.json'
+            suppressionsFile: '$(FORepoRoot)/build/config/CredScanSuppressions.json'
             # TermCheck
             optionsRulesDBPath: ''
             optionsFTPath: ''
@@ -214,6 +221,8 @@ stages:
       - visualstudio
     jobs:
       - job: Sign_Publish_NuGet
+        variables:
+          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true
@@ -250,6 +259,8 @@ stages:
       name: Package ES Standard Build
     jobs:
       - job: Publish_vPacks
+        variables:
+          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true    

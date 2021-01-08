@@ -34,7 +34,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
+    arguments: '$(FORepoRoot)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(FORepoRoot)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
     zipAfterPublish: false
   enabled: true
 
@@ -52,7 +52,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(FORepoRoot)'
     Contents: 'NOTICE.txt'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
   condition: succeeded()
@@ -60,7 +60,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy XSD to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\CoreLibrary'
+    SourceFolder: '$(FORepoRoot)\src\CoreLibrary'
     Contents: 'FactoryOrchestratorXML.xsd'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
   condition: succeeded()
@@ -95,7 +95,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Client Sample source'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\src\ClientSample'
+    SourceFolder: '$(FORepoRoot)\src\ClientSample'
     Contents: |
      **\*.cs
      **\*.csproj

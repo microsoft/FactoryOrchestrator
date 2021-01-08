@@ -11,6 +11,9 @@ trigger:
 - main
 pr: none
 
+variables:
+  FORepoRoot: '$(Build.SourcesDirectory)'
+
 stages:
 - stage: "Build_Test_FactoryOrchestrator_Service"
   jobs:

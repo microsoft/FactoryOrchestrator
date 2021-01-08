@@ -8,12 +8,12 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: '$(Build.SourcesDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(Build.SourcesDirectory)\src  --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-$(BuildPlatform) --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
+    arguments: '$(FORepoRoot)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(FORepoRoot)\src  --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-$(BuildPlatform) --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
     zipAfterPublish: false
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to Drop'
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(FORepoRoot)'
     Contents: 'NOTICE.txt'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)\$(BuildPlatform)\Microsoft.FactoryOrchestrator.Service_SCD'
 - task: PowerShell@2

@@ -2,14 +2,14 @@
 # Core and Client projects must be built for it to detect API changes.
 steps:
     - script: |
-        cd $(Build.SourcesDirectory)
+        cd $(FORepoRoot)
         mkdir $(Build.ArtifactStagingDirectory)\Patch
-        pip install --upgrade pip --upgrade -r $(System.DefaultWorkingDirectory)\docs\requirements.txt
-        mkdocs build --clean --config-file $(System.DefaultWorkingDirectory)\docs\mkdocs.yml
+        pip install --upgrade pip --upgrade -r $(FORepoRoot)\docs\requirements.txt
+        mkdocs build --clean --config-file $(FORepoRoot)\docs\mkdocs.yml
         git reset HEAD --hard
         git fetch
         git checkout gh-pages
-        robocopy $(System.DefaultWorkingDirectory)\docs\site\ $(System.DefaultWorkingDirectory)\ /S
+        robocopy $(FORepoRoot)\docs\site\ $(FORepoRoot)\ /S
         git restore sitemap.xml*
         git add -A
         git status > $(Build.ArtifactStagingDirectory)\Patch\GitStatus.txt

@@ -10,6 +10,9 @@ pool:
 pr:
   - 'main'
 
+variables:
+  FORepoRoot: '$(Build.SourcesDirectory)'
+
 stages:
 - stage: "Build_Test_FactoryOrchestrator_Service"
   jobs:
