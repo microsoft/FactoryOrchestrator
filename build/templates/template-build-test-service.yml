@@ -12,7 +12,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
-      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Detailed $(VERSIONSUFFIXDOTNET)'
+      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Diagnostic $(VERSIONSUFFIXDOTNET)'
     displayName: 'dotnet build $(BuildConfiguration)'
     condition: succeeded()
   - task: DotNetCoreCLI@2

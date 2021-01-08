@@ -4,6 +4,8 @@ parameters:
     default: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/"
   - name: "SignedOutput"
     default: "$(Build.ArtifactStagingDirectory)/signedbin/"
+  - name: "ShouldSign"
+    default: "false"
 steps:
 # uniqify binaries to prevent over-signing
 - powershell:
@@ -35,8 +37,8 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: $(SHOULDSIGN)
-    alwaysCopy: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
 # CP-231522​ is for 3rd party authored binaries (OSS).
@@ -60,8 +62,8 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: $(SHOULDSIGN)
-    alwaysCopy: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
 # undo uniqify. The now signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
@@ -82,3 +84,4 @@ steps:
 
 - publish: '$(SignedOutput)'
   artifact: 'SignedBin_Windows_$(BuildConfiguration)_AllPlatforms'
+  displayName: 'Publish signed binaries - Windows'
