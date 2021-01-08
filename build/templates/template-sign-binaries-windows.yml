@@ -67,7 +67,7 @@ steps:
     signingService: 'FactoryOrchestratorSigning'
 
 # undo uniqify. The now signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
-- powershell:
+- task: PowerShell@2
   inputs:
     targetType: filePath
     filePath: ./build/internal/CopyUniqueBins.ps1
