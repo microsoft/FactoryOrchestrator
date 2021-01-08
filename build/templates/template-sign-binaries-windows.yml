@@ -4,6 +4,8 @@ parameters:
     default: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/"
   - name: "SignedOutput"
     default: "$(Build.ArtifactStagingDirectory)/signedbin/"
+  - name: "ShouldSign"
+    default: "false"
 steps:
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
@@ -24,7 +26,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: $(SHOULDSIGN)
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -49,7 +51,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: $(SHOULDSIGN)
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
