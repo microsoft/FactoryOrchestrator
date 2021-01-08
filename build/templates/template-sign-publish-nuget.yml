@@ -1,6 +1,9 @@
 # Creates NuGet packages for desired projects. Publishes to NuGet.org.
 parameters:
-  UwpClientNuspecFolder: '$(Pipeline.Workspace)/UWPClient_Nuspecs'
+  - name: "UwpClientNuspecFolder"
+    default: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
+  - name: "ShouldSign"
+    default: "false"
 
 steps:
 - task: DotNetCoreCLI@2
@@ -38,12 +41,12 @@ steps:
 # Workaround nuget.exe pack's limitation with symbol file nuspecs by renaming the created file.
 - powershell: |
     $nugetexe = $env:NUGETEXETOOLPATH
-    foreach ($nuspec in Get-ChildItem -Path $(UwpClientNuspecFolder) -Filter "*.nuspec")
+    foreach ($nuspec in Get-ChildItem -Path ${{ parameters.UwpClientNuspecFolder }} -Filter "*.nuspec")
     {
       if ($nuspec.Name -like "*symbols.nuspec")
       {
         . $nugetexe pack $nuspec.FullName -outputdirectory "$(Build.ArtifactStagingDirectory)/tmp/Release/uwpclientsymbolnuget"
-        foreach ($nupkg in Get-ChildItem -Path $(UwpClientNuspecFolder) -Filter "*.nupkg")
+        foreach ($nupkg in Get-ChildItem -Path ${{ parameters.UwpClientNuspecFolder }} -Filter "*.nupkg")
         {
           $name = $nupkg.BaseName
           Move-Item $nupkg $(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget/$name.snupkg
@@ -81,7 +84,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: '$(SHOULDSIGN)'
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 

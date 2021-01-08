@@ -38,7 +38,7 @@ steps:
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
     shouldSign: ${{ parameters.ShouldSign }}
-    alwaysCopy: 'true'
+    alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
 # CP-231522​ is for 3rd party authored binaries (OSS).
@@ -63,7 +63,7 @@ steps:
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
     shouldSign: ${{ parameters.ShouldSign }}
-    alwaysCopy: 'true'
+    alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
 # undo uniqify. The now signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.

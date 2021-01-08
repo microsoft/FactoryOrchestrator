@@ -116,6 +116,7 @@ stages:
         steps:
         - checkout: ComplianceRepo
           clean: true
+        - template: ./templates/template-set-should-sign.yml
         - download: current
           artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
         - download: current
@@ -141,6 +142,8 @@ stages:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/ARM"
         - template: ./templates/template-sign-binaries-windows.yml
+          parameters:
+            ShouldSign: "$(SHOULDSIGN)"
 
   - stage: compliance
     displayName: Compliance
@@ -157,8 +160,6 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         
-        - template: ./templates/template-set-build-version.yml
-
         - task: PkgESSetupBuild@10
           displayName: 'Package ES - Setup Build'
           inputs:
@@ -168,6 +169,8 @@ stages:
             disableOutputRedirect: true
             disableMsbuildVersion: true
             useDfs: false
+
+        - template: ./templates/template-set-build-version.yml
 
         - powershell: |
             Get-Item -Path env:* | Sort-Object Name
@@ -216,6 +219,7 @@ stages:
           clean: true
         
         - template: ./templates/template-set-build-version.yml
+        - template: ./templates/template-set-should-sign.yml
         - template: ./templates/template-install-netcore.yml
 
         - powershell: |
@@ -234,6 +238,8 @@ stages:
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
 
         - template: ./templates/template-sign-publish-nuget.yml
+          parameters:
+            ShouldSign: "$(SHOULDSIGN)"
 
   - stage: 'Publish_vPack'
     dependsOn:

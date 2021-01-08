@@ -1,0 +1,13 @@
+steps:
+  - powershell: |
+      $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]true"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    condition: and(eq(variables['SKIPSIGNING'], 'false'), ne(variables['FORCESIGNING'], 'true'))
+    displayName: 'Set SHOULDSIGN=true'
+  - powershell: |
+      $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]false"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    condition: ne(variables['SHOULDSIGN'], 'true')
+    displayName: 'Set SHOULDSIGN=false'
