@@ -18,7 +18,6 @@ $CopyDestination = $CopyDestination.Replace('/', '\')
 $CopySource = $CopySource.Replace('/', '\')
 
 Write-Host "params:"
-Write-Host "SearchPath: $SearchPath"
 Write-Host "MappingFileOut: $MappingFileOut"
 Write-Host "SearchFilter: $SearchFilter"
 Write-Host "CopyDestination: $CopyDestination"
@@ -34,7 +33,7 @@ if ((Test-Path $CopyDestination) -eq $false)
 # create mapping and copy unique files
 if ($PSCmdlet.ParameterSetName -eq 'Find')
 {
-    $files = Get-ChildItem $SearchPath -Filter $SearchFilter -Recurse -File
+    $files = Get-ChildItem $CopySource -Filter $SearchFilter -Recurse -File
     # hashtable of file names & array of full paths that file is found in
     $mapping = @{}
     foreach ($file in $files)
