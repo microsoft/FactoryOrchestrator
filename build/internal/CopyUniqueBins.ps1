@@ -56,6 +56,8 @@ if ($PSCmdlet.ParameterSetName -eq 'Find')
             Write-Host "Adding mapping for file $($file.FullName) with hash $hash"
         }
     }
+
+    Get-ChildItem $CopyDestination
     
     # serialize mapping to file so we can use after signing
     $OutFolder = [System.IO.Path]::GetDirectoryName($MappingFileOut)
