@@ -7,7 +7,7 @@ parameters:
   - name: "ShouldSign"
     default: "false"
 steps:
-# uniqify binaries to prevent over-signing
+# uniqify binaries to speed up signing process by not signing dup files
 - task: PowerShell@2
   inputs:
     targetType: filePath
@@ -16,14 +16,6 @@ steps:
     failOnStderr: true
     pwsh: true
   displayName: 'Copy unique files to staging directory'
-
-# Per ESRP wiki, files are scanned for malware during signing.
-- template: EsrpScan.yml@ComplianceRepo
-  parameters:
-    scanPath: $(System.DefaultWorkingDirectory)/unsigneduniquefiles/
-    pattern: |
-      **\Microsoft.FactoryOrchestrator*.dll
-    scanningService: 'FactoryOrchestratorScanning'
 
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
@@ -83,7 +75,8 @@ steps:
     pwsh: true
   displayName: 'Copy signed, unique files to UnsignedInput directory'
 
-# if not signing this copies the unsigned files. if signing, this will have the signed files due to CopyUniqueBins operation.
+# if not signing this copies the unsigned files. if signing, this will have the signed files due to 2nd CopyUniqueBins operation.
+# therefore this task always runs
 - task: CopyFiles@2
   inputs:
     sourceFolder: ${{ parameters.UnsignedInput }}
