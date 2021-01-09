@@ -18,6 +18,12 @@ steps:
   displayName: 'Copy unique files to staging directory'
 
 # Per ESRP wiki, files are scanned for malware during signing.
+- template: EsrpScan.yml@ComplianceRepo
+  parameters:
+    scanPath: $(System.DefaultWorkingDirectory)/unsigneduniquefiles/
+    pattern: |
+      **\Microsoft.FactoryOrchestrator*.dll
+    scanningService: 'FactoryOrchestratorScanning'
 
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
