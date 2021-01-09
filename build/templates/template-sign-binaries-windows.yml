@@ -7,9 +7,6 @@ parameters:
   - name: "ShouldSign"
     default: "false"
 steps:
-- pwsh: |
-    Get-Item -Path env:* | Sort-Object Name
-  displayName: "Print all variables"
 # uniqify binaries to prevent over-signing
 - task: PowerShell@2
   inputs:
@@ -41,7 +38,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: ${{ parameters.ShouldSign }}
+    shouldSign: ${parameters.ShouldSign}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -66,7 +63,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: ${{ parameters.ShouldSign }}
+    shouldSign: ${parameters.ShouldSign}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
