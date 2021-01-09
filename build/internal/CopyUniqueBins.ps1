@@ -5,8 +5,7 @@
 [CmdletBinding(DefaultParameterSetName = 'Find')]
 Param
 (
-    [Parameter(ParameterSetName = 'Find')]
-    [string]$SearchPath,
+    [Parameter(ParameterSetName = 'Find')][string]$SearchPath,
     [Parameter(ParameterSetName = 'Find')][string]$MappingFileOut,
     [Parameter(ParameterSetName = 'Find')][string]$SearchFilter = "*",
     [Parameter(ParameterSetName = 'Find')][Parameter(ParameterSetName = 'CopyMapping')][string]$CopyDestination,
@@ -14,6 +13,13 @@ Param
     [Parameter(ParameterSetName = 'CopyMapping')][string]$CopySource
 )
 
+Write-Host "params:"
+Write-Host "SearchPath: $SearchPath"
+Write-Host "MappingFileOut: $MappingFileOut"
+Write-Host "SearchFilter: $SearchFilter"
+Write-Host "CopyDestination: $CopyDestination"
+Write-Host "MappingFileIn: $MappingFileIn"
+Write-Host "CopySource: $CopySource"
 $ErrorActionPreference = "stop"
 
 if ((Test-Path $CopyDestination) -eq $false)
