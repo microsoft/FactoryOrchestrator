@@ -13,8 +13,8 @@ Param
 )
 
 $MappingFileOut = $MappingFileOut.Replace('/', '\')
-$MappingFileOut = $MappingFileOut.Replace('/', '\')
 $MappingFileIn = $MappingFileIn.Replace('/', '\')
+$CopyDestination = $CopyDestination.Replace('/', '\')
 $CopySource = $CopySource.Replace('/', '\')
 
 Write-Host "params:"
