@@ -7,6 +7,9 @@ parameters:
   - name: "ShouldSign"
     default: "false"
 steps:
+- pwsh: |
+    Get-Item -Path env:* | Sort-Object Name
+  displayName: "Print all variables"
 # uniqify binaries to prevent over-signing
 - task: PowerShell@2
   inputs:
