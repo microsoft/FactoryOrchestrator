@@ -42,7 +42,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Find')
         {
             Write-Host "Copying unique file $($file.FullName) wuth hash $hash to $CopyDestination/$($hash)__$($file.Name)"
             $mapping.Add("$($hash)__$($file.Name)", @($file.FullName))
-            Copy-Item $file "$CopyDestination/$($hash)__$($file.Name)"
+            Copy-Item $file "$CopyDestination\$($hash)__$($file.Name)"
         }
         else
         {
