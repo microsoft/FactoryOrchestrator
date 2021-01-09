@@ -25,14 +25,14 @@ Write-Host "MappingFileIn: $MappingFileIn"
 Write-Host "CopySource: $CopySource"
 $ErrorActionPreference = "stop"
 
-if ((Test-Path $CopyDestination) -eq $false)
-{
-    $null = New-Item -Path $CopyDestination -ItemType Directory
-}
-
 # create mapping and copy unique files
 if ($PSCmdlet.ParameterSetName -eq 'Find')
 {
+    if ((Test-Path $CopyDestination) -eq $false)
+    {
+        $null = New-Item -Path $CopyDestination -ItemType Directory
+    }
+
     $files = Get-ChildItem $CopySource -Filter $SearchFilter -Recurse -File
     # hashtable of file names & array of full paths that file is found in
     $mapping = @{}
