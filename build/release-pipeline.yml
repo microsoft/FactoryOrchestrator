@@ -124,6 +124,9 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         - template: ./templates/template-set-should-sign.yml
+        - pwsh: |
+            Get-Item -Path env:* | Sort-Object Name
+          displayName: "Print all variables"
         - task: DownloadPipelineArtifact@2
           inputs:
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
