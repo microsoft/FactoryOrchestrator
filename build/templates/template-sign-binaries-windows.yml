@@ -83,6 +83,6 @@ steps:
     targetFolder: ${{ parameters.SignedOutput }}
   displayName: "Copy files to output folder"
 
-- publish: '{{ parameters.SignedOutput }}'
+- publish: '${{ parameters.SignedOutput }}''
   artifact: 'SignedBin_Windows_$(BuildConfiguration)_AllPlatforms'
   displayName: 'Publish signed binaries - Windows'
