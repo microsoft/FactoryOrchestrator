@@ -9,7 +9,7 @@ resources:
   - repository: ComplianceRepo
     type: github
     endpoint: microsoft
-    name: PowerShell/Compliance
+    name: spaceisfun/Compliance
     ref: master
 
 variables:
