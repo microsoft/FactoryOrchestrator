@@ -7,7 +7,7 @@ Param
 (
     [Parameter(ParameterSetName = 'Find')][string]$MappingFileOut,
     [Parameter(ParameterSetName = 'Find')][string]$SearchFilter = "*",
-    [Parameter(ParameterSetName = 'Find')],
+    [Parameter(ParameterSetName = 'Find')][string]$CopyDestination,
     [Parameter(ParameterSetName = 'CopyMapping')][string]$MappingFileIn,
     [Parameter(ParameterSetName = 'Find')][Parameter(ParameterSetName = 'CopyMapping')][string]$CopySource
 )
