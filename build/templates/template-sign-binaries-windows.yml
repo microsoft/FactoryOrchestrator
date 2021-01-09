@@ -70,7 +70,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: $(FORepoRoot)/build/internal/CopyUniqueBins.ps1
-    arguments: '-CopySource "$(System.DefaultWorkingDirectory)/signeduniquefiles" -CopyDestination "${{ parameters.SignedOutput }}" -MappingFileIn "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+    arguments: '-CopySource "$(System.DefaultWorkingDirectory)/signeduniquefiles" -MappingFileIn "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
     failOnStderr: true
     pwsh: true
   displayName: 'Copy signed, unique files to UnsignedInput directory'
