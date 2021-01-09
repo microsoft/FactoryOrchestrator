@@ -185,7 +185,7 @@ stages:
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/ARM"
         - template: ./templates/template-sign-binaries-windows.yml
           parameters:
-            ShouldSign: "$[variables.SHOULDSIGN]"
+            ShouldSign: "$(SHOULDSIGN)"
 
   - stage: compliance
     displayName: Compliance
