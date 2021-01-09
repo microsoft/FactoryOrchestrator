@@ -38,7 +38,7 @@ steps:
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
-    shouldSign: ${parameters.ShouldSign}
+    shouldSign: $[parameters.ShouldSign]
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
