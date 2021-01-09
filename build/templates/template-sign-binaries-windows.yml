@@ -1,7 +1,7 @@
 # Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform).
 parameters:
   - name: "UnsignedInput"
-    default: "$(Build.ARTIFACTSTAGINGDIRECTORY)\\unsignedbin\\"
+    default: "$(Build.ArtifactStagingDirectory)\\unsignedbin\\"
   - name: "SignedOutput"
     default: "$(Build.ArtifactStagingDirectory)\\signedbin\\"
   - name: "ShouldSign"
@@ -12,7 +12,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: $(FORepoRoot)/build/internal/CopyUniqueBins.ps1
-    arguments: '-SearchPath "${{ parameters.UnsignedInput }}" -CopyDestination "$(System.DefaultWorkingDirectory\\unsigneduniquefiles\\" -MappingFileOut "$(System.DefaultWorkingDirectory)\\mappingfile.xml"'
+    arguments: '-SearchPath "${{ parameters.UnsignedInput }}" -CopyDestination "$(System.DefaultWorkingDirectory)\\unsigneduniquefiles\\" -MappingFileOut "$(System.DefaultWorkingDirectory)\\mappingfile.xml"'
     failOnStderr: true
     pwsh: true
   displayName: 'Copy unique files to staging directory'
