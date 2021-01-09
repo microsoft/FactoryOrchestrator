@@ -135,7 +135,7 @@ stages:
             allowPartiallySucceededBuilds: true
             project: 'OneCore'
             pipeline: 60364
-            runVersion: 'latest'
+            runVersion: 'specific'
             runId: 30328366
         - task: DownloadPipelineArtifact@2
           inputs:
@@ -145,7 +145,7 @@ stages:
             allowPartiallySucceededBuilds: true
             project: 'OneCore'
             pipeline: 60364
-            runVersion: 'latest'
+            runVersion: 'specific'
             runId: 30328366
         - task: DownloadPipelineArtifact@2
           inputs:
@@ -155,7 +155,7 @@ stages:
             allowPartiallySucceededBuilds: true
             project: 'OneCore'
             pipeline: 60364
-            runVersion: 'latest'
+            runVersion: 'specific'
             runId: 30328366
         - task: DownloadPipelineArtifact@2
           inputs:
@@ -165,7 +165,7 @@ stages:
             allowPartiallySucceededBuilds: true
             project: 'OneCore'
             pipeline: 60364
-            runVersion: 'latest'
+            runVersion: 'specific'
             runId: 30328366
         - task: CopyFiles@2
           inputs:
