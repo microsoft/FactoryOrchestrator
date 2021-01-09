@@ -5,13 +5,17 @@
 [CmdletBinding(DefaultParameterSetName = 'Find')]
 Param
 (
-    [Parameter(ParameterSetName = 'Find')][string]$SearchPath,
     [Parameter(ParameterSetName = 'Find')][string]$MappingFileOut,
     [Parameter(ParameterSetName = 'Find')][string]$SearchFilter = "*",
     [Parameter(ParameterSetName = 'Find')][Parameter(ParameterSetName = 'CopyMapping')][string]$CopyDestination,
     [Parameter(ParameterSetName = 'CopyMapping')][string]$MappingFileIn,
-    [Parameter(ParameterSetName = 'CopyMapping')][string]$CopySource
+    [Parameter(ParameterSetName = 'Find')][Parameter(ParameterSetName = 'CopyMapping')][string]$CopySource
 )
+
+$MappingFileOut = $MappingFileOut.Replace('/', '\')
+$MappingFileOut = $MappingFileOut.Replace('/', '\')
+$MappingFileIn = $MappingFileIn.Replace('/', '\')
+$CopySource = $CopySource.Replace('/', '\')
 
 Write-Host "params:"
 Write-Host "SearchPath: $SearchPath"
