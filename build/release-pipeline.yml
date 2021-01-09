@@ -137,6 +137,18 @@ stages:
             pipeline: 60364
             runVersion: 'specific'
             runId: 30328366
+            path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            source: specific
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
+            runVersion: 'specific'
+            runId: 30328366
+            path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
         - task: DownloadPipelineArtifact@2
           inputs:
             source: specific
@@ -147,16 +159,7 @@ stages:
             pipeline: 60364
             runVersion: 'specific'
             runId: 30328366
-        - task: DownloadPipelineArtifact@2
-          inputs:
-            source: specific
-            artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
-            allowFailedBuilds: true
-            allowPartiallySucceededBuilds: true
-            project: 'OneCore'
-            pipeline: 60364
-            runVersion: 'specific'
-            runId: 30328366
+            path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
         - task: DownloadPipelineArtifact@2
           inputs:
             source: specific
@@ -167,6 +170,7 @@ stages:
             pipeline: 60364
             runVersion: 'specific'
             runId: 30328366
+            path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
