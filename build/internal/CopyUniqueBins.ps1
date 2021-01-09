@@ -40,6 +40,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Find')
     
         if ($mapping.ContainsKey("$($hash)__$($file.Name)") -eq $false)
         {
+            Write-Host "Copying unique file $($file.FullName) wuth hash $hash"
             $mapping.Add("$($hash)__$($file.Name)", @($file.FullName))
             Copy-Item $file "$CopyDestination/$($hash)__$($file.Name)"
         }
@@ -48,6 +49,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Find')
             $currentArray = $mapping["$($hash)__$($file.Name)"]
             $currentArray += $file.FullName
             $mapping["$($hash)__$($file.Name)"] = $currentArray
+            Write-Host "Adding mapping for file $($file.FullName) with hash $hash"
         }
     }
     
@@ -74,6 +76,7 @@ else # use mapping to copy unique files to all locations. Done after files are s
             # if file is in mapping, copy to destinations specified
             foreach ($dest in $mapping[$file.Name])
             {
+                Write-Host "Copying file $($file.FullName) to $dest"
                 Copy-Item $file $dest
             }
         }
