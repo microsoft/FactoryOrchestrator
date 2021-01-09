@@ -68,7 +68,8 @@ else # use mapping to copy unique files to all locations. Done after files are s
     
     # get all files to copy
     $files = Get-ChildItem $CopySource -Recurse -File
-    
+    Write-Host "$files.Count files found in $CopySource"
+
     foreach ($file in $files)
     {
         if ($mapping.ContainsKey($file.Name) -eq $true)
