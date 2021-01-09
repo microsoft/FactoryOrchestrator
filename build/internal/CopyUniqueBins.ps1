@@ -40,7 +40,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Find')
     
         if ($mapping.ContainsKey("$($hash)__$($file.Name)") -eq $false)
         {
-            Write-Host "Copying unique file $($file.FullName) wuth hash $hash"
+            Write-Host "Copying unique file $($file.FullName) wuth hash $hash to $CopyDestination/$($hash)__$($file.Name)"
             $mapping.Add("$($hash)__$($file.Name)", @($file.FullName))
             Copy-Item $file "$CopyDestination/$($hash)__$($file.Name)"
         }
@@ -68,7 +68,7 @@ else # use mapping to copy unique files to all locations. Done after files are s
     
     # get all files to copy
     $files = Get-ChildItem $CopySource -Recurse -File
-    Write-Host "$files.Count files found in $CopySource"
+    Write-Host "$($files.Count) files found in $CopySource"
 
     foreach ($file in $files)
     {
