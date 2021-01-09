@@ -124,28 +124,34 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         - template: ./templates/template-set-should-sign.yml
-        - download: specific
-          artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
-          allowFailedBuilds: true
-          allowPartiallySucceededBuilds: true
-          project: 'OneCore'
-          pipeline: 60364
-        - download: specific
-          artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
-          allowFailedBuilds: true
-          allowPartiallySucceededBuilds: true
-        - download: specific
-          artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
-          allowFailedBuilds: true
-          allowPartiallySucceededBuilds: true
-          project: 'OneCore'
-          pipeline: 60364
-        - download: specific
-          artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
-          allowFailedBuilds: true
-          allowPartiallySucceededBuilds: true
-          project: 'OneCore'
-          pipeline: 60364
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
