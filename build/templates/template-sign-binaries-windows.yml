@@ -31,8 +31,8 @@ steps:
     # If using minimatch: newline separated, with !, **, and * supported.
     # See link in the useMinimatch comments.
     pattern: |
-      '**/Microsoft.FactoryOrchestrator*.dll'
-      '**/Microsoft.FactoryOrchestrator*.exe'
+      '**/*__Microsoft.FactoryOrchestrator*.dll'
+      '**/*__Microsoft.FactoryOrchestrator*.exe'
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
@@ -54,10 +54,10 @@ steps:
     # If using minimatch: newline separated, with !, **, and * supported.
     # See link in the useMinimatch comments.
     pattern: |
-      '**/JKang.*.dll'
-      '**/PE-Utility.dll'
-      '**/PeterKottas.*.dll'
-      '**/DasMulli.*.dll'
+      '**/*__JKang.*.dll'
+      '**/*__PE-Utility.dll'
+      '**/*__PeterKottas.*.dll'
+      '**/*__DasMulli.*.dll'
     # decides if the task should use minimatch for the pattern matching.
     # https://github.com/isaacs/minimatch#features
     useMinimatch: true
