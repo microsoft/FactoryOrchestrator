@@ -37,7 +37,7 @@ steps:
     # the location to put the signed output
     signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
     # the certificate ID to use
-    certificateId: "CP-231522​"
+    certificateId: 'CP-231522​'
     # The file pattern to use
     # If not using minimatch: comma separated, with * supported
     # If using minimatch: newline separated, with !, **, and * supported.
