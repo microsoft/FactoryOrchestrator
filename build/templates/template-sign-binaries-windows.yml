@@ -20,19 +20,10 @@ steps:
 # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
-    # the folder which contains the binaries to sign
     buildOutputPath: '$(System.DefaultWorkingDirectory)/unsigneduniquefiles/'
-    # the location to put the signed output
     signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
-    # the certificate ID to use
-    certificateId: "​​CP-230012"
-    # The file pattern to use
-    # If not using minimatch: comma separated, with * supported
-    # If using minimatch: newline separated, with !, **, and * supported.
-    # See link in the useMinimatch comments.
+    certificateId: 'CP-230012'
     pattern: '*__Microsoft.FactoryOrchestrator*.dll,*__Microsoft.FactoryOrchestrator*.exe'
-    # decides if the task should use minimatch for the pattern matching.
-    # https://github.com/isaacs/minimatch#features
     useMinimatch: false
     shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'false'
