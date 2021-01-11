@@ -13,7 +13,7 @@ Param
 )
 
 # Ensure paths use consistent separator char
-$MappingFileOut = $MappingFileOut('\', '/')
+$MappingFileOut = $MappingFileOut.Replace('\', '/')
 $MappingFileIn = $MappingFileIn.Replace('\', '/')
 $CopyDestination = $CopyDestination.Replace('\', '/')
 $CopySource = $CopySource.Replace('\', '/')
