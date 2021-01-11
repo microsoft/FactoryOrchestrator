@@ -271,7 +271,7 @@ stages:
             uploadRoslyn: false
             uploadTSLint: false
             uploadAsync: true
-          condition: succeededOrFailed
+          condition: succeededOrFailed()
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
