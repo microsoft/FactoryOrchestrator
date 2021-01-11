@@ -12,10 +12,10 @@ Param
     [Parameter(ParameterSetName = 'Find')][Parameter(ParameterSetName = 'CopyMapping')][string]$CopySource
 )
 
-$MappingFileOut = $MappingFileOut.Replace('/', '\')
-$MappingFileIn = $MappingFileIn.Replace('/', '\')
-$CopyDestination = $CopyDestination.Replace('/', '\')
-$CopySource = $CopySource.Replace('/', '\')
+$MappingFileOut = Resolve-Path $MappingFileOut
+$MappingFileIn = Resolve-Path $MappingFileIn
+$CopyDestination = Resolve-Path $CopyDestination
+$CopySource = Resolve-Path  $CopySource
 
 Write-Host "params:"
 Write-Host "MappingFileOut: $MappingFileOut"
