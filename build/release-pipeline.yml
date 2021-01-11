@@ -230,7 +230,7 @@ stages:
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
             # binskim
-            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/**/*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/**/*.exe'
+            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*.exe'
             AnalyzeSymPath: 'SRV*'
             # component-governance
             sourceScanPath: '$(FORepoRoot)/src'
@@ -245,7 +245,7 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScan: true # set to false when not using Windows APIs.
+            APIScan: false # set to false when not using Windows APIs.
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
