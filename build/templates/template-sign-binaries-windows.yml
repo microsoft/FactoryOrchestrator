@@ -8,7 +8,7 @@ parameters:
     default: "false"
 steps:
 - pwsh: |
-    $outputDir = ${{ parameters.UnsignedInput }}
+    $outputDir = "${{ parameters.UnsignedInput }}"
     $outputDir = $outputDir.Replace('\', '/')
     Get-ChildItem -Path $outputDir -Recurse -Directory -Filter "ilc" | Remove-Item -Recurse -Force
   displayName: "Delete ilc App folders"
