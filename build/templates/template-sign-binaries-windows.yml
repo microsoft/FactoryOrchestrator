@@ -98,18 +98,18 @@ steps:
   displayName: 'Copy signed, unique files to UnsignedInput directory'
 
 - pwsh: |
-    $dir = "${{ parameters.UnsignedInput }}"$outputDir.Replace('\', '/')
-    $msix = Get-ChildItem -Path "${{ parameters.UnsignedInput }}" -Recurse -File -Filter "*.msix"
+    $dir = "${{ parameters.UnsignedInput }}".Replace('\', '/')
+    $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"
     if ($msix.Count > 0)
     {
-      $bundlesource = join-path "${{ parameters.UnsignedInput }}" "msix"
+      $bundlesource = join-path "$dir" "msix"
       new-item -path $bundlesource -type Directory
       foreach ($file in $msix)
       {
         copy-item $file $bundlesource
       }
 
-      $bundledest = join-path "${{ parameters.UnsignedInput }}" "msixbundle"
+      $bundledest = join-path "$dir" "msixbundle"
       new-item -path $bundledest -type Directory
 
       MakeAppx bundle /d "$bundlesource" /p "$bundledest\Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
