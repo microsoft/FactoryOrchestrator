@@ -130,7 +130,8 @@ stages:
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
-        # Tag build to use with '__testing'
+        # Useful to quickly iterate on later stages of the build.
+        # Tag the older build whose artifacts you want to use with '__testing'.
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
@@ -237,7 +238,8 @@ stages:
           displayName: "Print all variables"
 
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
-        # Tag build to use with '__testing'
+        # Useful to quickly iterate on later stages of the build.
+        # Tag the older build whose artifacts you want to use with '__testing'.
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
@@ -270,7 +272,7 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScan: false # set to false when not using Windows APIs.
+            APIScan: true # set to false when not using Windows APIs.
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
@@ -307,7 +309,8 @@ stages:
           displayName: 'dotnet restore'
 
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
-        # Tag build to use with '__testing'
+        # Useful to quickly iterate on later stages of the build.
+        # Tag the older build whose artifacts you want to use with '__testing'.
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
@@ -375,11 +378,9 @@ stages:
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
-        - download: 'current'
-          artifact: 'SignedBin_Windows_Release_AllPlatforms'
-
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
-        # Tag build to use with '__testing'
+        # Useful to quickly iterate on later stages of the build.
+        # Tag the older build whose artifacts you want to use with '__testing'.
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
@@ -391,6 +392,9 @@ stages:
         #     runVersion: 'latest'
         #     tags: '__testing'
         #     path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+        - download: 'current'
+          artifact: 'SignedBin_Windows_Release_AllPlatforms'
+
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"

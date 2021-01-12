@@ -19,7 +19,6 @@ steps:
       createLogFile: true
       clean: false
       maximumCpuCount: true
-    condition: succeeded()
   - task: PublishPipelineArtifact@1
     displayName: 'Publish uwpclient msbuild log as artifact'
     inputs:
