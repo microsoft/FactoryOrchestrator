@@ -6,7 +6,7 @@ steps:
     command: publish
     publishWebProjects: False
     zipAfterPublish: false
-    arguments: '$(FORepoRoot)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(FORepoRoot)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\Publish\Microsoft.FactoryOrchestrator.PowerShell --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
+    arguments: '$(FORepoRoot)\src\PowerShellLibrary\Microsoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(FORepoRoot)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\Publish\Microsoft.FactoryOrchestrator.PowerShell --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to publish'
   inputs:
