@@ -104,7 +104,7 @@ steps:
     # Find per arch msix
     $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"
     Write-Host "$($msix.Count) msix files found."
-    if ($msix.Count > 0)
+    if ($($msix.Count) > 0)
     {
       Write-Host $msix
 
