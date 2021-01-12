@@ -104,7 +104,7 @@ steps:
     # Find per arch msix
     $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"
     Write-Host "$($msix.Count) msix files found."
-    if ($($msix.Count) > 0)
+    if ($($msix.Count) -gt 0)
     {
       Write-Host $msix
 
@@ -134,7 +134,7 @@ steps:
         "$bundledest created."
       }
     }
-  displayName: 'Make msixbundle with signed msix files'
+  displayName: 'Make unsigned msixbundle with signed msix files'
 
 # if not signing this copies the unsigned files. if signing, this will have the signed files due to 2nd CopyUniqueBins operation.
 # therefore this task always runs
