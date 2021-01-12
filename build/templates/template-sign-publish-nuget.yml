@@ -6,6 +6,10 @@ parameters:
     default: "false"
 
 steps:
+- pwsh: |
+    Get-Item -Path env:* | Sort-Object Name
+  displayName: "Print all variables"
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack Client'
   inputs:
