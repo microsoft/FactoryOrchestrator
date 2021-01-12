@@ -295,11 +295,11 @@ stages:
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-sign.yml
         - template: ./templates/template-install-netcore.yml
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'restore'
-            projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
-          displayName: 'dotnet restore'
+        # - task: DotNetCoreCLI@2
+        #   inputs:
+        #     command: 'restore'
+        #     projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+        #   displayName: 'dotnet restore'
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
