@@ -3,25 +3,12 @@ parameters:
   BuildPlatform: 'x86'
 # Publishes Service. Creates Service vPacks.
 steps:
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish Microsoft.FactoryOrchestrator.Service ${{ parameters.BuildPlatform }}'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(FORepoRoot)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj -p:SolutionDir=$(FORepoRoot)\src  --configuration ${{ parameters.BuildConfiguration }} --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\${{ parameters.BuildPlatform }}\Microsoft.FactoryOrchestrator.Service_SCD --self-contained --runtime win-${{ parameters.BuildPlatform }} --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
-    zipAfterPublish: false
-- task: CopyFiles@2
-  displayName: 'Copy NOTICE to Drop'
-  inputs:
-    SourceFolder: '$(FORepoRoot)'
-    Contents: 'NOTICE.txt'
-    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\${{ parameters.BuildConfiguration }}\${{ parameters.BuildPlatform }}\Microsoft.FactoryOrchestrator.Service_SCD'
 - task: PowerShell@2
   displayName: 'Create Microsoft.FactoryOrchestrator.Service Manifest for VPack'
   inputs:
     targetType: filePath
     filePath: ./build/internal/CreateServiceManifest.ps1
-    arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\${{ parameters.BuildPlatform }}\Microsoft.FactoryOrchestrator.Service_SCD" -SourceRootFolder "`$(build.nttree)\$NtTreeRootFolder" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\${{ parameters.BuildPlatform }}\Microsoft.FactoryOrchestrator.Service_SCD\Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator'
+    arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}" -SourceRootFolder "`$(build.nttree)\$NtTreeRootFolder" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}\Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator'
     failOnStderr: true
     pwsh: true
   timeoutInMinutes: 5
@@ -30,12 +17,12 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ${{ parameters.BuildPlatform }}'
   inputs:
-    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\${{ parameters.BuildPlatform }}\Microsoft.FactoryOrchestrator.Service_SCD'
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}$(VPACKNAME)'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
-- publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\${{ parameters.BuildPlatform }}\Microsoft.FactoryOrchestrator.Service_SCD'
+- publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
   artifact: 'Microsoft.FactoryOrchestrator.Service_${{ parameters.BuildPlatform }}'
   displayName: 'Publish Service SCD ${{ parameters.BuildPlatform }} artifact'
 - task: CopyFiles@2
@@ -43,5 +30,12 @@ steps:
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+- task: CopyFiles@2
+  displayName: 'Copy Service Manifest ${{ parameters.BuildPlatform }}'
+  inputs:
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    Contents: 'Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
   condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))

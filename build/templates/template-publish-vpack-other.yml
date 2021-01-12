@@ -30,19 +30,6 @@ steps:
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
   condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish FactoryOrchestratorClient PowerShell'
-  inputs:
-    command: publish
-    publishWebProjects: False
-    arguments: '$(FORepoRoot)\src\PowerShellLibrary\FactoryOrchestratorMicrosoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(FORepoRoot)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
-    zipAfterPublish: false
-  enabled: true
-
-- publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU/Microsoft.FactoryOrchestrator.PowerShell_Publish'
-  artifact: 'Microsoft.FactoryOrchestrator.PowerShell'
-  displayName: 'Publish PowerShell Client artifact'
-
 - task: CopyFiles@2
   displayName: 'Copy Client Libraries to root of drop'
   inputs:
@@ -69,7 +56,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy PowerShell Publish to Client Libraries'
   inputs:
-    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.PowerShell_Publish'
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\Publish\Microsoft.FactoryOrchestrator.PowerShell'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries\PowerShell'
   condition: succeeded()
 
