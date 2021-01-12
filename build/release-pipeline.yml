@@ -373,6 +373,7 @@ stages:
             useDfs: false
         
         - template: ./templates/template-set-build-version.yml
+        - template: ./templates/template-install-netcore.yml
 
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
@@ -399,7 +400,11 @@ stages:
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
-
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'restore'
+            projects: '$(FORepoRoot)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj'
+          displayName: 'dotnet restore service'
         - template: ./templates/template-publish-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
