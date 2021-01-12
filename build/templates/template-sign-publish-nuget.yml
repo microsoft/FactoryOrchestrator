@@ -36,6 +36,7 @@ steps:
     {
       if ($nuspec.Name -like "*symbols.nuspec")
       {
+        Write-Host "$nugetexe pack $nuspec.FullName -outputdirectory `"$(Build.ArtifactStagingDirectory)/tmp/Release/uwpclientsymbolnuget`"
         . $nugetexe pack $nuspec.FullName -outputdirectory "$(Build.ArtifactStagingDirectory)/tmp/Release/uwpclientsymbolnuget"
         foreach ($nupkg in Get-ChildItem -Path ${{ parameters.UwpClientNuspecFolder }} -Filter "*.nupkg")
         {
