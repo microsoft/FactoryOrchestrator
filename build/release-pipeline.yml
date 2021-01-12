@@ -338,7 +338,15 @@ stages:
           artifact: 'SignedBin_Windows_Release_AllPlatforms'
 
         - download: 'current'
+          artifact: 'Project_Assets_JSON'
+
+        - download: 'current'
           artifact: 'UWPClient_Nuspecs'
+
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: "$(Pipeline.Workspace)/Project_Assets_JSON"
+            targetFolder: "$(FORepoRoot)"
 
         - task: CopyFiles@2
           inputs:
