@@ -32,21 +32,21 @@ steps:
 # Workaround nuget.exe pack's limitation with symbol file nuspecs by renaming the created file.
 - pwsh: |
     $nugetexe = $env:NUGETEXETOOLPATH
-    foreach ($nuspec in Get-ChildItem -Path ${{ parameters.UwpClientNuspecFolder }} -Filter "*.nuspec")
+    foreach ($nuspec in Get-ChildItem -Path $env:parameters_UwpClientNuspecFolder -Filter "*.nuspec")
     {
       if ($nuspec.Name -like "*symbols.nuspec")
       {
-        Write-Host "$nugetexe pack $nuspec.FullName -outputdirectory `"$(Build.ArtifactStagingDirectory)/tmp/Release/uwpclientsymbolnuget`"
-        . $nugetexe pack $nuspec.FullName -outputdirectory "$(Build.ArtifactStagingDirectory)/tmp/Release/uwpclientsymbolnuget"
-        foreach ($nupkg in Get-ChildItem -Path ${{ parameters.UwpClientNuspecFolder }} -Filter "*.nupkg")
+        Write-Host "$nugetexe pack $nuspec.FullName -outputdirectory `"$env:Build_ArtifactStagingDirectory/tmp/Release/uwpclientsymbolnuget`"
+        . $nugetexe pack $nuspec.FullName -outputdirectory "$env:Build_ArtifactStagingDirectory/tmp/Release/uwpclientsymbolnuget"
+        foreach ($nupkg in Get-ChildItem -Path $env:parameters_UwpClientNuspecFolder -Filter "*.nupkg")
         {
           $name = $nupkg.BaseName
-          Move-Item $nupkg $(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget/$name.snupkg
+          Move-Item $nupkg $env:Build_ArtifactStagingDirectory/bin/Release/unsignednuget/$name.snupkg
         }
       }
       else
       {
-        . $nugetexe pack $nuspec.FullName -outputdirectory "$(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget"
+        . $nugetexe pack $($nuspec.FullName) -outputdirectory "$env:Build_ArtifactStagingDirectory/bin/Release/unsignednuget"
       }
     }
   displayName: 'NuGet pack UWPClient'
