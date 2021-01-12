@@ -98,28 +98,40 @@ steps:
   displayName: 'Copy signed, unique files to UnsignedInput directory'
 
 - pwsh: |
-    $dir = "${{ parameters.UnsignedInput }}".Replace('\', '/')
+    # Use Windows path separator
+    $dir = "${{ parameters.UnsignedInput }}".Replace('/', '\')
+
+    # Find per arch msix
     $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"
     Write-Host "$($msix.Count) msix files found."
     if ($msix.Count > 0)
     {
       Write-Host $msix
+
+      # copy msix to new folder
       $bundlesource = join-path "$dir" "msix"
       new-item -path $bundlesource -type Directory
+
       foreach ($file in $msix)
       {
         copy-item $file $bundlesource
       }
 
+      # create msix bundle
       $bundlefolder = join-path "$dir" "msixbundle"
       new-item -path $bundlefolder -type Directory
       $bundledest = join-path $bundlefolder "Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
 
       . MakeAppx bundle /d "$bundlesource" /p "$bundledest"
 
+      # verify
       if (!(Test-Path $bundledest))
       {
         Write-Error "$bundledest does not exist!"
+      }
+      else
+      {
+        "$bundledest created."
       }
     }
   displayName: 'Make msixbundle with signed msix files'
