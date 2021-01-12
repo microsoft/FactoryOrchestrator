@@ -13,7 +13,7 @@ steps:
     includesymbols: true
     nobuild: true
     packDirectory: '$(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget'
-    arguments: '$(FORepoRoot)\src\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj --configuration Release --verbosity Detailed $(VERSIONSUFFIXDOTNET)'
+    arguments: '$(FORepoRoot)/src/ClientLibrary/Microsoft.FactoryOrchestrator.Client.csproj --configuration Release --verbosity Detailed $(VERSIONSUFFIXDOTNET)'
     zipAfterPublish: false
 
 - task: DotNetCoreCLI@2
