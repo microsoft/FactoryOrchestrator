@@ -53,16 +53,7 @@ stages:
       - template: ./templates/template-build-service-windows-runtimes.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
-        displayName: 'Publish unsigned binarise AnyCPU'
-      - task: CopyFiles@2
-        inputs:
-          sourceFolder: "$(FORepoRoot)/"
-          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/projassetsjson/"
-          contents: "**/project.assets.json"
-        displayName: 'Copy project assets JSONs'
-      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/projassetsjson/'
-        artifact: 'Project_Assets_JSON'
-        displayName: 'Publish project assets JSONs'
+        displayName: 'Publish unsigned binaries AnyCPU'
       - template: ./templates/template-checkdocs.yml
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
@@ -304,7 +295,11 @@ stages:
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-sign.yml
         - template: ./templates/template-install-netcore.yml
-
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'restore'
+            projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+          displayName: 'dotnet restore'
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
@@ -336,9 +331,6 @@ stages:
 
         - download: 'current'
           artifact: 'SignedBin_Windows_Release_AllPlatforms'
-
-        - download: 'current'
-          artifact: 'Project_Assets_JSON'
 
         - download: 'current'
           artifact: 'UWPClient_Nuspecs'
