@@ -100,7 +100,7 @@ steps:
 - pwsh: |
     $dir = "${{ parameters.UnsignedInput }}".Replace('\', '/')
     $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"
-    Write-Host "$msix.Count msix files found."
+    Write-Host "$($msix.Count) msix files found."
     if ($msix.Count > 0)
     {
       Write-Host $msix
@@ -114,7 +114,7 @@ steps:
       $bundledest = join-path "$dir" "msixbundle"
       new-item -path $bundledest -type Directory
 
-      MakeAppx bundle /d "$bundlesource" /p "$bundledest\Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
+      . MakeAppx bundle /d "$bundlesource" /p "$bundledest\Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
     }
   displayName: 'Make msixbundle with signed msix files'
 
