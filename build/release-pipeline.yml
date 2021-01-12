@@ -299,10 +299,10 @@ stages:
     jobs:
       - job: Publish_vPacks
         variables:
-          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
+          FORepoRoot: '$(Build.SourcesDirectory)'
         steps:
         - checkout: self
-          clean: true    
+          clean: true
 
         - task: PkgESSetupBuild@10
           displayName: 'Package ES - Setup Build'
