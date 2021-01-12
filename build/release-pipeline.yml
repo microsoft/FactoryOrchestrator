@@ -342,7 +342,7 @@ stages:
 
         - template: ./templates/template-sign-publish-nuget.yml
           parameters:
-            ShouldSign: "$[variables.SHOULDSIGN]"
+            ShouldSign: "$(SHOULDSIGN)"
 
   - stage: 'Publish_vPack'
     dependsOn:
