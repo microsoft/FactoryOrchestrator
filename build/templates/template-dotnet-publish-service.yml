@@ -4,19 +4,25 @@ parameters:
   BuildPlatform: 'x64'
   BuildOS: 'win'
 steps:
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'publish'
-      publishWebProjects: False
-      zipAfterPublish: false
-      arguments: '$(System.DefaultWorkingDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj --nologo -p:PublishReadyToRun=true;SolutionDir=$(System.DefaultWorkingDirectory)\src\ --self-contained --configuration ${{ parameters.BuildConfiguration }} -r ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildPlatform }}_MsBuild.log;Verbosity=Detailed --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }} $(VERSIONSUFFIXDOTNET)'
-    displayName: 'dotnet publish for ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
-  - task: CopyFiles@2
-    displayName: 'Copy NOTICE to publish'
-    inputs:
-      SourceFolder: '$(FORepoRoot)'
-      Contents: 'NOTICE.txt'
-      TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
-  - publish: $(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildPlatform }}_MsBuild.log
-    artifact: MSBuildLog_Publish_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_${{ parameters.BuildConfiguration }}
-    displayName: 'Publish msbuild log for publish ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: False
+    zipAfterPublish: false
+    arguments: '$(System.DefaultWorkingDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj --nologo -p:PublishReadyToRun=true;SolutionDir=$(System.DefaultWorkingDirectory)\src\ --self-contained --configuration ${{ parameters.BuildConfiguration }} -r ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildPlatform }}_MsBuild.log;Verbosity=Detailed --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }} $(VERSIONSUFFIXDOTNET)'
+  displayName: 'dotnet publish for ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to publish'
+  inputs:
+    SourceFolder: '$(FORepoRoot)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+- task: CopyFiles@2
+  displayName: 'Copy LICENSE to publish'
+  inputs:
+    SourceFolder: '$(FORepoRoot)'
+    Contents: 'LICENSE'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+- publish: $(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildPlatform }}_MsBuild.log
+  artifact: MSBuildLog_Publish_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_${{ parameters.BuildConfiguration }}
+  displayName: 'Publish msbuild log for publish ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'

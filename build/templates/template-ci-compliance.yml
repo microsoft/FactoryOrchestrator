@@ -1,24 +1,24 @@
 # Runs compliance tasks for CI builds.
 steps:
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
-    displayName: 'Scan for Secrets'
-    inputs:
-      suppressionsFile: build/config/CredScanSuppressions.json
-      toolMajorVersion: V2
-      debugMode: false
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+  displayName: 'Scan for Secrets'
+  inputs:
+    suppressionsFile: build/config/CredScanSuppressions.json
+    toolMajorVersion: V2
+    debugMode: false
 
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
-    displayName: 'Publish CredScan Logs to Build Artifacts'
-    continueOnError: true
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+  displayName: 'Publish CredScan Logs to Build Artifacts'
+  continueOnError: true
 
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
-    displayName: 'Check for Failures'
-    inputs:
-      CredScan: true
-      ToolLogsNotFoundAction: Error
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+  displayName: 'Check for Failures'
+  inputs:
+    CredScan: true
+    ToolLogsNotFoundAction: Error
 
-  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-    displayName: 'Component Governance'
-    inputs:
-      sourceScanPath: $(FORepoRoot)
-      snapshotForceEnabled: true
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Governance'
+  inputs:
+    sourceScanPath: $(FORepoRoot)
+    snapshotForceEnabled: true
