@@ -20,12 +20,14 @@ variables:
     VERSIONSUFFIXDOTNET: ' '
     SKIPSIGNING: 'false'
     SKIPPUSH: 'false'
+    SKIPAPISCAN: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     VERSIONSUFFIX: '$(Build.SourceBranchName)'
     VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
+    SKIPAPISCAN: 'true'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
@@ -304,7 +306,7 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScan: true # set to false when not using Windows APIs.
+            APIScan: not($(SKIPAPISCAN)) # set to false when not using Windows APIs.
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
