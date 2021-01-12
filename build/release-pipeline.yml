@@ -53,12 +53,16 @@ stages:
       - template: ./templates/template-build-service-windows-runtimes.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
+        displayName: 'Publish unsigned binarise AnyCPU'
       - task: CopyFiles@2
         inputs:
           sourceFolder: "$(FORepoRoot)/"
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/projassetsjson/"
           contents: "project.assets.json"
         displayName: 'Copy project assets JSONs'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/projassetsjson/'
+        artifact: 'Project_Assets_JSON'
+        displayName: 'Publish project assets JSONs'
       - template: ./templates/template-checkdocs.yml
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
