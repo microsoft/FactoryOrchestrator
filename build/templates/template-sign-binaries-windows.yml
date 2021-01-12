@@ -122,7 +122,7 @@ steps:
       new-item -path $bundlefolder -type Directory
       $bundledest = join-path $bundlefolder "Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
 
-      . MakeAppx bundle /d "$bundlesource" /p "$bundledest"
+      . cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsDevCmd.bat && MakeAppx bundle /d "$bundlesource" /p "$bundledest""
 
       # verify
       if (!(Test-Path $bundledest))
@@ -134,7 +134,7 @@ steps:
         "$bundledest created."
       }
     }
-  displayName: 'Make unsigned msixbundle with signed msix files'
+  displayName: 'Create unsigned msixbundle with signed msix files'
 
 # if not signing this copies the unsigned files. if signing, this will have the signed files due to 2nd CopyUniqueBins operation.
 # therefore this task always runs
