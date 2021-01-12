@@ -38,7 +38,7 @@ stages:
       - visualstudio
 
     jobs:
-    - job: "Build_Test_FactoryOrchestrator_Service"
+    - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
       variables:
         BuildPlatform: 'AnyCPU'
         FORepoRoot: '$(Build.SourcesDirectory)'
@@ -51,6 +51,7 @@ stages:
         displayName: "Print all variables"
       - template: ./templates/template-build-test-service.yml
       - template: ./templates/template-build-service-windows-runtimes.yml
+      - template: ./templates/template-build-uwpclient.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
         displayName: 'Publish unsigned binaries AnyCPU'
