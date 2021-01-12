@@ -122,7 +122,7 @@ steps:
       new-item -path $bundlefolder -type Directory
       $bundledest = join-path $bundlefolder "Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
 
-      . cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat && MakeAppx bundle /d "$bundlesource" /p "$bundledest""
+      . cmd.exe /C "`"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat`" && MakeAppx bundle /d `"$bundlesource`" /p `"$bundledest`""
 
       # verify
       if (!(Test-Path $bundledest))
