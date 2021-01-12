@@ -58,7 +58,7 @@ stages:
         inputs:
           sourceFolder: "$(FORepoRoot)/"
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/projassetsjson/"
-          contents: "project.assets.json"
+          contents: "**/project.assets.json"
         displayName: 'Copy project assets JSONs'
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/projassetsjson/'
         artifact: 'Project_Assets_JSON'
