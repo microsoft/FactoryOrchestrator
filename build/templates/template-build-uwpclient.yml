@@ -12,7 +12,7 @@ steps:
   - task: VSBuild@1
     displayName: 'Build UWPClient Target'
     inputs:
-      platform: 'AnyCPU'
+      platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
       solution: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestrator.sln'
       msbuildArgs: '/p:BuildProjectReferences=false /t:Microsoft_FactoryOrchestrator_UWPClient /fl /flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\UWPClient_$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Detailed'
