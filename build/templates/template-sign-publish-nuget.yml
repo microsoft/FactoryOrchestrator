@@ -11,7 +11,7 @@ steps:
   inputs:
     command: 'custom'
     custom: 'pack'
-    arguments: '$(FORepoRoot)/src/ClientLibrary/Microsoft.FactoryOrchestrator.Client.csproj --configuration Release --verbosity Detailed --p:SolutionDir=$(FORepoRoot)/src/ --no-build --no-restore $(VERSIONSUFFIXDOTNET) -o $(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget --include-symbols --nologo'
+    arguments: '$(FORepoRoot)/src/ClientLibrary/Microsoft.FactoryOrchestrator.Client.csproj --configuration Release --verbosity Detailed -p:SolutionDir=$(FORepoRoot)/src/ --no-build --no-restore $(VERSIONSUFFIXDOTNET) -o $(Build.ArtifactStagingDirectory)/bin/Release/unsignednuget --include-symbols --nologo'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack Core'
