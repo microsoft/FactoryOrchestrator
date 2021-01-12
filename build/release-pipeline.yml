@@ -360,6 +360,7 @@ stages:
             productName: 'FactoryOrchestrator'
             disableOutputRedirect: true
             disableMsbuildVersion: true
+            useDfs: false
         
         - template: ./templates/template-set-build-version.yml
 
