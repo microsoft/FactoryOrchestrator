@@ -111,10 +111,16 @@ steps:
         copy-item $file $bundlesource
       }
 
-      $bundledest = join-path "$dir" "msixbundle"
-      new-item -path $bundledest -type Directory
+      $bundlefolder = join-path "$dir" "msixbundle"
+      new-item -path $bundlefolder -type Directory
+      $bundledest = join-path $bundlefolder "Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
 
-      . MakeAppx bundle /d "$bundlesource" /p "$bundledest\Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
+      . MakeAppx bundle /d "$bundlesource" /p "$bundledest"
+
+      if ($false -eq Test-Path $bundledest)
+      {
+        Write-Error "$bundledest does not exist!"
+      }
     }
   displayName: 'Make msixbundle with signed msix files'
 
