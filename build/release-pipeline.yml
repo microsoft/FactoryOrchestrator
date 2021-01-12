@@ -306,34 +306,34 @@ stages:
 
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Tag build to use with '__testing'
-        # - task: DownloadPipelineArtifact@2
-        #   inputs:
-        #     source: specific
-        #     artifact: SignedBin_Windows_Release_AllPlatforms
-        #     allowFailedBuilds: true
-        #     allowPartiallySucceededBuilds: true
-        #     project: 'OneCore'
-        #     pipeline: 60364
-        #     runVersion: 'latest'
-        #     tags: '__testing'
-        #     path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
-        # - task: DownloadPipelineArtifact@2
-        #   inputs:
-        #     source: specific
-        #     artifact: UWPClient_Nuspecs
-        #     allowFailedBuilds: true
-        #     allowPartiallySucceededBuilds: true
-        #     project: 'OneCore'
-        #     pipeline: 60364
-        #     runVersion: 'latest'
-        #     tags: '__testing'
-        #     path: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            source: specific
+            artifact: SignedBin_Windows_Release_AllPlatforms
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
+            runVersion: 'latest'
+            tags: '__testing'
+            path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            source: specific
+            artifact: UWPClient_Nuspecs
+            allowFailedBuilds: true
+            allowPartiallySucceededBuilds: true
+            project: 'OneCore'
+            pipeline: 60364
+            runVersion: 'latest'
+            tags: '__testing'
+            path: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
 
-        - download: 'current'
-          artifact: 'SignedBin_Windows_Release_AllPlatforms'
+        # - download: 'current'
+        #   artifact: 'SignedBin_Windows_Release_AllPlatforms'
 
-        - download: 'current'
-          artifact: 'UWPClient_Nuspecs'
+        # - download: 'current'
+        #   artifact: 'UWPClient_Nuspecs'
 
         - task: CopyFiles@2
           inputs:
