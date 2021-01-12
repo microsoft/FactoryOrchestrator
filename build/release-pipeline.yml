@@ -295,6 +295,7 @@ stages:
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-sign.yml
         - template: ./templates/template-install-netcore.yml
+        - task: NuGetToolInstaller@1
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
