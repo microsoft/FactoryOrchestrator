@@ -127,7 +127,8 @@ stages:
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
-        # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing
+        # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
+        # Tag build to use with '__testing'
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
@@ -136,8 +137,8 @@ stages:
         #     allowPartiallySucceededBuilds: true
         #     project: 'OneCore'
         #     pipeline: 60364
-        #     runVersion: 'specific'
-        #     runId: 30328366
+        #     runVersion: 'latest'
+        #     tags: '__testing'
         #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
         # - task: DownloadPipelineArtifact@2
         #   inputs:
@@ -147,8 +148,8 @@ stages:
         #     allowPartiallySucceededBuilds: true
         #     project: 'OneCore'
         #     pipeline: 60364
-        #     runVersion: 'specific'
-        #     runId: 30328366
+        #     runVersion: 'latest'
+        #     tags: '__testing'
         #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
         # - task: DownloadPipelineArtifact@2
         #   inputs:
@@ -158,8 +159,8 @@ stages:
         #     allowPartiallySucceededBuilds: true
         #     project: 'OneCore'
         #     pipeline: 60364
-        #     runVersion: 'specific'
-        #     runId: 30328366
+        #     runVersion: 'latest'
+        #     tags: '__testing'
         #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
         # - task: DownloadPipelineArtifact@2
         #   inputs:
@@ -169,8 +170,8 @@ stages:
         #     allowPartiallySucceededBuilds: true
         #     project: 'OneCore'
         #     pipeline: 60364
-        #     runVersion: 'specific'
-        #     runId: 30328366
+        #     runVersion: 'latest'
+        #     tags: '__testing'
         #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
         - download: current
           artifact: UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU
