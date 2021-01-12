@@ -295,7 +295,6 @@ stages:
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-sign.yml
         - template: ./templates/template-install-netcore.yml
-          displayName: 'dotnet restore'
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
@@ -303,6 +302,7 @@ stages:
           inputs:
             command: 'restore'
             projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+          displayName: 'dotnet restore'
 
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Tag build to use with '__testing'
