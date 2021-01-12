@@ -30,7 +30,7 @@ variables:
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
 stages:
-  - stage: 'Build_Test_FactoryOrchestrator_Windows_DotNet'
+  - stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:
@@ -38,7 +38,7 @@ stages:
       - visualstudio
 
     jobs:
-    - job: "Build_Test_FactoryOrchestrator_Windows_DotNet"
+    - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
       variables:
         BuildPlatform: 'AnyCPU'
         FORepoRoot: '$(Build.SourcesDirectory)'
@@ -64,14 +64,17 @@ stages:
           BuildPlatform: 'arm64'
       - template: ./templates/template-dotnet-publish-pwsh-library.yml
       - template: ./templates/template-build-uwpclient.yml
-      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
-        artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_DotNet'
-        displayName: 'Publish unsigned binaries AnyCPU & service publish'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
+        artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
+        displayName: 'Publish unsigned binaries AnyCPU'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/Publish'
+        artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_Publish'
+        displayName: 'Publish unsigned binaries service publish'
       - template: ./templates/template-checkdocs.yml
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
     dependsOn:
-    - 'Build_Test_FactoryOrchestrator_Windows_DotNet'
+    - 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:
@@ -99,13 +102,13 @@ stages:
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
       - download: current
-        artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_DotNet'
+        artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
       - task: CopyFiles@2
         inputs:
-          sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_DotNet"
-          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)"
+          sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU"
       - template: ./templates/template-build-app.yml
-      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
         displayName: 'Publish unsigned Windows bin'
       - task: CopyFiles@2
@@ -147,14 +150,25 @@ stages:
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
-        #     artifact: UnsignedBin_Windows_$(BuildConfiguration)_DotNet
+        #     artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
         #     allowFailedBuilds: true
         #     allowPartiallySucceededBuilds: true
         #     project: 'OneCore'
         #     pipeline: 60364
         #     runVersion: 'latest'
         #     tags: '__testing'
-        #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_DotNet"
+        #     path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+        # - task: DownloadPipelineArtifact@2
+        #   inputs:
+        #     source: specific
+        #     artifact: UnsignedBin_Windows_$(BuildConfiguration)_Publish
+        #     allowFailedBuilds: true
+        #     allowPartiallySucceededBuilds: true
+        #     project: 'OneCore'
+        #     pipeline: 60364
+        #     runVersion: 'latest'
+        #     tags: '__testing'
+        #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
         # - task: DownloadPipelineArtifact@2
         #   inputs:
         #     source: specific
@@ -189,7 +203,9 @@ stages:
         #     tags: '__testing'
         #     path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
         - download: current
-          artifact: UnsignedBin_Windows_$(BuildConfiguration)_DotNet
+          artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+        - download: current
+          artifact: UnsignedBin_Windows_$(BuildConfiguration)_Publish
         - download: current
           artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
         - download: current
@@ -198,8 +214,12 @@ stages:
           artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_DotNet"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/"
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/AnyCPU"
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/Publish"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
@@ -317,7 +337,7 @@ stages:
         - task: DotNetCoreCLI@2
           inputs:
             command: 'restore'
-            projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+            projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
           displayName: 'dotnet restore'
 
         # Use these commented DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
@@ -357,7 +377,7 @@ stages:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
 
-        - template: ./templates/template-sign-publish-nuget.yml
+        - template: ./templates/template-pack-sign-nuget.yml
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
 
@@ -417,23 +437,23 @@ stages:
             command: 'restore'
             projects: '$(FORepoRoot)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj'
           displayName: 'dotnet restore service'
-        - template: ./templates/template-publish-vpack-service.yml
+        - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'x86'
-        - template: ./templates/template-publish-vpack-service.yml
+        - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'x64'
-        - template: ./templates/template-publish-vpack-service.yml
+        - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm'
-        - template: ./templates/template-publish-vpack-service.yml
+        - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm64'
-        - template: ./templates/template-publish-vpack-other.yml
+        - template: ./templates/template-push-vpack-other.yml
 
         # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
         - pwsh: |
