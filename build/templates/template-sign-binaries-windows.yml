@@ -117,7 +117,7 @@ steps:
 
       . MakeAppx bundle /d "$bundlesource" /p "$bundledest"
 
-      if ($false -eq Test-Path $bundledest)
+      if (!(Test-Path $bundledest))
       {
         Write-Error "$bundledest does not exist!"
       }
