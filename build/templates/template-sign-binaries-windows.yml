@@ -48,44 +48,38 @@ steps:
     signingService: 'FactoryOrchestratorSigning'
 
 # Sign appx
-# - pwsh: |
-#     [string] $CertificateId = "Dynamic"
-#     [string] $VariableName = "EsrpJson"
-#     [string] $SigningServer = '$(SigningServer)'
-#     Write-Verbose "SigningServer - $SigningServer" -Verbose
-#     $esrpParameters = @(
-#     @{
-#         ParameterName  = "OpusName"
-#         ParameterValue = "Microsoft"
-#     }
-#     @{
-#         ParameterName  = "OpusInfo"
-#         ParameterValue = "http://www.microsoft.com"
-#     }
-#     @{
-#         ParameterName  = "FileDigest"
-#         ParameterValue = "/fd sha256"
-#     }
-#     @{
-#         ParameterName  = "TimeStamp"
-#         ParameterValue = "/tr ""$SigningServer"" /td sha256"
-#     }
-#     )
-#     $esrp = @(@{
-#     keyCode = $CertificateId
-#     operationSetCode = "WINMSAPP1ST"
-#     parameters = $esrpParameters
-#     toolName = "signtool.exe"
-#     toolVersion = "6.2.9304.0"
-#     })
-#     $vstsCommandString = "vso[task.setvariable variable=$VariableName][$($esrp | ConvertTo-Json -Compress)]"
-#     Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
-#     Write-Host "##$vstsCommandString"
-#     $vstsCommandString = "vso[task.setvariable variable=GDN_CODESIGN_TARGETDIRECTORY]${{ parameters.signOutputPath }}"
-#     Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
-#     Write-Host "##$vstsCommandString"
-#   displayName: Generate msix signing JSON
-#   condition: and(succeeded(), eq(variables['ESRP_TEMPLATE_SHOULD_SIGN'], 'True'))
+- pwsh: |
+    [string] $CertificateId = "Dynamic"
+    [string] $VariableName = "EsrpJson"
+    [string] $SigningServer = '$(SigningServer)'
+    Write-Verbose "SigningServer - $SigningServer" -Verbose
+    $esrpParameters = @(
+    @{
+        ParameterName  = "OpusName"
+        ParameterValue = "Microsoft"
+    }
+    @{
+        ParameterName  = "OpusInfo"
+        ParameterValue = "http://www.microsoft.com"
+    }
+    @{
+        ParameterName  = "FileDigest"
+        ParameterValue = "/fd sha256"
+    }
+    @{
+        ParameterName  = "TimeStamp"
+        ParameterValue = "/tr ""$SigningServer"" /td sha256"
+    }
+    )
+    $esrp = @(@{
+    keyCode = $CertificateId
+    operationSetCode = "WINMSAPP1ST"
+    parameters = $esrpParameters
+    toolName = "signtool.exe"
+    toolVersion = "6.2.9304.0"
+    })
+  displayName: Generate msix signing JSON
+  condition: eq(${{ parameters.ShouldSign }}, 'true')
 
 # undo uniqify. The now signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
 - task: PowerShell@2
