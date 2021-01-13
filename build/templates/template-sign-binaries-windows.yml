@@ -6,6 +6,7 @@ parameters:
     default: "$(Build.ArtifactStagingDirectory)/signedbin/"
   - name: "ShouldSign"
     default: "false"
+
 steps:
 - pwsh: |
     $outputDir = "${{ parameters.UnsignedInput }}"
@@ -49,10 +50,9 @@ steps:
 
 # Sign appx
 - pwsh: |
-    [string] $CertificateId = "Dynamic"
-    [string] $VariableName = "EsrpJson"
     [string] $SigningServer = '$(SigningServer)'
     Write-Verbose "SigningServer - $SigningServer" -Verbose
+
     $esrpParameters = @(
     @{
         ParameterName  = "OpusName"
@@ -71,15 +71,41 @@ steps:
         ParameterValue = "/tr ""$SigningServer"" /td sha256"
     }
     )
-    $esrp = @(@{
-    keyCode = $CertificateId
-    operationSetCode = "WINMSAPP1ST"
-    parameters = $esrpParameters
-    toolName = "signtool.exe"
-    toolVersion = "6.2.9304.0"
-    })
+    $esrp = @(
+      @{
+        KeyCode = "Dynamic"
+        CertTemplateName = "WINMSAPP1ST"
+        CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+        OperationCode = "SigntoolSign"
+        Parameters = $esrpParameters
+        ToolName = "sign"
+        ToolVersion = "1.0"},
+      @{
+        KeyCode = "Dynamic"
+        CertTemplateName = "WINMSAPP1ST"
+        CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+        OperationCode = "SigntoolVerify"
+        Parameters = ""
+        ToolName = "sign"
+        ToolVersion = "1.0"}
+        )
+
+    $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress)]"
+    Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
+    Write-Host "##$vstsCommandString"
   displayName: Generate msix signing JSON
-  condition: eq(${{ parameters.ShouldSign }}, 'true')
+
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/unsigneduniquefiles/'
+    signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
+    certificateId: ''
+    useCustomEsrpJson: true
+    pattern: '*.msix'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'false'
+    signingService: 'FactoryOrchestratorSigning'
 
 # undo uniqify. The now signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
 - task: PowerShell@2
@@ -129,6 +155,18 @@ steps:
       }
     }
   displayName: 'Create unsigned msixbundle with signed msix files'
+
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
+    signOutputPath: ${{ parameters.SignedOutput }}
+    certificateId: ''
+    useCustomEsrpJson: true
+    pattern: '*.msixbundle'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'false'
+    signingService: 'FactoryOrchestratorSigning'
 
 # if not signing this copies the unsigned files. if signing, this will have the signed files due to 2nd CopyUniqueBins operation.
 # therefore this task always runs

@@ -13,6 +13,7 @@ resources:
     ref: master
 
 variables:
+  SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
   BuildConfiguration: 'Release'
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     VERSIONSUFFIX: ''
