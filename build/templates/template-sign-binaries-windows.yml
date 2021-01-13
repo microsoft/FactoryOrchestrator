@@ -75,6 +75,7 @@ steps:
         ParameterValue = "/tr ""$SigningServer"" /td sha256"
     }
     )
+
     $esrp = @(
       @{
         KeyCode = "Dynamic"
@@ -83,7 +84,7 @@ steps:
         OperationCode = "SigntoolSign"
         Parameters = $esrpParameters
         ToolName = "sign"
-        ToolVersion = "1.0"},
+        ToolVersion = "1.0"}
       @{
         KeyCode = "Dynamic"
         CertTemplateName = "WINMSAPP1ST"
@@ -94,7 +95,7 @@ steps:
         ToolVersion = "1.0"}
         )
 
-    $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress)]"
+    $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress -Depth 99)]"
     Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
     Write-Host "##$vstsCommandString"
   displayName: Generate msix signing JSON
