@@ -103,7 +103,9 @@ steps:
     useCustomEsrpJson: true
     pattern: '*.msix'
     useMinimatch: false
-    shouldSign: ${{ parameters.ShouldSign }}
+    # TESTTESTESTTEST
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    shouldSign: 'false'
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -152,13 +154,17 @@ steps:
       else
       {
         "$bundledest created."
+        $vstsCommandString = "vso[task.setvariable variable=MSIXBUNDLE_DIR]$bundlefolder"
+        Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
+        Write-Host "##$vstsCommandString"
+
       }
     }
   displayName: 'Create unsigned msixbundle with signed msix files'
 
 - template: EsrpSign.yml@ComplianceRepo
   parameters:
-    buildOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
+    buildOutputPath: $(MSIXBUNDLE_DIR)
     signOutputPath: ${{ parameters.SignedOutput }}
     certificateId: ''
     useCustomEsrpJson: true
