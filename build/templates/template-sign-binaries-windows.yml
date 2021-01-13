@@ -81,7 +81,7 @@ steps:
         KeyCode = "Dynamic"
         CertTemplateName = "WINMSAPP1ST"
         CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-        OperationCode = "SigntoolSign"
+        operationSetCode = "SigntoolSign"
         Parameters = $esrpParameters
         ToolName = "sign"
         ToolVersion = "1.0"})
