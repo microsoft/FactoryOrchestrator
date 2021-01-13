@@ -10,7 +10,7 @@ resources:
     type: github
     endpoint: microsoft
     name: spaceisfun/Compliance
-    ref: master
+    ref: testcustom
 
 variables:
   SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
