@@ -32,9 +32,7 @@ steps:
     certificateId: 'CP-230012'
     pattern: '*__Microsoft.FactoryOrchestrator*.dll,*__Microsoft.FactoryOrchestrator*.exe'
     useMinimatch: false
-    # TESTTESTESTTEST
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    shouldSign: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -46,9 +44,7 @@ steps:
     certificateId: 'CP-231522'
     pattern: '*__JKang.*.dll,*__PE-Utility.dll,*__PeterKottas.*.dll,*__DasMulli.*.dll'
     useMinimatch: false
-    # TESTTESTESTTEST
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    shouldSign: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -108,9 +104,7 @@ steps:
     useCustomEsrpJson: true
     pattern: '*.msix'
     useMinimatch: false
-    # TESTTESTESTTEST
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    shouldSign: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
