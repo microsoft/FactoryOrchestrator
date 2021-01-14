@@ -147,9 +147,9 @@ stages:
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
-        - ${{ if ne(viariables['__testing'], 'true') }}:
+        - ${{ if ne(variables['__testing'], 'true') }}:
           - template: ./templates/template-download-artifacts-signing.yml
-        - ${{ if eq(viariables['__testing'], 'true') }}:
+        - ${{ if eq(variables['__testing'], 'true') }}:
           - template: ./templates/template-download-artifacts-signing-testing.yml
         - task: CopyFiles@2
           inputs:
