@@ -184,6 +184,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+            displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -195,6 +196,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
+            displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -206,6 +208,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
+            displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -217,6 +220,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
+            displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -228,6 +232,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
+            displayName: "Download from __testing build"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
@@ -304,6 +309,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+            displayName: "Download from __testing build"
 
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
@@ -381,6 +387,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+            displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -392,6 +399,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
+            displayName: "Download from __testing build"
 
         - task: CopyFiles@2
           inputs:
@@ -475,6 +483,7 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+            displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -487,6 +496,7 @@ stages:
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
               patterns: 'TestZip/*'
+            displayName: "Download from __testing build"
 
         - task: CopyFiles@2
           inputs:
