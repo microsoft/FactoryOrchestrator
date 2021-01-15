@@ -335,7 +335,7 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScan: false
+            APIScan: 'true'
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
