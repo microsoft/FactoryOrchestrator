@@ -178,7 +178,7 @@ stages:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
-        # and set a '__testing' variable to 'true' when queuing your build.
+        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -303,7 +303,7 @@ stages:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
-        # and set a '__testing' variable to 'true' when queuing your build.
+        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -381,7 +381,7 @@ stages:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
-        # and set a '__testing' variable to 'true' when queuing your build.
+        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -477,7 +477,7 @@ stages:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
-        # and set a '__testing' variable to 'true' when queuing your build.
+        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
