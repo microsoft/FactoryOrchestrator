@@ -82,7 +82,7 @@ steps:
         operationSetCode = "SigntoolSign"
         Parameters = $esrpParameters
         ToolName = "sign"
-        ToolVersion = "1.0"}
+        ToolVersion = "1.0"},
       @{
         KeyCode = "Dynamic"
         CertTemplateName = "WINMSAPP1ST"
@@ -93,7 +93,7 @@ steps:
         ToolVersion = "1.0"}
         )
 
-    $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress -Depth 99)]"
+    $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress)]"
     Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
     Write-Host "##$vstsCommandString"
   displayName: Generate msix signing JSON
@@ -106,7 +106,8 @@ steps:
     useCustomEsrpJson: true
     pattern: '*.msix'
     useMinimatch: false
-    shouldSign: ${{ parameters.ShouldSign }}
+    # !TESTTESTTEST
+    shouldSign: 'false'
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -171,7 +172,8 @@ steps:
     useCustomEsrpJson: true
     pattern: '*.msixbundle'
     useMinimatch: false
-    shouldSign: ${{ parameters.ShouldSign }}
+    # !TESTTESTTEST
+    shouldSign: 'false'
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
