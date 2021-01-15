@@ -57,31 +57,19 @@ steps:
     [string] $SigningServer = '$(SigningServer)'
     Write-Verbose "SigningServer - $SigningServer" -Verbose
 
-    $esrpParameters = @(
-    @{
-        ParameterName  = "OpusName"
-        ParameterValue = "Microsoft"
+    $esrpParameters = @{
+      OpusName   = "Microsoft"
+      OpusInfo   = "http://www.microsoft.com"
+      FileDigest = "/fd sha256"
+      TimeStamp  = "/tr ""$SigningServer"" /td sha256"
     }
-    @{
-        ParameterName  = "OpusInfo"
-        ParameterValue = "http://www.microsoft.com"
-    }
-    @{
-        ParameterName  = "FileDigest"
-        ParameterValue = "/fd sha256"
-    }
-    @{
-        ParameterName  = "TimeStamp"
-        ParameterValue = "/tr ""$SigningServer"" /td sha256"
-    }
-    )
 
     $esrp = @(
       @{
         KeyCode = "Dynamic"
         CertTemplateName = "WINMSAPP1ST"
         CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-        operationSetCode = "SigntoolSign"
+        operationCode = "SigntoolSign"
         Parameters = $esrpParameters
         ToolName = "sign"
         ToolVersion = "1.0"},
@@ -90,10 +78,10 @@ steps:
         CertTemplateName = "WINMSAPP1ST"
         CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
         OperationCode = "SigntoolVerify"
-        Parameters = @()
         ToolName = "sign"
-        ToolVersion = "1.0"}
-        )
+        ToolVersion = "1.0"
+      }
+    )
 
     $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress)]"
     Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
