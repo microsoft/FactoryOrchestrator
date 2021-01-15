@@ -429,6 +429,7 @@ stages:
         - task: PublishSymbols@2
           inputs:
             symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
+            searchPattern: '**/*.pdb'
             indexSources: 'false'
             SymbolServerType: 'teamServices'
             SymbolsArtifactName: 'Symbols_Release'
