@@ -6,9 +6,9 @@ steps:
   displayName: 'PkgES Create VPack msixbundle'
   inputs:
     sourceDirectory: '$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\msixbundle'
-    pushPkgName: 'FactoryOrchestrator.msixbundle$(VPACKNAME)'
-    description: 'FactoryOrchestrator.msixbundle$(VPACKNAME)'
-    version: '$(VPACKVERSION)'
+    pushPkgName: 'FactoryOrchestrator.msixbundle'
+    description: 'FactoryOrchestrator.msixbundle'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: eq(variables['SHOULDPUSH'], 'true')
   enabled: true
 
@@ -17,7 +17,7 @@ steps:
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
-    TargetFolder: '$(XES_DFSDROP)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
   condition: eq(variables['SHOULDPUSH'], 'true')
 
 - task: PkgESVPack@10
@@ -26,8 +26,8 @@ steps:
   displayName: 'PkgES Create VPack NET Core Tests'
   inputs:
     sourceDirectory: '$(Pipeline.Workspace)\UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests\TestZip'
-    pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
-    description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
+    pushPkgName: 'FactoryOrchestrator.NetCoreTests'
+    description: 'FactoryOrchestrator.NetCoreTests'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
   enabled: true
@@ -76,8 +76,8 @@ steps:
   displayName: 'PkgES Create VPack Client Libraries'
   inputs:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
-    pushPkgName: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
-    description: 'FactoryOrchestrator.ClientLibraries$(VPACKNAME)'
+    pushPkgName: 'FactoryOrchestrator.ClientLibraries'
+    description: 'FactoryOrchestrator.ClientLibraries'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
   enabled: true
@@ -117,8 +117,8 @@ steps:
   displayName: 'PkgES Create VPack Client Sample WSK'
   inputs:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
-    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
-    description: 'FactoryOrchestrator.ClientSampleWSK$(VPACKNAME)'
+    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK'
+    description: 'FactoryOrchestrator.ClientSampleWSK'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
   enabled: true
