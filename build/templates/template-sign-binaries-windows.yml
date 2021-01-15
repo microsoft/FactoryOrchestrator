@@ -36,6 +36,7 @@ steps:
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
     verifySignature: 'true'
+    pageHash: 'false'
 
 # CP-231522​ is for 3rd party authored binaries (OSS).
 - template: EsrpSign.yml@ComplianceRepo
@@ -49,6 +50,7 @@ steps:
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
     verifySignature: 'true'
+    pageHash: 'false'
 
 # Sign appx
 - pwsh: |
