@@ -432,7 +432,7 @@ stages:
             SymbolsArtifactName: 'Symbols_Release'
             SymbolsProduct: 'FactoryOrchestrator'
             SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
-          condition: eq(variables['SHOULDPUSH'], 'true')
+          and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
           displayName: 'publish symbols to public server'
 
 
