@@ -84,6 +84,7 @@ steps:
     shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
+    verifySignature: 'true'
 
 - publish: '$(SignedOutput)'
   artifact: "SignedNugets_Windows_Release"
