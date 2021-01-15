@@ -416,26 +416,6 @@ stages:
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
 
-        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
-        - pwsh: |
-            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
-            Write-Host "sending " + $vstsCommandString
-            Write-Host "##$vstsCommandString"
-          displayName: 'Set symbol publish variables'
-
-        # Publishes to microsoftpublicsymbols
-        - task: PublishSymbols@2
-          inputs:
-            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
-            indexSources: 'false'
-            SymbolServerType: 'teamServices'
-            SymbolsArtifactName: 'Symbols_Release'
-            SymbolsProduct: 'FactoryOrchestrator'
-            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
-          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-          displayName: 'publish symbols to public server'
-
-
   - stage: 'Publish_vPack'
     dependsOn:
     - 'compliance'
@@ -461,7 +441,6 @@ stages:
         
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-push.yml
-        - template: ./templates/template-install-netcore.yml
 
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
@@ -508,11 +487,26 @@ stages:
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
-        - task: DotNetCoreCLI@2
+
+        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
+        - pwsh: |
+            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
+            Write-Host "sending " + $vstsCommandString
+            Write-Host "##$vstsCommandString"
+          displayName: 'Set symbol publish variables'
+
+        # Publishes to microsoftpublicsymbols
+        - task: PublishSymbols@2
           inputs:
-            command: 'restore'
-            projects: '$(FORepoRoot)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj'
-          displayName: 'dotnet restore service'
+            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
+            indexSources: 'false'
+            SymbolServerType: 'teamServices'
+            SymbolsArtifactName: 'Symbols_Release'
+            SymbolsProduct: 'FactoryOrchestrator'
+            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
+          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+          displayName: 'publish symbols to public server'
+
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
