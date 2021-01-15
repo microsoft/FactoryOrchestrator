@@ -18,8 +18,8 @@ steps:
   displayName: 'PkgES Create VPack ${{ parameters.BuildPlatform }}'
   inputs:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
-    pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}$(VPACKNAME)'
-    description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}$(VPACKNAME)'
+    pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
