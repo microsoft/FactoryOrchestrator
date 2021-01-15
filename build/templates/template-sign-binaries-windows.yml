@@ -35,6 +35,7 @@ steps:
     shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
+    verifySignature: 'true'
 
 # CP-231522​ is for 3rd party authored binaries (OSS).
 - template: EsrpSign.yml@ComplianceRepo
@@ -47,6 +48,7 @@ steps:
     shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
+    verifySignature: 'true'
 
 # Sign appx
 - pwsh: |
@@ -80,16 +82,16 @@ steps:
         operationSetCode = "SigntoolSign"
         Parameters = $esrpParameters
         ToolName = "sign"
-        ToolVersion = "1.0"})
-      # @{
-      #   KeyCode = "Dynamic"
-      #   CertTemplateName = "WINMSAPP1ST"
-      #   CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-      #   OperationCode = "SigntoolVerify"
-      #   Parameters = ""
-      #   ToolName = "sign"
-      #   ToolVersion = "1.0"}
-      #   )
+        ToolVersion = "1.0"}
+      @{
+        KeyCode = "Dynamic"
+        CertTemplateName = "WINMSAPP1ST"
+        CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+        OperationCode = "SigntoolVerify"
+        Parameters = @()
+        ToolName = "sign"
+        ToolVersion = "1.0"}
+        )
 
     $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON][$($esrp | ConvertTo-Json -Compress -Depth 99)]"
     Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
