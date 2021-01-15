@@ -4,6 +4,12 @@ trigger:
     include:
     - OSBuild*
 
+parameters:
+- name: UseTestingArtifacts
+  displayName: Use artifacts from __testing tagged build?
+  type: boolean
+  default: false
+
 resources:
   repositories:
   - repository: ComplianceRepo
@@ -157,7 +163,7 @@ stages:
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
-        - ${{ if ne(variables['__testing'], 'true') }}:
+        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
           - download: current
             artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
           - download: current
@@ -168,7 +174,7 @@ stages:
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
           - download: current
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
-        - ${{ if eq(variables['__testing'], 'true') }}:
+        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
@@ -290,10 +296,10 @@ stages:
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
-        - ${{ if ne(variables['__testing'], 'true') }}:
+        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
-        - ${{ if eq(variables['__testing'], 'true') }}:
+        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
@@ -366,12 +372,12 @@ stages:
             projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
           displayName: 'dotnet restore'
 
-        - ${{ if ne(variables['__testing'], 'true') }}:
+        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
           - download: 'current'
             artifact: 'UWPClient_Nuspecs'
-        - ${{ if eq(variables['__testing'], 'true') }}:
+        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
@@ -461,13 +467,13 @@ stages:
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
-        - ${{ if ne(variables['__testing'], 'true') }}:
+        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
           - download: 'current'
             artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
             patterns: 'TestZip/*'
-        - ${{ if eq(variables['__testing'], 'true') }}:
+        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
         # Tag the older build whose artifacts you want to use with '__testing',
