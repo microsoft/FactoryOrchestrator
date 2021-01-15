@@ -1,21 +1,11 @@
 # Creates vPacks for everything but the Service.
 steps:
-- task: PowerShell@2
-  displayName: 'Create NET Core Test Files Zip'
-  inputs:
-    targetType: filePath
-    filePath: ./build/internal/CreateTestZip.ps1
-    arguments: '-TestBinRoot $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\tests\$(BuildConfiguration)\AnyCPU\ -OutFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Tests\TestZip'
-    failOnStderr: true
-    pwsh: true
-  timeoutInMinutes: 5
-
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack NET Core Tests'
   inputs:
-    sourceDirectory: '$(XES_DFSDROP)\Tests\TestZip'
+    sourceDirectory: '$(Pipeline.Workspace)\UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests\TestZip'
     pushPkgName: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
     description: 'FactoryOrchestrator.NetCoreTests$(VPACKNAME)'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
