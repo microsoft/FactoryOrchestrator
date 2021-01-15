@@ -412,6 +412,25 @@ stages:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
 
+        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
+        - pwsh: |
+            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
+            Write-Host "sending " + $vstsCommandString
+            Write-Host "##$vstsCommandString"
+          displayName: 'Set symbol publish variables'
+
+        # Publishes to microsoftpublicsymbols
+        - task: PublishSymbols@2
+          inputs:
+            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
+            indexSources: 'false'
+            SymbolServerType: 'teamServices'
+            SymbolsArtifactName: 'Symbols_Release'
+            SymbolsProduct: 'FactoryOrchestrator'
+            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
+          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+          displayName: 'publish symbols to public server'
+
         - template: ./templates/template-pack-sign-nuget.yml
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
@@ -487,25 +506,6 @@ stages:
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
-
-        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
-        - pwsh: |
-            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
-            Write-Host "sending " + $vstsCommandString
-            Write-Host "##$vstsCommandString"
-          displayName: 'Set symbol publish variables'
-
-        # Publishes to microsoftpublicsymbols
-        - task: PublishSymbols@2
-          inputs:
-            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
-            indexSources: 'false'
-            SymbolServerType: 'teamServices'
-            SymbolsArtifactName: 'Symbols_Release'
-            SymbolsProduct: 'FactoryOrchestrator'
-            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
-          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-          displayName: 'publish symbols to public server'
 
         - template: ./templates/template-push-vpack-service.yml
           parameters:
