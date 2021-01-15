@@ -9,7 +9,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.msixbundle'
     description: 'FactoryOrchestrator.msixbundle'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-  condition: eq(variables['SHOULDPUSH'], 'true')
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
   enabled: true
 
 - task: CopyFiles@2
@@ -18,7 +18,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: eq(variables['SHOULDPUSH'], 'true')
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 
 - task: PkgESVPack@10
   env:
@@ -29,7 +29,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.NetCoreTests'
     description: 'FactoryOrchestrator.NetCoreTests'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -38,7 +38,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
 
 - task: CopyFiles@2
   displayName: 'Copy Client Libraries to root of drop'
@@ -79,7 +79,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.ClientLibraries'
     description: 'FactoryOrchestrator.ClientLibraries'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -88,7 +88,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
 
 - task: CopyFiles@2
   displayName: 'Copy Client Sample source'
@@ -120,7 +120,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.ClientSampleWSK'
     description: 'FactoryOrchestrator.ClientSampleWSK'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true
 
 - task: CopyFiles@2
@@ -129,4 +129,4 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
