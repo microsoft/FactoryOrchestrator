@@ -148,9 +148,72 @@ stages:
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
         - ${{ if ne(variables['__testing'], 'true') }}:
-          - template: ./templates/template-download-artifacts-signing.yml
+          - download: current
+            artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+          - download: current
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_Publish
+          - download: current
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
+          - download: current
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
+          - download: current
+            artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
         - ${{ if eq(variables['__testing'], 'true') }}:
-          - template: ./templates/template-download-artifacts-signing-testing.yml
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: 60364
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_Windows_$(BuildConfiguration)_Publish
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: 60364
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: 60364
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: 60364
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: 60364
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
