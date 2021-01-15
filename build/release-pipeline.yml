@@ -136,11 +136,11 @@ stages:
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/"
           contents: "*.nuspec"
         displayName: 'Copy Windows UWPClient nuspecs'
-        condition: eq(variables['BuildPlatform'], 'x86')
+        condition: and(succeeded(), eq(variables['BuildPlatform'], 'x86'))
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/'
         artifact: 'UWPClient_Nuspecs'
         displayName: 'Publish Windows UWPClient nuspecs'
-        condition: eq(variables['BuildPlatform'], 'x86')
+        condition: and(succeeded(), eq(variables['BuildPlatform'], 'x86'))
 
   - stage: 'Sign_Binaries'
     pool:
@@ -262,6 +262,12 @@ stages:
         - template: ./templates/template-sign-binaries-windows.yml
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
+        - pwsh: |
+            $vstsCommandString = "vso[build.addbuildtag]SignedBuild"
+            Write-Host "sending " + $vstsCommandString
+            Write-Host "##$vstsCommandString"
+          displayName: 'Tag build as SignedBuild'
+          condition: and(succeeded(), eq(variables['SHOULDSIGN'], 'true'))
 
   - stage: compliance
     displayName: Compliance
