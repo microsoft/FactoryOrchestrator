@@ -21,14 +21,12 @@ variables:
     VERSIONSUFFIXDOTNET: ' '
     SKIPSIGNING: 'false'
     SKIPPUSH: 'false'
-    SKIPAPISCAN: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     VERSIONSUFFIX: '$(Build.SourceBranchName)'
     VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
-    SKIPAPISCAN: 'true'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
@@ -350,6 +348,7 @@ stages:
         
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-sign.yml
+        - template: ./templates/template-set-should-push.yml
         - template: ./templates/template-install-netcore.yml
         - task: NuGetToolInstaller@1
         - pwsh: |
@@ -403,6 +402,26 @@ stages:
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
 
+        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
+        - pwsh: |
+            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
+            Write-Host "sending " + $vstsCommandString
+            Write-Host "##$vstsCommandString"
+          displayName: 'Set symbol publish variables'
+
+        # Publishes to microsoftpublicsymbols
+        - task: PublishSymbols@2
+          inputs:
+            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
+            indexSources: 'false'
+            SymbolServerType: 'teamServices'
+            SymbolsArtifactName: 'Symbols_Release'
+            SymbolsProduct: 'FactoryOrchestrator'
+            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
+          condition: eq(variables['SHOULDPUSH'], 'true')
+          displayName: 'publish symbols to public server'
+
+
   - stage: 'Publish_vPack'
     dependsOn:
     - 'compliance'
@@ -427,6 +446,7 @@ stages:
             useDfs: false
         
         - template: ./templates/template-set-build-version.yml
+        - template: ./templates/template-set-should-push.yml
         - template: ./templates/template-install-netcore.yml
 
         - pwsh: |
@@ -495,28 +515,9 @@ stages:
             BuildPlatform: 'arm64'
         - template: ./templates/template-push-vpack-other.yml
 
-        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
-        - pwsh: |
-            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
-            Write-Host "sending " + $vstsCommandString
-            Write-Host "##$vstsCommandString"
-          displayName: 'Set symbol publish variables'
-
-        # Publishes to microsoftpublicsymbols
-        - task: PublishSymbols@2
-          inputs:
-            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
-            indexSources: 'false'
-            SymbolServerType: 'teamServices'
-            SymbolsArtifactName: 'Symbols_Release'
-            SymbolsProduct: 'FactoryOrchestrator'
-            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
-          condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
-          displayName: 'publish symbols to public server'
-
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
-          condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'

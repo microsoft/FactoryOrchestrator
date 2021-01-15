@@ -1,0 +1,13 @@
+steps:
+- pwsh: |
+    $vstsCommandString = "vso[task.setvariable variable=SHOULDPUSH]true"
+    Write-Host "sending " + $vstsCommandString
+    Write-Host "##$vstsCommandString"
+  condition: or(eq(variables['SKIPPUSH'], 'false'), eq(variables['FORCEPUSH'], 'true'))
+  displayName: 'Set SHOULDPUSH=true'
+- pwsh: |
+    $vstsCommandString = "vso[task.setvariable variable=SHOULDPUSH]false"
+    Write-Host "sending " + $vstsCommandString
+    Write-Host "##$vstsCommandString"
+  condition: ne(variables['SHOULDPUSH'], 'true')
+  displayName: 'Set SHOULDPUSH=false'

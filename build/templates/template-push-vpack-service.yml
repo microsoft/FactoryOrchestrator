@@ -21,7 +21,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}$(VPACKNAME)'
     description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}$(VPACKNAME)'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
   artifact: 'Microsoft.FactoryOrchestrator.Service_${{ parameters.BuildPlatform }}'
   displayName: 'Publish Service SCD ${{ parameters.BuildPlatform }} artifact'
@@ -31,11 +31,11 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 - task: CopyFiles@2
   displayName: 'Copy Service Manifest ${{ parameters.BuildPlatform }}'
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     Contents: 'Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), ne(variables['SKIPPUSH'], 'true'))
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
