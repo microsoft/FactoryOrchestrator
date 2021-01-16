@@ -10,6 +10,9 @@
     <Authors>Andres Traks and Factory Orchestrator GitHub contributors</Authors>
     <Company />
     <PackageLicenseUrl>https://github.com/AndresTraks/pe-utility/blob/master/LICENSE</PackageLicenseUrl>
+    <!-- Below is the official repo for pe-utility. However, it confuses SourceLink, as the source used is from the FactoryOrchestrator repo, and is slightly modified from the official repo. -->
+    <!-- Commenting out to resolve the SourceLink error, ex: -->
+    <!-- C:\Users\VssAdministrator\.nuget\packages\microsoft.sourcelink.common\1.0.0\build\Microsoft.SourceLink.Common.targets(52,5): warning : Source control information is not available - the generated source link is empty. [D:\a\1\s\oss\Pe-Utility\Pe-Utility.csproj] -->
     <!-- <RepositoryUrl>https://github.com/AndresTraks/pe-utility</RepositoryUrl> -->
     <PackageProjectUrl>https://github.com/AndresTraks/pe-utility</PackageProjectUrl>
     <Version>3.0.0</Version>
