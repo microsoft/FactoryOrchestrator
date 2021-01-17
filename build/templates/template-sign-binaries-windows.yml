@@ -167,6 +167,11 @@ steps:
     alwaysCopy: 'false'
     signingService: 'FactoryOrchestratorSigning'
 
+
+- publish: '$(System.DefaultWorkingDirectory)/signeduniquefiles/'
+  artifact: 'SignedBin_Windows_Only_Signed'
+  displayName: 'Publish ONLY signed binaries for testing - Windows'
+
 # if not signing this copies the unsigned files. if signing, this will have the signed files due to 2nd CopyUniqueBins operation.
 # therefore this task always runs
 - task: CopyFiles@2
