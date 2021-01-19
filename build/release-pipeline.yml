@@ -305,6 +305,16 @@ stages:
         - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
+            patterns: |
+              '**/JKang.*.dll'
+              '**/PE-Utility.dll'
+              '**/PeterKottas.*.dll'
+              '**/DasMulli.*.dll'
+              '**/Microsoft.FactoryOrchestrator*.dll'
+              '**/Microsoft.FactoryOrchestrator*.exe'
+              '**/*.msixbundle'
+              '**/*.msix'
+
         - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
@@ -321,6 +331,15 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+              patterns: |
+                '**/JKang.*.dll'
+                '**/PE-Utility.dll'
+                '**/PeterKottas.*.dll'
+                '**/DasMulli.*.dll'
+                '**/Microsoft.FactoryOrchestrator*.dll'
+                '**/Microsoft.FactoryOrchestrator*.exe'
+                '**/*.msixbundle'
+                '**/*.msix'
             displayName: "Download from __testing build"
 
         - template: assembly-module-compliance.yml@ComplianceRepo
@@ -341,7 +360,16 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScan: 'true'
+            APIScan: 'false'
+
+        # Only run API Scan on major/minor changes, not patch changes.
+        - template: template-compliance/apiscan.yml@ComplianceRepo
+          parameters:
+            softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
+            softwareName: 'FactoryOrchestrator'
+            softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+            APIScanEnable: 'true'
+          condition: endsWith(variables['VERSIONPREFIX'], '.0')
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
