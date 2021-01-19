@@ -98,7 +98,7 @@ steps:
     useMinimatch: false
     # !TESTTESTTEST
     shouldSign: 'false'
-    alwaysCopy: 'false'
+    alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
 # undo uniqify. The signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
