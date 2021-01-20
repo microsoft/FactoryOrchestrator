@@ -331,7 +331,6 @@ stages:
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
               patterns: |
-                **/*.dll
                 **/JKang.*.dll
                 **/PE-Utility.dll
                 **/PeterKottas.*.dll
