@@ -25,7 +25,7 @@ resources:
 variables:
   SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
   BuildConfiguration: 'Release'
-  VPackVersionAppendSuffix: ''
+  VPACKVERSIONBUILDIDSUFFIX: ''
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     VERSIONSUFFIX: ''
     VERSIONSUFFIXVPACK: ''
@@ -493,7 +493,7 @@ stages:
         
         - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
           - pwsh: |
-              $vstsCommandString = "vso[task.setvariable variable=VPackVersionAppendSuffix]$env:BUILD_ID"
+              $vstsCommandString = "vso[task.setvariable variable=VPACKVERSIONBUILDIDSUFFIX]$env:BUILD_ID"
               Write-Host "sending " + $vstsCommandString
               Write-Host "##$vstsCommandString"
             displayName: 'Set build id VPack suffix'

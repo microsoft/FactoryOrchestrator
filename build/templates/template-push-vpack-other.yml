@@ -1,7 +1,4 @@
 # Creates vPacks for everything but the Service.
-parameters:
-  VPackAppend: ''
-
 steps:
 - task: PkgESVPack@10
   env:
@@ -11,7 +8,7 @@ steps:
     sourceDirectory: '$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\msixbundle'
     pushPkgName: 'FactoryOrchestrator.msixbundle'
     description: 'FactoryOrchestrator.msixbundle'
-    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)${{ parameters.VPackAppend }}'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
   enabled: true
 
@@ -31,7 +28,7 @@ steps:
     sourceDirectory: '$(Pipeline.Workspace)\UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests\TestZip'
     pushPkgName: 'FactoryOrchestrator.NetCoreTests'
     description: 'FactoryOrchestrator.NetCoreTests'
-    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)${{ parameters.VPackAppend }}'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
   condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true
 
@@ -81,7 +78,7 @@ steps:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
     pushPkgName: 'FactoryOrchestrator.ClientLibraries'
     description: 'FactoryOrchestrator.ClientLibraries'
-    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)${{ parameters.VPackAppend }}'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
   condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true
 
@@ -122,7 +119,7 @@ steps:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
     pushPkgName: 'FactoryOrchestrator.ClientSampleWSK'
     description: 'FactoryOrchestrator.ClientSampleWSK'
-    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)${{ parameters.VPackAppend }}'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
   condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true
 
