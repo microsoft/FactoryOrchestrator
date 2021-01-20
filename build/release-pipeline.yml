@@ -306,12 +306,12 @@ stages:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
             patterns: |
+              '**/*.dll'
               '**/JKang.*.dll'
               '**/PE-Utility.dll'
               '**/PeterKottas.*.dll'
               '**/DasMulli.*.dll'
-              '**/Microsoft.FactoryOrchestrator*.dll'
-              '**/Microsoft.FactoryOrchestrator*.exe'
+              '**/Microsoft.FactoryOrchestrator*.@(dll|exe)'
               '**/*.msixbundle'
               '**/*.msix'
 
@@ -332,12 +332,12 @@ stages:
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
               patterns: |
+                '**/*.dll'
                 '**/JKang.*.dll'
                 '**/PE-Utility.dll'
                 '**/PeterKottas.*.dll'
                 '**/DasMulli.*.dll'
-                '**/Microsoft.FactoryOrchestrator*.dll'
-                '**/Microsoft.FactoryOrchestrator*.exe'
+                '**/Microsoft.FactoryOrchestrator*.@(dll|exe)'
                 '**/*.msixbundle'
                 '**/*.msix'
             displayName: "Download from __testing build"
