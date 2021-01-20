@@ -114,7 +114,7 @@ steps:
 # Create msixbundle
 - pwsh: |
     # Use Windows path separator
-    $dir = "$(System.DefaultWorkingDirectory)/signeduniquefiles_stage3".Replace('/', '\')
+    $dir = "${{ parameters.UnsignedInput }}".Replace('/', '\')
 
     # Find per arch msix
     $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"

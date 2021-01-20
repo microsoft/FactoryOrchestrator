@@ -492,6 +492,10 @@ stages:
         - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
+            patterns: |
+              Publish/**/*
+              **/*.msixbundle
+              !**/*.pdb
           - download: 'current'
             artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
             patterns: 'TestZip/*'
@@ -511,6 +515,10 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+              patterns: |
+                Publish/**/*
+                **/*.msixbundle
+                !**/*.pdb
             displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
