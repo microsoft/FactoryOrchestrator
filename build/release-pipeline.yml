@@ -360,16 +360,7 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScan: 'false'
-
-        # Only run API Scan on major/minor changes, not patch changes.
-        - template: template-compliance/apiscan.yml@ComplianceRepo
-          parameters:
-            softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
-            softwareName: 'FactoryOrchestrator'
-            softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
-            APIScanEnable: 'true'
-          condition: endsWith(variables['VERSIONPREFIX'], '.0')
+            APIScan: 'true'
 
         - task: PkgESLateTasks@10
           displayName: 'PkgES Finalize and Cleanup'
