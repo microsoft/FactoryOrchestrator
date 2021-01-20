@@ -9,6 +9,10 @@ parameters:
   displayName: Use artifacts from __testing tagged build?
   type: boolean
   default: false
+- name: VPackVersionAppendSuffix
+  displayName: Append this string to VPack versions
+  type: string
+  default: ''
 
 resources:
   repositories:
@@ -482,6 +486,7 @@ stages:
             disableMsbuildVersion: true
             useDfs: false
         
+
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-push.yml
 
@@ -543,19 +548,25 @@ stages:
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'x86'
+            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'x64'
+            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm'
+            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm64'
+            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-other.yml
+          parameters:
+            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
 
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests

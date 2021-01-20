@@ -1,6 +1,7 @@
 parameters:
   BuildConfiguration: 'Release'
   BuildPlatform: 'x86'
+  VPackAppend: ''
 # Publishes Service. Creates Service vPacks.
 steps:
 - task: PowerShell@2
@@ -20,7 +21,7 @@ steps:
     sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
-    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)${{ parameters.VPackAppend }}'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
   artifact: 'Microsoft.FactoryOrchestrator.Service_${{ parameters.BuildPlatform }}'
