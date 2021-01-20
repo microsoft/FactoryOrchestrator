@@ -306,14 +306,13 @@ stages:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
             patterns: |
-              '**/*.dll'
-              '**/JKang.*.dll'
-              '**/PE-Utility.dll'
-              '**/PeterKottas.*.dll'
-              '**/DasMulli.*.dll'
-              '**/Microsoft.FactoryOrchestrator*.@(dll|exe)'
-              '**/*.msixbundle'
-              '**/*.msix'
+              **/JKang.*.dll
+              **/PE-Utility.dll
+              **/PeterKottas.*.dll
+              **/DasMulli.*.dll
+              **/Microsoft.FactoryOrchestrator*.@(dll|exe)
+              **/*.msixbundle
+              **/*.msix
 
         - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
@@ -332,14 +331,14 @@ stages:
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
               patterns: |
-                '**/*.dll'
-                '**/JKang.*.dll'
-                '**/PE-Utility.dll'
-                '**/PeterKottas.*.dll'
-                '**/DasMulli.*.dll'
-                '**/Microsoft.FactoryOrchestrator*.@(dll|exe)'
-                '**/*.msixbundle'
-                '**/*.msix'
+                **/*.dll
+                **/JKang.*.dll
+                **/PE-Utility.dll
+                **/PeterKottas.*.dll
+                **/DasMulli.*.dll
+                **/Microsoft.FactoryOrchestrator*.@(dll|exe)
+                **/*.msixbundle
+                **/*.msix
             displayName: "Download from __testing build"
 
         - template: assembly-module-compliance.yml@ComplianceRepo
