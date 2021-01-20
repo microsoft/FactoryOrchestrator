@@ -9,10 +9,10 @@ parameters:
   displayName: Use artifacts from __testing tagged build?
   type: boolean
   default: false
-- name: VPackVersionAppendSuffix
-  displayName: Append this string to VPack versions
-  type: string
-  default: ''
+- name: VPackVersionAppendId
+  displayName: Append build id to VPack versions
+  type: boolean
+  default: false
 
 resources:
   repositories:
@@ -25,6 +25,7 @@ resources:
 variables:
   SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
   BuildConfiguration: 'Release'
+  VPackVersionAppendSuffix: ''
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     VERSIONSUFFIX: ''
     VERSIONSUFFIXVPACK: ''
@@ -489,7 +490,13 @@ stages:
 
         - template: ./templates/template-set-build-version.yml
         - template: ./templates/template-set-should-push.yml
-
+        
+        - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
+          - pwsh: |
+              $vstsCommandString = "vso[task.setvariable variable=VPackVersionAppendSuffix]$env:BUILD_ID"
+              Write-Host "sending " + $vstsCommandString
+              Write-Host "##$vstsCommandString"
+            displayName: 'Set build id VPack suffix'
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
@@ -548,25 +555,19 @@ stages:
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'x86'
-            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'x64'
-            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm'
-            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-service.yml
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm64'
-            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
         - template: ./templates/template-push-vpack-other.yml
-          parameters:
-            VPackAppend: ${{ parameters.VPackVersionAppendSuffix }}
 
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
