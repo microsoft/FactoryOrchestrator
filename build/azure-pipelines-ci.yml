@@ -7,5 +7,6 @@ trigger:
 
 variables:
   FORepoRoot: '$(Build.SourcesDirectory)'
+  VERSIONSUFFIXDOTNET: ''
 stages:
   - template: templates/template-ci-pr-stages.yml
