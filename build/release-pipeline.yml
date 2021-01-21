@@ -6,11 +6,11 @@ trigger:
 
 parameters:
 - name: UseTestingArtifacts
-  displayName: Use artifacts from __testing tagged build?
+  displayName: TEST BUILDS ONLY - Use artifacts from __testing tagged build?
   type: boolean
   default: false
 - name: VPackVersionAppendId
-  displayName: Append build id to VPack versions
+  displayName: TEST BUILDS ONLY - Append build id to VPack versions
   type: boolean
   default: false
 
