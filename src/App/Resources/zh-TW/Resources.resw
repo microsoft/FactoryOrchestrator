@@ -320,7 +320,7 @@
     <value>結束及關閉功能表</value>
   </data>
   <data name="ExitText.Text" xml:space="preserve">
-    <value>是否要結束 Factory Orchestrator？</value>
+    <value>結束 Factory Orchestrator?</value>
   </data>
   <data name="FactoryOrchestrator.Text" xml:space="preserve">
     <value>Factory Orchestrator</value>

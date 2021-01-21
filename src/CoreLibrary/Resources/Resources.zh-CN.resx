@@ -193,7 +193,7 @@
     <value>{0} 不是有效的 {1}!</value>
   </data>
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
-    <value>{0} 上的 Factory Orchestrator 服务的版本为 {1}，与 FactoryOrchestratorClient 版本 {2} 不兼容! 连接时使用 Connect(true) 或 TryConnect(true) 忽略此错误。</value>
+    <value>{0} 上的 Factory Orchestrator 服务版本为 {1}，与 FactoryOrchestratorClient 版本 {2} 不兼容! 连接时使用 Connect(true) 或 TryConnect(true) 忽略此错误。</value>
   </data>
   <data name="FileLoadSucceeded" xml:space="preserve">
     <value>已成功加载 {0}。</value>
@@ -250,7 +250,7 @@
     <value>流程未能启动!</value>
   </data>
   <data name="ReadyToCommunicate" xml:space="preserve">
-    <value>Factory Orchestrator 服务已准备好与客户端(s) 通信。</value>
+    <value>Factory Orchestrator 服务已准备好与客户端通信。</value>
   </data>
   <data name="RedirectingToRunAsRDUser" xml:space="preserve">
     <value>{0} 是一个 Win32 GUI 程序。正在重定向以远程用户身份运行...</value>
@@ -280,7 +280,7 @@
     <value>服务 {0} 已停止</value>
   </data>
   <data name="ServiceStoppedWithName" xml:space="preserve">
-    <value>已停止 Factory Orchestrator Service。</value>
+    <value>已停止 Factory Orchestrator 服务。</value>
   </data>
   <data name="ServiceStopping" xml:space="preserve">
     <value>正在停止服务 {0}</value>
@@ -382,7 +382,7 @@
     <value>正在为 {0}启用 UWP 本地环回...</value>
   </data>
   <data name="EnablingLoopbackFailed" xml:space="preserve">
-    <value>无法为 {0} 启用 UWP 本地环回！你可能无法从 {0} 与 Factory Orchestrator 服务通信。</value>
+    <value>无法为 {0} 启用 UWP 本地环回! 你可能无法从 {0} 与 Factory Orchestrator 服务通信。</value>
   </data>
   <data name="EveryBootAlreadyComplete" xml:space="preserve">
     <value>首次启动 TaskList 已完成。</value>
@@ -431,18 +431,30 @@
     <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
   </data>
   <data name="ContainerDisconnected" xml:space="preserve">
-    <value>Factory Orchestrator 服务已从运行兼容版本的 Factory Orchestrator 服务的容器断开连接。</value>
+    <value>Factory Orchestrator 服务已与运行兼容版本的 Factory Orchestrator 服务的容器断开连接。</value>
     <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
   </data>
   <data name="IpcInvalidOperationError" xml:space="preserve">
-    <value>Factory Orchestrator 服务未识别该命令！最可能是因为客户端和服务之间版本不匹配。</value>
+    <value>Factory Orchestrator 服务未识别该命令! 最大的原因是客户端和服务之间版本不匹配。</value>
     <comment>Error when service does not recognize a command from client. Almost always due to using an older client with a newer service.</comment>
   </data>
   <data name="Unknown" xml:space="preserve">
     <value>未知</value>
   </data>
   <data name="ContainerConnectionFailed" xml:space="preserve">
-    <value>无法连接到容器内部的工厂 Orchestrator 服务！</value>
+    <value>无法连接到容器内部的 Factory Orchestrator 服务！</value>
     <comment>Error thrown if we cannot connect to the service inside the container for any reason</comment>
+  </data>
+  <data name="TaskRunUnhandledExceptionError" xml:space="preserve">
+    <value>错误：TaskRun 在执行期间引发了未处理的异常！</value>
+    <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
+  </data>
+  <data name="WaitingForContainerStart" xml:space="preserve">
+    <value>正在等待容器准备就绪…</value>
+    <comment>Message shown when the container inside the host is not yet ready to execute the desired Task.</comment>
+  </data>
+  <data name="ContainerTaskTypeException" xml:space="preserve">
+    <value>容器中运行的任务的类型必须为 ExecutableTask、BatchFileTask 或 PowerShellTask！</value>
+    <comment>Exception message when a Task the user wants run in the container is of an invalid type</comment>
   </data>
 </root>
