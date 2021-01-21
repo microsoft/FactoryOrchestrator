@@ -1,5 +1,18 @@
 # Runs compliance tasks for CI builds.
 steps:
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+  displayName: 'Run TermCheck'
+  inputs:
+    targetType: F
+    optionsFC: 0
+    optionsXS: 0
+    optionsPE: '1|2|3|4'
+    optionsHMENABLE: 0
+    optionsRulesDBPath: ''
+    optionsFTPATH: ''
+    toolVersion: Latest
+  
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
   displayName: 'Scan for Secrets'
   inputs:
