@@ -9,6 +9,7 @@ stages:
   - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
     variables:
       BuildPlatform: 'AnyCPU'
+      BuildConfiguration: 'Release'
       FORepoRoot: '$(Build.SourcesDirectory)'
     steps:
     - checkout: self
