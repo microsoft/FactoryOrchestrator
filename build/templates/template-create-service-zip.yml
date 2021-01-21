@@ -1,0 +1,31 @@
+parameters:
+  BuildConfiguration: 'Release'
+  BuildPlatform: 'x86'
+# Publishes Service. Creates Service vPacks.
+steps:
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    contents: '*.pdb' 
+    targetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.Symbols'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.Symbols' 
+    includeRootFolder: false
+    archiveType: 'zip' # Options: zip, 7z, tar, wim
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.Symbols.zip' 
+    replaceExistingArchive: true 
+
+- task: DeleteFiles@1
+  inputs:
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    Contents: '*.pdb' 
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}' 
+    includeRootFolder: false
+    archiveType: 'zip' # Options: zip, 7z, tar, wim
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.zip' 
+    replaceExistingArchive: true 
