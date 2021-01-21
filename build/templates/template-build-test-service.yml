@@ -7,26 +7,26 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
   displayName: 'dotnet restore'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
     arguments: '--configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Diagnostic $(VERSIONSUFFIXDOTNET)'
   displayName: 'dotnet build $(BuildConfiguration)'
   condition: succeeded()
 - task: DotNetCoreCLI@2
   inputs:
     command: test
-    projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
     arguments: '--configuration $(BuildConfiguration) --no-restore --no-build --collect "Code coverage"'
   displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Windows'
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 - task: DotNetCoreCLI@2
   inputs:
     command: test
-    projects: '$(FORepoRoot)\src\FactoryOrchestratorNoApp.sln'
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
     arguments: '--configuration $(BuildConfiguration) --no-restore --no-build'
   displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Linux'
   condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
