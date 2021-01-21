@@ -33,7 +33,7 @@ steps:
     pattern: '*__Microsoft.FactoryOrchestrator*.dll,*__Microsoft.FactoryOrchestrator*.exe'
     useMinimatch: false
     shouldSign: ${{ parameters.ShouldSign }}
-    alwaysCopy: 'false'
+    alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
     verifySignature: 'true'
     pageHash: 'false'
@@ -47,7 +47,7 @@ steps:
     pattern: '*__JKang.*.dll,*__PE-Utility.dll,*__PeterKottas.*.dll,*__DasMulli.*.dll'
     useMinimatch: false
     shouldSign: ${{ parameters.ShouldSign }}
-    alwaysCopy: 'false'
+    alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
     verifySignature: 'true'
     pageHash: 'false'
