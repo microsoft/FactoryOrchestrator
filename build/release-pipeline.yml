@@ -100,11 +100,9 @@ stages:
           targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/"
           contents: "*.nuspec"
         displayName: 'Copy Windows UWPClient nuspecs'
-        condition: and(succeeded(), eq(variables['BuildPlatform'], 'x86'))
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/UWPClientLibraryNuspecs/'
         artifact: 'UWPClient_Nuspecs'
         displayName: 'Publish Windows UWPClient nuspecs'
-        condition: and(succeeded(), eq(variables['BuildPlatform'], 'x86'))
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
     dependsOn:
