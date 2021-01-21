@@ -94,7 +94,6 @@ stages:
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/tests'
         artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
         displayName: 'Publish unsigned test binaries and zip'
-      - template: ./templates/template-checkdocs.yml
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
     dependsOn:
