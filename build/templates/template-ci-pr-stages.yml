@@ -19,7 +19,7 @@ stages:
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
 
-    - template: ./template-ci-compliance.ynl
+    - template: ./template-ci-compliance.yml
     
     # Build & Test (Windows)
     - template: ./template-build-test-service.yml
