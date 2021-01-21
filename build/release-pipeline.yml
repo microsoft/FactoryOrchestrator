@@ -464,6 +464,26 @@ stages:
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
 
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'x86'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'x64'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'arm'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'arm64'
+        - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\Publish\Zips\'
+          artifact: ServiceZips
+          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+
   - stage: 'Publish_vPack'
     dependsOn:
     - 'compliance'
