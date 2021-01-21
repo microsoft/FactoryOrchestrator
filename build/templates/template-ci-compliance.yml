@@ -2,7 +2,7 @@
 steps:
 
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
-  displayName: 'Run TermCheck'
+  displayName: 'Run PoliCheck'
   inputs:
     targetType: F
     optionsFC: 0
@@ -14,7 +14,7 @@ steps:
     toolVersion: Latest
   
 - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
-  displayName: 'Scan for Secrets'
+  displayName: 'Eun CredScan'
   inputs:
     suppressionsFile: build/config/CredScanSuppressions.json
     toolMajorVersion: V2
