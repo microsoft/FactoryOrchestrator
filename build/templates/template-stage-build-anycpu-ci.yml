@@ -12,17 +12,17 @@ stages:
       FORepoRoot: '$(Build.SourcesDirectory)'
     steps:
     - checkout: self
-    - template: build/templates/template-set-build-version.yml
-    - template: build/templates/template-install-netcore.yml
+    - template: ./template-set-build-version.yml
+    - template: ./template-install-netcore.yml
     - pwsh: |
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
-    - template: build/templates/template-build-test-service.yml
-    - template: build/templates/template-build-uwpclient.yml
+    - template: ./template-build-test-service.yml
+    - template: ./template-build-uwpclient.yml
     - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
       artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
       displayName: 'Publish unsigned binaries AnyCPU'
-    - template: build/templates/template-checkdocs.yml
+    - template: ./template-checkdocs.yml
 
 - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
   dependsOn:
@@ -48,8 +48,8 @@ stages:
       maxParallel: '3'
     steps:
     - checkout: self
-    - template: build/templates/template-set-build-version.yml
-    - template: build/templates/template-install-netcore.yml
+    - template: ./template-set-build-version.yml
+    - template: ./template-install-netcore.yml
     - pwsh: |
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
@@ -59,4 +59,4 @@ stages:
       inputs:
         sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
         targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU"
-    - template: build/templates/template-build-app.yml
+    - template: ./template-build-app.yml
