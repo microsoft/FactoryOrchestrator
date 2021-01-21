@@ -1,10 +1,5 @@
   - stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
-    pool:
-      name: "Hosted Windows 2019 with VS2019"
-      demands:
-      - msbuild
-      - visualstudio
-
+  
     jobs:
     - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
       variables:
