@@ -24,6 +24,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Release builds use an ADO fork of the GitHub code, so use the AzureRepos version of SourceLink. -->
     <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 

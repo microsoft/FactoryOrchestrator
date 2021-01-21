@@ -493,7 +493,7 @@ stages:
         
         - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
           - pwsh: |
-              $vstsCommandString = "vso[task.setvariable variable=VPACKVERSIONBUILDIDSUFFIX]$env:BUILD_ID"
+              $vstsCommandString = "vso[task.setvariable variable=VPACKVERSIONBUILDIDSUFFIX]$env:BUILD_BUILDID"
               Write-Host "sending " + $vstsCommandString
               Write-Host "##$vstsCommandString"
             displayName: 'Set build id VPack suffix'
