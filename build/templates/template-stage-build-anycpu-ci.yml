@@ -23,3 +23,40 @@ stages:
       artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
       displayName: 'Publish unsigned binaries AnyCPU'
     - template: ./templates/template-checkdocs.yml
+
+- stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
+  dependsOn:
+  - 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
+  pool:
+    name: "Hosted Windows 2019 with VS2019"
+    demands:
+    - msbuild
+    - visualstudio
+
+  jobs:      
+  - job: "Build_FactoryOrchestrator_App"
+    variables:
+      FORepoRoot: '$(Build.SourcesDirectory)'
+    strategy:
+      matrix:
+        Release_x86:
+          BuildPlatform: 'x86'
+        Release_x64:
+          BuildPlatform: 'x64'
+        Release_Arm:
+          BuildPlatform: 'ARM'
+      maxParallel: '3'
+    steps:
+    - checkout: self
+    - template: ./templates/template-set-build-version.yml
+    - template: ./templates/template-install-netcore.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+    - download: current
+      artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+        targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU"
+    - template: ./templates/template-build-app.yml
