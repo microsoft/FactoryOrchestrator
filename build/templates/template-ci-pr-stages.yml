@@ -18,8 +18,6 @@ stages:
     - pwsh: |
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
-
-    - template: ./template-ci-compliance.yml
     
     # Build & Test (Windows)
     - template: ./template-build-test-service.yml
@@ -28,8 +26,21 @@ stages:
         $vstsCommandString = "vso[task.setvariable variable=BuildPlatform]x64"
         Write-Host "sending " + $vstsCommandString
         Write-Host "##$vstsCommandString"
-      displayName: 'Set symbol publish variables'
+      displayName: 'Set BuildPlatform to x64'
     - template: ./template-build-app.yml
 
     # Build docs
     - template: ./template-checkdocs.yml
+
+  - job: "Compliance"
+    variables:
+      BuildPlatform: 'AnyCPU'
+      BuildConfiguration: 'Release'
+      FORepoRoot: '$(Build.SourcesDirectory)'
+    steps:
+    - checkout: self
+    - template: ./template-set-build-version.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+    - template: ./template-ci-compliance.yml
