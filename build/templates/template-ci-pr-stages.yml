@@ -19,24 +19,7 @@ stages:
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
 
-    # Compliance tasks
-    - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
-      displayName: 'Run TermCheck'
-      inputs:
-        targetType: F
-        optionsFC: 0
-        optionsXS: 0
-        optionsPE: '1|2|3|4'
-        optionsHMENABLE: 0
-        optionsRulesDBPath: ${{ parameters.optionsRulesDBPath }}
-        optionsFTPATH: ${{ parameters.optionsFTPath }}
-        toolVersion: Latest
-    - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
-      displayName: 'Run CredScan'
-      inputs:
-        suppressionsFile: $(FORepoRoot)/build/config/CredScanSuppressions.json
-        debugMode: false
-        toolMajorVersion: V2
+    -template: ./template-ci-compliance.ynl
     
     # Build & Test (Windows)
     - template: ./template-build-test-service.yml
