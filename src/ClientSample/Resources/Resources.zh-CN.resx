@@ -205,7 +205,7 @@
     <value>用法:</value>
   </data>
   <data name="WaitingForService" xml:space="preserve">
-    <value>正在 {0} 上等待 Factory Orchestrator 服务...</value>
+    <value>正在等待 {0} 上的 Factory Orchestrator 服务...</value>
   </data>
   <data name="WithExitCode" xml:space="preserve">
     <value>带退出代码</value>

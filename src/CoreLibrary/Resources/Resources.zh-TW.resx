@@ -193,7 +193,7 @@
     <value>{0} 不是有效的 {1}!</value>
   </data>
   <data name="FactoryOrchestratorVersionMismatchException" xml:space="preserve">
-    <value>{0} 上的 Factory Orchestrator Service 有版本 {1}，該版本與 FactoryOrchestratorClient 版本 {2} 不相容! 使用 Connect(true) 或 TryConnect(true) 在連線時忽略此錯誤。</value>
+    <value>{0} 上的 Factory Orchestrator 服務有版本 {1}，該版本與 FactoryOrchestratorClient 版本 {2} 不相容! 使用 Connect(true) 或 TryConnect(true) 在連線時忽略此錯誤。</value>
   </data>
   <data name="FileLoadSucceeded" xml:space="preserve">
     <value>已成功載入 {0}。</value>
@@ -382,7 +382,7 @@
     <value>正在啟用 {0} 的 UWP 本機回送...</value>
   </data>
   <data name="EnablingLoopbackFailed" xml:space="preserve">
-    <value>無法啟用 {0} 的 UWP 本機回送您可能無法從 {0} 與 Factory Orchestrator 服務通訊。</value>
+    <value>無法啟用 {0} 的 UWP 本機回送! 您可能無法從 {0} 與 Factory Orchestrator 服務通訊。</value>
   </data>
   <data name="EveryBootAlreadyComplete" xml:space="preserve">
     <value>每個開機 TaskList 都已完成。</value>
@@ -427,11 +427,11 @@
     <value>在 FactoryOrchestratorXML 中有重複的 GUID {0}!</value>
   </data>
   <data name="ContainerConnected" xml:space="preserve">
-    <value>Factory Orchestrator Service 已連線到執行相容版本之 Factory Orchestrator Service 的容器。</value>
+    <value>Factory Orchestrator 服務已連線到執行相容版本之 Factory Orchestrator 服務的容器。</value>
     <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
   </data>
   <data name="ContainerDisconnected" xml:space="preserve">
-    <value>Factory Orchestrator Service 已與執行相容版本之 Factory Orchestrator Service 的容器中斷連線。</value>
+    <value>Factory Orchestrator 服務已與執行相容版本之 Factory Orchestrator 服務的容器中斷連線。</value>
     <comment>container refers to a Windows container running on the host device (eg https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/)</comment>
   </data>
   <data name="IpcInvalidOperationError" xml:space="preserve">
@@ -444,5 +444,17 @@
   <data name="ContainerConnectionFailed" xml:space="preserve">
     <value>無法連線到容器內的 Factory Orchestrator 服務!</value>
     <comment>Error thrown if we cannot connect to the service inside the container for any reason</comment>
+  </data>
+  <data name="TaskRunUnhandledExceptionError" xml:space="preserve">
+    <value>錯誤：TaskRun 在執行過程中拋出未處理的例外狀況!</value>
+    <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
+  </data>
+  <data name="WaitingForContainerStart" xml:space="preserve">
+    <value>正在等待容器準備就緒...</value>
+    <comment>Message shown when the container inside the host is not yet ready to execute the desired Task.</comment>
+  </data>
+  <data name="ContainerTaskTypeException" xml:space="preserve">
+    <value>在容器中執行的工作必須是 ExecutableTask、BatchFileTask 或 PowerShellTask 類型!</value>
+    <comment>Exception message when a Task the user wants run in the container is of an invalid type</comment>
   </data>
 </root>
