@@ -1,9 +1,5 @@
 # Builds all AnyCPU (MSIL) .NET Core/Standard projects and runs all unit tests.
 steps:
-- task: UseDotNet@2
-  inputs:
-    version: '3.1.x'
-    packageType: sdk
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
