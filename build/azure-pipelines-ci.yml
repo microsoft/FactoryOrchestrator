@@ -5,6 +5,12 @@ name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 trigger:
 - main
 
+pool:
+  name: "Hosted Windows 2019 with VS2019"
+  demands:
+  - msbuild
+  - visualstudio
+
 variables:
   FORepoRoot: '$(Build.SourcesDirectory)'
 stages:
