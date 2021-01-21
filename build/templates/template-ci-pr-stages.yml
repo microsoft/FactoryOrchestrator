@@ -18,6 +18,8 @@ stages:
     - pwsh: |
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
+
+    # Compliance tasks
     - task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
       displayName: 'Run TermCheck'
       inputs:
@@ -35,40 +37,16 @@ stages:
         suppressionsFile: $(FORepoRoot)/build/config/CredScanSuppressions.json
         debugMode: false
         toolMajorVersion: V2
-
+    
+    # Build & Test (Windows)
     - template: ./template-build-test-service.yml
     - template: ./template-build-uwpclient.yml
-    - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
-      artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
-      displayName: 'Publish unsigned binaries AnyCPU'
-    - template: ./template-checkdocs.yml
-
-- stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
-  dependsOn:
-  - 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
-  pool:
-    name: "Hosted Windows 2019 with VS2019"
-    demands:
-    - msbuild
-    - visualstudio
-
-  jobs:      
-  - job: "Build_FactoryOrchestrator_App"
-    variables:
-      FORepoRoot: '$(Build.SourcesDirectory)'
-      BuildPlatform: 'x64'
-      BuildConfiguration: 'Release'
-    steps:
-    - checkout: self
-    - template: ./template-set-build-version.yml
-    - template: ./template-install-netcore.yml
     - pwsh: |
-        Get-Item -Path env:* | Sort-Object Name
-      displayName: "Print all variables"
-    - download: current
-      artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
-    - task: CopyFiles@2
-      inputs:
-        sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
-        targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU"
+        $vstsCommandString = "vso[task.setvariable variable=BuildPlatform]x64"
+        Write-Host "sending " + $vstsCommandString
+        Write-Host "##$vstsCommandString"
+      displayName: 'Set symbol publish variables'
     - template: ./template-build-app.yml
+
+    # Build docs
+    - template: ./template-checkdocs.yml
