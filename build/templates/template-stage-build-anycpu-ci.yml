@@ -1,20 +1,24 @@
-  - stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
-  
-    jobs:
-    - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
-      variables:
-        BuildPlatform: 'AnyCPU'
-        FORepoRoot: '$(Build.SourcesDirectory)'
-      steps:
-      - checkout: self
-      - template: ./templates/template-set-build-version.yml
-      - template: ./templates/template-install-netcore.yml
-      - pwsh: |
-          Get-Item -Path env:* | Sort-Object Name
-        displayName: "Print all variables"
-      - template: ./templates/template-build-test-service.yml
-      - template: ./templates/template-build-uwpclient.yml
-      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
-        artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
-        displayName: 'Publish unsigned binaries AnyCPU'
-      - template: ./templates/template-checkdocs.yml
+- stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
+  pool:
+    name: "Hosted Windows 2019 with VS2019"
+    demands:
+    - msbuild
+    - visualstudio
+  jobs:
+  - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
+    variables:
+      BuildPlatform: 'AnyCPU'
+      FORepoRoot: '$(Build.SourcesDirectory)'
+    steps:
+    - checkout: self
+    - template: ./templates/template-set-build-version.yml
+    - template: ./templates/template-install-netcore.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+    - template: ./templates/template-build-test-service.yml
+    - template: ./templates/template-build-uwpclient.yml
+    - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
+      artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
+      displayName: 'Publish unsigned binaries AnyCPU'
+    - template: ./templates/template-checkdocs.yml
