@@ -10,7 +10,7 @@ steps:
     command: 'restore'
     restoreSolution: '$(System.DefaultWorkingDirectory)\src\App\Microsoft.FactoryOrchestrator.App.csproj'
 - task: VSBuild@1
-  displayName: 'Build FactoryOrchestrator App'
+  displayName: 'Build App Target'
   inputs:
     platform: $(BuildPlatform)
     configuration: '$(BuildConfiguration)'
