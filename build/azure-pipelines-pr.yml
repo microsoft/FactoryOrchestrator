@@ -1,0 +1,14 @@
+#PR Pipeline.
+
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
+
+trigger:
+- none
+pr:
+- main
+
+variables:
+  FORepoRoot: '$(Build.SourcesDirectory)'
+stages:
+  - template: templates/stage-build-anycpu-ci.yml
+  - template: templates/template-stage-build-apps-ci.yml
