@@ -1,4 +1,4 @@
-#CI Pipeline. Triggers every merge attempt with main branch
+#CI & RE Pipeline. Triggers every merge attempt with main branch and any PR to main
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 pool:
@@ -9,46 +9,72 @@ pool:
 
 trigger:
 - main
-pr: none
+
+pr:
+- main
 
 variables:
   FORepoRoot: '$(Build.SourcesDirectory)'
-
 stages:
-- stage: "Build_Test_FactoryOrchestrator_Service"
-  jobs:
-  - job: "Build_Test_FactoryOrchestrator_Service"
-    variables: 
-      BuildConfiguration: 'Release'
-    steps:
-    - template: ./templates/template-set-build-version.yml
-    - template: ./templates/template-install-netcore.yml
-    - template: ./templates/template-build-test-service.yml
-    - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\$(BuildPlatform)'
-      artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform)'
-    - template: ./templates/template-ci-compliance.yml
-    - template: ./templates/template-checkdocs.yml
-- stage: "Build_FactoryOrchestrator_App"
-  dependsOn: "Build_Test_FactoryOrchestrator_Service"
-  jobs:
-  - job: "Build_FactoryOrchestrator_App"
-    strategy:
-      matrix:
-        Release_x86:
-          BuildPlatform: 'x86'
-          BuildConfiguration: 'Release'
-        Release_x64:
-          BuildPlatform: 'x64'
-          BuildConfiguration: 'Release'
-        Release_Arm:
-          BuildPlatform: 'ARM'
-          BuildConfiguration: 'Release'
-      maxParallel: '3'
-    steps:
-    - download: current
-      artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
-    - task: CopyFiles@2
-      inputs:
-        sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_AnyCPU"
-        targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/AnyCPU"
-    - template: ./templates/template-build-app.yml
+  - stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
+    pool:
+      name: "Hosted Windows 2019 with VS2019"
+      demands:
+      - msbuild
+      - visualstudio
+
+    jobs:
+    - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
+      variables:
+        BuildPlatform: 'AnyCPU'
+        FORepoRoot: '$(Build.SourcesDirectory)'
+      steps:
+      - checkout: self
+      - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-install-netcore.yml
+      - pwsh: |
+          Get-Item -Path env:* | Sort-Object Name
+        displayName: "Print all variables"
+      - template: ./templates/template-build-test-service.yml
+      - template: ./templates/template-build-uwpclient.yml
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
+        artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
+        displayName: 'Publish unsigned binaries AnyCPU'
+      - template: ./templates/template-checkdocs.yml
+
+  - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
+    dependsOn:
+    - 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
+    pool:
+      name: "Hosted Windows 2019 with VS2019"
+      demands:
+      - msbuild
+      - visualstudio
+
+    jobs:      
+    - job: "Build_FactoryOrchestrator_App"
+      variables:
+        FORepoRoot: '$(Build.SourcesDirectory)'
+      strategy:
+        matrix:
+          Release_x86:
+            BuildPlatform: 'x86'
+          Release_x64:
+            BuildPlatform: 'x64'
+          Release_Arm:
+            BuildPlatform: 'ARM'
+        maxParallel: '3'
+      steps:
+      - checkout: self
+      - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-install-netcore.yml
+      - pwsh: |
+          Get-Item -Path env:* | Sort-Object Name
+        displayName: "Print all variables"
+      - download: current
+        artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
+      - task: CopyFiles@2
+        inputs:
+          sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
+          targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/AnyCPU"
+      - template: ./templates/template-build-app.yml
