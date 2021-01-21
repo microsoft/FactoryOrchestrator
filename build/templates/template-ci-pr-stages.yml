@@ -56,15 +56,8 @@ stages:
   - job: "Build_FactoryOrchestrator_App"
     variables:
       FORepoRoot: '$(Build.SourcesDirectory)'
-    strategy:
-      matrix:
-        Release_x86:
-          BuildPlatform: 'x86'
-        Release_x64:
-          BuildPlatform: 'x64'
-        Release_Arm:
-          BuildPlatform: 'ARM'
-      maxParallel: '3'
+      BuildPlatform: 'x64'
+      BuildConfiguration: 'Release'
     steps:
     - checkout: self
     - template: ./template-set-build-version.yml
