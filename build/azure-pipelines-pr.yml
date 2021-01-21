@@ -10,5 +10,4 @@ pr:
 variables:
   FORepoRoot: '$(Build.SourcesDirectory)'
 stages:
-  - template: templates/template-stage-build-anycpu-ci.yml
-  - template: templates/template-stage-build-apps-ci.yml
+  - template: templates/template-ci-pr-stages.yml
