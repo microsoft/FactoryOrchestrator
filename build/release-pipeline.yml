@@ -19,8 +19,8 @@ resources:
   - repository: ComplianceRepo
     type: github
     endpoint: microsoft
-    name: spaceisfun/Compliance
-    ref: testcustom
+    name: PowerShell/Compliance
+    ref: master
 
 variables:
   SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
