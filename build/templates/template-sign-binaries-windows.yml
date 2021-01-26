@@ -96,8 +96,7 @@ steps:
     useCustomEsrpJson: true
     pattern: '*.msix'
     useMinimatch: false
-    # !TESTTESTTEST
-    shouldSign: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
@@ -164,8 +163,7 @@ steps:
     useCustomEsrpJson: true
     pattern: '*.msixbundle'
     useMinimatch: false
-    # !TESTTESTTEST
-    shouldSign: 'false'
+    shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
     signingService: 'FactoryOrchestratorSigning'
 
