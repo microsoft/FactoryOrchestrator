@@ -479,7 +479,6 @@ stages:
             BuildPlatform: 'arm64'
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\Publish\Zips\'
           artifact: ServiceZips
-          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 
   - stage: 'Publish_vPack'
     dependsOn:
