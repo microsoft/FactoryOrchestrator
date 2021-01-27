@@ -3,6 +3,11 @@ parameters:
   BuildPlatform: 'x86'
 # Publishes Service. Creates Service vPacks.
 steps:
+- task: DeleteFiles@1
+  inputs:
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    Contents: '*.pdb' 
+  displayName: "Delete pdbs ${{ parameters.BuildPlatform }}"
 - task: PowerShell@2
   displayName: 'Create Microsoft.FactoryOrchestrator.Service Manifest for VPack'
   inputs:
@@ -22,9 +27,6 @@ steps:
     description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
   condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-- publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
-  artifact: 'Microsoft.FactoryOrchestrator.Service_${{ parameters.BuildPlatform }}'
-  displayName: 'Publish Service SCD ${{ parameters.BuildPlatform }} artifact'
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest Service ${{ parameters.BuildPlatform }}'
   inputs:
