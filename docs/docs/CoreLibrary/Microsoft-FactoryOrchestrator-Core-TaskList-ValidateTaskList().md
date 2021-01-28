@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[TaskList](./Microsoft-FactoryOrchestrator-Core-TaskList.md 'Microsoft.FactoryOrchestrator.Core.TaskList')
 ## TaskList.ValidateTaskList() Method
 Validates the TaskList is compliant with the XSD schema and other requirements.  

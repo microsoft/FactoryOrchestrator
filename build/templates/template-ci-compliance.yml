@@ -1,0 +1,37 @@
+# Runs compliance tasks for CI builds.
+steps:
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-policheck.PoliCheck@1
+  displayName: 'Run PoliCheck'
+  inputs:
+    targetType: F
+    optionsFC: 0
+    optionsXS: 0
+    optionsPE: '1|2|3|4'
+    optionsHMENABLE: 0
+    optionsRulesDBPath: ''
+    optionsFTPATH: ''
+    toolVersion: Latest
+  
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+  displayName: 'Eun CredScan'
+  inputs:
+    suppressionsFile: build/config/CredScanSuppressions.json
+    toolMajorVersion: V2
+    debugMode: false
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+  displayName: 'Publish Compliance Logs to Build Artifacts'
+  continueOnError: true
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+  displayName: 'Check for Failures'
+  inputs:
+    CredScan: true
+    ToolLogsNotFoundAction: Error
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Governance'
+  inputs:
+    sourceScanPath: $(FORepoRoot)
+    snapshotForceEnabled: true

@@ -1,0 +1,46 @@
+stages:
+- stage: 'Build_and_Test_Windows'
+  pool:
+    name: "Hosted Windows 2019 with VS2019"
+    demands:
+    - msbuild
+    - visualstudio
+  jobs:
+  - job: "Build_Test_FactoryOrchestrator_Windows"
+    variables:
+      BuildPlatform: 'AnyCPU'
+      BuildConfiguration: 'Release'
+      FORepoRoot: '$(Build.SourcesDirectory)'
+    steps:
+    - checkout: self
+    - template: ./template-set-build-version.yml
+    - template: ./template-install-netcore.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+    
+    # Build & Test (Windows)
+    - template: ./template-build-test-service.yml
+    - template: ./template-build-uwpclient.yml
+    - pwsh: |
+        $vstsCommandString = "vso[task.setvariable variable=BuildPlatform]x64"
+        Write-Host "sending " + $vstsCommandString
+        Write-Host "##$vstsCommandString"
+      displayName: 'Set BuildPlatform to x64'
+    - template: ./template-build-app.yml
+
+    # Build docs
+    - template: ./template-checkdocs.yml
+
+  - job: "Compliance"
+    variables:
+      BuildPlatform: 'AnyCPU'
+      BuildConfiguration: 'Release'
+      FORepoRoot: '$(Build.SourcesDirectory)'
+    steps:
+    - checkout: self
+    - template: ./template-set-build-version.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+    - template: ./template-ci-compliance.yml

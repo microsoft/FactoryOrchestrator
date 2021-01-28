@@ -1,0 +1,43 @@
+<Project>
+
+  <PropertyGroup>
+    <Authors>Jacques Kang and other GitHub contributors</Authors>
+    <Company />
+    <PackageLicenseUrl>https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE</PackageLicenseUrl>
+    <!-- Below is the official repo for IpcServiceFramework. However, it confuses SourceLink, as the source used is from the FactoryOrchestrator repo. -->
+    <!-- Commenting out to resolve the SourceLink error, ex: -->
+    <!-- C:\Users\VssAdministrator\.nuget\packages\microsoft.sourcelink.common\1.0.0\build\Microsoft.SourceLink.Common.targets(52,5): warning : Source control information is not available - the generated source link is empty. [D:\a\1\s\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj] -->
+    <!-- <RepositoryUrl>https://github.com/jacqueskang/IpcServiceFramework</RepositoryUrl> -->
+    <PackageProjectUrl>https://github.com/jacqueskang/IpcServiceFramework</PackageProjectUrl>
+    <Version>3.1.0</Version>
+  </PropertyGroup>
+
+  <!-- Added for Factory Orchestrator -->
+  <!-- Only the 'closest' directory.build.props file to the current project is used, so this duplicates many things in the higher-level directory.build.props -->
+  <PropertyGroup>
+    <SkipDefaultEditorConfigAsAdditionalFile>true</SkipDefaultEditorConfigAsAdditionalFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' != '' Or '$(GITHUB_ACTIONS)' == 'true'">
+    <!-- Deterministic Builds for source link -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Release builds use an ADO fork of the GitHub code, so use the AzureRepos version of SourceLink. -->
+    <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <DisableDynamicCodeGeneration>true</DisableDynamicCodeGeneration>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableDynamicCodeGeneration)' == 'true'">
+    <DefineConstants>DISABLE_DYNAMIC_CODE_GENERATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
+    <OutDir>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
+    <OutDir>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
+  </PropertyGroup>
+</Project>

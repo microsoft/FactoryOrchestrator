@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core.JSONConverters](./Microsoft-FactoryOrchestrator-Core-JSONConverters.md 'Microsoft.FactoryOrchestrator.Core.JSONConverters')
 ## TaskBaseConverter Class
 TaskBaseConverter serializes "instances" of the abstract class TaskBase.  

@@ -14,14 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ClientLibrary\FactoryOrchestratorClientLibrary.csproj" />
-    <ProjectReference Include="..\..\ClientSample\ClientSample.csproj" />
+    <ProjectReference Include="..\..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="..\..\ClientSample\Microsoft.FactoryOrchestrator.ClientSample.csproj" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(XES_OUTDIR)' == ''">
-    <OutputPath>..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
+    <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(XES_OUTDIR)' != ''">
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
     <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
   </PropertyGroup>
 

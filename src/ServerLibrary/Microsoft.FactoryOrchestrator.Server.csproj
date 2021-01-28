@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetName>Microsoft.FactoryOrchestrator.Server</TargetName>
+    <PackageId>Microsoft.FactoryOrchestrator.Server</PackageId>
+    <Description>A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
+    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
+    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
+    <ProjectReference Include="..\..\oss\Pe-Utility\Pe-Utility.csproj" />
+  </ItemGroup>
+
+</Project>

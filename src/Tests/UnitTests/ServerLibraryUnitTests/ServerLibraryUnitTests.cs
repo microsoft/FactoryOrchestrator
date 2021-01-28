@@ -20,7 +20,9 @@ namespace Microsoft.FactoryOrchestrator.Test
         [DeploymentItem("Valid.xml")]
         public static void Init(TestContext context)
         {
+#pragma warning disable CA1062
             DeploymentDir = context.DeploymentDirectory;
+#pragma warning restore CA1062
             t = new TaskManager(DeploymentDir, "TempStateFile.xml");
         }
 

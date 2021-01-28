@@ -1,0 +1,132 @@
+# Creates vPacks for everything but the Service.
+steps:
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack msixbundle'
+  inputs:
+    sourceDirectory: '$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\msixbundle'
+    pushPkgName: 'FactoryOrchestrator.msixbundle'
+    description: 'FactoryOrchestrator.msixbundle'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest to Drop msixbundle'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack NET Core Tests'
+  inputs:
+    sourceDirectory: '$(Pipeline.Workspace)\UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests\TestZip'
+    pushPkgName: 'FactoryOrchestrator.NetCoreTests'
+    description: 'FactoryOrchestrator.NetCoreTests'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest NET Core Tests'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
+
+- task: CopyFiles@2
+  displayName: 'Copy Client Libraries to root of drop'
+  inputs:
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\AnyCPU\Microsoft.FactoryOrchestrator.UWPClient'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
+  condition: succeeded()
+
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to Client Libraries'
+  inputs:
+    SourceFolder: '$(FORepoRoot)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
+  condition: succeeded()
+
+- task: CopyFiles@2
+  displayName: 'Copy XSD to Client Libraries'
+  inputs:
+    SourceFolder: '$(FORepoRoot)\src\CoreLibrary'
+    Contents: 'FactoryOrchestratorXML.xsd'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
+  condition: succeeded()
+
+- task: CopyFiles@2
+  displayName: 'Copy PowerShell Publish to Client Libraries'
+  inputs:
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\Publish\Microsoft.FactoryOrchestrator.PowerShell'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries\PowerShell'
+  condition: succeeded()
+
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack Client Libraries'
+  inputs:
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
+    pushPkgName: 'FactoryOrchestrator.ClientLibraries'
+    description: 'FactoryOrchestrator.ClientLibraries'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest Client Libraries'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
+
+- task: CopyFiles@2
+  displayName: 'Copy Client Sample source'
+  inputs:
+    SourceFolder: '$(FORepoRoot)\src\ClientSample'
+    Contents: |
+     **\*.cs
+     **\*.csproj
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
+  condition: succeeded()
+
+- task: PowerShell@2
+  displayName: 'Modify Client Sample for WSK'
+  inputs:
+    targetType: filePath
+    filePath: ./build/internal/UpdateClientSampleForWSK.ps1
+    arguments: '-ProjectFolder $(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
+    failOnStderr: true
+    pwsh: true
+  condition: succeeded()
+  timeoutInMinutes: 5
+
+- task: PkgESVPack@10
+  env:
+   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'PkgES Create VPack Client Sample WSK'
+  inputs:
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientSampleWSK'
+    pushPkgName: 'FactoryOrchestrator.ClientSampleWSK'
+    description: 'FactoryOrchestrator.ClientSampleWSK'
+    version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
+  enabled: true
+
+- task: CopyFiles@2
+  displayName: 'Copy VPack Manifest Client Sample'
+  inputs:
+    SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
+    Contents: '$(XES_VPACKMANIFESTNAME)'
+    TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))

@@ -1,0 +1,37 @@
+parameters:
+  BuildConfiguration: 'Release'
+  BuildPlatform: 'x86'
+  BuildOS: 'win'
+# Publishes Service. Creates Service vPacks.
+steps:
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    contents: '*.pdb' 
+    targetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.Symbols'
+  displayName: "Copy pdbs ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
+
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.Symbols' 
+    includeRootFolder: false
+    archiveType: 'zip' # Options: zip, 7z, tar, wim
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.Symbols.zip' 
+    replaceExistingArchive: true 
+  displayName: "Create pdb-only zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
+
+- task: DeleteFiles@1
+  inputs:
+    SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+    Contents: '*.pdb' 
+  displayName: "Delete pdbs ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}' 
+    includeRootFolder: false
+    archiveType: 'zip' # Options: zip, 7z, tar, wim
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip' 
+    replaceExistingArchive: true 
+  displayName: "Create bin-only service zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"

@@ -1229,7 +1229,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// A UWPTest is a UWP task run by the FactoryOrchestratorApp client. These are used for UI.
+    /// A UWPTest is a UWP task run by the FactoryOrchestrator.App client. These are used for UI.
     /// task results must be returned to the server via SetTaskRunStatus().
     /// </summary>
     [JsonConverter(typeof(NoConverter))]

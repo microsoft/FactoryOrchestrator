@@ -9,7 +9,7 @@ Factory Orchestrator provides a simple and reliable way to run and manage factor
 
 Factory Orchestrator consists of two components:
 
-- A system service (FactoryOrchestratorService.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure.
+- A system service (Microsoft.FactoryOrchestrator.Service.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure.
 
 - A UWP app: Communicates with the service to run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional, the service does not depend on the app.
 

@@ -48,11 +48,11 @@ foreach ($proj in $projs)
             elseif ($added -eq $false)
             {
                 # Add all the needed references, but for the WSK
-                $outputContent += "    <Reference Include=`"FactoryOrchestratorClientLibrary`">`n"
-                $outputContent += "      <HintPath>`..\lib\NetStandard\FactoryOrchestratorClientLibrary.dll</HintPath>`n"
+                $outputContent += "    <Reference Include=`"Microsoft.FactoryOrchestrator.Client`">`n"
+                $outputContent += "      <HintPath>`..\lib\NetStandard\Microsoft.FactoryOrchestrator.Client.dll</HintPath>`n"
                 $outputContent += "    </Reference>`n"
-                $outputContent += "    <Reference Include=`"FactoryOrchestratorCoreLibrary`">`n"
-                $outputContent += "      <HintPath>`..\lib\NetStandard\FactoryOrchestratorCoreLibrary.dll</HintPath>`n"
+                $outputContent += "    <Reference Include=`"Microsoft.FactoryOrchestrator.Core`">`n"
+                $outputContent += "      <HintPath>`..\lib\NetStandard\Microsoft.FactoryOrchestrator.Core.dll</HintPath>`n"
                 $outputContent += "    </Reference>`n"
                 $outputContent += "    <Reference Include=`"IpcServiceFramework.Client`">`n"
                 $outputContent += "      <HintPath>`..\lib\NetStandard\OpenSourceSoftware\IpcServiceFramework\IpcServiceFramework.Client.dll</HintPath>`n"

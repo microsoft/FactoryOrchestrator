@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorClientLibrary](./FactoryOrchestratorClientLibrary.md 'FactoryOrchestratorClientLibrary')
+#### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
 ### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[ServerPoller](./Microsoft-FactoryOrchestrator-Client-ServerPoller.md 'Microsoft.FactoryOrchestrator.Client.ServerPoller')
 ## ServerPoller.Dispose(bool) Method
 Releases unmanaged and - optionally - managed resources.  

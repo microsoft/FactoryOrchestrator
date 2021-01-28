@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[TaskListSummary](./Microsoft-FactoryOrchestrator-Core-TaskListSummary.md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary')
 ## TaskListSummary.Equals(Microsoft.FactoryOrchestrator.Core.TaskListSummary) Method
 Determines whether the specified [TaskListSummary](./Microsoft-FactoryOrchestrator-Core-TaskListSummary.md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary'), is equal to this instance.  

@@ -1,7 +1,7 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ## UWPTask Class
-A UWPTest is a UWP task run by the FactoryOrchestratorApp client. These are used for UI.  
+A UWPTest is a UWP task run by the FactoryOrchestrator.App client. These are used for UI.  
 task results must be returned to the server via SetTaskRunStatus().  
 ```csharp
 public class UWPTask : ExternalTask

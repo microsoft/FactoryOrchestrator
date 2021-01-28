@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[HttpMultipartFileContent](./Microsoft-FactoryOrchestrator-Core-HttpMultipartFileContent.md 'Microsoft.FactoryOrchestrator.Core.HttpMultipartFileContent')
 ## HttpMultipartFileContent.AddRange(System.Collections.Generic.IEnumerable&lt;string&gt;) Method
 Adds a range of files to the list of items to transfer  

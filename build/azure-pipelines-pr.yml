@@ -1,0 +1,14 @@
+#PR Pipeline.
+
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
+
+trigger:
+- none
+pr:
+- main
+
+variables:
+  FORepoRoot: '$(Build.SourcesDirectory)'
+  VERSIONSUFFIXDOTNET: ''
+stages:
+  - template: templates/template-ci-pr-stages.yml

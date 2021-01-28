@@ -3,13 +3,13 @@
 
 ## Install the service
 
-The Factory Orchestrator service (FactoryOrchestratorService.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself. 
+The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself. 
 
 User PowerShell to install the Factory Orchestrator on your device:
 
 ```PowerShell
      ## Optionally set it's start up to automatic with: -StartupType Automatic
-    New-Service -Name "FactoryOrchestrator" -BinaryPathName "FactoryOrchestratorService.exe"
+    New-Service -Name "FactoryOrchestrator" -BinaryPathName "Microsoft.FactoryOrchestrator.Service.exe"
 
     Start-Service -Name "FactoryOrchestrator"
 ```

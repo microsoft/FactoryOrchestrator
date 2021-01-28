@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorClientLibrary](./FactoryOrchestratorClientLibrary.md 'FactoryOrchestratorClientLibrary')
+#### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
 ### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[ServerPollerExceptionHandlerEventArgs](./Microsoft-FactoryOrchestrator-Client-ServerPollerExceptionHandlerEventArgs.md 'Microsoft.FactoryOrchestrator.Client.ServerPollerExceptionHandlerEventArgs')
 ## ServerPollerExceptionHandlerEventArgs.Exception Property
 The updated object polled on the server.  

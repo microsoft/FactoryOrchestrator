@@ -1,35 +1,33 @@
+# Builds all AnyCPU (MSIL) .NET Core/Standard projects and runs all unit tests.
 steps:
-  - task: UseDotNet@2
-    inputs:
-      version: '3.1.x'
-      packageType: sdk
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'restore'
-      projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
-    displayName: 'dotnet restore'
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'build'
-      arguments: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln --configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Detailed'
-    displayName: 'dotnet build $(BuildConfiguration)'
-    condition: succeeded()
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: test
-      projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
-      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build --collect "Code coverage"'
-    displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Windows'
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: test
-      projects: '$(System.DefaultWorkingDirectory)\src\FactoryOrchestratorNoApp.sln'
-      arguments: '--configuration $(BuildConfiguration) --no-restore --no-build'
-    displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Linux'
-    condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
-  - task: PublishPipelineArtifact@1
-    displayName: 'Publish build log as artifact'
-    inputs:
-      artifactName: MSBuildLog_$(BuildConfiguration)_AnyCPU
-      targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
+  displayName: 'dotnet restore'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
+    arguments: '--configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Diagnostic $(VERSIONSUFFIXDOTNET)'
+  displayName: 'dotnet build $(BuildConfiguration)'
+  condition: succeeded()
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
+    arguments: '--configuration $(BuildConfiguration) --no-restore --no-build --collect "Code coverage"'
+  displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Windows'
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
+    arguments: '--configuration $(BuildConfiguration) --no-restore --no-build'
+  displayName: 'Run Unit Tests via dotnet test $(BuildConfiguration) - Linux'
+  condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish msbuild log for AnyCPU build'
+  inputs:
+    artifactName: MSBuildLog_$(BuildConfiguration)_AnyCPU
+    targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log

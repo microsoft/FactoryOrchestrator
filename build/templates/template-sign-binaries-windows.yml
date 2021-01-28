@@ -1,0 +1,172 @@
+# Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform).
+parameters:
+  - name: "UnsignedInput"
+    default: "$(Build.ArtifactStagingDirectory)/unsignedbin/"
+  - name: "SignedOutput"
+    default: "$(Build.ArtifactStagingDirectory)/signedbin/"
+  - name: "ShouldSign"
+    default: "false"
+
+steps:
+- pwsh: |
+    $outputDir = "${{ parameters.UnsignedInput }}"
+    $outputDir = $outputDir.Replace('\', '/')
+    Get-ChildItem -Path $outputDir -Recurse -Directory -Filter "ilc" | Remove-Item -Recurse -Force
+  displayName: "Delete ilc App folders"
+
+# uniqify binaries to speed up signing process by not signing dup files
+- task: PowerShell@2
+  inputs:
+    targetType: filePath
+    filePath: $(FORepoRoot)/build/internal/CopyUniqueBins.ps1
+    arguments: '-CopySource "${{ parameters.UnsignedInput }}" -CopyDestination "$(System.DefaultWorkingDirectory)/unsigneduniquefiles" -MappingFileOut "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+    failOnStderr: true
+    pwsh: true
+  displayName: 'Copy unique files to staging directory'
+
+# ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/unsigneduniquefiles/'
+    signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage1/'
+    certificateId: 'CP-230012'
+    pattern: '*__Microsoft.FactoryOrchestrator*.dll,*__Microsoft.FactoryOrchestrator*.exe'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
+    signingService: 'FactoryOrchestratorSigning'
+    verifySignature: 'true'
+    pageHash: 'false'
+
+# CP-231522​ is for 3rd party authored binaries (OSS).
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage1/'
+    signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/'
+    certificateId: 'CP-231522'
+    pattern: '*__JKang.*.dll,*__PE-Utility.dll,*__PeterKottas.*.dll,*__DasMulli.*.dll'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
+    signingService: 'FactoryOrchestratorSigning'
+    verifySignature: 'true'
+    pageHash: 'false'
+
+# Sign appx
+- pwsh: |
+    [string] $SigningServer = '$(SigningServer)'
+    Write-Verbose "SigningServer - $SigningServer" -Verbose
+
+    $esrpParameters = @{
+      OpusName   = "Microsoft"
+      OpusInfo   = "http://www.microsoft.com"
+      FileDigest = "/fd sha256"
+      TimeStamp  = "/tr ""$SigningServer"" /td sha256"
+    }
+
+    $esrp = @(
+      @{
+        KeyCode = "Dynamic"
+        CertTemplateName = "WINMSAPP1ST"
+        CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+        operationCode = "SigntoolSign"
+        Parameters = $esrpParameters
+        ToolName = "sign"
+        ToolVersion = "1.0"},
+      @{
+        KeyCode = "Dynamic"
+        CertTemplateName = "WINMSAPP1ST"
+        CertSubjectName = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+        OperationCode = "SigntoolVerify"
+        ToolName = "sign"
+        ToolVersion = "1.0"
+      }
+    )
+
+    $vstsCommandString = "vso[task.setvariable variable=ESRP_TEMPLATE_CUSTOM_JSON]$($esrp | ConvertTo-Json -Compress)"
+    Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
+    Write-Host "##$vstsCommandString"
+  displayName: Generate msix signing JSON
+
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/'
+    signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage3/'
+    certificateId: ''
+    useCustomEsrpJson: true
+    pattern: '*.msix'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
+    signingService: 'FactoryOrchestratorSigning'
+
+# undo uniqify. The signed files are copied to where they were found in ${{ parameters.UnsignedInput }}.
+- task: PowerShell@2
+  inputs:
+    targetType: filePath
+    filePath: $(FORepoRoot)/build/internal/CopyUniqueBins.ps1
+    arguments: '-CopySource "$(System.DefaultWorkingDirectory)/signeduniquefiles_stage3" -MappingFileIn "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+    failOnStderr: true
+    pwsh: true
+  displayName: 'Copy signed, unique files to UnsignedInput directory'
+
+# Create msixbundle
+- pwsh: |
+    # Use Windows path separator
+    $dir = "${{ parameters.UnsignedInput }}".Replace('/', '\')
+
+    # Find per arch msix
+    $msix = Get-ChildItem -Path $dir -Recurse -File -Filter "*.msix"
+    Write-Host "$($msix.Count) msix files found."
+    if ($($msix.Count) -gt 0)
+    {
+      Write-Host $msix
+
+      # copy msix to new folder
+      $bundlesource = join-path "$dir" "msix"
+      new-item -path $bundlesource -type Directory
+
+      foreach ($file in $msix)
+      {
+        copy-item $file $bundlesource
+      }
+
+      # create msix bundle
+      $bundlefolder = join-path "$dir" "msixbundle"
+      new-item -path $bundlefolder -type Directory
+      $bundledest = join-path $bundlefolder "Microsoft.FactoryOrchestrator.App_8wekyb3d8bbwe.msixbundle"
+
+      . cmd.exe /C "`"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat`" && MakeAppx bundle /d `"$bundlesource`" /p `"$bundledest`""
+
+      # verify
+      if (!(Test-Path $bundledest))
+      {
+        Write-Error "$bundledest does not exist!"
+      }
+      else
+      {
+        "$bundledest created."
+        $vstsCommandString = "vso[task.setvariable variable=MSIXBUNDLE_DIR]$bundlefolder"
+        Write-Verbose -Message ("sending " + $vstsCommandString) -Verbose
+        Write-Host "##$vstsCommandString"
+
+      }
+    }
+  displayName: 'Create unsigned msixbundle with signed msix files'
+
+# Sign msixbundle
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '${{ parameters.UnsignedInput }}'
+    signOutputPath: ${{ parameters.SignedOutput }}
+    certificateId: ''
+    useCustomEsrpJson: true
+    pattern: '*.msixbundle'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
+    signingService: 'FactoryOrchestratorSigning'
+
+- publish: '${{ parameters.SignedOutput }}'
+  artifact: 'SignedBin_Windows_$(BuildConfiguration)_AllPlatforms'
+  displayName: 'Publish signed binaries - Windows'

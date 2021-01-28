@@ -1,4 +1,4 @@
-#### [FactoryOrchestratorCoreLibrary](./FactoryOrchestratorCoreLibrary.md 'FactoryOrchestratorCoreLibrary')
+#### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[HttpErrorResponse](./Microsoft-FactoryOrchestrator-Core-HttpErrorResponse.md 'Microsoft.FactoryOrchestrator.Core.HttpErrorResponse')
 ## HttpErrorResponse.ErrorCode Property
 Gets the ErrorCode  
