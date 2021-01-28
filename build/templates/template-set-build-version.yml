@@ -9,4 +9,32 @@ steps:
     $vstsCommandString = "vso[task.setvariable variable=VERSIONPREFIX]$fullVersion"
     Write-Host "sending " + $vstsCommandString
     Write-Host "##$vstsCommandString"
-  displayName: 'Get build version from common.props'
+  displayName: 'Set VERSIONPREFIX using common.props'
+
+- pwsh: |
+    if ($env:CUSTOMVERSIONSUFFIX -ne $null)
+    {
+      Write-Host "CUSTOMVERSIONSUFFIX is $env:CUSTOMVERSIONSUFFIX"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$env:CUSTOMVERSIONSUFFIX"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXVPACK]-$(CUSTOMVERSIONSUFFIX)"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXDOTNET]--version-suffix $env:CUSTOMVERSIONSUFFIX"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    }
+    else
+    {
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$env:__VERSIONSUFFIX"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXVPACK]-$env:__VERSIONSUFFIX"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXDOTNET]--version-suffix $env:__VERSIONSUFFIX"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    }
+  displayName: 'Set VERSIONSUFFIX variables'

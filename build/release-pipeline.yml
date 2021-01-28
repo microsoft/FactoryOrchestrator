@@ -28,24 +28,12 @@ variables:
   VPACKVERSIONBUILDIDSUFFIX: ''
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     __VERSIONSUFFIX: ''
-    __VERSIONSUFFIXVPACK: ''
-    __VERSIONSUFFIXDOTNET: ' '
     SKIPSIGNING: 'false'
     SKIPPUSH: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     __VERSIONSUFFIX: '$(Build.SourceBranchName)'
-    __VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
-    __VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
-  ${{ ne(variables['CUSTOMVERSIONSUFFIX'], 'Null') }}:
-    VERSIONSUFFIX: '$(CUSTOMVERSIONSUFFIX)'
-    VERSIONSUFFIXVPACK: '-$(CUSTOMVERSIONSUFFIX)'
-    VERSIONSUFFIXDOTNET: '--version-suffix $(CUSTOMVERSIONSUFFIX)'
-  ${{ eq(variables['CUSTOMVERSIONSUFFIX'], 'Null') }}:
-    VERSIONSUFFIX: '$(__VERSIONSUFFIX)'
-    VERSIONSUFFIXVPACK: '-$(__VERSIONSUFFIXVPACK)'
-    VERSIONSUFFIXDOTNET: '--version-suffix $(__VERSIONSUFFIXDOTNET)'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
