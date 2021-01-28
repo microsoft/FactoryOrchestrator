@@ -38,11 +38,11 @@ variables:
     __VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
-  ${{ ne(variables['CUSTOMVERSIONSUFFIX'], '') }}:
+  ${{ ne(variables['CUSTOMVERSIONSUFFIX'], 'Null') }}:
     VERSIONSUFFIX: '$(CUSTOMVERSIONSUFFIX)'
     VERSIONSUFFIXVPACK: '-$(CUSTOMVERSIONSUFFIX)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(CUSTOMVERSIONSUFFIX)'
-  ${{ eq(variables['CUSTOMVERSIONSUFFIX'], '') }}:
+  ${{ eq(variables['CUSTOMVERSIONSUFFIX'], 'Null') }}:
     VERSIONSUFFIX: '$(__VERSIONSUFFIX)'
     VERSIONSUFFIXVPACK: '-$(__VERSIONSUFFIXVPACK)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(__VERSIONSUFFIXDOTNET)'
