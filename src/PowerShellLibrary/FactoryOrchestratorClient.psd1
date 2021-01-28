@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @("FactoryOrchestrator", "Factory Orchestrator", "FactoryOrchestratorClient", "IPC")
+        Tags = @("FactoryOrchestrator", "Factory Orchestrator", "FactoryOrchestratorClient", "IPC", "PSEdition_Core", "Windows", "Linux", "Automation", "Test", "GitHub", "Network", "Monitoring")
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/microsoft/FactoryOrchestrator/blob/main/LICENSE'
@@ -110,10 +110,10 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = '$VersionSuffix$'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        # RequireLicenseAcceptance = $false
+        RequireLicenseAcceptance = $true
 
         # External dependent modules of this module
         # ExternalModuleDependencies = @()
