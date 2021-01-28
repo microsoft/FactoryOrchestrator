@@ -27,21 +27,25 @@ variables:
   BuildConfiguration: 'Release'
   VPACKVERSIONBUILDIDSUFFIX: ''
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
-    VERSIONSUFFIX: ''
-    VERSIONSUFFIXVPACK: ''
-    VERSIONSUFFIXDOTNET: ' '
+    __VERSIONSUFFIX: ''
+    __VERSIONSUFFIXVPACK: ''
+    __VERSIONSUFFIXDOTNET: ' '
     SKIPSIGNING: 'false'
     SKIPPUSH: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
-    VERSIONSUFFIX: '$(Build.SourceBranchName)'
-    VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
-    VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
+    __VERSIONSUFFIX: '$(Build.SourceBranchName)'
+    __VERSIONSUFFIXVPACK: '-$(Build.SourceBranchName)'
+    __VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
   ${{ ne(variables['CUSTOMVERSIONSUFFIX'], '') }}:
     VERSIONSUFFIX: '$(CUSTOMVERSIONSUFFIX)'
     VERSIONSUFFIXVPACK: '-$(CUSTOMVERSIONSUFFIX)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(CUSTOMVERSIONSUFFIX)'
+  ${{ eq(variables['CUSTOMVERSIONSUFFIX'], '') }}:
+    VERSIONSUFFIX: '$(__VERSIONSUFFIX)'
+    VERSIONSUFFIXVPACK: '-$(__VERSIONSUFFIXVPACK)'
+    VERSIONSUFFIXDOTNET: '--version-suffix $(__VERSIONSUFFIXDOTNET)'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
