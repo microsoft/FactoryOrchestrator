@@ -23,9 +23,12 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(BUILD_REPOSITORY_URI.Contains(`dev.azure.com`))' == 'true' Or '$(BUILD_REPOSITORY_URI.Contains(`visualstudio.com`))' == 'true'">
     <!-- Release builds use an ADO fork of the GitHub code, so use the AzureRepos version of SourceLink. -->
     <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+  <ItemGroup Condition="'$(BUILD_REPOSITORY_URI.Contains(`github.com`))' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
   <PropertyGroup>
