@@ -38,7 +38,7 @@ variables:
     VERSIONSUFFIXDOTNET: '--version-suffix $(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
-  ${{ ne(variables['CUSTOMVERSIONSUFFIX'], Null) }}:
+  ${{ ne(variables['CUSTOMVERSIONSUFFIX'], '') }}:
     VERSIONSUFFIX: '$(CUSTOMVERSIONSUFFIX)'
     VERSIONSUFFIXVPACK: '-$(CUSTOMVERSIONSUFFIX)'
     VERSIONSUFFIXDOTNET: '--version-suffix $(CUSTOMVERSIONSUFFIX)'
