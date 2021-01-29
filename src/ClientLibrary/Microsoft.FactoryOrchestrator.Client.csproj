@@ -25,6 +25,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7"/>
+    <!-- Needed for IPC binaries included in Microsoft.FactoryOrchestrator.Client NuGet package, not actually directly needed for this project. -->
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,9 +36,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj" />
+    <!-- IncludeAssets = none or else dotnet pack thinks these can be satisfied by NuGet.org package dependencies. -->
+    <!-- However, NuGet.org IPC packages use dynamic code generation, which we don't support, hence the source code fork. -->
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client.Tcp\JKang.IpcServiceFramework.Client.Tcp.csproj" >
+      <IncludeAssets>none</IncludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj" >
+      <IncludeAssets>none</IncludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj" >
+      <IncludeAssets>none</IncludeAssets>
+    </ProjectReference>
+
   </ItemGroup>
 
   <PropertyGroup>
@@ -46,7 +57,7 @@
   <!-- Add IPC OSS binaries to package -->
   <Target Name="CopyProjectReferencesToPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\*.dll"/>
+      <BuildOutputInPackage Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\**\*.dll"/>
     </ItemGroup>
     
     <!-- Print for debug purposes -->
@@ -56,7 +67,7 @@
   <!-- Add IPC OSS symbols to symbol package -->
   <Target Name="UpdateSymTfm" BeforeTargets="_GetDebugSymbolsWithTfm">
       <ItemGroup>
-        <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\*.pdb">
+        <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\**\*.pdb">
           <TargetFramework>netstandard2.0</TargetFramework>
         </_TargetPathsToSymbolsWithTfm>
       </ItemGroup>
