@@ -7,7 +7,7 @@ public System.Threading.Tasks.Task UpdateTaskRun(Microsoft.FactoryOrchestrator.C
 ```
 #### Parameters
 <a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-UpdateTaskRun(Microsoft-FactoryOrchestrator-Core-TaskRun)-taskRun'></a>
-`taskRun` [Microsoft.FactoryOrchestrator.Core.TaskRun](/CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun 'Microsoft.FactoryOrchestrator.Core.TaskRun')  
+`taskRun` [Microsoft.FactoryOrchestrator.Core.TaskRun](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun 'Microsoft.FactoryOrchestrator.Core.TaskRun')  
 The TaskRun to update.  
   
 #### Returns

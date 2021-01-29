@@ -18,7 +18,7 @@ $mds = Get-ChildItem -Path $DefaultDocumentationFolder -Include "*.md" -Recurse
 foreach ($md in $mds)
 {
     $content = Get-Content $md
-    $content = $content.Replace("https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.", "/CoreLibrary/Microsoft-FactoryOrchestrator-Core-")
+    $content = $content.Replace("https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.", "./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-")
     $content = $content.Replace("``1'","'")
     Set-Content -Path $md -Value $content 
 }
