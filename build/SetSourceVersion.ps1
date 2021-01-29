@@ -21,6 +21,7 @@ $versionSuffix = $env:VERSIONSUFFIX
 if ([string]::IsNullOrEmpty($versionSuffix))
 {
     $productVersion = $assemblyVersion
+    $versionSuffix = ""
 }
 else
 {
@@ -113,7 +114,15 @@ ForEach ($psd in $psds)
         {
             if ($versionStr -match $assemblyVersion)
             {
-                Write-Host "$psd version is up-to-date"
+                Write-Host "$psd ModuleVersion is up-to-date"
+            }
+        }
+        $preStr = $currentFileContent | Where-Object {$_ -like "*Prerelease =*"}
+        if ($null -ne $preStr)
+        {
+            if ((-not [string]::IsNullOrEmpty($versionSuffix)) -and ($preStr -match $versionSuffix))
+            {
+                Write-Host "$psd Prerelease version is up-to-date"
                 continue
             }
         }
@@ -124,6 +133,7 @@ ForEach ($psd in $psds)
 
     $psdContents = Get-Content $psd.FullName |
                         ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$assemblyVersion'"} |
+                        ForEach-Object{$_ -replace 'Prerelease =.+', "Prerelease = '$versionSuffix'"} |
                         Set-Content $tempFile
 
     Write-Host "Moving $tempFile to $destFile"

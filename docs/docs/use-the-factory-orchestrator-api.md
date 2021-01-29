@@ -19,16 +19,16 @@ await Client.RunExecutable(@"%windir%\system32\ping.exe");
 ```
 
 ## Using FactoryOrchestratorClient in PowerShell
-The FactoryOrchestratorClient PowerShell module is available in FactoryOrchestratorClient.psd1.
+The FactoryOrchestratorClient PowerShell module is available in Microsoft.FactoryOrchestrator.Client.psd1.
 
-To use the PowerShell module, import FactoryOrchestratorClient.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.
+To use the PowerShell module, import Microsoft.FactoryOrchestrator.Client.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.
 
 Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new TaskBase, TaskList, and ServerPoller objects respectively.
 
 Below is a sample PowerShell script showing how you can use these cmdlets:
 ```powershell
 # Import client module
-Import-Module FactoryOrchestratorClient.psd1
+Import-Module Microsoft.FactoryOrchestrator.Client.psd1
 
 # Create client instance targeting service at desired IP Address (127.0.0.1 == loopback)
 $client = New-FactoryOrchestratorClient -IpAddress "127.0.0.1"
