@@ -21,6 +21,7 @@ $versionSuffix = $env:VERSIONSUFFIX
 if ([string]::IsNullOrEmpty($versionSuffix))
 {
     $productVersion = $assemblyVersion
+    $versionSuffix = ""
 }
 else
 {
@@ -119,7 +120,7 @@ ForEach ($psd in $psds)
         $preStr = $currentFileContent | Where-Object {$_ -like "*Prerelease =*"}
         if ($null -ne $preStr)
         {
-            if ($preStr -match $versionSuffix)
+            if (($preStr -match $versionSuffix) -and (-not [string]::IsNullOrEmpty($versionSuffix)))
             {
                 Write-Host "$psd Prerelease version is up-to-date"
                 continue
