@@ -120,7 +120,7 @@ ForEach ($psd in $psds)
         $preStr = $currentFileContent | Where-Object {$_ -like "*Prerelease =*"}
         if ($null -ne $preStr)
         {
-            if (($preStr -match $versionSuffix) -and (-not [string]::IsNullOrEmpty($versionSuffix)))
+            if ((-not [string]::IsNullOrEmpty($versionSuffix)) -and ($preStr -match $versionSuffix))
             {
                 Write-Host "$psd Prerelease version is up-to-date"
                 continue
