@@ -334,8 +334,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
-      ClientLibrary Class Reference
+    <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
+      Client Library Class Reference
     </a>
   </li>
 
@@ -346,8 +346,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../CoreLibrary/FactoryOrchestratorCoreLibrary/" class="md-nav__link">
-      CoreLibrary Class Reference
+    <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
+      Core Library Class Reference
     </a>
   </li>
 
@@ -434,9 +434,9 @@
                 
                 
                 <h1 id="using-the-factory-orchestrator-client-api">Using the Factory Orchestrator client API</h1>
-<p>The Factory Orchestrator service, FactoryOrchestratorService.exe, provides a <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/">robust API surface</a> for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.</p>
+<p>The Factory Orchestrator service, Microsoft.FactoryOrchestrator.Service.exe, provides a <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client">robust API surface</a> for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.</p>
 <p>All FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# (.NET and UWP) API calls are <a href="https://docs.microsoft.com/dotnet/csharp/async">asynchronous</a>.</p>
-<p>You can see <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/">the full API reference for the FactoryOrchestratorClientLibrary here</a>. You can also see <a href="../CoreLibrary/FactoryOrchestratorCoreLibrary/">the FactoryOrchestratorCoreLibrary reference here</a>. The CoreLibrary contains class definitions for objects some client APIs return, such as TaskRun instances.</p>
+<p>You can see <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client">the full API reference for the Microsoft.FactoryOrchestrator.Client here</a>. You can also see <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core">the Microsoft.FactoryOrchestrator.Core reference here</a>. The CoreLibrary contains class definitions for objects some client APIs return, such as TaskRun instances.</p>
 <p>Before executing other APIs, the Connect() or TryConnect() API must be called. Once the Connect() or TryConnect() API succeeds, you can use all other APIs.</p>
 <pre><code class="language-csharp">// Create client instance targeting service at desired IP Address
 var client = new FactoryOrchestratorClient(new IPAddress(&quot;192.168.0.50&quot;));
@@ -448,12 +448,12 @@ await Client.Connect();
 await Client.RunExecutable(@&quot;%windir%\system32\ping.exe&quot;);
 </code></pre>
 <h2 id="using-factoryorchestratorclient-in-powershell">Using FactoryOrchestratorClient in PowerShell</h2>
-<p>The FactoryOrchestratorClient PowerShell module is available in FactoryOrchestratorClient.psd1.</p>
-<p>To use the PowerShell module, import FactoryOrchestratorClient.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.</p>
+<p>The FactoryOrchestratorClient PowerShell module is available in Microsoft.FactoryOrchestrator.Client.psd1.</p>
+<p>To use the PowerShell module, import Microsoft.FactoryOrchestrator.Client.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.</p>
 <p>Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new TaskBase, TaskList, and ServerPoller objects respectively.</p>
 <p>Below is a sample PowerShell script showing how you can use these cmdlets:</p>
 <pre><code class="language-powershell"># Import client module
-Import-Module FactoryOrchestratorClient.psd1
+Import-Module Microsoft.FactoryOrchestrator.Client.psd1
 
 # Create client instance targeting service at desired IP Address (127.0.0.1 == loopback)
 $client = New-FactoryOrchestratorClient -IpAddress &quot;127.0.0.1&quot;
@@ -528,8 +528,8 @@ foreach ($t in $global:tasklist.Tasks)
 <p>Factory Orchestator uses <a href="https://semver.org/">semver</a> versioning. If there is a major version mismatch between the client and service your program may not work as expected and either the client program or target service should be updated so the major versions match. Major versions are checked when the client connects to the service. You can also manually check the version of the client API by:</p>
 <ul>
 <li>
-<p>Manually inspecting the properties of the FactoryOrchestratorClientLibrary.dll file used by your program</p>
-<p><img alt="version number in the properties of FactoryOrchestratorClientLibrary.dll" src="../images/fo-version-number.png" /></p>
+<p>Manually inspecting the properties of the Microsoft.FactoryOrchestrator.Client.dll file used by your program</p>
+<p><img alt="version number in the properties of Microsoft.FactoryOrchestrator.Client.dll" src="../images/fo-version-number.png" /></p>
 </li>
 <li>
 <p>Programmatically with the following code snippets:</p>

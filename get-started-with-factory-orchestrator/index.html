@@ -334,8 +334,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../ClientLibrary/FactoryOrchestratorClientLibrary/" class="md-nav__link">
-      ClientLibrary Class Reference
+    <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
+      Client Library Class Reference
     </a>
   </li>
 
@@ -346,8 +346,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../CoreLibrary/FactoryOrchestratorCoreLibrary/" class="md-nav__link">
-      CoreLibrary Class Reference
+    <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
+      Core Library Class Reference
     </a>
   </li>
 
@@ -435,10 +435,10 @@
                 
                 <h1 id="get-started-with-factory-orchestrator">Get Started with Factory Orchestrator</h1>
 <h2 id="install-the-service">Install the service</h2>
-<p>The Factory Orchestrator service (FactoryOrchestratorService.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself. </p>
+<p>The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself. </p>
 <p>User PowerShell to install the Factory Orchestrator on your device:</p>
 <pre><code class="language-PowerShell">     ## Optionally set it's start up to automatic with: -StartupType Automatic
-    New-Service -Name &quot;FactoryOrchestrator&quot; -BinaryPathName &quot;FactoryOrchestratorService.exe&quot;
+    New-Service -Name &quot;FactoryOrchestrator&quot; -BinaryPathName &quot;Microsoft.FactoryOrchestrator.Service.exe&quot;
 
     Start-Service -Name &quot;FactoryOrchestrator&quot;
 </code></pre>
