@@ -27,11 +27,11 @@ variables:
   BuildConfiguration: 'Release'
   VPACKVERSIONBUILDIDSUFFIX: ''
   ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
-    __VERSIONSUFFIX: ''
+    TEMPVERSIONSUFFIX: ''
     SKIPSIGNING: 'false'
     SKIPPUSH: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
-    __VERSIONSUFFIX: '$(Build.SourceBranchName)'
+    TEMPVERSIONSUFFIX: '$(Build.SourceBranchName)'
     SKIPSIGNING: 'true'
     SKIPPUSH: 'true'
 

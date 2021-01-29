@@ -25,15 +25,27 @@ steps:
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
     }
+    elseif ([string]::IsNullOrEmpty($env:TEMPVERSIONSUFFIX))
+    {
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$env:TEMPVERSIONSUFFIX"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXVPACK]"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXDOTNET] "
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    }
     else
     {
-      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$env:__VERSIONSUFFIX"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$env:TEMPVERSIONSUFFIX"
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
-      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXVPACK]-$env:__VERSIONSUFFIX"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXVPACK]-$env:TEMPVERSIONSUFFIX"
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
-      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXDOTNET]--version-suffix $env:__VERSIONSUFFIX"
+      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIXDOTNET]--version-suffix $env:TEMPVERSIONSUFFIX"
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
     }
