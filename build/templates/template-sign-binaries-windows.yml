@@ -44,7 +44,7 @@ steps:
     buildOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage1/'
     signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/'
     certificateId: 'CP-231522'
-    pattern: '*__JKang.*.dll,*__PE-Utility.dll,*__PeterKottas.*.dll,*__DasMulli.*.dll'
+    pattern: '*__Newtonsoft*.dll,*__JKang.*.dll,*__PE-Utility.dll,*__PeterKottas.*.dll,*__DasMulli.*.dll'
     useMinimatch: false
     shouldSign: ${{ parameters.ShouldSign }}
     alwaysCopy: 'true'
