@@ -39,11 +39,18 @@ steps:
 
     foreach ($nuspec in $specs)
     {
+      # Fixup any references to src directory in .nuspec
+      $content = get-content $nuspec
+      $content = $content.Replace("$(Build.SourcesDirectory)", "$(FORepoRoot)")
+      Set-Content -Path $nuspec -Value $content
+
       if ($($nuspec.Name) -like "*symbols.nuspec")
       {
+        # Symbol nuget is created with .nupkg extension not .snupkg.
+        # Therefore, first save it in a temp directory for easy renaming to correct extension.
         Write-Host "$nugetexe pack $($nuspec.FullName) -outputdirectory `"$env:Build_ArtifactStagingDirectory/tmp/Release/uwpclientsymbolnuget`""
         . $nugetexe pack $nuspec.FullName -outputdirectory "$env:Build_ArtifactStagingDirectory/tmp/Release/uwpclientsymbolnuget"
-        $pkgs =  Get-ChildItem -Path $specFolder -Filter "*.nupkg"
+        $pkgs =  Get-ChildItem -Path "$env:Build_ArtifactStagingDirectory/tmp/Release/uwpclientsymbolnuget" -Filter "*.nupkg"
         foreach ($nupkg in $pkgs)
         {
           $name = $nupkg.BaseName
