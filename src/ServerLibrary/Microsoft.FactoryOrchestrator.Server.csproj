@@ -18,7 +18,35 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
-    <ProjectReference Include="..\..\oss\Pe-Utility\Pe-Utility.csproj" />
+    <ProjectReference Include="..\..\oss\Pe-Utility\Pe-Utility.csproj">
+      <IncludeAssets>none</IncludeAssets>
+    </ProjectReference>
   </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <!-- Add Pe-Utility OSS binaries to package -->
+  <Target Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.dll"/>
+    </ItemGroup>
+
+    <!-- Print for debug purposes -->
+    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.dll found: @(BuildOutputInPackage)" Importance="High"/>
+  </Target>
+
+  <!-- Add Pe-Utility OSS symbols to symbol package -->
+  <Target Name="UpdateSymTfm" BeforeTargets="_GetDebugSymbolsWithTfm">
+      <ItemGroup>
+        <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.pdb">
+          <TargetFramework>netstandard2.0</TargetFramework>
+        </_TargetPathsToSymbolsWithTfm>
+      </ItemGroup>
+
+    <!-- Print for debug purposes -->
+    <Message Text="UpdateSymTfm - $(OutputRootPath)\$(Configuration)\$(Platform)\(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
+  </Target>
 
 </Project>

@@ -59,9 +59,9 @@
     <ItemGroup>
       <BuildOutputInPackage Include="$(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\**\*.dll"/>
     </ItemGroup>
-    
+
     <!-- Print for debug purposes -->
-    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\ found: @(BuildOutputInPackage)" Importance="High"/>
+    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\**\*.dll found: @(BuildOutputInPackage)" Importance="High"/>
   </Target>
 
   <!-- Add IPC OSS symbols to symbol package -->
@@ -71,9 +71,9 @@
           <TargetFramework>netstandard2.0</TargetFramework>
         </_TargetPathsToSymbolsWithTfm>
       </ItemGroup>
-      
+
     <!-- Print for debug purposes -->
-    <Message Text="UpdateSymTfm - $(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\netstandard2.0\ found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
+    <Message Text="UpdateSymTfm - $(OutputRootPath)\$(Configuration)\$(Platform)\JKang.IpcServiceFramework.Client.Tcp\**\*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
   </Target>
 
   <Target Name="FixAndCopyMd" AfterTargets="Build">
