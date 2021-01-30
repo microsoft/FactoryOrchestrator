@@ -17,7 +17,7 @@ steps:
     rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}.Symbols' 
     includeRootFolder: false
     archiveType: 'zip' # Options: zip, 7z, tar, wim
-    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.Symbols.zip' 
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service-$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.Symbols.zip' 
     replaceExistingArchive: true 
   displayName: "Create pdb-only zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
 
@@ -32,6 +32,6 @@ steps:
     rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}' 
     includeRootFolder: false
     archiveType: 'zip' # Options: zip, 7z, tar, wim
-    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip' 
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service-$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip' 
     replaceExistingArchive: true 
   displayName: "Create bin-only service zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
