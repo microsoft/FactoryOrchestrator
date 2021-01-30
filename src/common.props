@@ -14,12 +14,13 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>Microsoft;Factory Orchestrator;Manufacturing;FactoryOS;IPC;Inter-Process Communication;Windows 10X;Testing;Testing Framework;Remote Execution</PackageTags>
-    <Authors>GitHub Factory Orchestrator Developers</Authors>
+    <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
-    <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Product>Factory Orchestrator</Product>
+    <PackageProjectUrl>https://github.com/microsoft/factoryorchestrator</PackageProjectUrl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' != '' Or '$(GITHUB_ACTIONS)' == 'true'">
     <!-- Deterministic Builds for source link -->
