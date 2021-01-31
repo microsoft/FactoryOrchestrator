@@ -29,7 +29,7 @@ Copyright = '(c) Microsoft Corporation. All rights reserved.'
 Description = 'PowerShell wrapper for Microsoft Factory Orchestrator. https://microsoft.github.io/FactoryOrchestrator/'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -91,7 +91,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @("FactoryOrchestrator", "Factory Orchestrator", "FactoryOrchestratorClient", "IPC", "PSEdition_Core", "Windows", "Linux", "Automation", "Test", "GitHub", "Network", "Monitoring")
+        Tags = @("FactoryOrchestrator", "FactoryOrchestratorClient", "IPC", "PSEdition_Core", "Windows", "Linux", "Automation", "Test", "GitHub", "Network", "Monitoring")
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/microsoft/FactoryOrchestrator/blob/main/LICENSE'
