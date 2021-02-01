@@ -13,7 +13,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./build/internal/CreateServiceManifest.ps1
-    arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}" -SourceRootFolder "`$(build.nttree)\$NtTreeRootFolder" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}\Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator"'
+    arguments: '-PublishFolder "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}" -SourceRootFolder "`$(build.nttree)\manufacturing\FactoryOrchestrator" -OutputFile "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}\Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml" -Owner "Microsoft" -Namespace "OneCore" -Name "FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}" -DestinationRootFolder "`$(runtime.system32)\manufacturing\FactoryOrchestrator"'
     failOnStderr: true
     pwsh: true
   timeoutInMinutes: 5
