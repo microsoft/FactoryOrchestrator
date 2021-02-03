@@ -40,6 +40,12 @@ steps:
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
   condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
 
+- pwsh: |
+    $content = "FactoryOrchestrator source code, sample projects, and documentation are all available on GitHub as MIT licensed open source!"
+    $content += "`n`nThe Factory Orchestrator service is version $(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)."
+    $content += "`nWhen writing Factory Orchestrator client code to interact with this service, use NuGet packages with the matching major version."
+    $content += "`n`nDocumentation is at: https://microsoft.github.io/FactoryOrchestrator/`nSource code is at: https://github.com/microsoft/FactoryOrchestrator"
+  displayName: 'Create VERSION.TXT'
 - task: CopyFiles@2
   displayName: 'Copy Client Libraries to root of drop'
   inputs:
@@ -75,9 +81,9 @@ steps:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack Client Libraries'
   inputs:
-    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\ClientLibraries'
-    pushPkgName: 'FactoryOrchestrator.ClientLibraries'
-    description: 'FactoryOrchestrator.ClientLibraries'
+    sourceDirectory: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VersionTxt'
+    pushPkgName: 'FactoryOrchestrator.VersionTxt'
+    description: 'FactoryOrchestrator.VersionTxt'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
   condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
   enabled: true

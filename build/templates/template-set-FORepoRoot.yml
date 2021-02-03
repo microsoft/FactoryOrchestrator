@@ -12,7 +12,7 @@ steps:
     {
       Write-Host "FactoryOrchestrator repo is from GitHub"
       $repoPath = [System.IO.Path]::Join("$env:BUILD_SOURCESDIRECTORY", "FactoryOrchestrator")
-      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$repoPath"
+      $vstsCommandString = "vso[task.setvariable variable=FORepoRoot]$repoPath"
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
     }
@@ -20,7 +20,7 @@ steps:
     {
       Write-Host "FactoryOrchestrator repo is from ADO"
       $repoPath = [System.IO.Path]::Join("$env:BUILD_SOURCESDIRECTORY", "FactoryOrchestrator_Internal")
-      $vstsCommandString = "vso[task.setvariable variable=VERSIONSUFFIX]$repoPath"
+      $vstsCommandString = "vso[task.setvariable variable=FORepoRoot]$repoPath"
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
     }
