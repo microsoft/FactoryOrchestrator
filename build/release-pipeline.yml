@@ -153,9 +153,9 @@ stages:
     jobs:
       - job: 'Sign_Windows'
         variables:
-          - ${{ if contains(variables['BUILD_REPOSITORY_URI'], 'github') }}:
+          - ${{ if contains(variables['Build.Repository.Uri'], 'github') }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if not(contains(variables['BUILD_REPOSITORY_URI'], 'github')) }}:
+          - ${{ if not(contains(variables['Build.Repository.Uri'], 'github')) }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
@@ -279,9 +279,9 @@ stages:
     jobs:
       - job: Compliance_Job
         variables:
-          - ${{ if contains(variables['BUILD_REPOSITORY_URI'], 'github') }}:
+          - ${{ if contains(variables['Build.Repository.Uri'], 'github') }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if not(contains(variables['BUILD_REPOSITORY_URI'], 'github')) }}:
+          - ${{ if not(contains(variables['Build.Repository.Uri'], 'github')) }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         pool:
           name: Package ES Standard Build
@@ -380,9 +380,9 @@ stages:
     jobs:
       - job: Sign_Publish_NuGet
         variables:
-          - ${{ if contains(variables['BUILD_REPOSITORY_URI'], 'github') }}:
+          - ${{ if contains(variables['Build.Repository.Uri'], 'github') }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if not(contains(variables['BUILD_REPOSITORY_URI'], 'github')) }}:
+          - ${{ if not(contains(variables['Build.Repository.Uri'], 'github')) }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
