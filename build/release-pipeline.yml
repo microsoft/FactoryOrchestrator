@@ -279,9 +279,9 @@ stages:
     jobs:
       - job: Compliance_Job
         variables:
-          - ${{ if eq($(BUILD_REPOSITORY_URI).contains(`github`), true) }}:
+          - ${{ if contains(variables['BUILD_REPOSITORY_URI'], 'github') }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if ne($(BUILD_REPOSITORY_URI).contains(`github`), true) }}:
+          - ${{ if not(contains(variables['BUILD_REPOSITORY_URI'], 'github')) }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         pool:
           name: Package ES Standard Build
@@ -380,9 +380,9 @@ stages:
     jobs:
       - job: Sign_Publish_NuGet
         variables:
-          - ${{ if eq(variables['BUILD_REPOSITORY_URI'].contains('github'), true) }}:
+          - ${{ if contains(variables['BUILD_REPOSITORY_URI'], 'github') }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if ne(variables['BUILD_REPOSITORY_URI'].contains('github'), true) }}:
+          - ${{ if not(contains(variables['BUILD_REPOSITORY_URI'], 'github')) }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
