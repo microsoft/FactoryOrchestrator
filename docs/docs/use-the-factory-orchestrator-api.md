@@ -15,10 +15,10 @@ Before executing other APIs, the Connect() or TryConnect() API must be called. O
 var client = new FactoryOrchestratorClient(new IPAddress("192.168.0.50"));
 
 // Establish connection.
-await Client.Connect();
+await client.Connect();
 
 // Do things!
-await Client.RunExecutable(@"%windir%\system32\ping.exe");
+await client.RunExecutable(@"%windir%\system32\ping.exe");
 ```
 
 ## Using FactoryOrchestratorClient in PowerShell
