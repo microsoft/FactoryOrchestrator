@@ -13,7 +13,7 @@ Remember:
 - To use the C# client APIs in a UWP app use an instance of FactoryOrchestratorUWPClient instead of FactoryOrchestratorclient.
 - 'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could even be the same PC as the client.
 
-# Factory Orchestrator client sample
+# Factory Orchestrator .NET client sample
 A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019 or build it with the dotnet CLI SDK.
 
 The sample shows you how to connect to a remote (or local) device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retrieving the service's log files.
@@ -58,6 +58,7 @@ $client.Connect();
 TaskLists defined in FactoryOrchestratorXML files are a great way to organize a set of operations you want Factory Orchestrator to execute. This example shows how to load TaskList(s) from a FactoryOrchestratorXML file and then run the loaded TaskLists. Depending on the attributes defined for each TaskList they may or may not run in parallel. 
 ```csharp
 // Assumes you have an existing FactoryOrchestratorXML file on the filesystem of the service at (string) FactoryOrchestratorXmlPath.
+// See "Copy a file or folder from client to device" or "Factory Orchestrator .NET client sample" for details on how to copy files to the service from a client.
 var taskListGuids = await client.LoadTaskListsFromXmlFile(FactoryOrchestratorXmlPath);
 foreach (var taskListGuid in taskListGuids)
 {
@@ -65,7 +66,7 @@ foreach (var taskListGuid in taskListGuids)
 }
 
 // Wait for all TaskLists to complete.
-while (client.GetTaskListSummaries().Any(x => x.IsRunningOrPending))
+while ((await client.GetTaskListSummaries()).Any(x => x.IsRunningOrPending))
 {
     await Task.Delay(2000);
 }
@@ -106,7 +107,7 @@ foreach (var summary in summaries)
     if (summary.Status == TaskStatus.Running)
     {
         var taskList = await client.QueryTaskList(summary.Guid);
-        foreach (var task in TaskList.Tasks.Where(x => x.LatestTaskRunStatus == TaskStatus.Running))
+        foreach (var task in taskList.Tasks.Where(x => x.LatestTaskRunStatus == TaskStatus.Running))
         {
             Console.WriteLine($"    A {task.Type} Task with Name {task.Name} and GUID {task.Guid} has been running for {DateTime.Now - task.LatestTaskRunTimeStarted} seconds...");
         }
@@ -117,7 +118,7 @@ foreach (var summary in summaries)
 ## Stop executing an existing & running TaskList
 ```csharp
 // Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
-await client.AbortTaskList(new Guid("34d0534b-ed09-46c2-b6bb-73cef9574944"))
+await client.AbortTaskList(new Guid("34d0534b-ed09-46c2-b6bb-73cef9574944"));
 ```
 
 ## Check for service events. Use WaitingForExternalTaskRun to handle every ExternalTask requiring manual completion.
@@ -128,19 +129,19 @@ ulong lastEvent = 0;
 while (true)
 {
     var events = await client.GetServiceEvents(lastEvent);
-    foreach (var event in events)
+    foreach (var serviceEvent in events)
     {
         // update lastEvent so GetServiceEvents(lastEvent) will not return this event (or any event before it) again.
-        lastEvent = event.EventIndex;
+        lastEvent = serviceEvent.EventIndex;
 
         // log event to console.
-        Console.WriteLine($"New service event, seen at {event.EventTime}: {event.Message}");
-    
-        if (event.ServiceEventType == WaitingForExternalTaskRun)
+        Console.WriteLine($"New service event, seen at {serviceEvent.EventTime}: {serviceEvent.Message}");
+
+        if (serviceEvent.ServiceEventType == ServiceEventType.WaitingForExternalTaskRun)
         {
             // The service is waiting for a client to complete this TaskRun, let's do it!
             // Get the TaskRun object the event is referring to.
-            var taskRun = await client.QueryTaskRun(event.Guid);
+            var taskRun = await client.QueryTaskRun((Guid)serviceEvent.Guid);
             // Mark the TaskRun as Passed.
             taskRun.TaskStatus = TaskStatus.Passed;
             taskRun.TaskOutput.Add("Good job, this TaskRun is passed!");
@@ -149,8 +150,8 @@ while (true)
         }
     }
 
-    // Wait 5 seconds before checking for new events
-    await Task.Delay(5000);
+// Wait 5 seconds before checking for new events
+await Task.Delay(5000);
 }
 ```
 
@@ -158,13 +159,13 @@ while (true)
 The RunExecutable() API can be used to run a program outside of a TaskList.
 ```csharp
 // Start the program
-var taskrun = await client.RunExecutable(@"%windir%\system32\ping.exe","www.bing.com");
+var taskRun = await client.RunExecutable(@"%windir%\system32\ping.exe","www.bing.com");
 
 // Wait for program to complete
-while (!taskrun.TaskRunComplete)
+while (!taskRun.TaskRunComplete)
 {
     await Task.Delay(1000);
-    taskrun = await client.QueryTaskRun(taskrun.Guid);
+    taskRun = await client.QueryTaskRun(taskRun.Guid);
 }
 
 // Program has completed.
@@ -173,12 +174,12 @@ Console.WriteLine($"Program exited with code {taskRun.ExitCode} at {taskRun.Time
 
 ```powershell
 # Start the program
-$taskrun = $client.RunExecutable("$env:windir\system32\ping.exe", "www.bing.com");
+$taskRun = $client.RunExecutable("$env:windir\system32\ping.exe", "www.bing.com");
 
-while (-not $taskrun.TaskRunComplete)
+while (-not $taskRun.TaskRunComplete)
 {
     Start-Sleep -seconds 1
-    $taskrun = $client.QueryTaskRun($taskrun.Guid);
+    $taskRun = $client.QueryTaskRun($taskRun.Guid);
 }
 
 # Program has completed.
@@ -199,7 +200,7 @@ ServerPoller taskListPoller = new ServerPoller(new Guid("34d0534b-ed09-46c2-b6bb
 ServerPoller taskRunPoller = new ServerPoller(new Guid("e7e316eb-696c-433b-957a-bfcada75c81c"), typeof(TaskRun));
 int lastOutputIndex = 0;
 
-void StartPollers()
+async void StartPollers()
 {
     var client = new FactoryOrchestratorClient(IPAddress.Parse("192.168.0.100"));
     await client.Connect();
@@ -284,16 +285,16 @@ void OnUpdatedTaskRun(object source, ServerPollerEventArgs e)
 ```csharp
 // Assumes appFolder is a "standard" Visual Studio 2019 published app package with an appx/msix, a .cer certificate, and a dependencies folder.
 // appFolder is on the client device, NOT on the service. SendAndInstallApp copies it to the service-side device.
-var files = await Directory.EnumerateFiles(appFolder);
+var files = Directory.EnumerateFiles(appFolder);
 var app = files.Where(x => x.EndsWith(".appx", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".appxbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msix", StringComparison.InvariantCultureIgnoreCase)).First();
 var cert = files.Where(x => x.EndsWith(".cer", StringComparison.InvariantCultureIgnoreCase)).First();
-var interiorDirs = Directory.EnumerateDirectories(appFolder, false);
+var interiorDirs = Directory.EnumerateDirectories(appFolder);
 List<string> depsForApp = null;
 
-if (interiorDirs.Count > 0 && interiorDirs.Any(x => x.EndsWith(@"\dependencies", StringComparison.InvariantCultureIgnoreCase)))
+if (interiorDirs.Count() > 0 && interiorDirs.Any(x => x.EndsWith(@"\dependencies", StringComparison.InvariantCultureIgnoreCase)))
 {
     // App directory has 'dependencies' folder, see if it contains dependent apps
-    depsForApp = await Directory.EnumerateFiles(Path.Combine(appFolder, "dependencies"), "*", SearchOption.AllDirectories);
+    depsForApp = await Directory.EnumerateFiles(Path.Combine(appFolder, "dependencies"), "*", SearchOption.AllDirectories).ToList();
     if (depsForApp.Count > 0)
     {
         depsForApp = depsForApp.Where(x => x.EndsWith(".appx", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".appxbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(".msix", StringComparison.InvariantCultureIgnoreCase)).ToList();
