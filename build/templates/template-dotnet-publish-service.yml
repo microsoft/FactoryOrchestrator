@@ -23,6 +23,14 @@ steps:
     SourceFolder: '$(FORepoRoot)'
     Contents: 'LICENSE'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
+- pwsh: |
+    $content = "FactoryOrchestrator source code, sample projects, and documentation are all available on GitHub as MIT licensed open source!"
+    $content += "`n`nThe Factory Orchestrator service in this build is version $(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)"
+    $content += "`nWhen writing Factory Orchestrator client code to interact with this service, use the Microsoft.FactoryOrchestrator.Client or Microsoft.FactoryOrchestrator.UWPClient NuGet packages, and/or Microsoft.FactoryOrchestrator.Client PowerShell Gallery module with the same major version."
+    $content += "`n`nDocumentation is at: https://microsoft.github.io/FactoryOrchestrator/`nSource code is at: https://github.com/microsoft/FactoryOrchestrator"
+    $content | out-file "$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}\README.txt"
+  displayName: 'Create README.txt'
+
 - publish: $(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildPlatform }}_MsBuild.log
   artifact: MSBuildLog_Publish_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_${{ parameters.BuildConfiguration }}
   displayName: 'Publish msbuild log for publish ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
