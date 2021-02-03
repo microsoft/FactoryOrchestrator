@@ -51,10 +51,9 @@ stages:
     - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
       variables:
         BuildPlatform: 'AnyCPU'
-        FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
       - checkout: self
-      - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-set-initial-variables.yml
       - template: ./templates/template-install-netcore.yml
       - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
@@ -113,8 +112,6 @@ stages:
 
     jobs:      
     - job: "Build_FactoryOrchestrator_App"
-      variables:
-        FORepoRoot: '$(Build.SourcesDirectory)'
       strategy:
         matrix:
           Release_x86:
@@ -126,7 +123,7 @@ stages:
         maxParallel: '3'
       steps:
       - checkout: self
-      - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-set-initial-variables.yml
       - template: ./templates/template-install-netcore.yml
       - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
@@ -152,17 +149,12 @@ stages:
     - 'Build_Test_FactoryOrchestrator_Windows_Apps'
     jobs:
       - job: 'Sign_Windows'
-        variables:
-          - ${{ if contains(variables['Build.DefinitionName'], 'github') }}:
-            FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if not(contains(variables['Build.DefinitionName'], 'github')) }}:
-            FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true
         - checkout: ComplianceRepo
           clean: true
-        - template: ./templates/template-set-should-sign.yml
+        - template: ./templates/template-set-initial-variables.yml
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
@@ -278,11 +270,6 @@ stages:
     - 'Sign_Binaries'
     jobs:
       - job: Compliance_Job
-        variables:
-          - ${{ if contains(variables['Build.DefinitionName'], 'github') }}:
-            FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if not(contains(variables['Build.DefinitionName'], 'github')) }}:
-            FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         pool:
           name: Package ES Standard Build
         steps:
@@ -302,7 +289,7 @@ stages:
             disableMsbuildVersion: true
             useDfs: false
 
-        - template: ./templates/template-set-build-version.yml
+        - template: ./templates/template-set-initial-variables.yml
 
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
@@ -379,20 +366,13 @@ stages:
       - visualstudio
     jobs:
       - job: Sign_Publish_NuGet
-        variables:
-          - ${{ if contains(variables['Build.DefinitionName'], 'github') }}:
-            FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if not(contains(variables['Build.DefinitionName'], 'github')) }}:
-            FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true
         - checkout: ComplianceRepo
           clean: true
         
-        - template: ./templates/template-set-build-version.yml
-        - template: ./templates/template-set-should-sign.yml
-        - template: ./templates/template-set-should-push.yml
+        - template: ./templates/template-set-initial-variables.yml
         - template: ./templates/template-install-netcore.yml
         - task: NuGetToolInstaller@1
         - pwsh: |
@@ -494,8 +474,6 @@ stages:
       name: Package ES Standard Build
     jobs:
       - job: Publish_vPacks
-        variables:
-          FORepoRoot: '$(Build.SourcesDirectory)'
         steps:
         - checkout: self
           clean: true
@@ -511,8 +489,7 @@ stages:
             useDfs: false
         
 
-        - template: ./templates/template-set-build-version.yml
-        - template: ./templates/template-set-should-push.yml
+        - template: ./templates/template-set-initial-variables.yml
         
         - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
           - pwsh: |

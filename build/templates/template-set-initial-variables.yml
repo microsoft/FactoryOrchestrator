@@ -1,0 +1,6 @@
+# Sets initial variables, should be run at the start of every job for the release pipeline.
+steps:
+- template: template-set-FORepoRoot.yml
+- template: template-set-build-version.yml
+- template: template-set-should-push.yml
+- template: template-set-should-sign.yml
