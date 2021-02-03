@@ -153,9 +153,9 @@ stages:
     jobs:
       - job: 'Sign_Windows'
         variables:
-          - ${{ if eq(variables['BUILD_REPOSITORY_URI'].contains('github'), true) }}:
+          - ${{ if contains(variables['BUILD_REPOSITORY_URI'], 'github') }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator'
-          - ${{ if ne(variables['BUILD_REPOSITORY_URI'].contains('github'), true) }}:
+          - ${{ if not(contains(variables['BUILD_REPOSITORY_URI'], 'github')) }}:
             FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
