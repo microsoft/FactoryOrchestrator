@@ -3,6 +3,8 @@ trigger:
   tags:
     include:
     - OSBuild*
+pr:
+- none
 
 parameters:
 - name: UseTestingArtifacts
