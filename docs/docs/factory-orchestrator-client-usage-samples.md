@@ -43,11 +43,13 @@ $client.Connect();
 ```
 
 ## Connect to the service running on a remote device
+C#:
 ```csharp
 var client = new FactoryOrchestratorClient(IPAddress.Parse("192.168.0.100"));
 await client.Connect();
 ```
 
+PowerShell 7+:
 ```powershell
 $client = New-FactoryOrchestratorClient -IpAddress "192.168.0.100"
 $client.Connect();
@@ -155,7 +157,7 @@ await Task.Delay(5000);
 }
 ```
 
-## Run a program to completion
+## Run a program to completion and print output to console
 The RunExecutable() API can be used to run a program outside of a TaskList.
 ```csharp
 // Start the program
@@ -169,7 +171,12 @@ while (!taskRun.TaskRunComplete)
 }
 
 // Program has completed.
-Console.WriteLine($"Program exited with code {taskRun.ExitCode} at {taskRun.TimeFinished}.")
+Console.WriteLine($"Program exited with code {taskRun.ExitCode} at {taskRun.TimeFinished}.");
+Console.WriteLine($"Program output:");
+foreach (var line in taskRun.TaskOutput)
+{
+    Console.WriteLine(line);
+}
 ```
 
 ```powershell
@@ -184,6 +191,10 @@ while (-not $taskRun.TaskRunComplete)
 
 # Program has completed.
 Write-Host "Program exited with code $($taskRun.ExitCode) at $($taskRun.TimeFinished)."
+foreach ($line in $($taskRun.TaskOutput))
+{
+    Write-Host $line
+}
 ```
 
 # Using ServerPoller instances to monitor TaskList & TaskRun execution asynchronously with C# events
