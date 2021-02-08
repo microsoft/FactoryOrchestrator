@@ -279,16 +279,6 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         
-        - task: PkgESSetupBuild@10
-          displayName: 'Package ES - Setup Build'
-          inputs:
-            branchVersion: true
-            branchVersionExcludeBranch: 'main'
-            productName: 'FactoryOrchestrator'
-            disableOutputRedirect: true
-            disableMsbuildVersion: true
-            useDfs: false
-
         - template: ./templates/template-set-initial-variables.yml
 
         - pwsh: |
@@ -352,9 +342,6 @@ stages:
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
             APIScan: 'true'
-
-        - task: PkgESLateTasks@10
-          displayName: 'PkgES Finalize and Cleanup'
 
   - stage: 'Sign_Publish_NuGet'
     dependsOn:
@@ -478,17 +465,6 @@ stages:
         - checkout: self
           clean: true
 
-        - task: PkgESSetupBuild@10
-          displayName: 'Package ES - Setup Build'
-          inputs:
-            branchVersion: true
-            branchVersionExcludeBranch: 'main'
-            productName: 'FactoryOrchestrator'
-            disableOutputRedirect: true
-            disableMsbuildVersion: true
-            useDfs: false
-        
-
         - template: ./templates/template-set-initial-variables.yml
         
         - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
@@ -572,6 +548,3 @@ stages:
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
           condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-
-        - task: PkgESLateTasks@10
-          displayName: 'PkgES Finalize and Cleanup'
