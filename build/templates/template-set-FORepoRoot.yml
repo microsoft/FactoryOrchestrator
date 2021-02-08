@@ -1,0 +1,27 @@
+# If multiple repos are checked out, this script detects if source is from GitHub or ADO to set the path properly.
+steps:
+- pwsh: |
+    if (Test-Path ([System.IO.Path]::Join("$env:BUILD_SOURCESDIRECTORY", "src", "FactoryOrchestrator.sln")))
+    {
+      Write-Host "Only FactoryOrchestrator repo is checked out"
+      $vstsCommandString = "vso[task.setvariable variable=FORepoRoot]$env:BUILD_SOURCESDIRECTORY"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    }
+    elseif (Test-Path ([System.IO.Path]::Join("$env:BUILD_SOURCESDIRECTORY", "FactoryOrchestrator", "src", "FactoryOrchestrator.sln")))
+    {
+      Write-Host "FactoryOrchestrator repo is from GitHub"
+      $repoPath = [System.IO.Path]::Join("$env:BUILD_SOURCESDIRECTORY", "FactoryOrchestrator")
+      $vstsCommandString = "vso[task.setvariable variable=FORepoRoot]$repoPath"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    }
+    else
+    {
+      Write-Host "FactoryOrchestrator repo is from ADO"
+      $repoPath = [System.IO.Path]::Join("$env:BUILD_SOURCESDIRECTORY", "FactoryOrchestrator_Internal")
+      $vstsCommandString = "vso[task.setvariable variable=FORepoRoot]$repoPath"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    }
+  displayName: 'Set FORepoRoot variable'

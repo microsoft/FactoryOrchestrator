@@ -51,10 +51,9 @@ stages:
     - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
       variables:
         BuildPlatform: 'AnyCPU'
-        FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
       - checkout: self
-      - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-set-initial-variables.yml
       - template: ./templates/template-install-netcore.yml
       - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
@@ -113,8 +112,6 @@ stages:
 
     jobs:      
     - job: "Build_FactoryOrchestrator_App"
-      variables:
-        FORepoRoot: '$(Build.SourcesDirectory)'
       strategy:
         matrix:
           Release_x86:
@@ -126,7 +123,7 @@ stages:
         maxParallel: '3'
       steps:
       - checkout: self
-      - template: ./templates/template-set-build-version.yml
+      - template: ./templates/template-set-initial-variables.yml
       - template: ./templates/template-install-netcore.yml
       - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
@@ -152,14 +149,12 @@ stages:
     - 'Build_Test_FactoryOrchestrator_Windows_Apps'
     jobs:
       - job: 'Sign_Windows'
-        variables:
-          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true
         - checkout: ComplianceRepo
           clean: true
-        - template: ./templates/template-set-should-sign.yml
+        - template: ./templates/template-set-initial-variables.yml
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
@@ -186,7 +181,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
@@ -198,7 +193,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
@@ -210,7 +205,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
@@ -222,7 +217,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
@@ -234,7 +229,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
@@ -275,8 +270,6 @@ stages:
     - 'Sign_Binaries'
     jobs:
       - job: Compliance_Job
-        variables:
-          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         pool:
           name: Package ES Standard Build
         steps:
@@ -286,17 +279,7 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         
-        - task: PkgESSetupBuild@10
-          displayName: 'Package ES - Setup Build'
-          inputs:
-            branchVersion: true
-            branchVersionExcludeBranch: 'main'
-            productName: 'FactoryOrchestrator'
-            disableOutputRedirect: true
-            disableMsbuildVersion: true
-            useDfs: false
-
-        - template: ./templates/template-set-build-version.yml
+        - template: ./templates/template-set-initial-variables.yml
 
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
@@ -326,7 +309,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
@@ -360,9 +343,6 @@ stages:
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
             APIScan: 'true'
 
-        - task: PkgESLateTasks@10
-          displayName: 'PkgES Finalize and Cleanup'
-
   - stage: 'Sign_Publish_NuGet'
     dependsOn:
     - 'compliance'
@@ -373,17 +353,13 @@ stages:
       - visualstudio
     jobs:
       - job: Sign_Publish_NuGet
-        variables:
-          FORepoRoot: '$(Build.SourcesDirectory)/FactoryOrchestrator_Internal'
         steps:
         - checkout: self
           clean: true
         - checkout: ComplianceRepo
           clean: true
         
-        - template: ./templates/template-set-build-version.yml
-        - template: ./templates/template-set-should-sign.yml
-        - template: ./templates/template-set-should-push.yml
+        - template: ./templates/template-set-initial-variables.yml
         - template: ./templates/template-install-netcore.yml
         - task: NuGetToolInstaller@1
         - pwsh: |
@@ -412,7 +388,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
@@ -424,7 +400,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
@@ -485,25 +461,11 @@ stages:
       name: Package ES Standard Build
     jobs:
       - job: Publish_vPacks
-        variables:
-          FORepoRoot: '$(Build.SourcesDirectory)'
         steps:
         - checkout: self
           clean: true
 
-        - task: PkgESSetupBuild@10
-          displayName: 'Package ES - Setup Build'
-          inputs:
-            branchVersion: true
-            branchVersionExcludeBranch: 'main'
-            productName: 'FactoryOrchestrator'
-            disableOutputRedirect: true
-            disableMsbuildVersion: true
-            useDfs: false
-        
-
-        - template: ./templates/template-set-build-version.yml
-        - template: ./templates/template-set-should-push.yml
+        - template: ./templates/template-set-initial-variables.yml
         
         - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
           - pwsh: |
@@ -537,7 +499,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
@@ -553,7 +515,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
@@ -586,6 +548,3 @@ stages:
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
           artifact: VPackManifests
           condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-
-        - task: PkgESLateTasks@10
-          displayName: 'PkgES Finalize and Cleanup'
