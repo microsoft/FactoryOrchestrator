@@ -181,7 +181,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
@@ -193,7 +193,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
@@ -205,7 +205,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
@@ -217,7 +217,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
@@ -229,7 +229,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
@@ -309,7 +309,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
@@ -388,7 +388,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
@@ -400,7 +400,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
@@ -499,7 +499,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
@@ -515,7 +515,7 @@ stages:
               allowFailedBuilds: true
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
-              pipeline: 60364
+              pipeline: $(System.DefinitionId)
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
