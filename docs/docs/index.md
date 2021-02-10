@@ -15,7 +15,7 @@ Factory Orchestrator consists of two components:
 
 Tasks are used to capture actions that the server can execute, and TaskLists are used to organize and manage these Tasks. Learn more about [Tasks and Tasklists](tasks-and-tasklists.md).
 
-See [Getting started with Factory Orchestrator](get-started-with-factory-orchestrator.md) for details on how to install and run the app and service.
+See [Getting started with Factory Orchestrator](get-started-with-factory-orchestrator.md) for details on how to install and run the app and/or service.
 
 ## Factory Orchestrator logs
 
