@@ -1,9 +1,11 @@
-# Overview
+# Factory Orchestrator Client API Overview
 The Factory Orchestrator service, Microsoft.FactoryOrchestrator.Service.exe, provides a [robust API surface](../ClientLibrary/Microsoft-FactoryOrchestrator-Client) for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.
 
 All FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# (.NET and UWP) API calls are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 
 You can see [the full API reference for the Microsoft.FactoryOrchestrator.Client here](../ClientLibrary/Microsoft-FactoryOrchestrator-Client). You can also see [the Microsoft.FactoryOrchestrator.Core reference here](../CoreLibrary/Microsoft-FactoryOrchestrator-Core). The CoreLibrary contains class definitions for objects some client APIs return, such as TaskRun instances.
+
+**See [Factory Orchestrator API usage samples](../factory-orchestrator-client-usage-samples) for code snippets that show how to perform various activities using the Factory Orchestrator client APIs.**
 
 ## Using the Factory Orchestrator client API in C# .NET
 The recommended method to use the Factory Orchestrator C# client library in your .NET code is by adding a refrence to the Microsoft.FactoryOrchestrator.Client NuGet package in your .NET project.
@@ -63,6 +65,3 @@ FactoryOrchestratorClient.GetClientVersionString();
 ```powershell
 Get-Module FactoryOrchestratorClient
 ```
-
-## Factory Orchestrator client usage samples
-See [Factory Orchestrator API usage samples](./factory-orchestrator-client-usage-samples) for code snippets that show how to perform various activities using the Factory Orchestrator client APIs.
