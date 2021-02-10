@@ -29,7 +29,7 @@ Copyright = '(c) Microsoft Corporation. All rights reserved.'
 Description = 'PowerShell wrapper for Microsoft Factory Orchestrator. https://microsoft.github.io/FactoryOrchestrator/'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '6.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
