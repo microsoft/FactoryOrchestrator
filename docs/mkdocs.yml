@@ -20,7 +20,6 @@ nav:
   - Tasks & TaskLists : 'tasks-and-tasklists.md'
   - Run using the application: 'use-the-factory-orchestrator-app.md'
   - Run using the client api: 'use-the-factory-orchestrator-api.md'
-  - Built-In Utilities: 'factory-orchestrator-utilities.md'
   - Client Library Class Reference: 'ClientLibrary\Microsoft-FactoryOrchestrator-Client.md'
   - Core Library Class Reference: 'CoreLibrary\Microsoft-FactoryOrchestrator-Core.md'
   

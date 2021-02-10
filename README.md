@@ -2,31 +2,38 @@
 
  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)
 
-Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
+Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities. Factory Orchestrator consists of a .NET Core service, Microsoft.FactoryOrchestrator.Service.exe,  It also has an optional UWP app you can use to monitor & interact test devices.
+
+Factory Orchestrator consists of two components:
+
+* A .NET Core system service (Microsoft.FactoryOrchestrator.Service.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure. It also provides a [robust API surface](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/) for clients on the same device and/or over a network to monitor & interact with the service via C# .NET, C# UWP, or PowerShell code. 
+
+* [A UWP app](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/): Communicates with the service to monitor & run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional, the service does not depend on the app.
 
 Learn more about this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/).
 
-The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page is a great place to go once you've built the binaries for the project.
-
-## **Factory Orchestrator consists of the following projects:**
+## **Factory Orchestrator consists of the following projects and binary releases:**
 
 * **Microsoft.FactoryOrchestrator.Core**
- A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
-
-* **Microsoft.FactoryOrchestrator.Server**
- A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects.
-
-* **Microsoft.FactoryOrchestrator.Service**
- .NET Core Executable project for Microsoft.FactoryOrchestrator.Service.exe, the FactoryOrchestrator server implementation. Requires administrator access to run.
+ A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects. This is available as ["Microsoft.FactoryOrchestrator.Core" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Core/).
 
 * **Microsoft.FactoryOrchestrator.Client**
- .NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Microsoft.FactoryOrchestrator.Service. Also contains optional helper classes.
+ .NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Microsoft.FactoryOrchestrator.Service. Also contains optional helper classes. This is available as ["Microsoft.FactoryOrchestrator.Client" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Client/).
 
-* **FactoryOrchestratorPowerShellLibrary**
- .NET Standard library containing a synchronous client-side FactoryOrchestrator class and Cmdlet wrapper classes, designed to be used via PowerShell.
+* **Microsoft.FactoryOrchestrator.UWPClient**
+ UWP library containing the client-side FactoryOrchestrator classes, required to interact with Microsoft.FactoryOrchestrator.Service from a Universal Windows Platform app. This is available as ["Microsoft.FactoryOrchestrator.UWPClient" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.UWPClient/).
+
+* **Microsoft.FactoryOrchestrator.PowerShell**
+PowerShell module containing a synchronous client-side FactoryOrchestrator class and Cmdlet wrapper classes, designed to be used WITH PowerShell 6+. This is available as ["Microsoft.FactoryOrchestrator.Client" on PowerShell Gallery](https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/). 
+
+* **Microsoft.FactoryOrchestrator.Server**
+ A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects. ["Microsoft.FactoryOrchestrator.Server" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Server/).
+
+* **Microsoft.FactoryOrchestrator.Service**
+ .NET Core Executable project for Microsoft.FactoryOrchestrator.Service.exe, the FactoryOrchestrator server implementation. Requires administrator access to run. This is available on [the GitHub Releases page as a .zip](https://github.com/microsoft/FactoryOrchestrator/releases).
 
 * **Microsoft.FactoryOrchestrator.App**
- C# UWP app project for Microsoft.FactoryOrchestrator.App.exe, the UWP provides a GUI (Graphical User Interface) to manually interact with Microsoft.FactoryOrchestrator.Service.
+ C# UWP app project for Microsoft.FactoryOrchestrator.App.exe, the UWP provides a GUI (Graphical User Interface) to manually interact with Microsoft.FactoryOrchestrator.Service. This is available on [the GitHub Releases page as a .msixbundle](https://github.com/microsoft/FactoryOrchestrator/releases).
 
 Factory Orchestrator :green_heart: OSS.
 
@@ -50,13 +57,14 @@ FactoryOrchestrator
     |   ClientLibrary
     |   ClientSample
     |   CoreLibrary
+    |   PowerShellLibrary
     |   ServerLibrary
     |   Service
     |   Tests
     └   UWPClientLibrary
 ```
 
-## Prerequisites
+## Prerequisites to build source code
 
 ### Install dependencies
 

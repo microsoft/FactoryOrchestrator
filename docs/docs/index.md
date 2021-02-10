@@ -9,13 +9,13 @@ Factory Orchestrator provides a simple and reliable way to run and manage factor
 
 Factory Orchestrator consists of two components:
 
-- A system service (Microsoft.FactoryOrchestrator.Service.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure.
+- A .NET Core system service (Microsoft.FactoryOrchestrator.Service.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure. It also provides a robust API surface for clients to monitor & interact with the service via C# .NET, C# UWP, or PowerShell code. 
 
-- A UWP app: Communicates with the service to run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional, the service does not depend on the app.
+- A UWP app: Communicates with the service to monitor & run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional, the service does not depend on the app.
 
-Tasks are used to capture actions that the server can executre, and TaskLists are used to organize and manage these Tasks. Learn more about [Tasks and Tasklists](tasks-and-tasklists.md)
+Tasks are used to capture actions that the server can execute, and TaskLists are used to organize and manage these Tasks. Learn more about [Tasks and Tasklists](tasks-and-tasklists.md).
 
-[Getting started with Factory Orchestrator](get-started-with-factory-orchestrator.md)
+See [Getting started with Factory Orchestrator](get-started-with-factory-orchestrator.md) for details on how to install and run the app and service.
 
 ## Factory Orchestrator logs
 
