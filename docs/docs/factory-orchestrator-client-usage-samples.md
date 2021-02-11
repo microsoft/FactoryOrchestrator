@@ -10,8 +10,8 @@ defined at the top of your .cs file.
 
 Remember:
 - All C# client APIs are asynchronous, but all PowerShell APIs are synchronous.
-- To use the C# client APIs in a UWP app use an instance of FactoryOrchestratorUWPClient instead of FactoryOrchestratorclient.
-- 'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could even be the same PC as the client.
+- To use the C# client APIs in a UWP app, use an instance of FactoryOrchestratorUWPClient instead of FactoryOrchestratorclient.
+- 'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could be the same PC as the client.
 
 # Factory Orchestrator .NET client sample
 A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019 or build it with the dotnet CLI SDK.
