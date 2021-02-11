@@ -15,9 +15,9 @@ Remember:
 - 'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could be the same PC as the client.
 
 # Factory Orchestrator .NET client sample
-A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample. Copy the entire directory to your technician PC, then open ClientSample.csproj in Visual Studio 2019 or build it with the dotnet CLI SDK.
+A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: [https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample](https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample). You can build it with Visual Studio 2019 or the .NET Core 3.1+ SDK.
 
-The sample shows you how to connect to a remote (or local) device running Factory Orchestrator service, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retrieving the service's log files.
+The sample shows you how to connect to a remote (or local) device running Factory Orchestrator service, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device.
 
 ## Factory Orchestrator client sample usage
 Once the sample is built, create a folder on your PC with test content and a FactoryOrchestratorXML file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:
@@ -26,7 +26,7 @@ Once the sample is built, create a folder on your PC with test content and a Fac
 dotnet ClientSample.dll <IP Address of DUT> <Folder on technician PC with test content AND FactoryOrchestratorXML files> <Destination folder on DUT> <Destination folder on this PC to save logs>
 ```
 
-The sample will then connect to the test device, copy files to that device, execute test content, and retrieve the test results from the device both using an API and by retreiving the log files. You will be able to monitor the progress of the sample in the ClientSample console window, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on the PC (if it is connected to the test device).
+The sample will then connect to the test device, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device. You will be able to monitor the progress of the sample in the console, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on your PC (if it is connected to the test device).
 
 # Establishing a connection to the service
 Before executing any other commands, the Connect() API must be called. Connect() verifies the target service is running and has a compatible version with your client.
