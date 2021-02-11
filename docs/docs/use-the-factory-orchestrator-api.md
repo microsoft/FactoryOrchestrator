@@ -8,7 +8,7 @@ You can see [the full API reference for the Microsoft.FactoryOrchestrator.Client
 **See [Factory Orchestrator API usage samples](../factory-orchestrator-client-usage-samples) for code snippets that show how to perform various activities using the Factory Orchestrator client APIs.**
 
 ## Using the Factory Orchestrator client API in C# .NET
-The recommended method to use the Factory Orchestrator C# client library in your .NET code is by adding a refrence to the Microsoft.FactoryOrchestrator.Client NuGet package in your .NET project.
+The recommended method to use the Factory Orchestrator C# client library in your .NET code is by adding a reference to the Microsoft.FactoryOrchestrator.Client NuGet package in your .NET project.
 
 Before executing other APIs, the Connect() or TryConnect() API must be called. Once the Connect() or TryConnect() API succeeds, you can use all other APIs. All calls are asynchronous.
 
@@ -46,7 +46,7 @@ $client.RunExecutable("$env:windir\system32\ping.exe");
 ```
 
 ## Using FactoryOrchestratorUWPClient in a UWP
-The recommended method to use the Factory Orchestrator C# UWP client library in your .NET code is by adding a refrence to the Microsoft.FactoryOrchestrator.UWPClient NuGet package in your UWP project.
+The recommended method to use the Factory Orchestrator C# UWP client library in your .NET code is by adding a reference to the Microsoft.FactoryOrchestrator.UWPClient NuGet package in your UWP project.
 
 If you are writing a UWP app that uses the Factory Orchestrator Client API, you must use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. Like the FactoryOrchestratorClient C# class, all FactoryOrchestratorUWPClient API calls are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 

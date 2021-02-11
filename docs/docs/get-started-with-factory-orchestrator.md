@@ -9,10 +9,10 @@ The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) run
 The service can either be "run" (one time, not started on boot) or "installed" so that it automatically starts every boot.
 
 ### Run the service
-Download and unzip the service for your target OS and architecture then simply run Microsoft.FactoryOrchestrator.Service.exe as administrator/sudo.
+Download and unzip the service for your target OS and architecture. Then simply run Microsoft.FactoryOrchestrator.Service.exe as administrator/sudo.
 
 ### Install the service
-Download and unzip the service for your target OS and architecture then use an Administrator/Sudo PowerShell to install the Factory Orchestrator service on your device. When installed as a system service (daemon), the servivce will start every boot until disabled or uninstalled:
+Download and unzip the service for your target OS and architecture. Then use an Administrator/Sudo PowerShell to install the Factory Orchestrator service on your device. When installed as a system service (daemon), the service will start every boot until disabled or uninstalled:
 
 ```PowerShell
      ## Optionally set it's start up to automatic with: -StartupType Automatic
@@ -22,7 +22,7 @@ Download and unzip the service for your target OS and architecture then use an A
 ```
 
 ### (Optional & **not** recommended) Enable network access
-By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (ie localhost only). However, service can be configured to allow connections from clients anywhere on your local network.
+By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.
 
 ***⚠⚠⚠⚠ WARNING: Please read and understand the following before enabling network access! ⚠⚠⚠⚠***
 

@@ -33,7 +33,7 @@ If you click on a Task, the results page will load and show you the status of th
 
 # Factory Orchestrator utilities
 
-In addition to providing a graphical interface to create, manage, and run Tasks and TaskLists. The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.
+The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.
 
 <!-- ## UWP Apps
 
@@ -45,7 +45,7 @@ You can exit a launched UWP with ALT+F4, or from Windows Device Portal. -->
 
 ## Command Prompt
 
-A basic, non-interactive, command prompt that allows you to troubleshoot without having use other methods like SSH or Windows Device Portal to connect to your DUT.
+A basic and non-interactive command prompt that allows you to troubleshoot without having to use other methods like SSH or Windows Device Portal to connect to your DUT.
 
 While you can run commands and see output when using the built-in command prompt in Factory Orchestrator, it's not an interactive shell. If you run a command that requires additional input, you won't be able to enter the additional input.
 
@@ -54,26 +54,26 @@ While you can run commands and see output when using the built-in command prompt
 ## File Transfer
 ![The Transfer Files screen](./images/fo-transfer-files.png)
 
-A very basic file transfer function that enables you to transfer files & folders to and from your device when you're connected from a technician PC. This feature is not visible in the Factory Orchestrator app when run the app and service on the same device (the "Transfer Files" tab will be hidden).
+A very basic file transfer function that enables you to transfer files & folders to and from your device when you're connected from a Windows PC. This feature is not visible in the Factory Orchestrator app when running the app and service on the same device (the "Transfer Files" tab will be hidden).
 
 ### One-time setup
 
-First, [install the Factory Orchestrator app](get-started-with-factory-orchestrator.md#install-the-app) on a Windows 10 system that is __not running the Factory Orchestrator service__.
+First, [install the Factory Orchestrator app](get-started-with-factory-orchestrator.md#install-the-app) on a Windows system that is __not running the Factory Orchestrator service__.
 
 Next, you need to give the Factory Orchestrator app full file system access for file transfer to work. Follow the directions on the [Windows 10 file system access and privacy](https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy) page to give the Factory Orchestrator app access to your local file system. You may need to launch the app at least once before it appears on the Settings app.
 
 ### Send a file or folder to a DUT
 
-- From your Windows 10 device, launch the Factory Orchestrator app and connect to the IP address of the DUT.
-- Navigate to "Transfer Files". This tab is only visible if you are connected to a remote device.
-- In the "Local File/Folder" textbox, enter the full path to a file on your Windows 10 device.
-- In the "Remote File/Fikder" textbox, enter the full path of where you wish the file to be saved on the DUT. Make sure the location you're saving to is writeable.
-- Click "Send Local File/Folder" to transfer the file from the Windows 10 device to the device.
+- From your local Windows PC, launch the Factory Orchestrator app and connect to the IP address of the remote DUT.
+- Navigate to "Transfer Files". This tab is only visible if you are connected to a remote DUT.
+- In the "Local File/Folder" textbox, enter the full path to a file or folder on your local Windows PC.
+- In the "Remote File/Fikder" textbox, enter the full path of where you wish the file or folder to be saved on the DUT. Make sure the location you're saving to is writeable.
+- Click "Send Local File/Folder" to transfer the file or folder from the Windows PC to the DUT.
 
 ### Receive a file or folder from your DUT
 
-- From your Windows 10 technician PC, launch the Factory Orchestrator app and connect to the IP address of the DUT.
-- Navigate to "Transfer Files". This tab is only visible if you are connected to a remote device.
-- In the "Remote File/Folder" textbox, enter the full path of the file or folder you wish to copy from the DUT.
-- In the "Local File/Folder" textbox, enter the full path of where you wish the file to be saved on your local Windows 10 PC. Make sure the location you're saving to is writeable.
-- Click "Get Remote File/Folder" to transfer the file from the DUT to your local Windows 10 PC.
+- From your local Windows PC, launch the Factory Orchestrator app and connect to the IP address of the remote DUT.
+- Navigate to "Transfer Files". This tab is only visible if you are connected to a remote DUT.
+- In the "Remote File/Folder" textbox, enter the full path of to a file or folder you wish to copy from the DUT.
+- In the "Local File/Folder" textbox, enter the full path of where you wish the file or folder to be saved on your local Windows PC. Make sure the location you're saving to is writeable.
+- Click "Get Remote File/Folder" to transfer the file or folder from the DUT to your local Windows 10 PC.
