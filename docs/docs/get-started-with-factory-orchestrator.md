@@ -35,7 +35,7 @@ By default, the Factory Orchestrator service only allows client connections from
 
 If you understand these risks but still require the service to communicate with clients over the local network, set both of the following registry values on the service's computer using regedit.exe or reg.exe:
 
-Key | Value | Type | Data
+Key | Value | [Type](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-Type/) | Data
 ------ | ------ | --- | ---
 HKLM\SYSTEM\CurrentControlSet\Control\FactoryOrchestrator | EnableNetworkAccess | REG_DWORD | 0x1
 HKLM\SYSTEM\CurrentControlSet\Control\FactoryOrchestrator | DisableNetworkAccess | REG_DWORD | 0x0
