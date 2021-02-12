@@ -8,7 +8,7 @@ You can see [the full API reference for the Microsoft.FactoryOrchestrator.Client
 **See [Factory Orchestrator API usage samples](../factory-orchestrator-client-usage-samples) for code snippets that show how to perform various activities using the Factory Orchestrator client APIs.**
 
 ## Using the Factory Orchestrator client API in C# .NET
-The recommended method to use the Factory Orchestrator C# client library in your .NET code is by adding a reference to the Microsoft.FactoryOrchestrator.Client NuGet package in your .NET project.
+The recommended method to use the Factory Orchestrator C# client library in your .NET code is by adding a reference to the [Microsoft.FactoryOrchestrator.Client NuGet package](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Client/) in your .NET project.
 
 Before executing other APIs, the Connect() or TryConnect() API must be called. Once the Connect() or TryConnect() API succeeds, you can use all other APIs. All calls are asynchronous.
 
@@ -24,16 +24,17 @@ await client.RunExecutable(@"%windir%\system32\ping.exe");
 ```
 
 ## Using FactoryOrchestratorClient in PowerShell
-The FactoryOrchestratorClient PowerShell module is available in Microsoft.FactoryOrchestrator.Client.psd1.
+The FactoryOrchestratorClient PowerShell module is available on [PowerShell Gallery as Microsoft.FactoryOrchestrator.Client](https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/). Currently, the module is only supported on PowerShell 6+.
 
-To use the PowerShell module, import Microsoft.FactoryOrchestrator.Client.psd1 and then use the New-FactoryOrchestratorClient cmdlet to create a FactoryOrchestratorClient instance. The PowerShell FactoryOrchestratorClient instance exposes the exact same APIs as the C# FactoryOrchestratorClient class. However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.
+To use the PowerShell module, install Microsoft.FactoryOrchestrator.Client and then use the New-FactoryOrchestratorClient cmdlet to create a [FactoryOrchestratorClient](.\ClientLibrary\Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md) instance. The PowerShell FactoryOrchestratorClient instance returned by New-FactoryOrchestratorClient has the exact same methods as the C# FactoryOrchestratorClient class. **However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.**
 
-Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new TaskBase, TaskList, and ServerPoller objects respectively.
+Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new [Task](.\CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskBase.md), [TaskList](.\CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList.md), and [ServerPoller](.\ClientLibrary\Microsoft-FactoryOrchestrator-Client-ServerPoller.md) objects respectively.
 
 Below is a sample PowerShell script showing how you can use these cmdlets:
 ```powershell
-# Import client module
-Import-Module Microsoft.FactoryOrchestrator.Client.psd1
+
+# Install client module
+Install-Module -Name Microsoft.FactoryOrchestrator.Client
 
 # Create client instance targeting service at desired IP Address (127.0.0.1 == loopback)
 $client = New-FactoryOrchestratorClient -IpAddress "127.0.0.1"
@@ -46,7 +47,7 @@ $client.RunExecutable("$env:windir\system32\ping.exe");
 ```
 
 ## Using FactoryOrchestratorUWPClient in a UWP
-The recommended method to use the Factory Orchestrator C# UWP client library in your .NET code is by adding a reference to the Microsoft.FactoryOrchestrator.UWPClient NuGet package in your UWP project.
+The recommended method to use the Factory Orchestrator C# UWP client library in your .NET code is by adding a reference to the [Microsoft.FactoryOrchestrator.UWPClient NuGet package](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.UWPClient/) in your UWP project.
 
 If you are writing a UWP app that uses the Factory Orchestrator Client API, you must use the FactoryOrchestratorUWPClient class instead of FactoryOrchestratorClient. The FactoryOrchestratorUWPClient APIs are identical to the FactoryOrchestratorClient APIs. Like the FactoryOrchestratorClient C# class, all FactoryOrchestratorUWPClient API calls are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 

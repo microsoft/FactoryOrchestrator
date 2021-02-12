@@ -197,7 +197,7 @@ When Factory Orchestrator is running these tasks, you'll see a warning in the Fa
 
 When hand-authoring FactoryOrchestratorXML files, you'll need to follow the FactoryOrchestratorXML schema. At the end of this topic, we've also provided a [sample FactoryOrchestratorXML file](#sample-factory-orchestrator-xml-file):
 
-  ```XML
+```XML
   <?xml version="1.0" encoding="utf-8"?>
   <xs:schema id="FactoryOrchestratorXML"
       elementFormDefault="qualified"
@@ -266,7 +266,7 @@ When hand-authoring FactoryOrchestratorXML files, you'll need to follow the Fact
         </xs:complexType>
       </xs:element>  
   </xs:schema>
-  ```
+```
 
 ### TaskList attributes
 
