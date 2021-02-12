@@ -18,6 +18,7 @@ nav:
   - Overview: 'index.md' 
   - Get Started: 'get-started-with-factory-orchestrator.md'
   - Tasks & TaskLists : 'tasks-and-tasklists.md'
+  - Service Configuration : 'service-configuration.md'
   - Run using the application: 'use-the-factory-orchestrator-app.md'
   - Run using the client API: 'use-the-factory-orchestrator-api.md'
   - Client API samples: 'factory-orchestrator-client-usage-samples.md'

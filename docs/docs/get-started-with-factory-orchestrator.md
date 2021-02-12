@@ -2,7 +2,7 @@
 # Get Started with Factory Orchestrator
 
 ## Install or Run the service
-The service can be downloaded from the [GitHub releases page](https://github.com/microsoft/FactoryOrchestrator/releases).
+**The service can be downloaded from the [GitHub releases page](https://github.com/microsoft/FactoryOrchestrator/releases).**
 
 The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service [programmatically using the Factory Orchestrator client APIs](use-the-factory-orchestrator-api.md). Multiple clients can be connected to the same service simultaneously.
 
@@ -21,29 +21,8 @@ Download and unzip the service for your target OS and architecture. Then use an 
     Start-Service -Name "FactoryOrchestrator"
 ```
 
-### (Optional & **not** recommended) Enable network access
-By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.
-
-***⚠⚠⚠⚠ WARNING: Please read and understand the following before enabling network access! ⚠⚠⚠⚠***
-
-- ⚠ The service allows any client to connect to it without authentication. Any connected client has full access to the service's computer, including the ability to send or copy files, and/or run any command or program with administrator rights. ⚠
-- ⚠ If you "install" the service using the above steps, the service will be configured to run from boot. Depending on the configuration the service may even be running before a user has logged into the computer. ⚠
-- ⚠ Once network access is enabled, it will remain enabled until the changes to enable network access are reverted. ⚠
-- ⚠ The service and client send information over the network in unencrypted JSON using TCP. It is therefore vulnerable to man-in-the-middle attacks. ⚠
-- ⚠ The service currently has minimal logging about what clients are connected to it and what commands each client has executed. ⚠
-
-
-If you understand these risks but still require the service to communicate with clients over the local network, set both of the following registry values on the service's computer using regedit.exe or reg.exe:
-
-Key | Value | [Type](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-Type/) | Data
------- | ------ | --- | ---
-HKLM\SYSTEM\CurrentControlSet\Control\FactoryOrchestrator | EnableNetworkAccess | REG_DWORD | 0x1
-HKLM\SYSTEM\CurrentControlSet\Control\FactoryOrchestrator | DisableNetworkAccess | REG_DWORD | 0x0
-
-Once the two registry values are set, restart the service if it is running.
-
-#### Disable network access
-If you have enabled network access using the above steps, you can delete the two registry values above to disable network access. Restart the service if it is running.
+### Service configuration
+See [Service configuration](../service-configuration) for details on how you can configure the Factory Orchestraor service's default behavior.
 
 ## Install the app
 
