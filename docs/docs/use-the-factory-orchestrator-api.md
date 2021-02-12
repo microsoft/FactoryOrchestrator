@@ -28,7 +28,7 @@ The FactoryOrchestratorClient PowerShell module is available on [PowerShell Gall
 
 To use the PowerShell module, install Microsoft.FactoryOrchestrator.Client and then use the New-FactoryOrchestratorClient cmdlet to create a [FactoryOrchestratorClient](.\ClientLibrary\Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md) instance. The PowerShell FactoryOrchestratorClient instance returned by New-FactoryOrchestratorClient has the exact same methods as the C# FactoryOrchestratorClient class. **However, unlike FactoryOrchestratorClient and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.**
 
-Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new [Task](.\CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskBase.md), [TaskList](.\CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList.md), and [ServerPoller](.\ClientLibrary\Microsoft-FactoryOrchestrator-Client-ServerPoller.md) objects respectively.
+Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new [Task](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase.md), [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList.md), and [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller.md) objects respectively.
 
 Below is a sample PowerShell script showing how you can use these cmdlets:
 ```powershell
