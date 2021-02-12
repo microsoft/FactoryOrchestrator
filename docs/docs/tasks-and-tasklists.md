@@ -323,12 +323,12 @@ A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executab
 
 #### Validate Factory Orchestrator XML
 
-You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a technician PC.
+You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a Windows PC, even without having to connect to a Factory Orchestrator service.
 
-1. Install the Factory Orchestrator app on a technician PC and launch it.
-2. Click "Validate FactoryOrchestratorXML" in the bottom left of the app.
+1. [Install the Factory Orchestrator app](../get-started-with-factory-orchestrator/#install-the-app) on a Windows PC and launch it.
+2. Click "Validate FactoryOrchestratorXML" in the bottom left of the app's connect page.
 3. Browse to the path of your FactoryOrchestratorXML file and click open.
-4. The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the technician PC, it will only catch XML syntax errors not Factory Orchestrator Service errors such as duplicate GUIDs or invalid file paths.
+4. The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the Windows PC, it will only catch XML syntax errors. It will not catch runtime errors such as duplicate GUIDs or invalid file paths.
 
     - If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."
 
