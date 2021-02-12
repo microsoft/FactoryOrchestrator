@@ -66,6 +66,18 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         NetworkAccessDisabled,
         /// <summary>
+        /// The TaskRun has GUI and was redirected to RunAsRDUser.exe. It will not run until a remote user is logged in.
+        /// </summary>
+        TaskRunRedirectedToRunAsRDUser,
+        /// <summary>
+        /// The Factory Orchestrator Service inside a connected container threw an exception.
+        /// </summary>
+        ContainerServiceError,
+        /// <summary>
+        /// The Factory Orchestrator Service inside a connected container has a TaskRun with GUI and it was redirected to RunAsRDUser.exe. It will not run until a remote user is logged in.
+        /// </summary>
+        ContainerTaskRunRedirectedToRunAsRDUser,
+        /// <summary>
         /// An unknown Factory Orchestrator Service event occurred.
         /// </summary>
         Unknown = int.MaxValue
@@ -428,8 +440,9 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// Runs a Task outside of a TaskList.
         /// </summary>
         /// <param name="task">The Task to run.</param>
+        /// <param name="desiredTaskRunGuid">The desired GUID for the returned TaskRun. It is not used if a TaskRun already exists with the same GUID.</param>
         /// <returns>The TaskRun associated with the run.</returns>
-        TaskRun RunTask(TaskBase task);
+        TaskRun RunTask(TaskBase task, Guid? desiredTaskRunGuid = null);
 
         // TaskRun APIs
         /// <summary>

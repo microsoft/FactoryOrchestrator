@@ -39,6 +39,6 @@ The Task is queued to run.
 The Task is waiting for its result from a client.  
   
 <a name='Microsoft-FactoryOrchestrator-Core-TaskStatus-Unknown'></a>
-`Unknown` 8  
+`Unknown` 2147483647  
 The Task state is unknown, likely due to a Service error.  
   

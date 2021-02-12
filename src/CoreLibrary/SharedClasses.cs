@@ -96,7 +96,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <summary>
         /// The Task state is unknown, likely due to a Service error.
         /// </summary>
-        Unknown
+        Unknown = int.MaxValue
     }
 
     /// <summary>

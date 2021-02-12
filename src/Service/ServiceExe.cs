@@ -863,7 +863,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskRun RunTask(TaskBase task)
+        public TaskRun RunTask(TaskBase task, Guid? desiredTaskRunGuid = null)
         {
             try
             {
@@ -874,7 +874,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
                 }
 
-                var run = FOService.Instance.TaskExecutionManager.RunTask(task);
+                var run = FOService.Instance.TaskExecutionManager.RunTask(task, desiredTaskRunGuid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunTask {task}");
                 return run.DeepCopy();
             }
@@ -1390,6 +1390,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private RegistryKey _volatileKey;
 
         private FactoryOrchestratorClient _containerClient;
+        private ulong _lastContainerEventIndex;
 
         // TaskManager_Server instances
         private TaskManager _taskExecutionManager;
@@ -1691,6 +1692,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                         }
                         break;
                     }
+                case TaskManagerEventType.TaskRunRedirectedToRunAsRDUser:
+                    {
+                        serviceEvent = new ServiceEvent(ServiceEventType.TaskRunRedirectedToRunAsRDUser, e.Guid, string.Format(CultureInfo.CurrentCulture, Resources.WaitingForExternalTaskRun, e.Guid));
+                        break;
+                    }
                 case TaskManagerEventType.WaitingForExternalTaskRunFinished:
                     serviceEvent = new ServiceEvent(ServiceEventType.DoneWaitingForExternalTaskRun, e.Guid, string.Format(CultureInfo.CurrentCulture, Resources.DoneWaitingForExternalTaskRun, e.Guid, e.Status));
                     break;
@@ -1758,7 +1764,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
 
                     hostRun.TaskOutput.Add($"----------- {Resources.StartContainerOutput} (stdout, stderr) -----------");
-                    var containerRun = await _containerClient.RunTask(containerTask);
+                    var containerRun = await _containerClient.RunTask(containerTask, hostRun.Guid);
                     containerRun = await _containerClient.QueryTaskRun(containerRun.Guid);
                     int latestIndex = 0;
                     while (!containerRun.TaskRunComplete)
@@ -1864,8 +1870,23 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         if (IsContainerConnected && previousContainerStatus)
                         {
-                            // We were connected already. Verify it is still working properly.
-                            await _containerClient.GetServiceVersionString();
+                            // We were connected already. Check for any new container service events and log new host server events if any are found.
+                            var containerEvents = await _containerClient.GetServiceEvents(_lastContainerEventIndex);
+                            foreach (var containerEvent in containerEvents)
+                            {
+                                switch (containerEvent.ServiceEventType)
+                                {
+                                    case ServiceEventType.ContainerServiceError:
+                                        LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerServiceError, containerEvent.Guid, containerEvent.Message));
+                                        break;
+                                    case ServiceEventType.ContainerTaskRunRedirectedToRunAsRDUser:
+                                        LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerServiceError, containerEvent.Guid, containerEvent.Message));
+                                        break;
+                                    default:
+                                        // ignore other events
+                                        break;
+                                }
+                            }
                         }
                         else
                         {
@@ -2290,6 +2311,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             ContainerIpAddress = null;
             _containerHeartbeatToken = null;
             _containerClient = null;
+            _lastContainerEventIndex = 0;
 
             LoadOEMCustomizations();
 

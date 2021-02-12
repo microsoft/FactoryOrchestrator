@@ -870,6 +870,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                             {
                                 // Program is Win32 GUI, if RunAsRDUser is present, redirect to it.
                                 // This allows the program to run as a user account and show its GUI.
+                                // This likely means the Task is being run by a container.
                                 if (File.Exists(Path.Combine(Environment.SystemDirectory, "RunAsRDUser.exe")))
                                 {
                                     taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.RedirectingToRunAsRDUser, taskRun.TaskPath));
@@ -881,6 +882,12 @@ namespace Microsoft.FactoryOrchestrator.Server
                                 {
                                     taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.RunningGuiAsSystemWarning, taskRun.TaskPath));
                                 }
+                            }
+
+                            if (taskRun.TaskPath.EndsWith("RunAsRDUser.exe", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                // Let the service know we require a logged in remote user account to show GUI
+                                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunRedirectedToRunAsRDUser, taskRun.Guid, TaskStatus.Running));
                             }
                         }
 
@@ -1315,7 +1322,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             return run;
         }
 
-        public TaskRun RunTask(TaskBase task)
+        public TaskRun RunTask(TaskBase task, Guid? desiredTaskRunGuid = null)
         {
             if (task == null)
             {
@@ -1333,7 +1340,15 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 task.TimesRetried = 0;
             }
+
             var run = CreateTaskRunForTask(task, LogFolder);
+            if (desiredTaskRunGuid != null)
+            {
+                if (UpdateTaskRunGuid(run.Guid, (Guid)desiredTaskRunGuid))
+                {
+                    run = GetTaskRunByGuid((Guid)desiredTaskRunGuid);
+                }
+            }
 
             // TODO: Properly dispose of this token when the task completes.
             // The overall RunningBackgroundTasks & RunningTaskRunTokens logic could use some improvements.
@@ -1775,7 +1790,8 @@ namespace Microsoft.FactoryOrchestrator.Server
         WaitingForExternalTaskRunStarted,
         WaitingForExternalTaskRunFinished,
         TaskRunStarted,
-        TaskRunFinished
+        TaskRunFinished,
+        TaskRunRedirectedToRunAsRDUser
     }
 
     public class TaskManagerEventArgs : EventArgs
