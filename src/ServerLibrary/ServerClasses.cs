@@ -877,17 +877,14 @@ namespace Microsoft.FactoryOrchestrator.Server
                                     var currentPath = taskRun.TaskPath;
                                     taskRun.TaskPath = Path.Combine(Environment.SystemDirectory, "RunAsRDUser.exe");
                                     taskRun.Arguments = $"{currentPath} {taskRun.Arguments}";
+
+                                    // Let the service know we require a logged in remote user account to show GUI
+                                    OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunRedirectedToRunAsRDUser, taskRun.Guid, TaskStatus.Running));
                                 }
                                 else
                                 {
                                     taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.RunningGuiAsSystemWarning, taskRun.TaskPath));
                                 }
-                            }
-
-                            if (taskRun.TaskPath.EndsWith("RunAsRDUser.exe", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                // Let the service know we require a logged in remote user account to show GUI
-                                OnTaskManagerEvent?.Invoke(this, new TaskManagerEventArgs(TaskManagerEventType.TaskRunRedirectedToRunAsRDUser, taskRun.Guid, TaskStatus.Running));
                             }
                         }
 

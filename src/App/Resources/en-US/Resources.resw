@@ -738,4 +738,8 @@ On retry</value>
     <value>Factory Orchestrator Service Information</value>
     <comment>text field header for showing info that relate to what features are enabled / disabled in the Service.</comment>
   </data>
+  <data name="LaunchRD.Content" xml:space="preserve">
+    <value>Launch RD App</value>
+    <comment>button to launch remote desktop uwp app</comment>
+  </data>
 </root>

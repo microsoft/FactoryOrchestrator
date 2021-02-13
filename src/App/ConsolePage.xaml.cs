@@ -384,6 +384,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContainerGuiWarning.Visibility = (bool)ContainerCheckBox.IsChecked ? Visibility.Visible : Visibility.Collapsed;
             ContainerGuiWarningExample.Visibility = ContainerGuiWarning.Visibility;
+            LaunchRD.Visibility = ContainerGuiWarning.Visibility;
+        }
+
+        private async void LaunchRD_Click(object sender, RoutedEventArgs e)
+        {
+            //var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:factoryosconnect?ip={containerIp}&username=Abby"));
+            var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:"));
         }
 
         #region IDisposable Support

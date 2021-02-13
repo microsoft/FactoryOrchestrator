@@ -1874,13 +1874,15 @@ namespace Microsoft.FactoryOrchestrator.Service
                             var containerEvents = await _containerClient.GetServiceEvents(_lastContainerEventIndex);
                             foreach (var containerEvent in containerEvents)
                             {
+                                _lastContainerEventIndex = containerEvent.EventIndex;
+
                                 switch (containerEvent.ServiceEventType)
                                 {
-                                    case ServiceEventType.ContainerServiceError:
+                                    case ServiceEventType.ServiceError:
                                         LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerServiceError, containerEvent.Guid, containerEvent.Message));
                                         break;
-                                    case ServiceEventType.ContainerTaskRunRedirectedToRunAsRDUser:
-                                        LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerServiceError, containerEvent.Guid, containerEvent.Message));
+                                    case ServiceEventType.TaskRunRedirectedToRunAsRDUser:
+                                        LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerTaskRunRedirectedToRunAsRDUser, containerEvent.Guid, containerEvent.Message));
                                         break;
                                     default:
                                         // ignore other events

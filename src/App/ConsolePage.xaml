@@ -36,6 +36,7 @@
             <TextBlock x:Name="ContainerGuiWarningExample" x:Uid="ContainerGuiWarningExample" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"  Visibility="Collapsed" TextWrapping="WrapWholeWords"/>
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Row="4" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" x:Uid="OutputConst"/>
+        <Button x:Name="LaunchRD" x:Uid="LaunchRD" Click="LaunchRD_Click" Grid.Row="4" HorizontalAlignment="Center" Visibility="Collapsed"/>
         <Button x:Name="ClearButton" x:Uid="ClearButton" Click="ClearButton_Click" Grid.Row="4" HorizontalAlignment="Right"/>
         <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Row="6">
             <StackPanel x:Name="OutputStack" Margin="5" VerticalAlignment="Top" Orientation="Vertical" SizeChanged="OutputStack_SizeChanged"/>

@@ -584,7 +584,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async ()  =>
             {
                 //var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:factoryosconnect?ip={containerIp}&username=Abby"));
-                var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd"));
+                var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:"));
             });
         }
 
