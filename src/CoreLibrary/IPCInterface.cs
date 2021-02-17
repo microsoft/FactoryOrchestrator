@@ -454,7 +454,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="task">The Task to run.</param>
         /// <param name="desiredTaskRunGuid">The desired GUID for the returned TaskRun. It is not used if a TaskRun already exists with the same GUID.</param>
         /// <returns>The TaskRun associated with the run.</returns>
-        TaskRun RunTask(TaskBase task, Guid desiredTaskRunGuid);
+        TaskRun RunTask(TaskBase task, Guid? desiredTaskRunGuid = null);
 
         // TaskRun APIs
         /// <summary>

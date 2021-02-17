@@ -861,7 +861,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskRun RunTask(TaskBase task, Guid desiredTaskRunGuid)
+        public TaskRun RunTask(TaskBase task, Guid? desiredTaskRunGuid = null)
         {
             try
             {
