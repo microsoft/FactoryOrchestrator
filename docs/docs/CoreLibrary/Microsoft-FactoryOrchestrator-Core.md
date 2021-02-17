@@ -1,6 +1,7 @@
 #### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ## Microsoft.FactoryOrchestrator.Core Namespace
 ### Classes
+- [AppPackages](./Microsoft-FactoryOrchestrator-Core-AppPackages.md 'Microsoft.FactoryOrchestrator.Core.AppPackages')
 - [BatchFileTask](./Microsoft-FactoryOrchestrator-Core-BatchFileTask.md 'Microsoft.FactoryOrchestrator.Core.BatchFileTask')
 - [Constants](./Microsoft-FactoryOrchestrator-Core-Constants.md 'Microsoft.FactoryOrchestrator.Core.Constants')
 - [ExceptionExtensions](./Microsoft-FactoryOrchestrator-Core-ExceptionExtensions.md 'Microsoft.FactoryOrchestrator.Core.ExceptionExtensions')
@@ -17,6 +18,8 @@
 - [HttpMultipartFileContent](./Microsoft-FactoryOrchestrator-Core-HttpMultipartFileContent.md 'Microsoft.FactoryOrchestrator.Core.HttpMultipartFileContent')
 - [LockingList&lt;T&gt;](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;')
 - [NotifyPropertyChangedBase](./Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase.md 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase')
+- [PackageInfo](./Microsoft-FactoryOrchestrator-Core-PackageInfo.md 'Microsoft.FactoryOrchestrator.Core.PackageInfo')
+- [PackageVersion](./Microsoft-FactoryOrchestrator-Core-PackageVersion.md 'Microsoft.FactoryOrchestrator.Core.PackageVersion')
 - [PowerShellTask](./Microsoft-FactoryOrchestrator-Core-PowerShellTask.md 'Microsoft.FactoryOrchestrator.Core.PowerShellTask')
 - [Resources](./Microsoft-FactoryOrchestrator-Core-Resources.md 'Microsoft.FactoryOrchestrator.Core.Resources')
 - [ServiceEvent](./Microsoft-FactoryOrchestrator-Core-ServiceEvent.md 'Microsoft.FactoryOrchestrator.Core.ServiceEvent')

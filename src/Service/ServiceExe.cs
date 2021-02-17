@@ -18,14 +18,12 @@ using System.IO;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using Microsoft.FactoryOrchestrator.Client;
 using System.Globalization;
 using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -863,7 +861,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public TaskRun RunTask(TaskBase task, Guid? desiredTaskRunGuid = null)
+        public TaskRun RunTask(TaskBase task, Guid desiredTaskRunGuid)
         {
             try
             {
@@ -904,6 +902,39 @@ namespace Microsoft.FactoryOrchestrator.Service
                 var run = FOService.Instance.TaskExecutionManager.RunApp(aumid);
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: RunApp {aumid}");
                 return run.DeepCopy();
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw;
+            }
+        }
+
+        public void TerminateApp(string aumid)
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: TerminateApp {aumid}");
+
+                if (FOService.Instance.IsExecutingBootTasks)
+                {
+                    throw new FactoryOrchestratorException(Resources.BootTasksExecutingError);
+                }
+
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "TerminateApp"));
+                }
+
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync().Result;
+                var app = apps.Packages.Where(x => x.AppId.Equals(aumid, StringComparison.OrdinalIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
+
+                if (app != null)
+                {
+                    WDPHelpers.CloseAppWithWDP(app.FullName).Wait();
+                }
+
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: TerminateApp {aumid}");
             }
             catch (Exception e)
             {
@@ -1130,23 +1161,36 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Get installed packages on the system
-                var response = WDPHelpers.WdpHttpClient.GetAsync(new Uri("http://localhost/api/app/packagemanager/packages")).Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync().Result;
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new InvalidOperationException(Resources.WDPNotRunningError);
-                }
-
-                List<string> aumids = new List<string>();
-                var output = response.Content.ReadAsStringAsync().Result;
-                var matches = Regex.Matches(output, "\"PackageRelativeId\" : \"(.+?)\"");
-                foreach (Match match in matches)
-                {
-                    aumids.Add(match.Groups[1].Value);
-                }
+                List<string> aumids = apps.Packages.Select(x => x.AppId).ToList();
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetInstalledApps");
                 return aumids;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw;
+            }
+        }
+
+        public List<PackageInfo> GetInstalledAppsDetailed()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetInstalledAppsDetailed");
+
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "GetInstalledAppsDetailed"));
+                }
+
+                // Get installed packages on the system
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync().Result;
+
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetInstalledAppsDetailed");
+                return apps.Packages;
             }
             catch (Exception e)
             {
@@ -1391,6 +1435,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private FactoryOrchestratorClient _containerClient;
         private ulong _lastContainerEventIndex;
+        private HashSet<Guid> _containerGUITaskRuns;
 
         // TaskManager_Server instances
         private TaskManager _taskExecutionManager;
@@ -1819,6 +1864,29 @@ namespace Microsoft.FactoryOrchestrator.Service
                         hostRun.TaskStatus = containerRun.TaskStatus;
                         hostRun.TaskOutput.Add($"----------- {Resources.EndContainerOutput} -----------");
                     }
+
+                    if (_containerGUITaskRuns.Contains(containerRun.Guid))
+                    {
+                        _containerGUITaskRuns.Remove(containerRun.Guid);
+                        if (_containerGUITaskRuns.Count == 0)
+                        {
+                            try
+                            {
+                                // Exit URDC if we launched it.
+                                var rdApp = (await WDPHelpers.GetInstalledAppPackagesAsync()).Packages.Where(x => x.FullName.StartsWith("Microsoft.RemoteDesktop", StringComparison.OrdinalIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
+
+                                if (rdApp != null)
+                                {
+                                    await WDPHelpers.CloseAppWithWDP(rdApp.FullName);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // Ignore failure to exit RD
+                            }
+                        }
+                    }
+                        
                 }
                 catch (Exception e)
                 {
@@ -1883,6 +1951,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                                         break;
                                     case ServiceEventType.TaskRunRedirectedToRunAsRDUser:
                                         LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerTaskRunRedirectedToRunAsRDUser, containerEvent.Guid, containerEvent.Message));
+                                        _containerGUITaskRuns.Add((Guid)containerEvent.Guid);
                                         break;
                                     default:
                                         // ignore other events
@@ -2314,6 +2383,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             _containerHeartbeatToken = null;
             _containerClient = null;
             _lastContainerEventIndex = 0;
+            _containerGUITaskRuns = new HashSet<Guid>();
 
             LoadOEMCustomizations();
 
