@@ -3,7 +3,7 @@
 ## FactoryOrchestratorContainerException Class
 An exception denoting an issue with the container on the device.  
 ```csharp
-public class FactoryOrchestratorContainerException : FactoryOrchestratorException
+public class FactoryOrchestratorContainerException : Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [FactoryOrchestratorException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; FactoryOrchestratorContainerException  
 

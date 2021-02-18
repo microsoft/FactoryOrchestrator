@@ -12,6 +12,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
     /// <summary>
     /// TaskBaseConverter serializes "instances" of the abstract class TaskBase.
     /// </summary>
+    /// <exclude/>
     public class TaskBaseConverter : JsonConverter
     {
         /// <summary>Determines whether this instance can convert the specified object type.</summary>
@@ -109,6 +110,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
     /// NoConverter class is used children of abstract classes (ex: ExecutableTask), to prevent infinite loop.
     /// All serialization is done by the Abstract class converter (TaskBaseConverter)
     /// </summary>
+    /// <exclude/>
     [JsonConverter(typeof(NoConverter))]
     public class NoConverter : JsonConverter
     {

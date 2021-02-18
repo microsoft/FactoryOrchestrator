@@ -20,7 +20,7 @@
     <DefaultDocumentationFolder>$(OutputRootPath)\DefaultDocumentation\ClientLibrary</DefaultDocumentationFolder>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DefaultDocumentation" Version="0.6.12">
+    <PackageReference Include="DefaultDocumentation" Version="0.6.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

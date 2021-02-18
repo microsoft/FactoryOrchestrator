@@ -4,9 +4,9 @@
 TaskBase is an abstract class representing a generic task. It contains all the details needed to run the task.  
 It also surfaces information about the last TaskRun for this task, for easy consumption.  
 ```csharp
-public abstract class TaskBase : NotifyPropertyChangedBase
+public abstract class TaskBase : Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase
 ```
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [NotifyPropertyChangedBase](./Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase.md 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; TaskBase  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; TaskBase  
 
 Derived  
 &#8627; [ExecutableTask](./Microsoft-FactoryOrchestrator-Core-ExecutableTask.md 'Microsoft.FactoryOrchestrator.Core.ExecutableTask')  

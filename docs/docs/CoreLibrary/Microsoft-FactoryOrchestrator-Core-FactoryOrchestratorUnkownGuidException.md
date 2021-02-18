@@ -3,7 +3,7 @@
 ## FactoryOrchestratorUnkownGuidException Class
 An exception denoting the given GUID is not recognized by Factory Orchestrator.  
 ```csharp
-public class FactoryOrchestratorUnkownGuidException : FactoryOrchestratorException
+public class FactoryOrchestratorUnkownGuidException : Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [FactoryOrchestratorException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; FactoryOrchestratorUnkownGuidException  
 ### Constructors

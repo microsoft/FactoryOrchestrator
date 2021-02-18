@@ -23,6 +23,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Extends the Exception class.
     /// </summary>
+    /// <exclude/>
     public static class ExceptionExtensions
     {
         /// <summary>
@@ -140,6 +141,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Comparer for Task objects
     /// </summary>
+    /// <exclude/>
     public class TaskBaseEqualityComparer : EqualityComparer<TaskBase>
     {
         public override bool Equals(TaskBase x, TaskBase y)
@@ -2743,6 +2745,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Abstract class to implement INotifyPropertyChanged
     /// </summary>
+    /// <exclude/>
     public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged
     {
         /// <summary>

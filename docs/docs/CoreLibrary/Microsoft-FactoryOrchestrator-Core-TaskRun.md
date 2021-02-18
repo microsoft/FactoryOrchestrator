@@ -3,9 +3,9 @@
 ## TaskRun Class
 A TaskRun represents one instance of executing any single Task.  
 ```csharp
-public class TaskRun : NotifyPropertyChangedBase
+public class TaskRun : Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase
 ```
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [NotifyPropertyChangedBase](./Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase.md 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; TaskRun  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; TaskRun  
 ### Constructors
 - [TaskRun(Microsoft.FactoryOrchestrator.Core.TaskBase)](./Microsoft-FactoryOrchestrator-Core-TaskRun-TaskRun(Microsoft-FactoryOrchestrator-Core-TaskBase).md 'Microsoft.FactoryOrchestrator.Core.TaskRun.TaskRun(Microsoft.FactoryOrchestrator.Core.TaskBase)')
 ### Properties
