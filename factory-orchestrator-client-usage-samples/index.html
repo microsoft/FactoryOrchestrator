@@ -1,0 +1,812 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Factory Orchestrator Documentation">
+      
+      
+      
+        <meta name="author" content="themar-msft;hajya">
+      
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/factory-orchestrator-client-usage-samples/">
+      
+      <link rel="shortcut icon" href="../images/fo-logo.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+    
+    
+      
+        <title>Client API samples - Factory Orchestrator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.cb6bc1d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.39b8e14a.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#546d78">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="blue-grey" data-md-color-accent="amber">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#factory-orchestrator-client-api-samples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  <img src="../images/fo-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Factory Orchestrator
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Client API samples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+  <img src="../images/fo-logo.png" alt="logo">
+
+    </a>
+    Factory Orchestrator
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
+        Get Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks-and-tasklists/" class="md-nav__link">
+        Tasks & TaskLists
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service-configuration/" class="md-nav__link">
+        Service Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
+        Run using the application
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
+        Run using the client API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Client API samples
+      </a>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
+        Client Library Class Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
+        Core Library Class Reference
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/factory-orchestrator-client-usage-samples.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="factory-orchestrator-client-api-samples">Factory Orchestrator Client API Samples</h1>
+<p>This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer.</p>
+<p>All C# code snippets assume you have:</p>
+<pre><code class="language-csharp">using Microsoft.FactoryOrchestrator.Core;
+using Microsoft.FactoryOrchestrator.Client;
+</code></pre>
+<p>defined at the top of your .cs file.</p>
+<p>Remember:</p>
+<ul>
+<li>All C# client APIs are asynchronous, but all PowerShell APIs are synchronous.</li>
+<li>To use the C# client APIs in a UWP app, use an instance of FactoryOrchestratorUWPClient instead of <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a>.</li>
+<li>'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could be the same PC as the client.</li>
+</ul>
+<h1 id="factory-orchestrator-net-client-sample">Factory Orchestrator .NET client sample</h1>
+<p>A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: <a href="https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample">https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample</a>. You can build it with Visual Studio 2019 or the .NET Core 3.1+ SDK.</p>
+<p>The sample shows you how to connect to a remote (or local) device running Factory Orchestrator service, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device.</p>
+<h2 id="factory-orchestrator-client-sample-usage">Factory Orchestrator client sample usage</h2>
+<p>Once the sample is built, create a folder on your PC with test content and a <a href="../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists">FactoryOrchestratorXML</a> file that references the test content in the location it will execute from on the test device. Then, run the sample by calling:</p>
+<pre><code class="language-cmd">dotnet ClientSample.dll &lt;IP Address of DUT&gt; &lt;Folder on technician PC with test content AND FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
+</code></pre>
+<p>The sample will then connect to the test device, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device. You will be able to monitor the progress of the sample in the console, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on your PC (if it is connected to the test device).</p>
+<h1 id="establishing-a-connection-to-the-service">Establishing a connection to the service</h1>
+<p>Before executing any other commands, the <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/">Connect</a>() API must be called. <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/">Connect</a>() verifies the target service is running and has a compatible version with your client. <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/">Connect</a>() throws an exeption if the connection fails. Alternately, you can use <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-TryConnect%28bool%29/">TryConnect</a>() which returns false if the connection fails instead.</p>
+<h2 id="connect-to-the-service-running-on-the-local-device-loopback">Connect to the service running on the local device (loopback)</h2>
+<pre><code class="language-csharp">var client = new FactoryOrchestratorClient(IPAddress.Loopback);
+await client.Connect();
+</code></pre>
+<pre><code class="language-powershell"># 127.0.0.1 == loopback
+$client = New-FactoryOrchestratorClient -IpAddress &quot;127.0.0.1&quot;
+$client.Connect();
+</code></pre>
+<h2 id="connect-to-the-service-running-on-a-remote-device">Connect to the service running on a remote device</h2>
+<p>C#:</p>
+<pre><code class="language-csharp">var client = new FactoryOrchestratorClient(IPAddress.Parse(&quot;192.168.0.100&quot;));
+await client.Connect();
+</code></pre>
+<p>PowerShell 7+:</p>
+<pre><code class="language-powershell">$client = New-FactoryOrchestratorClient -IpAddress &quot;192.168.0.100&quot;
+$client.Connect();
+</code></pre>
+<h1 id="task-tasklist-taskrun-creation-interaction-manipulation">Task, <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a>, &amp; <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a> creation, interaction, &amp; manipulation</h1>
+<h2 id="load-tasklists-from-a-file-run-the-loaded-tasklists-to-completion-then-get-the-generated-log-files">Load <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a>s from a file, run the loaded TaskLists to completion. Then get the generated log files.</h2>
+<p><a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a>s defined in <a href="../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists">FactoryOrchestratorXML</a> files are a great way to organize a set of operations you want Factory Orchestrator to execute. This example shows how to load <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a>(s) from a <a href="../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists">FactoryOrchestratorXML</a> file and then run the loaded TaskLists using <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-LoadTaskListsFromXmlFile%28string%29/">LoadTaskListsFromXmlFile</a> and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunTaskList%28System-Guid_int%29/">RunTaskList</a>. It also prints high-level info about the <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> statues with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetTaskListSummaries%28%29/">GetTaskListSummaries</a>. Depending on the attributes defined for each <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> they may or may not run in parallel.</p>
+<pre><code class="language-csharp">// Assumes you have an existing FactoryOrchestratorXML file on the filesystem of the service at (string) FactoryOrchestratorXmlPath.
+// See &quot;Copy a file or folder from client to device&quot; or &quot;Factory Orchestrator .NET client sample&quot; for details on how to copy files to the service from a client.
+var taskListGuids = await client.LoadTaskListsFromXmlFile(FactoryOrchestratorXmlPath);
+foreach (var taskListGuid in taskListGuids)
+{
+    await client.RunTaskList(taskListGuid);
+}
+
+// Wait for all TaskLists to complete.
+while ((await client.GetTaskListSummaries()).Any(x =&gt; x.IsRunningOrPending))
+{
+    await Task.Delay(2000);
+}
+
+// Copy all logs to client-side device.
+await client.GetDirectoryFromDevice(await client.GetLogFolder(), @&quot;C:\some_folder_on_client_for_logs&quot;);
+</code></pre>
+<h2 id="modify-an-existing-tasklist">Modify an existing <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a></h2>
+<p>This example shows how to modify an existing <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> using <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskList%28System-Guid%29/">QueryTaskList</a> and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-UpdateTaskList%28Microsoft-FactoryOrchestrator-Core-TaskList%29/">UpdateTaskList</a>.</p>
+<pre><code class="language-csharp">// Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
+var taskListGuid = new Guid(&quot;34d0534b-ed09-46c2-b6bb-73cef9574944&quot;);
+var taskList = await client.QueryTaskList(taskListGuid);
+
+// Add new Tasks to the TaskList
+taskList.Tasks.Add(new PowerShellTask(@&quot;C:\scripts\pwshScriptRunLast.ps1&quot;)); // Will run last
+taskList.Tasks.Insert(0, new ExecutableTask(@&quot;C:\exes\runMeFirst.exe&quot;)); // Will run first
+
+// Find an existing Task in the TaskList using LINQ and edit it
+taskList.Tasks.Where(x =&gt; x.Path == @&quot;C:\exes\someExistingExeTask.exe&quot;).First().Arguments += &quot; --aNewArgument&quot;;
+
+// Modify TaskList properties to not allow parallel Task and TaskList execution.
+taskList.RunInParallel = false;
+taskList.AllowOtherTaskListsToRun = false;
+
+// Update the TaskList on the service.
+await client.UpdateTaskList(taskList);
+</code></pre>
+<h2 id="get-all-existing-tasklists-and-print-out-information-about-each-tasklist">Get all existing TaskLists and print out information about each <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a>.</h2>
+<p>This example uses the <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetTaskListSummaries%28%29/">GetTaskListSummaries</a> and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskList%28System-Guid%29/">QueryTaskList</a> methods print out information about running <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> instances.</p>
+<pre><code class="language-csharp">var summaries = await client.GetTaskListSummaries();
+foreach (var summary in summaries)
+{
+    Console.WriteLine($&quot;TaskList with Name {summary.Name} and GUID {summary.Guid} is currently {summary.Status}...&quot;);
+
+    // If the TaskList is running, let's get some more details about the Tasks within it
+    if (summary.Status == TaskStatus.Running)
+    {
+        var taskList = await client.QueryTaskList(summary.Guid);
+        foreach (var task in taskList.Tasks.Where(x =&gt; x.LatestTaskRunStatus == TaskStatus.Running))
+        {
+            Console.WriteLine($&quot;    A {task.Type} Task with Name {task.Name} and GUID {task.Guid} has been running for {DateTime.Now - task.LatestTaskRunTimeStarted} seconds...&quot;);
+        }
+    }
+}
+</code></pre>
+<h2 id="stop-executing-an-existing-running-tasklist">Stop executing an existing &amp; running <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a></h2>
+<pre><code class="language-csharp">// Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
+await client.AbortTaskList(new Guid(&quot;34d0534b-ed09-46c2-b6bb-73cef9574944&quot;));
+</code></pre>
+<h2 id="check-for-service-events-use-waitingforexternaltaskrun-to-handle-every-externaltask-requiring-manual-completion">Check for service events. Use WaitingForExternalTaskRun to handle every <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-ExternalTask/">ExternalTask</a> requiring manual completion.</h2>
+<p>This example uses the GetServiceEvents method to check if an <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-ExternalTask/">ExternalTask</a> needs manual completion. If so, it uses <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskRun%28System-Guid%29/">QueryTaskRun</a> and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-UpdateTaskRun%28Microsoft-FactoryOrchestrator-Core-TaskRun%29/">UpdateTaskRun</a> to complete the <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-ExternalTask/">ExternalTask</a>.</p>
+<pre><code class="language-csharp">ulong lastEvent = 0;
+
+// Loop, checking for new events
+while (true)
+{
+    var events = await client.GetServiceEvents(lastEvent);
+    foreach (var serviceEvent in events)
+    {
+        // update lastEvent so GetServiceEvents(lastEvent) will not return this event (or any event before it) again.
+        lastEvent = serviceEvent.EventIndex;
+
+        // log event to console.
+        Console.WriteLine($&quot;New service event, seen at {serviceEvent.EventTime}: {serviceEvent.Message}&quot;);
+
+        if (serviceEvent.ServiceEventType == ServiceEventType.WaitingForExternalTaskRun)
+        {
+            // The service is waiting for a client to complete this TaskRun, let's do it!
+            // Get the TaskRun object the event is referring to.
+            var taskRun = await client.QueryTaskRun((Guid)serviceEvent.Guid);
+            // Mark the TaskRun as Passed.
+            taskRun.TaskStatus = TaskStatus.Passed;
+            taskRun.TaskOutput.Add(&quot;Good job, this TaskRun is passed!&quot;);
+            // Update the service with the now completed TaskRun.
+            await client.UpdateTaskRun(taskRun);
+        }
+    }
+
+// Wait 5 seconds before checking for new events
+await Task.Delay(5000);
+}
+</code></pre>
+<h2 id="run-a-program-to-completion-and-print-output-to-console">Run a program to completion and print output to console</h2>
+<p>This example uses the <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunExecutable%28string_string_string_bool%29/">RunExecutable</a>() method to run a program outside of a <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a>. It then uses <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskRun%28System-Guid%29/">QueryTaskRun</a> to monitor the program's status.</p>
+<pre><code class="language-csharp">// Start the program
+var taskRun = await client.RunExecutable(@&quot;%windir%\system32\ping.exe&quot;,&quot;www.bing.com&quot;);
+
+// Wait for program to complete
+while (!taskRun.TaskRunComplete)
+{
+    await Task.Delay(1000);
+    taskRun = await client.QueryTaskRun(taskRun.Guid);
+}
+
+// Program has completed.
+Console.WriteLine($&quot;Program exited with code {taskRun.ExitCode} at {taskRun.TimeFinished}.&quot;);
+Console.WriteLine($&quot;Program output:&quot;);
+foreach (var line in taskRun.TaskOutput)
+{
+    Console.WriteLine(line);
+}
+</code></pre>
+<pre><code class="language-powershell"># Start the program
+$taskRun = $client.RunExecutable(&quot;$env:windir\system32\ping.exe&quot;, &quot;www.bing.com&quot;);
+
+while (-not $taskRun.TaskRunComplete)
+{
+    Start-Sleep -seconds 1
+    $taskRun = $client.QueryTaskRun($taskRun.Guid);
+}
+
+# Program has completed.
+Write-Host &quot;Program exited with code $($taskRun.ExitCode) at $($taskRun.TimeFinished).&quot;
+foreach ($line in $($taskRun.TaskOutput))
+{
+    Write-Host $line
+}
+</code></pre>
+<h1 id="using-serverpoller-instances-to-monitor-tasklist-taskrun-execution-asynchronously-with-c-events">Using <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/">ServerPoller</a> instances to monitor <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> &amp; <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a> execution asynchronously with C# events</h1>
+<p>The <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/">ServerPoller</a> class is used to automatically poll the service for updates, and generates an <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-OnUpdatedObject/">OnUpdatedObject</a> event only when the chosen <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> or <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a> object you are polling updates. It can also be used to query all TaskLists for their high-level status. <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/">ServerPoller</a> objects are a good choice to asynchronously update your UI or console output.</p>
+<p>This example uses the ServerPoller's <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-StartPolling%28Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient%29/">StartPolling</a> method and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-OnUpdatedObject/">OnUpdatedObject</a> event to monitor TaskList and <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a> objects.</p>
+<pre><code class="language-csharp">object consoleLock = new object();
+
+// Pollers should have Dispose() called on them when no longer needed.
+ServerPoller taskListSummaryPoller = new ServerPoller(null, typeof(TaskList));
+// Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
+ServerPoller taskListPoller = new ServerPoller(new Guid(&quot;34d0534b-ed09-46c2-b6bb-73cef9574944&quot;), typeof(TaskList));
+// Assumes you have an existing TaskRun in the service with a GUID of e7e316eb-696c-433b-957a-bfcada75c81c
+ServerPoller taskRunPoller = new ServerPoller(new Guid(&quot;e7e316eb-696c-433b-957a-bfcada75c81c&quot;), typeof(TaskRun));
+int lastOutputIndex = 0;
+
+async void StartPollers()
+{
+    var client = new FactoryOrchestratorClient(IPAddress.Parse(&quot;192.168.0.100&quot;));
+    await client.Connect();
+
+    // If GUID is null and type is TaskList, ServerPoller returns a List&lt;TaskListSummary&gt; object.
+    taskListSummaryPoller.OnUpdatedObject += OnUpdatedTaskListSummaries;
+    // If GUID is NOT null and type is TaskList, ServerPoller returns a TaskList object.
+    taskListPoller.OnUpdatedObject += OnUpdatedTaskList;
+    // If GUID is NOT null and type is TaskRun, ServerPoller returns a TaskRun object.
+    taskRunPoller.OnUpdatedObject += OnUpdatedTaskRun;
+
+
+    // StartPolling takes the FactoryOrchestratorClient you want to use for polling as an argument
+    taskListSummaryPoller.StartPolling(client);
+    taskListPoller.StartPolling(client);
+    taskRunPoller.StartPolling(client);
+}
+
+void OnUpdatedTaskListSummaries(object source, ServerPollerEventArgs e)
+{
+    // New TaskListSummaries are ready, let's print them out
+    if (e.Result != null)
+    {
+        List&lt;TaskListSummary&gt; updatedSummaries = (List&lt;TaskListSummary&gt;)e.Result;
+        lock (consoleLock)
+        {
+            Console.WriteLine(&quot;--- Latest TaskLists Status ---&quot;);
+            foreach (var summary in updatedSummaries)
+            {
+                Console.WriteLine(summary); // Uses TaskListSummary.ToString() to print readable output
+            }
+        }
+    }
+}
+
+void OnUpdatedTaskList(object source, ServerPollerEventArgs e)
+{
+    // New TaskList data for 34d0534b-ed09-46c2-b6bb-73cef9574944 is ready, let's print it out
+    if (e.Result != null)
+    {
+        TaskList updatedTaskList = (TaskList)e.Result;
+        lock (consoleLock)
+        {
+            Console.WriteLine(&quot;--- Latest Status of TaskList 34d0534b-ed09-46c2-b6bb-73cef9574944 ---&quot;);
+            foreach (var task in updatedTaskList.Tasks)
+            {
+                Console.WriteLine($&quot;Task {task.Name} is currently {task.LatestTaskRunStatus}.&quot;);
+            }
+        }
+    }
+}
+
+void OnUpdatedTaskRun(object source, ServerPollerEventArgs e)
+{
+    // New TaskRun data for e7e316eb-696c-433b-957a-bfcada75c81c is ready, let's print it out
+    if (e.Result != null)
+    {
+        TaskRun updatedTaskRun = (TaskRun)e.Result;
+        lock (consoleLock)
+        {
+            if (lastOutputIndex &lt; updatedTaskRun.TaskOutput.Count)
+            {
+                // We have new TaskRun output. Write it to console.
+                Console.WriteLine(&quot;--- Latest output of TaskRun e7e316eb-696c-433b-957a-bfcada75c81c ---&quot;);
+                while (lastOutputIndex &lt; updatedTaskRun.TaskOutput.Count)
+                {
+                    Console.WriteLine(updatedTaskRun.TaskOutput[lastOutputIndex++]);
+                }
+            }
+        }
+
+        if (updatedTaskRun.TaskRunComplete)
+        {
+            // Stop polling, run is complete and will never have new data
+            taskRunPoller.StopPolling();
+        }
+    }
+}
+</code></pre>
+<h1 id="install-an-app-enable-local-loopback-on-the-installed-app-and-then-launch-it-windows-only-requires-windows-device-portal-is-running">Install an app, enable local loopback on the installed app, and then launch it (Windows Only &amp; requires Windows Device Portal is running)</h1>
+<p>This example uses <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SendAndInstallApp%28string_System-Collections-Generic-List-string-_string%29/">SendAndInstallApp</a>, <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-EnableLocalLoopbackForApp%28string%29/">EnableLocalLoopbackForApp</a>, and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunApp%28string%29/">RunApp</a> to install a UWP app on the device, enable local loopback on the app (enabling it to talk to a localhost Factory Orchestrator service), and launch the app.</p>
+<pre><code class="language-csharp">// Assumes appFolder is a &quot;standard&quot; Visual Studio 2019 published app package with an appx/msix, a .cer certificate, and a dependencies folder.
+// appFolder is on the client device, NOT on the service. SendAndInstallApp copies it to the service-side device.
+var files = Directory.EnumerateFiles(appFolder);
+var app = files.Where(x =&gt; x.EndsWith(&quot;.appx&quot;, StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(&quot;.appxbundle&quot;, StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(&quot;.msixbundle&quot;, StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(&quot;.msix&quot;, StringComparison.InvariantCultureIgnoreCase)).First();
+var cert = files.Where(x =&gt; x.EndsWith(&quot;.cer&quot;, StringComparison.InvariantCultureIgnoreCase)).First();
+var interiorDirs = Directory.EnumerateDirectories(appFolder);
+List&lt;string&gt; depsForApp = null;
+
+if (interiorDirs.Count() &gt; 0 &amp;&amp; interiorDirs.Any(x =&gt; x.EndsWith(@&quot;\dependencies&quot;, StringComparison.InvariantCultureIgnoreCase)))
+{
+    // App directory has 'dependencies' folder, see if it contains dependent apps
+    depsForApp = await Directory.EnumerateFiles(Path.Combine(appFolder, &quot;dependencies&quot;), &quot;*&quot;, SearchOption.AllDirectories).ToList();
+    if (depsForApp.Count &gt; 0)
+    {
+        depsForApp = depsForApp.Where(x =&gt; x.EndsWith(&quot;.appx&quot;, StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(&quot;.appxbundle&quot;, StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(&quot;.msixbundle&quot;, StringComparison.InvariantCultureIgnoreCase) || x.EndsWith(&quot;.msix&quot;, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+        if (depsForApp.Count == 0)
+        {
+            depsForApp = null;
+        }
+    }
+}
+
+// We have found the app, dependencies, and certificate on the client-side PC. SendAndInstallApp will copy the files to the service-side device and install the app using Windows Device Portal.
+await client.SendAndInstallApp(app, depsForApp, cert);
+// App installed sucessfully. Enable local loopback &amp; then run it!
+// Assumes newky installed app AUMID is &quot;Contoso.TestApp_8wekyb3d8bbwe&quot;.
+await client.EnableLocalLoopbackForApp(&quot;Contoso.TestApp_8wekyb3d8bbwe&quot;);
+await client.RunApp(&quot;Contoso.TestApp_8wekyb3d8bbwe&quot;);
+</code></pre>
+<h1 id="system-information">System information</h1>
+<p>The following examples show how to get information about the hardware and software of the device the service is running on.</p>
+<h2 id="get-os-and-factory-orchestrator-build-versions">Get OS and Factory Orchestrator build versions</h2>
+<p>This example uses <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetOSVersionString%28%29/">GetOSVersionString</a>, <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetOEMVersionString%28%29/">GetOEMVersionString</a>, <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetServiceVersionString%28%29/">GetServiceVersionString</a>, and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetClientVersionString%28%29/">GetClientVersionString</a> to get various system &amp; Factory Orchestrator information.</p>
+<pre><code class="language-csharp">// GetOSVersionString() &amp; GetOEMVersionString() are Windows only
+var osbuild = await client.GetOSVersionString();
+var oembuild = await client.GetOEMVersionString();
+var servicebuild = await client.GetServiceVersionString();
+var clientbuild = await client.GetClientVersionString();
+</code></pre>
+<h2 id="get-network-adapter-info-with-getipaddressesandnicnames">Get network adapter info with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetIpAddressesAndNicNames%28%29/">GetIpAddressesAndNicNames</a></h2>
+<pre><code class="language-csharp">var networkinfo = await client.GetIpAddressesAndNicNames();
+Console.WriteLine($&quot;The following networks are present on {client.IpAddress}:&quot;);
+foreach (var network in networkinfo)
+{
+    Console.WriteLine($&quot;IP is {network.Item1}. NIC name is {network.Item2}&quot;);
+}
+</code></pre>
+<h2 id="get-installed-uwp-apps-windows-only-with-getinstalledapps">Get installed UWP apps (Windows only) with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetInstalledApps%28%29/">GetInstalledApps</a></h2>
+<pre><code class="language-csharp">var appAUMIDs = await client.GetInstalledApps();
+Console.WriteLine($&quot;The following UWPs are installed on {client.IpAddress}:&quot;);
+foreach (var aumid in appAUMIDs)
+{
+    Console.WriteLine(aumid);
+}
+</code></pre>
+<h1 id="system-interaction">System interaction</h1>
+<h2 id="reboot-device-with-rebootdevice">Reboot device with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RebootDevice%28uint%29/">RebootDevice</a></h2>
+<pre><code class="language-csharp">await client.RebootDevice();
+</code></pre>
+<h2 id="shutdown-device-with-shutdowndevice">Shutdown device with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-ShutdownDevice%28uint%29/">ShutdownDevice</a></h2>
+<pre><code class="language-csharp">await client.ShutdownDevice();
+</code></pre>
+<h1 id="file-system-interactions">File system interactions</h1>
+<p>The following examples show how to perform file system operations on the device the service is running on.</p>
+<h2 id="list-files-folders-on-device-with-enumeratedirectories-and-enumeratefiles">List files &amp; folders on device with EnumerateDirectories and EnumerateFiles</h2>
+<pre><code class="language-csharp">// List all folders under %windir% recursively
+var dirsRecursive = await client.EnumerateDirectories(@&quot;%windir%&quot;, true);
+// List all all files under %windir% (only, not recursive)
+var filesNonRecursve = await client.EnumerateFiles(@&quot;%windir%&quot;, false);
+</code></pre>
+<h2 id="copy-a-file-or-folder-from-device-to-client-with-getfilefromdevice-or-getdirectoryfromdevice">Copy a file or folder from device to client with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetFileFromDevice%28string_string_bool%29/">GetFileFromDevice</a> or <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetDirectoryFromDevice%28string_string_bool%29/">GetDirectoryFromDevice</a></h2>
+<pre><code class="language-csharp">// C:\destination_folder_on_client is created if needed
+var bytesReceived = await client.GetDirectoryFromDevice(@&quot;C:\source_folder_on_device&quot;, @&quot;C:\destination_folder_on_client&quot;);
+bytesReceived += await client.GetFileFromDevice(@&quot;C:\different_folder_on_device\file.txt&quot;, @&quot;C:\destination_folder_on_client\file.txt&quot;);
+</code></pre>
+<h2 id="copy-a-file-or-folder-from-client-to-device-with-sendfiletodevice-or-senddirectorytodevice">Copy a file or folder from client to device with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SendFileToDevice%28string_string_bool%29/">SendFileToDevice</a> or <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SendDirectoryToDevice%28string_string_bool%29/">SendDirectoryToDevice</a></h2>
+<pre><code class="language-csharp">// C:\destination_folder_on_device is created if needed
+var bytesSent = await client.SendDirectoryToDevice(@&quot;C:\source_folder_on_client&quot;, @&quot;C:\destination_folder_on_device&quot;);
+bytesSent += await client.SendFileToDevice(@&quot;C:\different_source_folder_on_client\file.txt&quot;, @&quot;C:\destination_folder_on_device\file.txt&quot;);
+</code></pre>
+<h2 id="move-a-file-or-folder-with-movefileorfolder">Move a file or folder with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-MoveFileOrFolder%28string_string_bool%29/">MoveFileOrFolder</a></h2>
+<pre><code class="language-csharp">await client.MoveFileOrFolder(@&quot;C:\folder_on_device\file.txt&quot;, @&quot;C:\different_folder_on_device\file.txt&quot;);
+await client.MoveFileOrFolder(@&quot;C:\folder_on_device&quot;, @&quot;C:\different_folder_on_device&quot;);
+</code></pre>
+<h2 id="delete-a-file-or-folder-with-deletefileorfolder">Delete a file or folder with <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DeleteFileOrFolder%28string_bool%29/">DeleteFileOrFolder</a></h2>
+<pre><code class="language-csharp">await client.DeleteFileOrFolder(@&quot;C:\folder_on_device\file.txt&quot;);
+await client.DeleteFileOrFolder(@&quot;C:\folder_on_device&quot;);
+</code></pre>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../use-the-factory-orchestrator-api/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Run using the client API
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Client Library Class Reference
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.18f0862e.min.js"></script>
+      <script src="../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.9c0e82ba.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

@@ -9,13 +9,14 @@
         <meta name="description" content="Factory Orchestrator Documentation">
       
       
-        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/">
-      
       
         <meta name="author" content="themar-msft;hajya">
       
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/">
+      
       <link rel="shortcut icon" href="../images/fo-logo.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
     
     
       
@@ -23,10 +24,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.cb6bc1d0.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.39b8e14a.min.css">
         
           
           
@@ -38,7 +39,7 @@
     
       
         
-        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
       
@@ -60,6 +61,7 @@
     <body dir="ltr" data-md-color-scheme="" data-md-color-primary="blue-grey" data-md-color-accent="amber">
       
   
+    
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
@@ -75,7 +77,9 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+      
+
+<header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
       
@@ -86,18 +90,20 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
     </label>
     <div class="md-header-nav__title" data-md-component="header-title">
-      
-        <div class="md-header-nav__ellipsis">
-          <span class="md-header-nav__topic md-ellipsis">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
             Factory Orchestrator
           </span>
-          <span class="md-header-nav__topic md-ellipsis">
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
             
               Get Started
             
           </span>
         </div>
-      
+      </div>
     </div>
     
       <label class="md-header-nav__button md-icon" for="__search">
@@ -108,7 +114,7 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
       <label class="md-search__icon md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
@@ -156,10 +162,16 @@
         <div class="md-main__inner md-grid">
           
             
-              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
       
@@ -188,12 +200,15 @@
       
       
 
-
-  <li class="md-nav__item">
-    <a href=".." class="md-nav__link">
-      Overview
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
 
     
       
@@ -201,25 +216,27 @@
       
 
   
-
-
-  <li class="md-nav__item md-nav__item--active">
+  
     
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
       
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Get Started
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Get Started
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
-      Get Started
-    </a>
-    
+      </a>
       
+        
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -233,9 +250,36 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#install-or-run-the-service" class="md-nav__link">
+    Install or Run the service
+  </a>
+  
+    <nav class="md-nav" aria-label="Install or Run the service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-the-service" class="md-nav__link">
+    Run the service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#install-the-service" class="md-nav__link">
     Install the service
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-configuration" class="md-nav__link">
+    Service configuration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -247,109 +291,123 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-factory-orchestrator" class="md-nav__link">
-    Run Factory Orchestrator
+  <a href="#run-the-app" class="md-nav__link">
+    Run the app
   </a>
-  
-    <nav class="md-nav" aria-label="Run Factory Orchestrator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#default-behavior" class="md-nav__link">
-    Default behavior
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#if-the-app-isnt-configured-to-run-automatically" class="md-nav__link">
-    If the app isn't configured to run automatically
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
     </ul>
   
 </nav>
-    
-  </li>
+      
+    </li>
+  
 
     
       
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../tasks-and-tasklists/" class="md-nav__link">
-      Tasks & TaskLists
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
-      Run using the application
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks-and-tasklists/" class="md-nav__link">
+        Tasks & TaskLists
+      </a>
+    </li>
+  
 
     
       
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
-      Run using the client api
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../factory-orchestrator-utilities/" class="md-nav__link">
-      Built-In Utilities
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service-configuration/" class="md-nav__link">
+        Service Configuration
+      </a>
+    </li>
+  
 
     
       
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
-      Client Library Class Reference
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
+        Run using the application
+      </a>
+    </li>
+  
 
     
       
       
       
 
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
+        Run using the client API
+      </a>
+    </li>
+  
 
-  <li class="md-nav__item">
-    <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
-      Core Library Class Reference
-    </a>
-  </li>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../factory-orchestrator-client-usage-samples/" class="md-nav__link">
+        Client API samples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
+        Client Library Class Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
+        Core Library Class Reference
+      </a>
+    </li>
+  
 
     
   </ul>
@@ -359,7 +417,8 @@
               </div>
             
             
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -376,9 +435,36 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#install-or-run-the-service" class="md-nav__link">
+    Install or Run the service
+  </a>
+  
+    <nav class="md-nav" aria-label="Install or Run the service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-the-service" class="md-nav__link">
+    Run the service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#install-the-service" class="md-nav__link">
     Install the service
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-configuration" class="md-nav__link">
+    Service configuration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -390,29 +476,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-factory-orchestrator" class="md-nav__link">
-    Run Factory Orchestrator
+  <a href="#run-the-app" class="md-nav__link">
+    Run the app
   </a>
-  
-    <nav class="md-nav" aria-label="Run Factory Orchestrator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#default-behavior" class="md-nav__link">
-    Default behavior
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#if-the-app-isnt-configured-to-run-automatically" class="md-nav__link">
-    If the app isn't configured to run automatically
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -434,42 +500,33 @@
                 
                 
                 <h1 id="get-started-with-factory-orchestrator">Get Started with Factory Orchestrator</h1>
-<h2 id="install-the-service">Install the service</h2>
-<p>The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. You can connect to the Factory Orchestrator service from a remote technician PC, or from the device itself. </p>
-<p>User PowerShell to install the Factory Orchestrator on your device:</p>
+<h2 id="install-or-run-the-service">Install or Run the service</h2>
+<p><strong>The service can be downloaded from the <a href="https://github.com/microsoft/FactoryOrchestrator/releases">GitHub releases page</a>.</strong></p>
+<p>The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service <a href="../use-the-factory-orchestrator-api/">programmatically using the Factory Orchestrator client APIs</a>. Multiple clients can be connected to the same service simultaneously.</p>
+<p>The service can either be "run" (one time, not started on boot) or "installed" so that it automatically starts every boot.</p>
+<h3 id="run-the-service">Run the service</h3>
+<p>Download and unzip the service for your target OS and architecture. Then simply run Microsoft.FactoryOrchestrator.Service.exe as administrator/sudo.</p>
+<h3 id="install-the-service">Install the service</h3>
+<p>Download and unzip the service for your target OS and architecture. Then use an Administrator/Sudo PowerShell to install the Factory Orchestrator service on your device. When installed as a system service (daemon), the service will start every boot until disabled or uninstalled:</p>
 <pre><code class="language-PowerShell">     ## Optionally set it's start up to automatic with: -StartupType Automatic
     New-Service -Name &quot;FactoryOrchestrator&quot; -BinaryPathName &quot;Microsoft.FactoryOrchestrator.Service.exe&quot;
 
     Start-Service -Name &quot;FactoryOrchestrator&quot;
 </code></pre>
-<p>To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service programattically using the Factory Orchestrator client APIs. </p>
+<h3 id="service-configuration">Service configuration</h3>
+<p>See <a href="../service-configuration">Service configuration</a> for details on how you can configure the Factory Orchestraor service's default behavior.</p>
 <h2 id="install-the-app">Install the app</h2>
-<p>You can install the Factory Orchestrator app on your DUT or on a technician PC.</p>
-<p>To install the app:</p>
-<ol>
-<li>
-<p>On your technician PC, open an administrative Command prompt.</p>
-</li>
-<li>
-<p>Use Powershell to <a href="https://docs.microsoft.com/powershell/module/appx/add-appxpackage?view=win10-ps">install the app and its dependencies</a>.</p>
-<p><code>PowerShell
-Add-AppxPackage -path "FactoryOrchestrator\Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe.msixbundle" -DependencyPath "frameworks\Microsoft.NET.CoreFramework.x64.Debug.2.2.appx" -DependencyPath "frameworks\Microsoft.NET.CoreRuntime.x64.2.2.appx" -DependencyPath "frameworks\Microsoft.VCLibs.x64.14.00.appx"</code></p>
-</li>
-</ol>
-<h2 id="run-factory-orchestrator">Run Factory Orchestrator</h2>
-<h3 id="default-behavior">Default behavior</h3>
-<blockquote>
-<p>[!Important]
-Need instructions on how to configure a device to run FO automatically</p>
-</blockquote>
-<h3 id="if-the-app-isnt-configured-to-run-automatically">If the app isn't configured to run automatically</h3>
-<p>To run the Factory Orchestrator app:</p>
+<p>You can install the Factory Orchestrator app on your DUT or on a technician PC running Windows. The app can be downloaded from the <a href="https://github.com/microsoft/FactoryOrchestrator/releases">GitHub releases page</a>.</p>
+<p>To install the app, run the .msixbundle to install the app. Alternately, use <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> to install the app on your DUT. The app on the GitHub releases page is signed by Microsoft and does not require a certificate file to install.</p>
+<h2 id="run-the-app">Run the app</h2>
+<p>To run the Factory Orchestrator app, use the Start menu to launch "Factory Orchestrator". Alternately, use <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> to run the app:</p>
 <ol>
 <li>Connect to the device where the app is installed with Device Portal</li>
 <li>From Device Portal's Apps manager tab, choose <code>Factory Orchestrator (App)</code> from the Installed Apps list.</li>
 <li>Click Start</li>
 </ol>
-<p>The Factory Orchestrator app will start on the DUT. The Factory Orchestrator service is always running.</p>
+<p>The Factory Orchestrator app will start on the PC. If the PC has the Factory Orchestrator service running, it will automatically connect to the service. If not, you will be prompted to enter the IPv4 address of the service you wish to connect to.</p>
+<p>See <a href="../use-the-factory-orchestrator-app/">Run using the application</a> for details on how to use the app.</p>
                 
               
               
@@ -536,15 +593,15 @@ Need instructions on how to configure a device to run FO automatically</p>
       
     </div>
     
-      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
-      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.18f0862e.min.js"></script>
+      <script src="../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
           base: "..",
           features: [],
           search: Object.assign({
-            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+            worker: "../assets/javascripts/worker/search.9c0e82ba.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
