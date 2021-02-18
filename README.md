@@ -136,3 +136,5 @@ Please refer to [SECURITY.md](./SECURITY.md).
 [Pe-Utility](https://github.com/AndresTraks/pe-utility) - Andres Traks - [MIT License](https://github.com/AndresTraks/pe-utility/blob/master/LICENSE)
 
 [WindowsDevicePortalWrapper (mgurlitz .NET Standard fork)](https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard) - Microsoft Corporation and mgurlitz - [MIT License](https://github.com/mgurlitz/WindowsDevicePortalWrapper/blob/feat-standard/License.txt)
+
+[DefaultDocumentation](https://github.com/Doraku/DefaultDocumentation) - Paillat Laszlo - [MIT No Attribution License](https://github.com/Doraku/DefaultDocumentation/blob/master/LICENSE.md)
