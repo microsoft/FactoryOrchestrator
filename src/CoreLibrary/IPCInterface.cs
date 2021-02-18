@@ -370,7 +370,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         void InstallApp(string appPackagePath, List<string> dependentPackages = null, string certificateFile = null);
 
         /// <summary>
-        /// Enables local loopback on the given UWP app.
+        /// Enables local loopback on the given UWP app. Local loopback is enabled permanently for this app, persisting through reboots.
         /// </summary>
         /// <param name="aumid">The Application User Model ID (AUMID) of the app to enable local loopback on.</param>
         void EnableLocalLoopbackForApp(string aumid);
