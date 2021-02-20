@@ -12,6 +12,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Class for any cross-project constants.
     /// </summary>
+    /// <exclude/>
     public static class Constants
     {
         /// <summary>

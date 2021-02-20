@@ -4,7 +4,7 @@
 A helper class containing basic information about a TaskList. Use to quickly update clients about TaskLists and their statuses.  
 ```csharp
 public struct TaskListSummary :
-IEquatable<TaskListSummary>
+System.IEquatable<Microsoft.FactoryOrchestrator.Core.TaskListSummary>
 ```
 Implements [System.IEquatable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable')[TaskListSummary](./Microsoft-FactoryOrchestrator-Core-TaskListSummary.md 'Microsoft.FactoryOrchestrator.Core.TaskListSummary')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable')  
 ### Constructors
