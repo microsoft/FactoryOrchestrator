@@ -1,8 +1,6 @@
 #Multi-configuration and multi-agent job options are not exported to YAML. Configure these options using documentation guidance: https://docs.microsoft.com/vsts/pipelines/process/phases
 trigger:
-  tags:
-    include:
-    - OSBuild*
+- none
 pr:
 - none
 
@@ -28,13 +26,13 @@ variables:
   SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
   BuildConfiguration: 'Release'
   VPACKVERSIONBUILDIDSUFFIX: ''
-  ${{ if or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main')) }}:
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     TEMPVERSIONSUFFIX: ''
-    SKIPSIGNING: 'false'
+    SKIPSIGN: 'false'
     SKIPPUSH: 'false'
-  ${{ if not(or(startsWith(variables['Build.SourceBranchName'], 'OSBuild'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     TEMPVERSIONSUFFIX: '$(Build.SourceBranchName)'
-    SKIPSIGNING: 'true'
+    SKIPSIGN: 'true'
     SKIPPUSH: 'true'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
@@ -58,7 +56,7 @@ stages:
       - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
-      - template: ./templates/template-build-test-service.yml      
+      - template: ./templates/template-build-test-service.yml
       - task: PowerShell@2
         displayName: 'Create NET Core Test Files Zip'
         inputs:
@@ -343,16 +341,14 @@ stages:
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
             APIScan: 'true'
 
-  - stage: 'Sign_Publish_NuGet'
+  # This stage only publishes Azure DevOps pipeline artifacts. It does not release anything publicly.
+  - stage: 'Sign_Publish_NuGet_ServiceZip_Artifacts'
     dependsOn:
     - 'compliance'
     pool:
-      name: "Hosted Windows 2019 with VS2019"
-      demands:
-      - msbuild
-      - visualstudio
+      name: Package ES Standard Build
     jobs:
-      - job: Sign_Publish_NuGet
+      - job: Job_Sign_Publish_NuGet_ServiceZip_Artifacts
         steps:
         - checkout: self
           clean: true
@@ -360,6 +356,22 @@ stages:
           clean: true
         
         - template: ./templates/template-set-initial-variables.yml
+
+        # Set output variable used as condition for final stage (public release)
+        - pwsh: |
+            if ($env:SKIPPUSH -eq 'false' -or (($null -ne $env:FORCEPUSH) -and ($env:FORCEPUSH -eq $true)))
+            {
+              $vstsCommandString = "vso[task.setvariable variable=SHOULDPUSH;isOutput=true]true"
+            }
+            else
+            {
+              $vstsCommandString = "vso[task.setvariable variable=SHOULDPUSH;isOutput=true]false"
+            }
+            Write-Host "sending " + $vstsCommandString
+            Write-Host "##$vstsCommandString"
+          displayName: 'Set SHOULDPUSH Global'
+          name: SPOutput
+
         - template: ./templates/template-install-netcore.yml
         - task: NuGetToolInstaller@1
         - pwsh: |
@@ -411,26 +423,6 @@ stages:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
 
-        # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
-        - pwsh: |
-            $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
-            Write-Host "sending " + $vstsCommandString
-            Write-Host "##$vstsCommandString"
-          displayName: 'Set symbol publish variables'
-
-        # Publishes to microsoftpublicsymbols
-        - task: PublishSymbols@2
-          inputs:
-            symbolsFolder: '$(Build.ArtifactStagingDirectory)/bin/'
-            searchPattern: '**/*.pdb'
-            indexSources: 'false'
-            SymbolServerType: 'teamServices'
-            SymbolsArtifactName: 'Symbols_Release'
-            SymbolsProduct: 'FactoryOrchestrator'
-            SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
-          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-          displayName: 'publish symbols to public server'
-
         - template: ./templates/template-pack-sign-nuget.yml
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
@@ -454,97 +446,117 @@ stages:
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\Publish\Zips\'
           artifact: ServiceZips
 
-  - stage: 'Publish_vPack'
+  # This final stage publishes to NuGet.org, PowerShell Gallery, vPacks, and the public symbol server. Only run it if you want to make your build outputs public!
+  # It uses the FO-Publish-Release environment to require manual approval before running.
+  # TODO: see if we can get this to publish a GitHub release
+  - stage: 'Publish_vPack_PSGallery_NuGet_Symbols_PUBLIC'
+    condition: and(eq(stageDependencies.Sign_Publish_NuGet_ServiceZip_Artifacts.outputs['Job_Sign_Publish_NuGet_ServiceZip_Artifacts.SPOutput.SHOULDPUSH'], 'true'), succeeded())
     dependsOn:
-    - 'compliance'
+      - 'Sign_Publish_NuGet_ServiceZip_Artifacts'
     pool:
       name: Package ES Standard Build
     jobs:
-      - job: Publish_vPacks
-        steps:
-        - checkout: self
-          clean: true
+      - deployment: Job_Publish_vPack_PSGallery_NuGet_Symbols_PUBLIC
+        environment: FO-Publish-Release
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - checkout: self
+                clean: true
+              - template: ./templates/template-set-initial-variables.yml
+              - template: ./templates/template-install-netcore.yml
 
-        - template: ./templates/template-set-initial-variables.yml
-        
-        - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
-          - pwsh: |
-              $vstsCommandString = "vso[task.setvariable variable=VPACKVERSIONBUILDIDSUFFIX]$env:BUILD_BUILDID"
-              Write-Host "sending " + $vstsCommandString
-              Write-Host "##$vstsCommandString"
-            displayName: 'Set build id VPack suffix'
-        - pwsh: |
-            Get-Item -Path env:* | Sort-Object Name
-          displayName: "Print all variables"
+              - ${{ if eq(parameters.VPackVersionAppendId, true) }}:
+                - pwsh: |
+                    $vstsCommandString = "vso[task.setvariable variable=VPACKVERSIONBUILDIDSUFFIX]$env:BUILD_BUILDID"
+                    Write-Host "sending " + $vstsCommandString
+                    Write-Host "##$vstsCommandString"
+                  displayName: 'Set build id VPack suffix'
 
-        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
-          - download: 'current'
-            artifact: 'SignedBin_Windows_Release_AllPlatforms'
-            patterns: |
-              Publish/**/*
-              **/*.msixbundle
-              !**/*.pdb
-          - download: 'current'
-            artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
-            patterns: 'TestZip/*'
-        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
-        # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
-        # Useful to quickly iterate on later stages of the build.
-        # Tag the older build whose artifacts you want to use with '__testing',
-        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              source: specific
-              artifact: SignedBin_Windows_Release_AllPlatforms
-              allowFailedBuilds: true
-              allowPartiallySucceededBuilds: true
-              project: 'OneCore'
-              pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
-              path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
-              patterns: |
-                Publish/**/*
-                **/*.msixbundle
-                !**/*.pdb
-            displayName: "Download from __testing build"
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              source: specific
-              artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests
-              allowFailedBuilds: true
-              allowPartiallySucceededBuilds: true
-              project: 'OneCore'
-              pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
-              path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
-              patterns: 'TestZip/*'
-            displayName: "Download from __testing build"
+              - pwsh: |
+                  Get-Item -Path env:* | Sort-Object Name
+                displayName: "Print all variables"
+              - download: 'current'
+                artifact: 'SignedBin_Windows_Release_AllPlatforms'
+                patterns: |
+                  **/*.pdb
+                  **/*.msixbundle
+                  **/Publish/*
+              - download: 'current'
+                artifact: 'SignedNugets_Windows_Release'
+              - download: 'current'
+                artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
+                patterns: 'TestZip/*'
 
-        - task: CopyFiles@2
-          inputs:
-            sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
+              # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
+              - pwsh: |
+                  $vstsCommandString = "vso[task.setvariable variable=ArtifactServices.Symbol.AccountName]microsoftpublicsymbols"
+                  Write-Host "sending " + $vstsCommandString
+                  Write-Host "##$vstsCommandString"
+                displayName: 'Set symbol publish variables'
 
-        - template: ./templates/template-push-vpack-service.yml
-          parameters:
-            BuildConfiguration: 'Release'
-            BuildPlatform: 'x86'
-        - template: ./templates/template-push-vpack-service.yml
-          parameters:
-            BuildConfiguration: 'Release'
-            BuildPlatform: 'x64'
-        - template: ./templates/template-push-vpack-service.yml
-          parameters:
-            BuildConfiguration: 'Release'
-            BuildPlatform: 'arm'
-        - template: ./templates/template-push-vpack-service.yml
-          parameters:
-            BuildConfiguration: 'Release'
-            BuildPlatform: 'arm64'
-        - template: ./templates/template-push-vpack-other.yml
+              # Publish pdbs to microsoftpublicsymbols
+              - task: PublishSymbols@2
+                inputs:
+                  symbolsFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
+                  searchPattern: '**/*.pdb'
+                  indexSources: 'false'
+                  SymbolServerType: 'teamServices'
+                  SymbolsArtifactName: 'Symbols_Release'
+                  SymbolsProduct: 'FactoryOrchestrator'
+                  SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
+                displayName: 'publish symbols to public server'
 
-        - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-          artifact: VPackManifests
-          condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
+              # Publish PowerShell module to PowerShell Gallery with API key in secret variable OCSYM.PSGalleryApiKey
+              - pwsh: |
+                  $userModulePath = $env:PSModulePath.Split(';')[0]
+                  . robocopy /S "$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\Publish\Microsoft.FactoryOrchestrator.PowerShell" "$userModulePath\Microsoft.FactoryOrchestrator.Client"
+                  publish-module -Name "Microsoft.FactoryOrchestrator.Client" -NuGetApiKey $(OCSYM.PSGalleryApiKey) -AllowPrerelease
+                  remove-item -recurse -path "$userModulePath\Microsoft.FactoryOrchestrator.Client"
+                displayName: 'Publish PowerShell module to PSGallery'
+
+              # Publish NuGet binary & symbol packages to NuGet.org with API key in secret variable OCSYM.NuGetApiKey
+              - task: DotNetCoreCLI@2
+                displayName: 'Push Nuget Binary and Symbol Packages'
+                inputs:
+                  command: custom
+                  custom: nuget
+                  arguments: >
+                    push $(Pipeline.Workspace)\SignedNugets_Windows_Release\*.nupkg
+                    -s https://api.nuget.org/v3/index.json
+                    -k $(OCSYM.NuGetApiKey)
+
+              - task: CopyFiles@2
+                inputs:
+                  sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/Publish"
+                  targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/Publish"
+
+              # Push all vPacks
+              - template: ./templates/template-push-vpack-service.yml
+                parameters:
+                  BuildConfiguration: 'Release'
+                  BuildPlatform: 'x86'
+              - template: ./templates/template-push-vpack-service.yml
+                parameters:
+                  BuildConfiguration: 'Release'
+                  BuildPlatform: 'x64'
+              - template: ./templates/template-push-vpack-service.yml
+                parameters:
+                  BuildConfiguration: 'Release'
+                  BuildPlatform: 'arm'
+              - template: ./templates/template-push-vpack-service.yml
+                parameters:
+                  BuildConfiguration: 'Release'
+                  BuildPlatform: 'arm64'
+              - template: ./templates/template-push-vpack-other.yml
+              - pwsh: |
+                $vstsCommandString = "vso[build.addbuildtag]OfficialRelease"
+                Write-Host "sending " + $vstsCommandString
+                Write-Host "##$vstsCommandString"
+              displayName: 'Tag build as OfficialRelease'
+              - pwsh: |
+                $vstsCommandString = "vso[build.addbuildtag]$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)"
+                Write-Host "sending " + $vstsCommandString
+                Write-Host "##$vstsCommandString"
+              displayName: 'Tag build with version'

@@ -26,18 +26,15 @@ steps:
     pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest Service ${{ parameters.BuildPlatform }}'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 - task: CopyFiles@2
   displayName: 'Copy Service Manifest ${{ parameters.BuildPlatform }}'
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     Contents: 'Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
