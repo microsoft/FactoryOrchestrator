@@ -346,7 +346,10 @@ stages:
     dependsOn:
     - 'compliance'
     pool:
-      name: Package ES Standard Build
+      name: "Hosted Windows 2019 with VS2019"
+      demands:
+      - msbuild
+      - visualstudio
     jobs:
       - job: Job_Sign_Publish_NuGet_ServiceZip_Artifacts
         steps:
