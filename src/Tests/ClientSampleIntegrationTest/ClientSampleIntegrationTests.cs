@@ -92,6 +92,26 @@ namespace Microsoft.FactoryOrchestrator.Test
 
             if (_verifyPassed)
             {
+                // Get details on all failed tasks, if any.
+                var clientConnection = new FactoryOrchestratorClient(IPAddress.Parse(_serviceIp));
+                clientConnection.Connect().Wait();
+
+                string errorString = "";
+                foreach(var guid in Microsoft.FactoryOrchestrator.ClientSample.FactoryOrchestratorNETCoreClientSample.FailedRunGuids)
+                {
+                    var run = clientConnection.QueryTaskRun(guid).Result;
+                    errorString = $"{run.TaskPath} failed with status {run.TaskStatus}.";
+                    foreach(var line in run.TaskOutput)
+                    {
+                        errorString += $"\n{line}";
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(errorString))
+                {
+                    Assert.Fail(errorString);
+                }
+
                 Assert.AreEqual(result, 0);
             }
             else
