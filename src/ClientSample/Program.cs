@@ -21,6 +21,7 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
     {
         /// <summary>
         /// Gets the failed TaskRun guids. This is used for Factory Orchestrator testing only, not by this sample code.
+        /// See src\Tests\ClientSampleIntegrationTest\ClientSampleIntegrationTests.cs for details.
         /// </summary>
         /// <value>
         /// The failed run guids.
@@ -369,6 +370,7 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
                     if (task.LatestTaskRunStatus != TaskStatus.Passed)
                     {
                         // Add to FailedRunGuids. This is used for Factory Orchestrator testing only, not by this sample code.
+                        // See src\Tests\ClientSampleIntegrationTest\ClientSampleIntegrationTests.cs for details.
                         FailedRunGuids.Add((Guid)task.LatestTaskRunGuid);
                     }
                 }
