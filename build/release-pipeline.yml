@@ -554,12 +554,12 @@ stages:
                   BuildPlatform: 'arm64'
               - template: ./templates/template-push-vpack-other.yml
               - pwsh: |
-                $vstsCommandString = "vso[build.addbuildtag]OfficialRelease"
-                Write-Host "sending " + $vstsCommandString
-                Write-Host "##$vstsCommandString"
-              displayName: 'Tag build as OfficialRelease'
+                  $vstsCommandString = "vso[build.addbuildtag]OfficialRelease"
+                  Write-Host "sending " + $vstsCommandString
+                  Write-Host "##$vstsCommandString"
+                displayName: 'Tag build as OfficialRelease'
               - pwsh: |
-                $vstsCommandString = "vso[build.addbuildtag]$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)"
-                Write-Host "sending " + $vstsCommandString
-                Write-Host "##$vstsCommandString"
-              displayName: 'Tag build with version'
+                  $vstsCommandString = "vso[build.addbuildtag]$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)"
+                  Write-Host "sending " + $vstsCommandString
+                  Write-Host "##$vstsCommandString"
+                displayName: 'Tag build with version'
