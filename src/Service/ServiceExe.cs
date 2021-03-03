@@ -25,7 +25,9 @@ using System.Globalization;
 using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
-using System.Reflection.Metadata.Ecma335;
+using Microsoft.Extensions.Configuration;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -42,7 +44,24 @@ namespace Microsoft.FactoryOrchestrator.Service
     {
         public static IHost ipcHost { get; internal set; }
         private static ServiceProvider ipcSvcProvider;
-        public static readonly string ServiceLogFolder = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "FactoryOrchestrator");
+        public static string ServiceLogFolder
+        {
+            get
+            {
+                if (Environment.GetEnvironmentVariable("ProgramData") != null)
+                {
+                    return Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "FactoryOrchestrator");
+                }
+                else if (Directory.Exists("/var/log/"))
+                {
+                    return Path.Combine("/var/log/", "FactoryOrchestrator");
+                }
+                else
+                {
+                    return AppContext.BaseDirectory;
+                }
+            }
+        }
 
         public static IHost CreateHost(string[] args, bool allowNetworkAccess) =>
               Host.CreateDefaultBuilder(args)
@@ -645,8 +664,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 logFolder = Environment.ExpandEnvironmentVariables(logFolder);
                 FOService.Instance.TaskExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
 
-                // Set new value in registry
-                FOService.Instance.SetValueInRegistry(FOService.Instance._logFolderValue, logFolder, RegistryValueKind.String);
+                // Set new value in ServiceStatus file
+                FOService.Instance.FOServiceStatus.LogFolder = logFolder;
+                FOService.Instance.UpdateServiceStatusFile(FOService.Instance.FOServiceStatus);
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SetLogFolder {logFolder} {moveExistingLogs}");
             }
@@ -1377,9 +1397,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _initialTasksPathValue = @"FirstBootStateTaskListsXML";
 
         // user tasklists state registry values
-        private readonly string _firstBootCompleteValue = @"FirstBootTaskListsComplete";
         private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
-        private readonly string _firstBootStateLoadedValue = @"FirstBootStateLoaded";
 
         // PFNs for Factory Orchestrator
         private readonly string _foAppPfn = "Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe";
@@ -1389,6 +1407,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         private RegistryKey _nonMutableKey;
         private RegistryKey _volatileKey;
 
+        private readonly string _serviceStatusFilename = Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorServiceStatus.xml");
+        // Linux only. Windows uses volatile registry.
+        private readonly string _volatileServiceStatusFilename = Path.Combine(Path.GetTempPath(), "FactoryOrchestratorVolatileServiceStatus.xml");
         private FactoryOrchestratorClient _containerClient;
 
         // TaskManager_Server instances
@@ -1430,6 +1451,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </value>
         public ILogger<FOService> ServiceLogger { get; private set; }
 
+        public IConfiguration Appsettings { get; private set; }
+        public FOServiceStatus FOServiceStatus { get; private set; }
+        public FOVolatileServiceStatus FOVolatileServiceStatus { get; private set; }
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; private set;  }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
@@ -1498,9 +1522,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public static string GetOSVersionString()
         {
-            using var reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", false);
-            var version = (string)reg.GetValue("BuildLabEx");
-            return version;
+            return Environment.OSVersion.VersionString;
         }
 
         /// <summary>
@@ -1509,6 +1531,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public static string GetOEMVersionString()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException();
+            }
+
             using var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false);
             var version = (string)reg?.GetValue("OEMVersion", null);
             return version;
@@ -1595,9 +1622,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                var firstBootStateLoaded = GetValueFromRegistry(_firstBootStateLoadedValue) as int?;
-
-                if ((firstBootStateLoaded == null) || (firstBootStateLoaded == 0) || (force))
+                if (!FOServiceStatus.FirstBootStateLoaded || force)
                 {
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
@@ -1605,7 +1630,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
                     if (!File.Exists(firstBootStateTaskListPath))
                     {
-                        firstBootStateTaskListPath = GetValueFromRegistry(_initialTasksPathValue, _initialTasksDefaultPath) as string;
+                        firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
                         if (!firstBootStateTaskListPath.Equals(_initialTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
                         {
                             ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
@@ -1621,7 +1646,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileLoadSucceeded, firstBootStateTaskListPath));
                         loaded = true;
-                        SetValueInRegistry(_firstBootStateLoadedValue, 1, RegistryValueKind.DWord);
+                        FOServiceStatus.FirstBootStateLoaded = true;
+                        UpdateServiceStatusFile(FOServiceStatus);
                     }
                     else
                     {
@@ -1644,7 +1670,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             // Disable inter process communication interfaces
             _ipcCancellationToken?.Cancel();
-            _containerHeartbeatToken.Cancel();
+            _containerHeartbeatToken?.Cancel();
             _containerClient = null;
             ContainerGuid = Guid.Empty;
             ContainerIpAddress = null;
@@ -1669,6 +1695,48 @@ namespace Microsoft.FactoryOrchestrator.Service
             _mutableKey?.Close();
 
             ServiceLogger.LogInformation(Resources.ServiceStoppedWithName);
+        }
+
+        public void UpdateServiceStatusFile(object serviceStatus)
+        {
+            if (serviceStatus == null)
+            {
+                throw new ArgumentNullException(nameof(serviceStatus));
+            }
+
+            string filename = "";
+            try
+            {
+                XmlSerializer serializer;
+                if (serviceStatus is FOServiceStatus)
+                {
+                    serializer = new XmlSerializer(typeof(FOServiceStatus));
+                    filename = _serviceStatusFilename;
+                }
+                else if (serviceStatus is FOVolatileServiceStatus)
+                {
+                    serializer = new XmlSerializer(typeof(FOVolatileServiceStatus));
+                    filename = _volatileServiceStatusFilename;
+                }
+                else
+                {
+                    throw new ArgumentException(Resources.ServiceStatusTypeException, nameof(serviceStatus));
+                }
+
+                using (XmlWriter writer = new XmlTextWriter(filename, null))
+                {
+                    serializer.Serialize(writer, serviceStatus);
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is ArgumentException)
+                {
+                    throw;
+                }
+
+                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.FileSaveError, filename)} {e.Message}");
+            }
         }
 
         private void HandleTaskManagerEvent(object source, TaskManagerEventArgs e)
@@ -2247,35 +2315,78 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public void ExecuteServerBootTasks()
         {
-            // Open Registry Keys
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                _mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
-            }
-            catch (Exception)
-            {
-                // OSDATA wont exist on Desktop, just set to NULL if it fails to open
-                _mutableKey = null;
+                // Open Registry Keys
+                try
+                {
+                    _mutableKey = OpenOrCreateRegKey(RegKeyType.Mutable);
+                }
+                catch (Exception)
+                {
+                    // OSDATA wont exist on Desktop, just set to NULL if it fails to open
+                    _mutableKey = null;
+                }
+
+                try
+                {
+                    _nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogError($" {e.Message}");
+                    throw;
+                }
+
+                try
+                {
+                    _volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogError($"! {e.Message}");
+                    throw;
+                }
             }
 
-            try
+            // Load ServiceStatus files.
+            FOServiceStatus = new FOServiceStatus();
+            FOVolatileServiceStatus = new FOVolatileServiceStatus();
+
+            if (File.Exists(_serviceStatusFilename))
             {
-                _nonMutableKey = OpenOrCreateRegKey(RegKeyType.NonMutable);
-            }
-            catch (Exception e)
-            {
-                ServiceLogger.LogError($" {e.Message}");
-                throw;
+                try
+                {
+                    var deserializer = new XmlSerializer(typeof(FOServiceStatus));
+                    using (FileStream fs = new FileStream(_serviceStatusFilename, FileMode.Open))
+                    using (XmlReader reader = XmlReader.Create(fs))
+                    {
+                        FOServiceStatus = (FOServiceStatus)deserializer.Deserialize(reader);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogError($"Unable to parse {_serviceStatusFilename}. {e.Message}");
+                }
             }
 
-            try
+            // FOVolatileServiceStatus is only used on Unix systems.
+            // Windows uses a volatile registry key instead.
+            if (File.Exists(_volatileServiceStatusFilename))
             {
-                _volatileKey = OpenOrCreateRegKey(RegKeyType.Volatile);
-            }
-            catch (Exception e)
-            {
-                ServiceLogger.LogError($"! {e.Message}");
-                throw;
+                try
+                {
+                    var deserializer = new XmlSerializer(typeof(FOVolatileServiceStatus));
+                    using (FileStream fs = new FileStream(_volatileServiceStatusFilename, FileMode.Open))
+                    using (XmlReader reader = XmlReader.Create(fs))
+                    {
+                        FOVolatileServiceStatus = (FOVolatileServiceStatus)deserializer.Deserialize(reader);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ServiceLogger.LogError($"Unable to parse {_volatileServiceStatusFilename}. {e.Message}");
+                }
             }
 
             ServiceEvents = new Dictionary<ulong, ServiceEvent>();
@@ -2358,8 +2469,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                 BootTaskExecutionManager = new TaskManager(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), _firstBootTasksDefaultPath);
 
                 // Find the TaskLists XML path.
-                var firstBootTaskListPath = (string)GetValueFromRegistry(_firstBootTasksPathValue, _firstBootTasksDefaultPath);
-                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _firstBootTasksDefaultPath));
+                var firstBootTaskListPath = (string)(GetAppSetting(_firstBootTasksPathValue) ?? _firstBootTasksDefaultPath);
+                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootTaskListPath));
 
                 // Load first boot XML, even if we don't end up executing it, so it can be queried via FO APIs
                 List<Guid> firstBootTaskListGuids = new List<Guid>();
@@ -2376,8 +2487,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Check if first boot tasks were already completed
-                var firstBootTasksCompleted = GetValueFromRegistry(_firstBootCompleteValue) as int?;
-                if ((firstBootTasksCompleted == null) || (firstBootTasksCompleted == 0) || (force == true))
+                if (!FOServiceStatus.FirstBootTaskListsComplete || force)
                 {
                     firstBootTasksExecuted = true;
 
@@ -2418,15 +2528,16 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation(Resources.FirstBootComplete);
                 }
 
-                SetValueInRegistry(_firstBootCompleteValue, 1, RegistryValueKind.DWord);
+                FOServiceStatus.FirstBootTaskListsComplete = true;
+                UpdateServiceStatusFile(FOServiceStatus);
             }
 
             // Every boot tasks
             try
             {
                 // Find the TaskLists XML path.
-                var everyBootTaskListPath = (string)GetValueFromRegistry(_everyBootTasksPathValue, _everyBootTasksDefaultPath);
-                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _everyBootTasksDefaultPath));
+                var everyBootTaskListPath = (string)(GetAppSetting(_everyBootTasksPathValue) ?? _everyBootTasksDefaultPath);
+                ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, everyBootTaskListPath));
 
                 // Load every boot XML, even if we don't end up executing it, so it can be queried via FO APIs
                 List<Guid> everyBootTaskListGuids = new List<Guid>();
@@ -2443,8 +2554,17 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Check if every boot tasks were already completed
-                var everyBootTasksCompleted = GetValueFromRegistry(_everyBootCompleteValue) as int?;
-                if ((everyBootTasksCompleted == null) || (everyBootTasksCompleted == 0) || (force == true))
+                bool everyBootTasksCompleted = false;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    everyBootTasksCompleted = Convert.ToBoolean((int)_volatileKey.GetValue(_everyBootCompleteValue, 0));
+                }
+                else
+                {
+                    everyBootTasksCompleted = FOVolatileServiceStatus.EveryBootTaskListsComplete;
+                }
+
+                if (!everyBootTasksCompleted || force)
                 {
                     everyBootTasksExecuted = true;
 
@@ -2485,7 +2605,15 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation(Resources.EveryBootComplete);
                 }
 
-                _volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    _volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
+                }
+                else
+                {
+                    FOVolatileServiceStatus.EveryBootTaskListsComplete = true;
+                    UpdateServiceStatusFile(FOVolatileServiceStatus);
+                }
             }
         }
 
@@ -2562,6 +2690,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         private bool EnableUWPLocalLoopback()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return true;
+            }
+
             bool success = true;
             var loopbackEnabled = (int)_volatileKey.GetValue(_loopbackEnabledValue, 0);
             if (loopbackEnabled == 0)
@@ -2645,9 +2778,19 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         private bool LoadOEMCustomizations()
         {
+            // Look for appsettings.json
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile(Path.Combine(FOServiceExe.ServiceLogFolder, "appsettings.json"), optional: true)
+                .AddJsonFile("appsettings.json", optional: true);
+            Appsettings = builder.Build();
+
+            // Look for each setting in the registry (Windows only, OEM Customizations) or in the IConfiguration
+            // IConfiguration takes precedence
+            // If not set in either, use the default set in code below
             try
             {
-                _networkAccessDisabled = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableNetworkAccessValue)"), CultureInfo.InvariantCulture);
+                _networkAccessDisabled = Convert.ToBoolean(GetAppSetting(_disableNetworkAccessValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2656,7 +2799,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                _networkAccessEnabled = Convert.ToBoolean(GetValueFromRegistry(_enableNetworkAccessValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_enableNetworkAccessValue)"), CultureInfo.InvariantCulture);
+                _networkAccessEnabled = Convert.ToBoolean(GetAppSetting(_enableNetworkAccessValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2665,7 +2808,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableCommandPromptPage = Convert.ToBoolean(GetValueFromRegistry(_disableCmdPromptValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableCmdPromptValue)"), CultureInfo.InvariantCulture);
+                DisableCommandPromptPage = Convert.ToBoolean(GetAppSetting(_disableCmdPromptValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2674,7 +2817,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableFileTransferPage = Convert.ToBoolean(GetValueFromRegistry(_disableFileTransferValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableFileTransferValue)"), CultureInfo.InvariantCulture);
+                DisableFileTransferPage = Convert.ToBoolean(GetAppSetting(_disableFileTransferValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2683,7 +2826,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableUWPAppsPage = Convert.ToBoolean(GetValueFromRegistry(_disableUWPAppsValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableUWPAppsValue)"), CultureInfo.InvariantCulture);
+                DisableUWPAppsPage = Convert.ToBoolean(GetAppSetting(_disableUWPAppsValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2692,7 +2835,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableManageTasklistsPage = Convert.ToBoolean(GetValueFromRegistry(_disableTaskManagerValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableTaskManagerValue)"), CultureInfo.InvariantCulture);
+                DisableManageTasklistsPage = Convert.ToBoolean(GetAppSetting(_disableTaskManagerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2701,25 +2844,39 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableWindowsDevicePortalPage = Convert.ToBoolean(GetValueFromRegistry(_disableWindowsDevicePortalValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableWindowsDevicePortalValue)"), CultureInfo.InvariantCulture);
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    DisableWindowsDevicePortalPage = true;
+                }
+                else
+                {
+                    DisableWindowsDevicePortalPage = Convert.ToBoolean(GetAppSetting(_disableWindowsDevicePortalValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                }
             }
             catch (Exception)
             {
                 DisableWindowsDevicePortalPage = false;
             }
 
+            if (string.IsNullOrEmpty(FOServiceStatus.LogFolder))
+            {
+                try
+                {
+                    TaskManagerLogFolder = (string)(GetAppSetting(_logFolderValue) ?? new ArgumentNullException());
+                }
+                catch (Exception)
+                {
+                    TaskManagerLogFolder = _defaultLogFolder;
+                }
+            }
+            else
+            {
+                TaskManagerLogFolder = FOServiceStatus.LogFolder;
+            }
+            
             try
             {
-                TaskManagerLogFolder = (string)GetValueFromRegistry(_logFolderValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_logFolderValue)");
-            }
-            catch (Exception)
-            {
-                TaskManagerLogFolder = _defaultLogFolder;
-            }
-
-            try
-            {
-                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetValueFromRegistry(_runOnFirstBootValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_runOnFirstBootValue)"), CultureInfo.InvariantCulture);
+                RunInitialTaskListsOnFirstBoot = Convert.ToBoolean(GetAppSetting(_runOnFirstBootValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2728,7 +2885,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                IsContainerSupportEnabled = !Convert.ToBoolean(GetValueFromRegistry(_disableContainerValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_disableContainerValue)"), CultureInfo.InvariantCulture);
+                IsContainerSupportEnabled = Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -2743,10 +2900,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                 IsContainerSupportEnabled = false;
             }
 
-            String loopbackAppsString;
+            string loopbackAppsString;
             try
             {
-                loopbackAppsString = (string)GetValueFromRegistry(_localLoopbackAppsValue) ?? throw new ArgumentNullException("GetValueFromRegistry(_localLoopbackAppsValue)");
+                loopbackAppsString = (string)(GetAppSetting(_localLoopbackAppsValue) ?? new ArgumentNullException());
             }
             catch (Exception)
             {
@@ -2756,6 +2913,38 @@ namespace Microsoft.FactoryOrchestrator.Service
             LocalLoopbackApps = loopbackAppsString.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
             return true;
+        }
+
+        private object GetAppSetting(string name)
+        {
+            object regValue = null;
+            object appSettingsValue;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Check registry first
+                try
+                {
+                    regValue = GetValueFromRegistry(name);
+                }
+                catch (Exception)
+                {
+                    regValue = null;
+                }
+            }
+
+            // Check IConfiguration
+            try
+            {
+                appSettingsValue = Appsettings[name];
+            }
+            catch (Exception)
+            {
+                appSettingsValue = null;
+            }
+
+            // IConfiguration takes precedence over registry
+            return appSettingsValue ?? regValue;
         }
 
         private ServerTaskRun RunProcessViaCmd(string process, string args, int timeoutMS)

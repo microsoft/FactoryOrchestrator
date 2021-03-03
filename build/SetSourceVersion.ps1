@@ -10,7 +10,7 @@ Param
 $ErrorActionPreference = "stop"
 
 
-[xml]$customprops = Get-Content "$PSScriptRoot\..\src\common.props"
+[xml]$customprops = Get-Content "$PSScriptRoot/../src/common.props"
 $msbldns = "http://schemas.microsoft.com/developer/msbuild/2003"
 $ns = @{msbld = "$msbldns"}
 $assemblyVersion = Select-Xml -Xml $customprops -XPath "//msbld:VersionPrefix" -Namespace $ns | Select-Object -First 1
@@ -29,14 +29,14 @@ else
 }
 Write-Host "ProductVersion/AssemblyInformationalVersion is $productVersion"
 
-if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
+if (Test-Path -Path "$SrcPath/Properties/AssemblyInfo.cs")
 {
     Write-Host "Generating AssemblyInfo.cs for $SrcPath"
 
-    $file = Get-Item -Path "$SrcPath\Properties\AssemblyInfo.cs"
+    $file = Get-Item -Path "$SrcPath/Properties/AssemblyInfo.cs"
 
     [string]$randString = Get-Random
-    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+    $tempFile = [System.IO.Path]::GetTempPath() + "/" + $file.Name + $randString + ".tmp"
 
     Write-Host "Using temp file $tempFile"
     Write-Host "Creating assembly info file for:" $file.FullName " version:" $assemblyVersion
@@ -60,7 +60,7 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
 
     Write-Host "Sucessfully modified $tempFile"
 
-    $destDir = $file.DirectoryName + "\..\obj\"
+    $destDir = $file.DirectoryName + "/../obj/"
     $null = New-Item -Path $destDir -ItemType Directory -Force
     $destFile = $destDir + $file.Name
     $skip = $false
@@ -102,7 +102,7 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
 $psds = Get-ChildItem -Path $SrcPath -Filter "*.psd1"
 ForEach ($psd in $psds)
 {
-    $destDir = $psd.DirectoryName + "\obj\"
+    $destDir = $psd.DirectoryName + "/obj/"
     $null = New-Item -Path $destDir -ItemType Directory -Force
     $destFile = $destDir + $psd.Name
 
@@ -129,7 +129,7 @@ ForEach ($psd in $psds)
     }
 
     [string]$randString = Get-Random
-    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+    $tempFile = [System.IO.Path]::GetTempPath() + "/" + $file.Name + $randString + ".tmp"
 
     $psdContents = Get-Content $psd.FullName |
                         ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$assemblyVersion'"} |
@@ -155,7 +155,7 @@ ForEach ($appx in $appxs)
     }
 
     [string]$randString = Get-Random
-    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+    $tempFile = [System.IO.Path]::GetTempPath() + "/" + $file.Name + $randString + ".tmp"
 
     $appxContents = $currentFileContent |
                         ForEach-Object{$_ -replace 'Identity Version="[0-9,.]+?"', "Identity Version=`"$assemblyVersion.0`"" } |

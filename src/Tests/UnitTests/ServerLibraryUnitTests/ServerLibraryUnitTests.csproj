@@ -6,11 +6,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)Tests/$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ServerLibrary\Microsoft.FactoryOrchestrator.Server.csproj" />
+    <ProjectReference Include="../../../ServerLibrary/Microsoft.FactoryOrchestrator.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -28,10 +28,10 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <OutputRootPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\</OutputRootPath>
+    <OutputRootPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)/bin/</OutputRootPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(AGENT_ID)' == '' And '$(GITHUB_ACTIONS)' != 'true'">
-    <OutputRootPath>$(MSBuildThisFileDirectory)..\bin\</OutputRootPath>
+    <OutputRootPath>$(MSBuildThisFileDirectory)../bin/</OutputRootPath>
   </PropertyGroup>
 
   <!-- Add notice file to all nuget packages -->
@@ -40,7 +40,7 @@
   </PropertyGroup>
   <Target Name="IncludeNoticeInPack">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(MSBuildThisFileDirectory)..\NOTICE.txt"/>
+      <TfmSpecificPackageFile Include="$(MSBuildThisFileDirectory)../NOTICE.txt"/>
     </ItemGroup>
     <Message Text="IncludeNoticeInPack - found: @(TfmSpecificPackageFile)" Importance="High"/>
   </Target>
@@ -52,7 +52,10 @@
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>true</RunAnalyzers>
   </PropertyGroup>
-
+  <PropertyGroup>
+    <PowerShellExeName Condition="Exists('C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe') And !Exists('C:\Program Files\PowerShell\7\pwsh.exe')">powershell.exe</PowerShellExeName>
+    <PowerShellExeName Condition="'$(PowerShellExeName)' == ''">pwsh</PowerShellExeName>
+  </PropertyGroup>
   <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory).editorconfig')" >
     <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
   </ItemGroup>

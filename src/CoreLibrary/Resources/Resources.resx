@@ -465,4 +465,8 @@
     <value>Operating System does not support containers. Disabling container support.</value>
     <comment>Message shown when the operating system doesn't support containers.</comment>
   </data>
+  <data name="ServiceStatusTypeException" xml:space="preserve">
+    <value>Argument must be FOServiceStatus or FOVolatileServiceStatus object!</value>
+    <comment>Exception message when UpdateServiceStatusFile() is passed an invalid object type.</comment>
+  </data>
 </root>

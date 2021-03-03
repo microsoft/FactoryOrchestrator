@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
+  <Import Project="../common.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,11 +7,8 @@
     <TargetName>Microsoft.FactoryOrchestrator.Service</TargetName>
     <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
-    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting.Tcp\JKang.IpcServiceFramework.Hosting.Tcp.csproj" />
-    <ProjectReference Include="..\..\oss\IpcFramework\JKang.IpcServiceFramework.Hosting\JKang.IpcServiceFramework.Hosting.csproj" />
-    <ProjectReference Include="..\ServerLibrary\Microsoft.FactoryOrchestrator.Server.csproj" />
+    <ProjectReference Include="../ClientLibrary/Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="../CoreLibrary/Microsoft.FactoryOrchestrator.Core.csproj" />
+    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Hosting.Tcp/JKang.IpcServiceFramework.Hosting.Tcp.csproj" />
+    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Hosting/JKang.IpcServiceFramework.Hosting.csproj" />
+    <ProjectReference Include="../ServerLibrary/Microsoft.FactoryOrchestrator.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

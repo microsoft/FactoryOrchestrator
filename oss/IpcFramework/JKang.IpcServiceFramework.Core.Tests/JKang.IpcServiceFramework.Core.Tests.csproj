@@ -26,10 +26,7 @@
   </ItemGroup>
 
   <!-- Added for Factory Orchestrator -->
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutputPath>
+  <PropertyGroup>
+    <OutDir>$(OutputRootPath)Tests/$(Configuration)/$(Platform)/$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

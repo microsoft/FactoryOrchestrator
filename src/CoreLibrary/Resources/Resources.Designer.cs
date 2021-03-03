@@ -782,6 +782,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Argument must be FOServiceStatus or FOVolatileServiceStatus object!.
+        /// </summary>
+        public static string ServiceStatusTypeException {
+            get {
+                return ResourceManager.GetString("ServiceStatusTypeException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Service {0} stopped.
         /// </summary>
         public static string ServiceStopped {

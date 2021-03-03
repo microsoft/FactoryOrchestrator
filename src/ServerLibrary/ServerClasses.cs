@@ -79,7 +79,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (moveFiles && (LogFolder != null) && (Directory.Exists(LogFolder)))
                         {
                             // Move existing folder to temp folder
-                            var tempDir = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FOTemp");
+                            var tempDir = Path.Combine(Path.GetTempPath(), "FOTemp");
                             CopyDirectory(LogFolder, tempDir, true);
 
                             // Delete old folder
@@ -1953,11 +1953,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
-            startInfo.Environment["Path"] = Environment.GetEnvironmentVariable("Path");
+            startInfo.Environment["PATH"] = Environment.GetEnvironmentVariable("PATH");
 
             if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
             {
-                startInfo.Environment["Path"] += ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
+                startInfo.Environment["PATH"] += ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
                 startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
             }
             else
