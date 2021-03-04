@@ -57,9 +57,9 @@ $client.Connect();
 ```
 
 
-# Task, [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/), & [TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/) creation, interaction, & manipulation
-## Load [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/)s from a file, run the loaded TaskLists to completion. Then get the generated log files.
-[TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/)s defined in [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) files are a great way to organize a set of operations you want Factory Orchestrator to execute. This example shows how to load [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/)(s) from a [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) file and then run the loaded TaskLists using [LoadTaskListsFromXmlFile](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-LoadTaskListsFromXmlFile%28string%29/) and [RunTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunTaskList%28System-Guid_int%29/). It also prints high-level info about the [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) statues with [GetTaskListSummaries](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetTaskListSummaries%28%29/). Depending on the attributes defined for each [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) they may or may not run in parallel.
+# Task, [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/), & [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) creation, interaction, & manipulation
+## Load [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)s from a file, run the loaded TaskLists to completion. Then get the generated [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) log files.
+[TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)s defined in [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) files are a great way to organize a set of operations you want Factory Orchestrator to execute. This example shows how to load [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)(s) from a [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) file and then run the loaded TaskLists using [LoadTaskListsFromXmlFile](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-LoadTaskListsFromXmlFile%28string%29/) and [RunTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunTaskList%28System-Guid_int%29/). It also prints high-level info about the [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) statues with [GetTaskListSummaries](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetTaskListSummaries%28%29/). Depending on the attributes defined for each [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) they may or may not run in parallel.
 
 ```csharp
 // Assumes you have an existing FactoryOrchestratorXML file on the filesystem of the service at (string) FactoryOrchestratorXmlPath.
@@ -76,12 +76,12 @@ while ((await client.GetTaskListSummaries()).Any(x => x.IsRunningOrPending))
     await Task.Delay(2000);
 }
 
-// Copy all logs to client-side device.
+// Copy all TaskRun logs to client-side device.
 await client.GetDirectoryFromDevice(await client.GetLogFolder(), @"C:\some_folder_on_client_for_logs");
 ```
 
-## Modify an existing [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/)
-This example shows how to modify an existing [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) using [QueryTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskList%28System-Guid%29/) and [UpdateTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-UpdateTaskList%28Microsoft-FactoryOrchestrator-Core-TaskList%29/).
+## Modify an existing [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)
+This example shows how to modify an existing [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) using [QueryTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskList%28System-Guid%29/) and [UpdateTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-UpdateTaskList%28Microsoft-FactoryOrchestrator-Core-TaskList%29/).
 ```csharp
 // Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
 var taskListGuid = new Guid("34d0534b-ed09-46c2-b6bb-73cef9574944");
@@ -101,8 +101,8 @@ taskList.AllowOtherTaskListsToRun = false;
 // Update the TaskList on the service.
 await client.UpdateTaskList(taskList);
 ```
-## Get all existing TaskLists and print out information about each [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/).
-This example uses the [GetTaskListSummaries](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetTaskListSummaries%28%29/) and [QueryTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskList%28System-Guid%29/) methods print out information about running [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) instances.
+## Get all existing TaskLists and print out information about each [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/).
+This example uses the [GetTaskListSummaries](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetTaskListSummaries%28%29/) and [QueryTaskList](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskList%28System-Guid%29/) methods print out information about running [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) instances.
 
 ```csharp
 var summaries = await client.GetTaskListSummaries();
@@ -122,7 +122,7 @@ foreach (var summary in summaries)
 }
 ```
 
-## Stop executing an existing & running [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/)
+## Stop executing an existing & running [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)
 ```csharp
 // Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
 await client.AbortTaskList(new Guid("34d0534b-ed09-46c2-b6bb-73cef9574944"));
@@ -165,7 +165,7 @@ await Task.Delay(5000);
 ```
 
 ## Run a program to completion and print output to console
-This example uses the [RunExecutable](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunExecutable%28string_string_string_bool%29/)() method to run a program outside of a [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/). It then uses [QueryTaskRun](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskRun%28System-Guid%29/) to monitor the program's status.
+This example uses the [RunExecutable](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-RunExecutable%28string_string_string_bool%29/)() method to run a program outside of a [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/). It then uses [QueryTaskRun](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-QueryTaskRun%28System-Guid%29/) to monitor the program's status.
 
 ```csharp
 // Start the program
@@ -205,10 +205,10 @@ foreach ($line in $($taskRun.TaskOutput))
 }
 ```
 
-# Using [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/) instances to monitor [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) & [TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/) execution asynchronously with C# events
-The [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/) class is used to automatically poll the service for updates, and generates an [OnUpdatedObject](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-OnUpdatedObject/) event only when the chosen [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) or [TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/) object you are polling updates. It can also be used to query all TaskLists for their high-level status. [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/) objects are a good choice to asynchronously update your UI or console output.
+# Using [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/) instances to monitor [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) & [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) execution asynchronously with C# events
+The [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/) class is used to automatically poll the service for updates, and generates an [OnUpdatedObject](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-OnUpdatedObject/) event only when the chosen [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) or [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) object you are polling updates. It can also be used to query all TaskLists for their high-level status. [ServerPoller](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-ServerPoller%28System-Nullable-System-Guid-_System-Type_int_bool_int%29/) objects are a good choice to asynchronously update your UI or console output.
 
-This example uses the ServerPoller's [StartPolling](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-StartPolling%28Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient%29/) method and [OnUpdatedObject](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-OnUpdatedObject/) event to monitor TaskList and [TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/) objects.
+This example uses the ServerPoller's [StartPolling](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-StartPolling%28Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient%29/) method and [OnUpdatedObject](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller-OnUpdatedObject/) event to monitor TaskList and [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) objects.
 
 ```csharp
 object consoleLock = new object();

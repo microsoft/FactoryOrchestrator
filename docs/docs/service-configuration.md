@@ -1,5 +1,14 @@
 
 # Factory Orchestrator Service Configuration
+## Factory Orchestrator logs
+### Factory Orchestrator Service log file
+
+The service log file contains details about the operation of the Factory Orchestrator service. It is always found at `%ProgramData%\FactoryOrchestrator\FactoryOrchestratorService.log` on a device. Inspect this log for details about the service's operation.
+
+### Factory Orchestrator Task log files
+
+The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a device by default, but this location can be changed using the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
+
 ## (Optional & for advanced users only) Enable network access
 By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.
 
