@@ -666,7 +666,6 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 // Set new value in ServiceStatus file
                 FOService.Instance.FOServiceStatus.LogFolder = logFolder;
-                FOService.Instance.UpdateServiceStatusFile(FOService.Instance.FOServiceStatus);
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SetLogFolder {logFolder} {moveExistingLogs}");
             }
@@ -1350,6 +1349,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
 
         private static FOService _singleton = null;
+        private static readonly bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
         private static readonly SemaphoreSlim _containerConnectionSem = new SemaphoreSlim(1, 1);
@@ -1369,7 +1369,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Prevents service from polling container status.
         /// </summary>
         private readonly string _disableContainerValue = @"DisableContainerSupport";
-        private readonly string _loopbackEnabledValue = @"UWPLocalLoopbackEnabled";
 
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
@@ -1396,8 +1395,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
         private readonly string _initialTasksPathValue = @"FirstBootStateTaskListsXML";
 
-        // user tasklists state registry values
-        private readonly string _everyBootCompleteValue = @"EveryBootTaskListsComplete";
 
         // PFNs for Factory Orchestrator
         private readonly string _foAppPfn = "Microsoft.FactoryOrchestratorApp_8wekyb3d8bbwe";
@@ -1408,7 +1405,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private RegistryKey _volatileKey;
 
         private readonly string _serviceStatusFilename = Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorServiceStatus.xml");
-        // Linux only. Windows uses volatile registry.
+        // Unix only. Windows uses volatile registry.
         private readonly string _volatileServiceStatusFilename = Path.Combine(Path.GetTempPath(), "FactoryOrchestratorVolatileServiceStatus.xml");
         private FactoryOrchestratorClient _containerClient;
 
@@ -1531,7 +1528,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public static string GetOEMVersionString()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!_isWindows)
             {
                 throw new PlatformNotSupportedException();
             }
@@ -1647,7 +1644,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                         ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileLoadSucceeded, firstBootStateTaskListPath));
                         loaded = true;
                         FOServiceStatus.FirstBootStateLoaded = true;
-                        UpdateServiceStatusFile(FOServiceStatus);
                     }
                     else
                     {
@@ -1695,48 +1691,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             _mutableKey?.Close();
 
             ServiceLogger.LogInformation(Resources.ServiceStoppedWithName);
-        }
-
-        public void UpdateServiceStatusFile(object serviceStatus)
-        {
-            if (serviceStatus == null)
-            {
-                throw new ArgumentNullException(nameof(serviceStatus));
-            }
-
-            string filename = "";
-            try
-            {
-                XmlSerializer serializer;
-                if (serviceStatus is FOServiceStatus)
-                {
-                    serializer = new XmlSerializer(typeof(FOServiceStatus));
-                    filename = _serviceStatusFilename;
-                }
-                else if (serviceStatus is FOVolatileServiceStatus)
-                {
-                    serializer = new XmlSerializer(typeof(FOVolatileServiceStatus));
-                    filename = _volatileServiceStatusFilename;
-                }
-                else
-                {
-                    throw new ArgumentException(Resources.ServiceStatusTypeException, nameof(serviceStatus));
-                }
-
-                using (XmlWriter writer = new XmlTextWriter(filename, null))
-                {
-                    serializer.Serialize(writer, serviceStatus);
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentException)
-                {
-                    throw;
-                }
-
-                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.FileSaveError, filename)} {e.Message}");
-            }
         }
 
         private void HandleTaskManagerEvent(object source, TaskManagerEventArgs e)
@@ -2315,7 +2269,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public void ExecuteServerBootTasks()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (_isWindows)
             {
                 // Open Registry Keys
                 try
@@ -2349,29 +2303,37 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            // Load ServiceStatus files.
-            FOServiceStatus = new FOServiceStatus();
-            FOVolatileServiceStatus = new FOVolatileServiceStatus();
-
-            if (File.Exists(_serviceStatusFilename))
+            // Load ServiceStatus files or registry.
+            FOServiceStatus = FOServiceStatus.CreateOrLoad(_serviceStatusFilename, ServiceLogger);
+            FOVolatileServiceStatus = FOVolatileServiceStatus.CreateOrLoad(_volatileServiceStatusFilename, _volatileKey, ServiceLogger);
+            
+            if (_isWindows)
             {
-                try
+                // Check if this is the first time running the service after updating the service to use FOServiceStatus instead of the registry for state tracking.
+                // Move the state tracking registry values into FOServiceStatus if so.
+                RegistryKey source = null;
+                var firstBootTaskListsComplete = GetValueFromRegistry("FirstBootTaskListsComplete", null, out source) as int?;
+                if (firstBootTaskListsComplete.HasValue)
                 {
-                    var deserializer = new XmlSerializer(typeof(FOServiceStatus));
-                    using (FileStream fs = new FileStream(_serviceStatusFilename, FileMode.Open))
-                    using (XmlReader reader = XmlReader.Create(fs))
-                    {
-                        FOServiceStatus = (FOServiceStatus)deserializer.Deserialize(reader);
-                    }
+                    FOServiceStatus.FirstBootTaskListsComplete = (firstBootTaskListsComplete.Value == 0) ? false : true;
+                    source.DeleteValue("FirstBootTaskListsComplete");
                 }
-                catch (Exception e)
+
+                var firstBootStateLoaded = GetValueFromRegistry("FirstBootStateLoaded", null, out source) as int?;
+                if (firstBootStateLoaded.HasValue)
                 {
-                    ServiceLogger.LogError($"Unable to parse {_serviceStatusFilename}. {e.Message}");
+                    FOServiceStatus.FirstBootStateLoaded = (firstBootStateLoaded.Value == 0) ? false : true;
+                    source.DeleteValue("FirstBootStateLoaded");
+                }
+
+                var logFolder = GetValueFromRegistry("LogFolder", null, out source) as string;
+                if (!string.IsNullOrWhiteSpace(logFolder))
+                {
+                    FOServiceStatus.LogFolder = logFolder;
+                    source.DeleteValue("LogFolder");
                 }
             }
 
-            // FOVolatileServiceStatus is only used on Unix systems.
-            // Windows uses a volatile registry key instead.
             if (File.Exists(_volatileServiceStatusFilename))
             {
                 try
@@ -2529,7 +2491,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 FOServiceStatus.FirstBootTaskListsComplete = true;
-                UpdateServiceStatusFile(FOServiceStatus);
             }
 
             // Every boot tasks
@@ -2554,15 +2515,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Check if every boot tasks were already completed
-                bool everyBootTasksCompleted = false;
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    everyBootTasksCompleted = Convert.ToBoolean((int)_volatileKey.GetValue(_everyBootCompleteValue, 0));
-                }
-                else
-                {
-                    everyBootTasksCompleted = FOVolatileServiceStatus.EveryBootTaskListsComplete;
-                }
+                bool everyBootTasksCompleted = FOVolatileServiceStatus.EveryBootTaskListsComplete;
 
                 if (!everyBootTasksCompleted || force)
                 {
@@ -2605,15 +2558,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation(Resources.EveryBootComplete);
                 }
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    _volatileKey.SetValue(_everyBootCompleteValue, 1, RegistryValueKind.DWord);
-                }
-                else
-                {
-                    FOVolatileServiceStatus.EveryBootTaskListsComplete = true;
-                    UpdateServiceStatusFile(FOVolatileServiceStatus);
-                }
+                FOVolatileServiceStatus.EveryBootTaskListsComplete = true;
             }
         }
 
@@ -2655,10 +2600,39 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 ret = _mutableKey.GetValue(valueName);
             }
-            
+
             if ((ret == null) && (_nonMutableKey != null))
             {
                 ret = _nonMutableKey.GetValue(valueName);
+            }
+
+            if (ret == null)
+            {
+                ret = defaultValue;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Checks the given mutable and non-mutable registry keys for a given value. Mutable is always checked first.
+        /// </summary>
+        /// <returns>The value if it exists.</returns>
+        internal object GetValueFromRegistry(string valueName, object defaultValue, out RegistryKey valueSource)
+        {
+            object ret = null;
+            valueSource = null;
+
+            if (_mutableKey != null)
+            {
+                ret = _mutableKey.GetValue(valueName);
+                valueSource = _mutableKey;
+            }
+
+            if ((ret == null) && (_nonMutableKey != null))
+            {
+                ret = _nonMutableKey.GetValue(valueName);
+                valueSource = _nonMutableKey;
             }
 
             if (ret == null)
@@ -2690,14 +2664,13 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         private bool EnableUWPLocalLoopback()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!_isWindows)
             {
                 return true;
             }
 
             bool success = true;
-            var loopbackEnabled = (int)_volatileKey.GetValue(_loopbackEnabledValue, 0);
-            if (loopbackEnabled == 0)
+            if (!FOVolatileServiceStatus.LocalLoopbackEnabled)
             {
                 // Always make sure the Factory Orchestrator apps are allowed
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopback, _foAppPfn));
@@ -2740,8 +2713,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-
-                _volatileKey.SetValue(_loopbackEnabledValue, 1, RegistryValueKind.DWord);
+                FOVolatileServiceStatus.LocalLoopbackEnabled = true;
             }
 
             return success;
@@ -2844,7 +2816,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (!_isWindows)
                 {
                     DisableWindowsDevicePortalPage = true;
                 }
@@ -2858,6 +2830,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 DisableWindowsDevicePortalPage = false;
             }
 
+            // If it is set in FOServiceStatus, that means it was changed via the SetLogFolder() API, use that value.
+            // Else, check if it was set in registry or JSON file.
+            // Else, use the default folder.
             if (string.IsNullOrEmpty(FOServiceStatus.LogFolder))
             {
                 try
@@ -2892,7 +2867,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 IsContainerSupportEnabled = true;
             }
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !NativeMethods.IsApiSetImplemented("api-ms-win-containers-cmclient-l1-4-0"))
+            if (!_isWindows || !NativeMethods.IsApiSetImplemented("api-ms-win-containers-cmclient-l1-4-0"))
             {
                 // Missing required ApiSet for container support. Disable it.
                 // Currently container support is restricted to Windows.
@@ -2920,7 +2895,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             object regValue = null;
             object appSettingsValue;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (_isWindows)
             {
                 // Check registry first
                 try

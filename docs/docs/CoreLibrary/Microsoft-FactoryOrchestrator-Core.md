@@ -13,6 +13,7 @@
 - [FactoryOrchestratorXmlException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorXmlException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorXmlException')
 - [LockingList&lt;T&gt;](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;')
 - [PowerShellTask](./Microsoft-FactoryOrchestrator-Core-PowerShellTask.md 'Microsoft.FactoryOrchestrator.Core.PowerShellTask')
+- [Resources](./Microsoft-FactoryOrchestrator-Core-Resources.md 'Microsoft.FactoryOrchestrator.Core.Resources')
 - [ServiceEvent](./Microsoft-FactoryOrchestrator-Core-ServiceEvent.md 'Microsoft.FactoryOrchestrator.Core.ServiceEvent')
 - [TAEFTest](./Microsoft-FactoryOrchestrator-Core-TAEFTest.md 'Microsoft.FactoryOrchestrator.Core.TAEFTest')
 - [TaskBase](./Microsoft-FactoryOrchestrator-Core-TaskBase.md 'Microsoft.FactoryOrchestrator.Core.TaskBase')
