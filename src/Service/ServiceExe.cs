@@ -44,7 +44,10 @@ namespace Microsoft.FactoryOrchestrator.Service
     {
         public static IHost ipcHost { get; internal set; }
         private static ServiceProvider ipcSvcProvider;
-        public static string ServiceLogFolder
+        /// <summary>
+        /// Directory where service the log and TaskList XML are saved. The directory path cannot be changed by the user, unlike the TaskRun log directory (FOServiceStatus.LogFolder). Therefore it is not necessarily the directory where TaskRun logs are saved.
+        /// </summary>
+        public static string ServiceExeLogFolder
         {
             get
             {
@@ -665,7 +668,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 FOService.Instance.TaskExecutionManager.SetLogFolder(logFolder, moveExistingLogs);
 
                 // Set new value in ServiceStatus file
-                FOService.Instance.FOServiceStatus.LogFolder = logFolder;
+                FOService.Instance.ServiceStatus.LogFolder = logFolder;
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: SetLogFolder {logFolder} {moveExistingLogs}");
             }
@@ -1382,8 +1385,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
         internal readonly string _logFolderValue = @"LogFolder";
 
-        // Default log folder path
-        private readonly string _defaultLogFolder = Path.Combine(FOServiceExe.ServiceLogFolder, "Logs");
+        /// <summary>
+        /// Default TaskRun log folder path 
+        /// </summary>
+        private readonly string _defaultTaskManagerLogFolder = Path.Combine(FOServiceExe.ServiceExeLogFolder, "Logs");
 
         // Default paths in testcontent directory for user tasklists
         private readonly string _initialTasksDefaultPath = Environment.ExpandEnvironmentVariables(@"%DataDrive%\TestContent\InitialTaskLists.xml");
@@ -1404,7 +1409,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private RegistryKey _nonMutableKey;
         private RegistryKey _volatileKey;
 
-        private readonly string _serviceStatusFilename = Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorServiceStatus.xml");
+        private readonly string _serviceStatusFilename = Path.Combine(FOServiceExe.ServiceExeLogFolder, "FactoryOrchestratorServiceStatus.xml");
         // Unix only. Windows uses volatile registry.
         private readonly string _volatileServiceStatusFilename = Path.Combine(Path.GetTempPath(), "FactoryOrchestratorVolatileServiceStatus.xml");
         private FactoryOrchestratorClient _containerClient;
@@ -1438,7 +1443,6 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// The boot task execution manager.
         /// </value>
         public TaskManager BootTaskExecutionManager { get; private set; }
-        public string TaskManagerLogFolder { get; private set; }
 
         /// <summary>
         /// The service logger for FactoryOrchestrator (FOService).
@@ -1448,9 +1452,19 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </value>
         public ILogger<FOService> ServiceLogger { get; private set; }
 
+        /// <summary>
+        /// A configuration (possibly empty) of service settings that are in a well-known appsettings.json file.
+        /// Used to configure service defaults.
+        /// </summary>
         public IConfiguration Appsettings { get; private set; }
-        public FOServiceStatus FOServiceStatus { get; private set; }
-        public FOVolatileServiceStatus FOVolatileServiceStatus { get; private set; }
+        /// <summary>
+        /// A file-backed representation of key service state that persists through reboots.
+        /// </summary>
+        public FOServiceStatus ServiceStatus { get; private set; }
+        /// <summary>
+        /// A file or registry backed representation of key service state that does not persist through reboots.
+        /// </summary>
+        public FOVolatileServiceStatus VolatileServiceStatus { get; private set; }
         public Dictionary<ulong, ServiceEvent> ServiceEvents { get; private set;  }
         public ulong LastEventIndex { get; private set; }
         public DateTime LastEventTime { get; private set; }
@@ -1619,7 +1633,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                if (!FOServiceStatus.FirstBootStateLoaded || force)
+                if (!ServiceStatus.FirstBootStateLoaded || force)
                 {
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
@@ -1643,7 +1657,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                         ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FileLoadSucceeded, firstBootStateTaskListPath));
                         loaded = true;
-                        FOServiceStatus.FirstBootStateLoaded = true;
+                        ServiceStatus.FirstBootStateLoaded = true;
                     }
                     else
                     {
@@ -2304,8 +2318,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Load ServiceStatus files or registry.
-            FOServiceStatus = FOServiceStatus.CreateOrLoad(_serviceStatusFilename, ServiceLogger);
-            FOVolatileServiceStatus = FOVolatileServiceStatus.CreateOrLoad(_volatileServiceStatusFilename, _volatileKey, ServiceLogger);
+            ServiceStatus = FOServiceStatus.CreateOrLoad(_serviceStatusFilename, ServiceLogger);
+            VolatileServiceStatus = FOVolatileServiceStatus.CreateOrLoad(_volatileServiceStatusFilename, _volatileKey, ServiceLogger);
             
             if (_isWindows)
             {
@@ -2315,21 +2329,21 @@ namespace Microsoft.FactoryOrchestrator.Service
                 var firstBootTaskListsComplete = GetValueFromRegistry("FirstBootTaskListsComplete", null, out source) as int?;
                 if (firstBootTaskListsComplete.HasValue)
                 {
-                    FOServiceStatus.FirstBootTaskListsComplete = (firstBootTaskListsComplete.Value == 0) ? false : true;
+                    ServiceStatus.FirstBootTaskListsComplete = (firstBootTaskListsComplete.Value == 0) ? false : true;
                     source.DeleteValue("FirstBootTaskListsComplete");
                 }
 
                 var firstBootStateLoaded = GetValueFromRegistry("FirstBootStateLoaded", null, out source) as int?;
                 if (firstBootStateLoaded.HasValue)
                 {
-                    FOServiceStatus.FirstBootStateLoaded = (firstBootStateLoaded.Value == 0) ? false : true;
+                    ServiceStatus.FirstBootStateLoaded = (firstBootStateLoaded.Value == 0) ? false : true;
                     source.DeleteValue("FirstBootStateLoaded");
                 }
 
                 var logFolder = GetValueFromRegistry("LogFolder", null, out source) as string;
                 if (!string.IsNullOrWhiteSpace(logFolder))
                 {
-                    FOServiceStatus.LogFolder = logFolder;
+                    ServiceStatus.LogFolder = logFolder;
                     source.DeleteValue("LogFolder");
                 }
             }
@@ -2342,7 +2356,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     using (FileStream fs = new FileStream(_volatileServiceStatusFilename, FileMode.Open))
                     using (XmlReader reader = XmlReader.Create(fs))
                     {
-                        FOVolatileServiceStatus = (FOVolatileServiceStatus)deserializer.Deserialize(reader);
+                        VolatileServiceStatus = (FOVolatileServiceStatus)deserializer.Deserialize(reader);
                     }
                 }
                 catch (Exception e)
@@ -2366,27 +2380,27 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             LoadOEMCustomizations();
 
-            // Now that we know the log folder, we can create the TaskManager instance
+            // Now that we know the log folders, we can create the TaskManager instance
             try
             {
-                Directory.CreateDirectory(FOServiceExe.ServiceLogFolder);
+                Directory.CreateDirectory(FOServiceExe.ServiceExeLogFolder);
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, FOServiceExe.ServiceLogFolder)} {e.Message}");
+                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, FOServiceExe.ServiceExeLogFolder)} {e.Message}");
                 throw;
             }
             try
             {
-                Directory.CreateDirectory(TaskManagerLogFolder);
+                Directory.CreateDirectory(ServiceStatus.LogFolder);
             }
             catch (Exception e)
             {
-                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, TaskManagerLogFolder)} {e.Message}");
+                ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, ServiceStatus.LogFolder)} {e.Message}");
                 throw;
             }
 
-            _taskExecutionManager = new TaskManager(TaskManagerLogFolder, Path.Combine(FOServiceExe.ServiceLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
+            _taskExecutionManager = new TaskManager(ServiceStatus.LogFolder, Path.Combine(FOServiceExe.ServiceExeLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
             _taskExecutionManager.OnTaskManagerEvent += HandleTaskManagerEvent;
 
             if (IsContainerSupportEnabled)
@@ -2449,7 +2463,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Check if first boot tasks were already completed
-                if (!FOServiceStatus.FirstBootTaskListsComplete || force)
+                if (!ServiceStatus.FirstBootTaskListsComplete || force)
                 {
                     firstBootTasksExecuted = true;
 
@@ -2490,7 +2504,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation(Resources.FirstBootComplete);
                 }
 
-                FOServiceStatus.FirstBootTaskListsComplete = true;
+                ServiceStatus.FirstBootTaskListsComplete = true;
             }
 
             // Every boot tasks
@@ -2515,7 +2529,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Check if every boot tasks were already completed
-                bool everyBootTasksCompleted = FOVolatileServiceStatus.EveryBootTaskListsComplete;
+                bool everyBootTasksCompleted = VolatileServiceStatus.EveryBootTaskListsComplete;
 
                 if (!everyBootTasksCompleted || force)
                 {
@@ -2558,7 +2572,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     ServiceLogger.LogInformation(Resources.EveryBootComplete);
                 }
 
-                FOVolatileServiceStatus.EveryBootTaskListsComplete = true;
+                VolatileServiceStatus.EveryBootTaskListsComplete = true;
             }
         }
 
@@ -2654,7 +2668,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             bool success = true;
-            if (!FOVolatileServiceStatus.LocalLoopbackEnabled)
+            if (!VolatileServiceStatus.LocalLoopbackEnabled)
             {
                 // Always make sure the Factory Orchestrator apps are allowed
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EnablingLoopback, _foAppPfn));
@@ -2697,7 +2711,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                FOVolatileServiceStatus.LocalLoopbackEnabled = true;
+                VolatileServiceStatus.LocalLoopbackEnabled = true;
             }
 
             return success;
@@ -2737,7 +2751,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Look for appsettings.json
             var builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(Path.Combine(FOServiceExe.ServiceLogFolder, "appsettings.json"), optional: true)
+                .AddJsonFile(Path.Combine(FOServiceExe.ServiceExeLogFolder, "appsettings.json"), optional: true)
                 .AddJsonFile("appsettings.json", optional: true);
             Appsettings = builder.Build();
 
@@ -2824,20 +2838,16 @@ namespace Microsoft.FactoryOrchestrator.Service
             // If it is set in FOServiceStatus, that means it was changed via the SetLogFolder() API, use that value.
             // Else, check if it was set in registry or JSON file.
             // Else, use the default folder.
-            if (string.IsNullOrEmpty(FOServiceStatus.LogFolder))
+            if (string.IsNullOrEmpty(ServiceStatus.LogFolder))
             {
                 try
                 {
-                    TaskManagerLogFolder = (string)(GetAppSetting(_logFolderValue) ?? new ArgumentNullException());
+                    ServiceStatus.LogFolder = (string)(GetAppSetting(_logFolderValue) ?? new ArgumentNullException());
                 }
                 catch (Exception)
                 {
-                    TaskManagerLogFolder = _defaultLogFolder;
+                    ServiceStatus.LogFolder = _defaultTaskManagerLogFolder;
                 }
-            }
-            else
-            {
-                TaskManagerLogFolder = FOServiceStatus.LogFolder;
             }
             
             try

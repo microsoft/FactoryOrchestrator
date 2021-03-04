@@ -21,6 +21,9 @@ using Microsoft.Win32;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
+    /// <summary>
+    /// A file-backed representation of key service state that persists through reboots.
+    /// </summary>
     [XmlRootAttribute(ElementName = "FOServiceStatus", IsNullable = false)]
     public sealed class FOServiceStatus
     {
@@ -61,6 +64,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
         private bool _firstBootTaskListsComplete;
 
+        /// <summary>
+        /// Directory where the TaskRun logs are stored. This directory path can be changed by the user at runtime, unlike the Service log directory (FOServiceExe.ServiceExeLogFolder). Therefore it is not necessarily related to the Service log directory.
+        /// </summary>
         [XmlElement]
         public string LogFolder
         {
@@ -141,6 +147,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
     }
 
+    /// <summary>
+    /// A file or registry backed representation of key service state that does not persist through reboots.
+    /// </summary>
     [XmlRootAttribute(ElementName = "FOVolatileServiceStatus", IsNullable = false)]
     public sealed class FOVolatileServiceStatus
     {
@@ -169,6 +178,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
         private bool _everyBootTaskListsComplete;
 
+        /// <summary>
+        /// Windows only. True if UWP LocalLoopback has been enabled for the requested apps.
+        /// </summary>
         [XmlIgnore]
         public bool LocalLoopbackEnabled
         {
