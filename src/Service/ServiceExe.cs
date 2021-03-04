@@ -2594,29 +2594,13 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns>The value if it exists.</returns>
         internal object GetValueFromRegistry(string valueName, object defaultValue = null)
         {
-            object ret = null;
-
-            if (_mutableKey != null)
-            {
-                ret = _mutableKey.GetValue(valueName);
-            }
-
-            if ((ret == null) && (_nonMutableKey != null))
-            {
-                ret = _nonMutableKey.GetValue(valueName);
-            }
-
-            if (ret == null)
-            {
-                ret = defaultValue;
-            }
-
-            return ret;
+            return GetValueFromRegistry(valueName, defaultValue, out _);
         }
 
         /// <summary>
         /// Checks the given mutable and non-mutable registry keys for a given value. Mutable is always checked first.
         /// </summary>
+        /// <param name="valueSource">The key the value was found in.</param>
         /// <returns>The value if it exists.</returns>
         internal object GetValueFromRegistry(string valueName, object defaultValue, out RegistryKey valueSource)
         {
@@ -2798,7 +2782,14 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             try
             {
-                DisableUWPAppsPage = Convert.ToBoolean(GetAppSetting(_disableUWPAppsValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                if (!_isWindows)
+                {
+                    DisableUWPAppsPage = true;
+                }
+                else
+                {
+                    DisableUWPAppsPage = Convert.ToBoolean(GetAppSetting(_disableUWPAppsValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                }
             }
             catch (Exception)
             {

@@ -258,10 +258,10 @@ namespace Microsoft.FactoryOrchestrator.Service
                     switch (valueName)
                     {
                         case _everyBootCompleteValue:
-                            _volatileKey.SetValue(valueName, EveryBootTaskListsComplete);
+                            _volatileKey.SetValue(valueName, EveryBootTaskListsComplete, RegistryValueKind.DWord);
                             break;
                         case _loopbackEnabledValue:
-                            _volatileKey.SetValue(valueName, LocalLoopbackEnabled);
+                            _volatileKey.SetValue(valueName, LocalLoopbackEnabled, RegistryValueKind.DWord);
                             break;
                         default:
                             throw new ArgumentException(null, nameof(valueName));
