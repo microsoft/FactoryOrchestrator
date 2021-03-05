@@ -1,5 +1,5 @@
 
-# Get Started with Factory Orchestrator
+# Get started with Factory Orchestrator
 
 ## Install or Run the service
 **The service can be downloaded from the [GitHub releases page](https://github.com/microsoft/FactoryOrchestrator/releases).**

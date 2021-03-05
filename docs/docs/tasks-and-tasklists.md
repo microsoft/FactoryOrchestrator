@@ -1,7 +1,7 @@
 
 # Tasks and TasksLists
 
-Factory Orchestrator uses Tasks to capture a single action. Tasks can be executables, TAEF tests, UWP apps, or external tasks. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.
+Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.
 
 ## Factory Orchestrator tasks
 
@@ -70,7 +70,7 @@ Factory Orchestrator uses XML files to define TaskLists and their associated Tas
 
 The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](#managing-tasklists) section.
 
-You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
+You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your device under test. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
 
 ## Managing TaskLists
 
