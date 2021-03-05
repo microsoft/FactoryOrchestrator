@@ -133,7 +133,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             switch (Type)
             {
                 case TaskType.BatchFile:
-                    t = new BatchFileTask(Path);
+                    t = new CommandLineTask(Path);
                     t.Arguments = Arguments;
                     t.Name = Name;
                     break;

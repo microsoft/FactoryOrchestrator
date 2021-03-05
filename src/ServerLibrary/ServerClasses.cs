@@ -45,7 +45,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             _taskMapLock = new object();
             TaskListStateFile = taskListStateFile;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (_isWindows)
             {
                 _supportsWin32Gui = NativeMethods.IsApiSetImplemented("ext-ms-win-ntuser-window-l1-1-4");
             }
@@ -151,8 +151,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             var exes = Directory.EnumerateFiles(path, "*.exe", searchOption);
             var dlls = Directory.EnumerateFiles(path, "*.dll", searchOption);
-            var bats = Directory.EnumerateFiles(path, "*.bat", searchOption);
-            var cmds = Directory.EnumerateFiles(path, "*.cmd", searchOption);
+            var commands = Directory.EnumerateFiles(path, "*.bat", searchOption).Concat(Directory.EnumerateFiles(path, "*.cmd", searchOption)).Concat(Directory.EnumerateFiles(path, "*.sh", searchOption));
             var ps1s = Directory.EnumerateFiles(path, "*.ps1", searchOption);
             TaskList tests = new TaskList(path, Guid.NewGuid());
 
@@ -179,15 +178,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                 tests.Tasks.Add(task);
             }
 
-            foreach (var cmd in cmds)
+            foreach (var command in commands)
             {
-                var task = new BatchFileTask(cmd);
-                tests.Tasks.Add(task);
-            }
-
-            foreach (var bat in bats)
-            {
-                var task = new BatchFileTask(bat);
+                var task = new CommandLineTask(command);
                 tests.Tasks.Add(task);
             }
 
@@ -903,7 +896,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         taskRun.WriteLogHeader();
 
                         // Attempt to start the UWP app
-                        if ((taskRun.TaskType == TaskType.UWP) && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)))
+                        if ((taskRun.TaskType == TaskType.UWP) && (_isWindows))
                         {
                             HttpWebResponse response = null;
                             bool restFailed = false;
@@ -1000,7 +993,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                                     taskRun.TaskStatus = TaskStatus.Aborted;
 
-                                    if ((UWPTask != null) && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)))
+                                    if ((UWPTask != null) && (_isWindows))
                                     {
                                         KillAppProcess(taskRun);
                                     }
@@ -1034,7 +1027,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     {
                         // Exit the app (if desired)
                         if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
-                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
+                            _isWindows && KillAppProcess(taskRun))
                         {
                             taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.AppTerminated, taskRun.TaskPath));
                         }
@@ -1723,6 +1716,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly SemaphoreSlim _startNonParallelTaskRunLock;
         private readonly bool _supportsWin32Gui;
         private bool _isDisposed;
+        private bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         /// <summary>
         /// Tracks all the task runs that have ever occured, mapped by the task run GUID
@@ -1937,8 +1931,16 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else if (ActiveTaskRun.TaskType == TaskType.BatchFile)
             {
-                startInfo.FileName = "cmd.exe";
-                startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\" ";
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\" ";
+                }
+                else
+                {
+                    startInfo.FileName = "bash";
+                    startInfo.Arguments += $" \"{ActiveTaskRun.TaskPath}\" ";
+                }
             }
             else
             {
@@ -2552,7 +2554,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (String.IsNullOrEmpty(Path.GetDirectoryName(file)))
                 {
-                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+                    string[] paths;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';');
+                    }
+                    else
+                    {
+                        paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(':');
+                    }
+
+                    foreach (string testPath in paths)
                     {
                         string path = testPath.Trim();
                         if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))

@@ -208,7 +208,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         activeTask = new TAEFTest(TaskPathBox.Text);
                         break;
                     case TaskType.BatchFile:
-                        activeTask = new BatchFileTask(TaskPathBox.Text);
+                        activeTask = new CommandLineTask(TaskPathBox.Text);
                         break;
                     case TaskType.PowerShell:
                         activeTask = new PowerShellTask(TaskPathBox.Text);
@@ -428,7 +428,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         resourceLoader.GetString("Path");
                         break;
                     case TaskType.BatchFile:
-                        var cmd = activeTask as BatchFileTask;
+                        var cmd = activeTask as CommandLineTask;
                         TaskPathBox.Text = cmd.Path;
                         ArgumentsBox.Text = cmd.Arguments;
                         EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingCMD");

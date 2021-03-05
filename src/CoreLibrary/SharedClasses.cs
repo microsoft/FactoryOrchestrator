@@ -132,9 +132,13 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         PowerShell = 4,
         /// <summary>
+        /// The Task is a batch file or shell script.
+        /// </summary>
+        CommandLine = 5,
+        /// <summary>
         /// The Task is a Command Prompt script.
         /// </summary>
-        BatchFile = 5
+        BatchFile = CommandLine,
     }
 
 #pragma warning disable CS1591 //  Missing XML comment for publicly visible type or member
@@ -176,7 +180,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     [XmlInclude(typeof(ExternalTask))]
     [XmlInclude(typeof(TAEFTest))]
     [XmlInclude(typeof(PowerShellTask))]
-    [XmlInclude(typeof(BatchFileTask))]
+    [XmlInclude(typeof(CommandLineTask))]
     public abstract class TaskBase : NotifyPropertyChangedBase
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
@@ -810,7 +814,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             switch (run.TaskType)
             {
                 case TaskType.BatchFile:
-                    task = new BatchFileTask(run.TaskPath);
+                    task = new CommandLineTask(run.TaskPath);
                     (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
                     break;
                 case TaskType.Executable:
@@ -1025,25 +1029,25 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// An BatchFile is a .cmd or .bat script that is run by the FactoryOrchestratorServer. The exit code of the script determines if the task passed or failed.
+    /// An CommandLineTask is a .cmd, .bat, or .sh script. This is known as a Batch file on Windows and a Shell script on Linux. The exit code of the script determines if the task passed or failed.
     /// 0 == PASS, all others == FAIL.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class BatchFileTask : ExecutableTask
+    public class CommandLineTask : ExecutableTask
     {
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 
-        private BatchFileTask() : base(null, TaskType.BatchFile)
+        private CommandLineTask() : base(null, TaskType.BatchFile)
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BatchFileTask"/> class.
+        /// Initializes a new instance of the <see cref="CommandLineTask"/> class.
         /// </summary>
         /// <param name="scriptPath">The script path.</param>
-        public BatchFileTask(string scriptPath) : base(scriptPath, TaskType.BatchFile)
+        public CommandLineTask(string scriptPath) : base(scriptPath, TaskType.BatchFile)
         {
             _scriptPath = scriptPath;
         }

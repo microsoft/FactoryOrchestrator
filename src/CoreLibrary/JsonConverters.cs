@@ -47,7 +47,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                 case TaskType.PowerShell:
                     return JsonConvert.DeserializeObject<PowerShellTask>(jo.ToString());
                 case TaskType.BatchFile:
-                    return JsonConvert.DeserializeObject<BatchFileTask>(jo.ToString());
+                    return JsonConvert.DeserializeObject<CommandLineTask>(jo.ToString());
                 default:
                     throw new FactoryOrchestratorException(Resources.TaskBaseDeserializationException);
             }
@@ -98,7 +98,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     serializer.Serialize(writer, value, typeof(PowerShellTask));
                     break;
                 case TaskType.BatchFile:
-                    serializer.Serialize(writer, value, typeof(BatchFileTask));
+                    serializer.Serialize(writer, value, typeof(CommandLineTask));
                     break;
                 default:
                     throw new FactoryOrchestratorException(Resources.TaskBaseSerializationException);

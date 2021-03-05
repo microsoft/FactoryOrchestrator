@@ -756,6 +756,22 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
+        public PlatformID GetOSPlatform()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetOSPlatform");
+                var platform = Environment.OSVersion.Platform;
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetOSPlatform");
+                return platform;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw;
+            }
+        }
+
         public string GetOEMVersionString()
         {
             try
@@ -1387,7 +1403,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _servicePortValue = "NetworkPort";
 
         /// <summary>
-        /// Default TaskRun log folder path 
+        /// Default TaskRun log folder path
         /// </summary>
         private readonly string _defaultTaskManagerLogFolder = Path.Combine(FOServiceExe.ServiceExeLogFolder, "Logs");
 
@@ -2321,7 +2337,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Load ServiceStatus files or registry.
             ServiceStatus = FOServiceStatus.CreateOrLoad(_serviceStatusFilename, ServiceLogger);
             VolatileServiceStatus = FOVolatileServiceStatus.CreateOrLoad(_volatileServiceStatusFilename, _volatileKey, ServiceLogger);
-            
+
             if (_isWindows)
             {
                 // Check if this is the first time running the service after updating the service to use FOServiceStatus instead of the registry for state tracking.

@@ -1,7 +1,7 @@
 #### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ## Microsoft.FactoryOrchestrator.Core Namespace
 ### Classes
-- [BatchFileTask](./Microsoft-FactoryOrchestrator-Core-BatchFileTask.md 'Microsoft.FactoryOrchestrator.Core.BatchFileTask')
+- [CommandLineTask](./Microsoft-FactoryOrchestrator-Core-CommandLineTask.md 'Microsoft.FactoryOrchestrator.Core.CommandLineTask')
 - [ExecutableTask](./Microsoft-FactoryOrchestrator-Core-ExecutableTask.md 'Microsoft.FactoryOrchestrator.Core.ExecutableTask')
 - [ExternalTask](./Microsoft-FactoryOrchestrator-Core-ExternalTask.md 'Microsoft.FactoryOrchestrator.Core.ExternalTask')
 - [FactoryOrchestratorContainerDisabledException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerDisabledException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerDisabledException')
@@ -13,7 +13,6 @@
 - [FactoryOrchestratorXmlException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorXmlException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorXmlException')
 - [LockingList&lt;T&gt;](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;')
 - [PowerShellTask](./Microsoft-FactoryOrchestrator-Core-PowerShellTask.md 'Microsoft.FactoryOrchestrator.Core.PowerShellTask')
-- [Resources](./Microsoft-FactoryOrchestrator-Core-Resources.md 'Microsoft.FactoryOrchestrator.Core.Resources')
 - [ServiceEvent](./Microsoft-FactoryOrchestrator-Core-ServiceEvent.md 'Microsoft.FactoryOrchestrator.Core.ServiceEvent')
 - [TAEFTest](./Microsoft-FactoryOrchestrator-Core-TAEFTest.md 'Microsoft.FactoryOrchestrator.Core.TAEFTest')
 - [TaskBase](./Microsoft-FactoryOrchestrator-Core-TaskBase.md 'Microsoft.FactoryOrchestrator.Core.TaskBase')
