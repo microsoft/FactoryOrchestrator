@@ -66,8 +66,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateHost(string[] args, bool allowNetworkAccess) =>
-              Host.CreateDefaultBuilder(args)
+        public static IHost CreateHost(bool allowNetworkAccess, int port) =>
+              Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
                       services.AddScoped<IFactoryOrchestratorService, FOCommunicationHandler>();
@@ -80,7 +80,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                           builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
                           {
                               options.IpEndpoint = IPAddress.Any;
-                              options.Port = 45684;
+                              options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
                           });
@@ -90,7 +90,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                           builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
                           {
                               options.IpEndpoint = IPAddress.Loopback;
-                              options.Port = 45684;
+                              options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
                           });
@@ -1384,6 +1384,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _localLoopbackAppsValue = @"AllowedLocalLoopbackApps";
         private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
         internal readonly string _logFolderValue = @"LogFolder";
+        private readonly string _servicePortValue = "NetworkPort";
 
         /// <summary>
         /// Default TaskRun log folder path 
@@ -1474,7 +1475,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableManageTasklistsPage { get; private set; }
         public bool DisableFileTransferPage { get; private set; }
         public bool IsNetworkAccessEnabled { get => _networkAccessEnabled && !_networkAccessDisabled; }
-        public int ServiceNetworkPort { get; private set; }
+        public int NetworkPort { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
         public bool IsContainerSupportEnabled { get; private set; }
 
@@ -1598,8 +1599,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            // Start IPC server on port 45684. Only start after all boot tasks are complete.
-            FOServiceExe.ipcHost = FOServiceExe.CreateHost(null, IsNetworkAccessEnabled);
+            // Start IPC server on desired port. Only start after all boot tasks are complete.
+            FOServiceExe.ipcHost = FOServiceExe.CreateHost(IsNetworkAccessEnabled, NetworkPort);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -1951,7 +1952,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     if ((_containerClient == null || !_containerClient.IsConnected))
                     {
-                        _containerClient = new FactoryOrchestratorClient(ContainerIpAddress, ServiceNetworkPort);
+                        _containerClient = new FactoryOrchestratorClient(ContainerIpAddress, NetworkPort);
                         try
                         {
                             await _containerClient.Connect();
@@ -2370,7 +2371,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             LastEventTime = DateTime.MinValue;
             LocalLoopbackApps = new List<string>();
             IsExecutingBootTasks = true;
-            ServiceNetworkPort = 45684;
             _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
 
             ContainerGuid = Guid.Empty;
@@ -2859,21 +2859,23 @@ namespace Microsoft.FactoryOrchestrator.Service
                 RunInitialTaskListsOnFirstBoot = false;
             }
 
-            try
-            {
-                IsContainerSupportEnabled = Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
-            }
-            catch (Exception)
-            {
-                IsContainerSupportEnabled = true;
-            }
-
             if (!_isWindows || !NativeMethods.IsApiSetImplemented("api-ms-win-containers-cmclient-l1-4-0"))
             {
                 // Missing required ApiSet for container support. Disable it.
                 // Currently container support is restricted to Windows.
                 ServiceLogger.LogInformation(Resources.ContainerSupportNotPresent);
                 IsContainerSupportEnabled = false;
+            }
+            else
+            {
+                try
+                {
+                    IsContainerSupportEnabled = Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                }
+                catch (Exception)
+                {
+                    IsContainerSupportEnabled = true;
+                }
             }
 
             string loopbackAppsString;
@@ -2888,6 +2890,16 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             LocalLoopbackApps = loopbackAppsString.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
+
+            try
+            {
+                NetworkPort = Convert.ToInt32(GetAppSetting(_servicePortValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                NetworkPort = 45684;
+            }
+
             return true;
         }
 
@@ -2898,7 +2910,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             if (_isWindows)
             {
-                // Check registry first
+                // Check registry
                 try
                 {
                     regValue = GetValueFromRegistry(name);
@@ -2909,7 +2921,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
-            // Check IConfiguration
+            // Check IConfiguration (appsettings.json)
             try
             {
                 appSettingsValue = Appsettings[name];
