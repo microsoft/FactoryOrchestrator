@@ -1916,15 +1916,22 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else if (ActiveTaskRun.TaskType == TaskType.PowerShell)
             {
-                if (FindFileInPath("pwsh.exe") != "pwsh.exe")
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    // pwsh.exe (PowerShell Core 6, PowerShell 7+) is installed on the system, use it
-                    startInfo.FileName = "pwsh.exe";
+                    if (FindFileInPath("pwsh.exe") != "pwsh.exe")
+                    {
+                        // pwsh.exe (PowerShell Core 6, PowerShell 7+) is installed on the system, use it
+                        startInfo.FileName = "pwsh.exe";
+                    }
+                    else
+                    {
+                        // Assume legacy powershell.exe is present. If it isn't, StartProcess() will fail gracefully.
+                        startInfo.FileName = "powershell.exe";
+                    }
                 }
                 else
                 {
-                    // Assume legacy powershell.exe is present. If it isn't, StartProcess() will fail gracefully.
-                    startInfo.FileName = "powershell.exe";
+                    startInfo.FileName = "pwsh";
                 }
 
                 startInfo.Arguments += $"-NonInteractive -File \"{ActiveTaskRun.TaskPath}\" ";
