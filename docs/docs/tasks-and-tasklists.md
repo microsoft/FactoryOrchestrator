@@ -1,7 +1,7 @@
 
 # Tasks and TasksLists
 
-Factory Orchestrator uses Tasks to capture a single action. Tasks can be executables, TAEF tests, UWP apps, or external tasks. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.
+Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
 
 ## Factory Orchestrator tasks
 
@@ -60,17 +60,17 @@ BackgroundTasks are defined the exactly the same as a normal Task with the follo
 
 When editing a task from the Factory Orchestrator app, you can choose the option of making the task a background task by choosing the "Add as background task?" option.
 
-Once you've run a task, the Factory Orchestrator service creates a **[TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/)** that is the output and results of the task, as well as other details about the task such as runtime.
+Once you've run a task, the Factory Orchestrator service creates a **[TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)** that is the output and results of the task, as well as other details about the task such as runtime.
 
 # Author and manage Factory Orchestrator TaskLists
 
-You can define a collection of tasks in a **[TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.
+You can define a collection of tasks in a **[TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.
 
 Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
 
 The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](#managing-tasklists) section.
 
-You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
+You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your device under test. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
 
 ## Managing TaskLists
 
@@ -96,7 +96,7 @@ The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create,
 
 - **Choose individual files to add to a TaskList**
 
-    Use `Create new TaskList` to create a new [TaskList](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/) where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.
+    Use `Create new TaskList` to create a new [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.
 
     ![Create new TaskList button](./images/create-new-tasklist.png)
 
@@ -191,7 +191,7 @@ When Factory Orchestrator is running these tasks, you'll see a warning in the Fa
 - The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any `<Tasks>` defined in the relevant *BootTasks.xml files are done executing.
 - **DO NOT use External or UWP Tasks in these files**, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client.
 - While you can author normal `<Tasks>` in the *BootTasks.xml files, `<BackgroundTasks>` are very useful for the FirstBootTasks and EveryBootTasks XML files, as you can define `<BackgroundTasks>` which start on boot, aren't expected to ever exit, and will run in the background forever (provided `TerminateBackgroundTasksOnCompletion="false"`).
-- You can inspect the [FactoryOrchestrator log files](index.md#factory-orchestrator-logs) for details about the execution of these special FactoryOrchestratorXML files.
+- You can inspect the [FactoryOrchestrator log files](service-configuration.md#factory-orchestrator-logs) for details about the execution of these special FactoryOrchestratorXML files.
 
 ## Factory Orchestrator XML Schema
 
@@ -302,7 +302,7 @@ A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executab
 | MaxNumberOfRetries     | Int          | N            | The number of times the Task should automatically be re-run if it completes in a failed state (Aborted/Failed/Timeout). Defaults to "0" (do not retry).<br><br>For example, if this is set to "2", the Task could be run up to 3 times automatically.                                                                         |
 | AbortTaskListOnFailed  | Bool         | N            | If "true", if the Task is run during a TaskList and the Task fails (Aborted/Failed/Timeout), the TaskList is aborted in its current state. Any other pending or running Tasks will be aborted.<br><br>This action takes place after any re-runs specified by [MaxNumberOfRetries](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-MaxNumberOfRetries/).<br><br>While allowed, it is not recommended to use this for "RunInParallel" TaskLists, as the execution order of such a TaskList is not guaranteed, and Tasks may be aborted mid-execution.                                    |
 | TerminateOnCompleted   | Bool         | N            | By default, an app is terminated when the [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) completes. Set to false to not terminate after a [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) completes.  TerminateOnCompleted is ignored if AutoPassedIfLaunched=`true` |
-| AutoPassedIfLaunched   | Bool         | N            | By default, a [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) waits for its [TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/) to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched. |
+| AutoPassedIfLaunched   | Bool         | N            | By default, a [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) waits for its [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched. |
 
 #### Path definitions
 

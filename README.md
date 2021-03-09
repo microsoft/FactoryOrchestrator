@@ -2,13 +2,7 @@
 
  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)
 
-Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
-
-Factory Orchestrator consists of two components:
-
-* A .NET Core system service (Microsoft.FactoryOrchestrator.Service.exe): The service tracks task information, including unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure. It also provides a [robust API surface](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/) for clients on the same device and/or over a network to monitor & interact with the service via C# .NET, C# UWP, or PowerShell code. 
-
-* [A UWP app](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/): Communicates with the service to monitor & run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional; the service does not depend on the app.
+Built to allow device manufacturers and developers to focus more on their validation and calibration software, and less on how to run, audit, and manage the lifecycle of their programs, Factory Orchestrator is a .NET Core cross-platform system service for organizing, executing, and logging a set of executable scripts, binaries, or ["Tasks"](https://microsoft.github.io/FactoryOrchestrator/tasks-and-tasklists/) on a system. Factory Orchestrator tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to system failure. Factory Orchestrator also provides an optional [client app](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/) for Windows and a [robust client API surface](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/) for clients to monitor & interact with the service via the App or C# .NET, C# UWP, or PowerShell code. The app and and any other client can communicate with any Factory Orchestrator service running on the same system and/or over a network to a remote [device under test (DUT)](https://en.wikipedia.org/wiki/Device_under_test)!
 
 Learn more about this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/).
 

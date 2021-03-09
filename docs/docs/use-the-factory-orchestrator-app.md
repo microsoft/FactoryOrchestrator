@@ -27,7 +27,7 @@ A 'Re-run' button will also appear next to a Task if the TaskList is done execut
 
 ![Results of an aborted running TaskList](./images/re-run-task.png)
 
-If you click on a Task, the results page will load and show you the status of the latest "run" ([TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/)) of that Task, including the any output of the Task. The results page also allows you to see the log file path for that run. You can also use the buttons at the top of the page to view older or newer runs of the Task, provided it has been run multiple times.
+If you click on a Task, the results page will load and show you the status of the latest "run" ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)) of that Task, including the any output of the Task. The results page also allows you to see the log file path for that run. You can also use the buttons at the top of the page to view older or newer runs of the Task, provided it has been run multiple times.
 
 ![Clicking on a Task that has run](./images/test-results.png)
 

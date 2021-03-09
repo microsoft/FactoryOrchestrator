@@ -3,7 +3,7 @@ The Factory Orchestrator service, Microsoft.FactoryOrchestrator.Service.exe, pro
 
 All [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/) and FactoryOrchestratorUWPClient C# (.NET and UWP) API calls are [asynchronous](https://docs.microsoft.com/dotnet/csharp/async).
 
-You can see [the full API reference for the Microsoft.FactoryOrchestrator.Client here](../ClientLibrary/Microsoft-FactoryOrchestrator-Client). You can also see [the Microsoft.FactoryOrchestrator.Core reference here](../CoreLibrary/Microsoft-FactoryOrchestrator-Core). The CoreLibrary contains class definitions for objects some client APIs return, such as [TaskRun](../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/) instances.
+You can see [the full API reference for the Microsoft.FactoryOrchestrator.Client namespace here](../ClientLibrary/Microsoft-FactoryOrchestrator-Client). You can also see [the Microsoft.FactoryOrchestrator.Core namespace reference here](../CoreLibrary/Microsoft-FactoryOrchestrator-Core). The FactoryOrchestrator.Core namespace contains class definitions for objects some client APIs use and/or return, such as [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) instances.
 
 **See [Factory Orchestrator API usage samples](../factory-orchestrator-client-usage-samples) for code snippets that show how to perform various activities using the Factory Orchestrator client APIs.**
 
