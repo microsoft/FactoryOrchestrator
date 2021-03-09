@@ -1,7 +1,7 @@
 
 # Tasks and TasksLists
 
-Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.
+Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
 
 ## Factory Orchestrator tasks
 
