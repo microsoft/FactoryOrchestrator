@@ -198,58 +198,9 @@
       
     
     
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        Overview
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
     <a href="." class="md-nav__link md-nav__link--active">
       Overview
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#factory-orchestrator-logs" class="md-nav__link">
-    Factory Orchestrator logs
-  </a>
-  
-    <nav class="md-nav" aria-label="Factory Orchestrator logs">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#factory-orchestrator-service-log-file" class="md-nav__link">
-    Factory Orchestrator Service log file
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#factory-orchestrator-task-log-files" class="md-nav__link">
-    Factory Orchestrator Task log files
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
     
   </li>
 
@@ -367,41 +318,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#factory-orchestrator-logs" class="md-nav__link">
-    Factory Orchestrator logs
-  </a>
-  
-    <nav class="md-nav" aria-label="Factory Orchestrator logs">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#factory-orchestrator-service-log-file" class="md-nav__link">
-    Factory Orchestrator Service log file
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#factory-orchestrator-task-log-files" class="md-nav__link">
-    Factory Orchestrator Task log files
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -418,24 +334,10 @@
                 
                 
                 <h1 id="factory-orchestrator">Factory Orchestrator</h1>
-<p>Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor, Factory Orchestrator can be used during OS and hardware development to support various developer inner-loop and diagnostics activities.</p>
-<p>Factory Orchestrator consists of two components:</p>
-<ul>
-<li>
-<p>A .NET Core system service (Microsoft.FactoryOrchestrator.Service.exe): The service tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to client failure. It also provides a robust API surface for clients to monitor &amp; interact with the service via C# .NET, C# UWP, or PowerShell code. </p>
-</li>
-<li>
-<p>A UWP app: Communicates with the service to monitor &amp; run executable tasks and commands on a device under test (DUT). This app can communicate with the service running on the same device and/or over a network. The app is optional, the service does not depend on the app.</p>
-</li>
-</ul>
+<p>Built to allow device manufacturers and developers to focus more on their validation and calibration software, and less on how to run, audit, and manage the lifecycle of their programs, Factory Orchestrator is a .NET Core cross-platform system service for organizing, executing, and logging a set of executable scripts, binaries, or <a href="tasks-and-tasklists/">"Tasks"</a> on a system. Factory Orchestrator tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to system failure. Factory Orchestrator also provides an optional <a href="use-the-factory-orchestrator-app/">client app</a> for Windows and a <a href="use-the-factory-orchestrator-api/">robust client API surface</a> for clients to monitor &amp; interact with the service via the App or C# .NET, C# UWP, or PowerShell code. The app and and any other client can communicate with any Factory Orchestrator service running on the same system and/or over a network to a remote <a href="https://en.wikipedia.org/wiki/Device_under_test">device under test (DUT)</a>!</p>
+<p>Factory Orchestrator is a simple and reliable way to run validation or calibration software on your device under test on a manufacturing line. Factory Orchestrator makes auditing and fault analysis simple by providing durable and easily identifiable 'per run' results and logs. Beyond the factory floor, Factory Orchestrator can be used during device development to support various developer inner-loop and diagnostics activities enabling further reuse of collateral created and leveraged across the full device manufacturing lifecycle.</p>
 <p>Tasks are used to capture actions that the server can execute, and TaskLists are used to organize and manage these Tasks. Learn more about <a href="tasks-and-tasklists/">Tasks and Tasklists</a>.</p>
-<p>See <a href="get-started-with-factory-orchestrator/">Getting started with Factory Orchestrator</a> for details on how to install and run the app and/or service.</p>
-<h2 id="factory-orchestrator-logs">Factory Orchestrator logs</h2>
-<p>By default, the Factory Orchestrator Service generates log files in the following location on the device: <code>%ProgramData%\FactoryOrchestrator</code>.</p>
-<h3 id="factory-orchestrator-service-log-file">Factory Orchestrator Service log file</h3>
-<p>The service log file contains details about the operation of the Factory Orchestrator service. It is always found at <code>%ProgramData%\FactoryOrchestrator\FactoryOrchestratorService.log</code> on a device. Inspect this log for details about the service's operation.</p>
-<h3 id="factory-orchestrator-task-log-files">Factory Orchestrator Task log files</h3>
-<p>The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task (<a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a>). The files are saved to <code>%ProgramData%\FactoryOrchestrator\Logs\</code> on a device by default, but this location can be changed using the <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a>.<a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/">SetLogFolder</a>() API. Use the <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a>.<a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/">GetLogFolder</a>() API to programmatically retrieve the log folder.</p>
+<p>See <a href="get-started-with-factory-orchestrator/">Get started with Factory Orchestrator</a> for details on how to install and run the app and/or service.</p>
                 
                   
                 

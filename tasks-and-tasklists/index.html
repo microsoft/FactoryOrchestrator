@@ -418,7 +418,7 @@
                 
                 
                 <h1 id="tasks-and-taskslists">Tasks and TasksLists</h1>
-<p>Factory Orchestrator uses Tasks to capture a single action. Tasks can be executables, TAEF tests, UWP apps, or external tasks. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured run in series, parallel, or in the background.</p>
+<p>Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured to run in series, parallel, or in the background.</p>
 <h2 id="factory-orchestrator-tasks">Factory Orchestrator tasks</h2>
 <h2 id="task-types">Task types</h2>
 <p>Factory Orchestrator TaskLists allow adding different types of tasks:</p>
@@ -464,12 +464,12 @@
 <li><a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/">BackgroundTasks</a> cannot have Timeout or <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-MaxNumberOfRetries/">MaxNumberOfRetries</a> set</li>
 </ul>
 <p>When editing a task from the Factory Orchestrator app, you can choose the option of making the task a background task by choosing the "Add as background task?" option.</p>
-<p>Once you've run a task, the Factory Orchestrator service creates a <strong><a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a></strong> that is the output and results of the task, as well as other details about the task such as runtime.</p>
+<p>Once you've run a task, the Factory Orchestrator service creates a <strong><a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a></strong> that is the output and results of the task, as well as other details about the task such as runtime.</p>
 <h1 id="author-and-manage-factory-orchestrator-tasklists">Author and manage Factory Orchestrator TaskLists</h1>
-<p>You can define a collection of tasks in a <strong><a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a></strong>. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.</p>
+<p>You can define a collection of tasks in a <strong><a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a></strong>. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.</p>
 <p>Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.</p>
 <p>The XML can either be hand-authored; or authored, imported, and/or exported using the <a href="#managing-tasklists">Factory Orchestrator app's "Manage TaskLists"</a> section.</p>
-<p>You can get started with Factory Orchestrator by using the <strong>Manage TaskLists</strong> screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your hardware. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See <a href="#managing-tasklists">Managing TaskLists</a> below.</p>
+<p>You can get started with Factory Orchestrator by using the <strong>Manage TaskLists</strong> screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your device under test. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See <a href="#managing-tasklists">Managing TaskLists</a> below.</p>
 <h2 id="managing-tasklists">Managing TaskLists</h2>
 <p>Use the Factory Orchestrator app to manage a TaskList. TaskLists can be made up from a combination of the different task types. You can choose whether the tasks in the TaskList will be run one-at-a-time (series), or in parallel.</p>
 <p>When you run Factory Orchestrator, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app won't show any TaskLists. Once you create a TaskList, it will show on this screen.</p>
@@ -486,7 +486,7 @@
 </li>
 <li>
 <p><strong>Choose individual files to add to a TaskList</strong></p>
-<p>Use <code>Create new TaskList</code> to create a new <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.</p>
+<p>Use <code>Create new TaskList</code> to create a new <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.</p>
 <p><img alt="Create new TaskList button" src="../images/create-new-tasklist.png" /></p>
 </li>
 <li>
@@ -585,7 +585,7 @@
 <li>The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any <code>&lt;Tasks&gt;</code> defined in the relevant *BootTasks.xml files are done executing.</li>
 <li><strong>DO NOT use External or UWP Tasks in these files</strong>, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client.</li>
 <li>While you can author normal <code>&lt;Tasks&gt;</code> in the *BootTasks.xml files, <code>&lt;BackgroundTasks&gt;</code> are very useful for the FirstBootTasks and EveryBootTasks XML files, as you can define <code>&lt;BackgroundTasks&gt;</code> which start on boot, aren't expected to ever exit, and will run in the background forever (provided <code>TerminateBackgroundTasksOnCompletion="false"</code>).</li>
-<li>You can inspect the <a href="..#factory-orchestrator-logs">FactoryOrchestrator log files</a> for details about the execution of these special FactoryOrchestratorXML files.</li>
+<li>You can inspect the <a href="../service-configuration/#factory-orchestrator-logs">FactoryOrchestrator log files</a> for details about the execution of these special FactoryOrchestratorXML files.</li>
 </ul>
 <h2 id="factory-orchestrator-xml-schema">Factory Orchestrator XML Schema</h2>
 <p>When hand-authoring FactoryOrchestratorXML files, you'll need to follow the FactoryOrchestratorXML schema. At the end of this topic, we've also provided a <a href="#sample-factory-orchestrator-xml-file">sample FactoryOrchestratorXML file</a>:</p>
@@ -776,7 +776,7 @@
 <td>AutoPassedIfLaunched</td>
 <td>Bool</td>
 <td>N</td>
-<td>By default, a <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/">UWPTask</a> waits for its <a href="../CoreLibrary/CoreLibrary\Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a> to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched.</td>
+<td>By default, a <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/">UWPTask</a> waits for its <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a> to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched.</td>
 </tr>
 </tbody>
 </table>
