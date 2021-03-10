@@ -1824,8 +1824,8 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (string.IsNullOrEmpty(_globalTeExePath))
                 {
-                    // Default TAEF (TE.exe) path.
-                    return Environment.ExpandEnvironmentVariables(@"%SystemDrive%\taef\te.exe");
+                    // Default TAEF (TE.exe) path, will use %PATH% var to find te.exe
+                    return "te.exe";
                 }
                 else
                 {
