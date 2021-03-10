@@ -38,15 +38,30 @@ variables:
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
 stages:
-  - stage: 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
-    pool:
-      name: "Hosted Windows 2019 with VS2019"
-      demands:
-      - msbuild
-      - visualstudio
-
+  - stage: 'Build_Test_FactoryOrchestrator_AnyCPU'
     jobs:
+    - job: "Build_Test_FactoryOrchestrator_Linux"
+      pool:
+        vmImage: 'ubuntu-20.04'
+      variables:
+        BuildPlatform: 'AnyCPU'
+        BuildConfiguration: 'Release'
+        FORepoRoot: '$(Build.SourcesDirectory)'
+      steps:
+      - checkout: self
+      - template: ./template-set-build-version.yml
+      - template: ./template-install-netcore.yml
+      - pwsh: |
+          Get-Item -Path env:* | Sort-Object Name
+        displayName: "Print all variables"
+      # Build & Test (Linux)
+      - template: ./template-build-test-service.yml
     - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
+      pool:
+        name: "Hosted Windows 2019 with VS2019"
+        demands:
+        - msbuild
+        - visualstudio
       variables:
         BuildPlatform: 'AnyCPU'
       steps:
@@ -123,7 +138,7 @@ stages:
 
   - stage: 'Build_Test_FactoryOrchestrator_Windows_Apps'
     dependsOn:
-    - 'Build_Test_FactoryOrchestrator_Windows_AnyCPU'
+    - 'Build_Test_FactoryOrchestrator_AnyCPU'
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:

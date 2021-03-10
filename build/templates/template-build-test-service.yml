@@ -9,7 +9,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
-    arguments: '--configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Diagnostic $(VERSIONSUFFIXDOTNET)'
+    arguments: '--configuration $(BuildConfiguration) --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\Hosted$(Agent.OS)_$(BuildConfiguration)_AnyCPU_MsBuild.log;Verbosity=Diagnostic $(VERSIONSUFFIXDOTNET)'
   displayName: 'dotnet build $(BuildConfiguration)'
   condition: succeeded()
 - task: DotNetCoreCLI@2
@@ -30,4 +30,4 @@ steps:
   displayName: 'Publish msbuild log for AnyCPU build'
   inputs:
     artifactName: MSBuildLog_$(BuildConfiguration)_AnyCPU
-    targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\$(BuildConfiguration)_AnyCPU_MsBuild.log
+    targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)\Hosted$(Agent.OS)_$(BuildConfiguration)_AnyCPU_MsBuild.log
