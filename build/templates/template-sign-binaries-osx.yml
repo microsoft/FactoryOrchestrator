@@ -1,0 +1,25 @@
+# Signs MacOS binaries.
+parameters:
+  - name: "UnsignedInput"
+    default: "$(Build.ArtifactStagingDirectory)/unsignedbin/"
+  - name: "SignedOutput"
+    default: "$(Build.ArtifactStagingDirectory)/signedbin/"
+  - name: "ShouldSign"
+    default: "false"
+
+steps:
+# Sign dylib and service binary
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '${{ parameters.UnsignedInput }}'
+    signOutputPath: ${{ parameters.SignedOutput }}
+    certificateId: 'CP-401337-Apple'
+    pattern: 'Microsoft.FactoryOrchestrator.Service,*.dylib'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
+    signingService: 'FactoryOrchestratorSigning'
+
+- publish: '${{ parameters.SignedOutput }}'
+  artifact: 'SignedBin_OSX_$(BuildConfiguration)_AllPlatforms'
+  displayName: 'Publish signed binaries - OSX'

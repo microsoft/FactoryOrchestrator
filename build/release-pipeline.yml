@@ -78,14 +78,36 @@ stages:
       - template: ./templates/template-dotnet-publish-service.yml
         parameters:
           BuildPlatform: 'arm64'
+      - template: ./templates/template-dotnet-publish-service.yml
+        parameters:
+          BuildPlatform: 'x64'
+          BuildOS: 'linux'
+      - template: ./templates/template-dotnet-publish-service.yml
+        parameters:
+          BuildPlatform: 'arm'
+          BuildOS: 'linux'
+      - template: ./templates/template-dotnet-publish-service.yml
+        parameters:
+          BuildPlatform: 'arm64'
+          BuildOS: 'linux'
+      - template: ./templates/template-dotnet-publish-service.yml
+        parameters:
+          BuildPlatform: 'x64'
+          BuildOS: 'osx'
       - template: ./templates/template-dotnet-publish-pwsh-library.yml
       - template: ./templates/template-build-uwpclient.yml
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/$(BuildPlatform)'
         artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU'
         displayName: 'Publish unsigned binaries AnyCPU'
-      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/Publish'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/Publish/win'
         artifact: 'UnsignedBin_Windows_$(BuildConfiguration)_Publish'
         displayName: 'Publish unsigned binaries service publish'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/Publish/osx'
+        artifact: 'UnsignedBin_OSX_$(BuildConfiguration)_Publish'
+        displayName: 'Publish unsigned binaries osx service publish'
+      - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/$(BuildConfiguration)/Publish/linux'
+        artifact: 'UnsignedBin_Linux_$(BuildConfiguration)_Publish'
+        displayName: 'Publish unsigned binaries linux service publish'
       - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/tests'
         artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
         displayName: 'Publish unsigned test binaries and zip'
@@ -162,6 +184,8 @@ stages:
           - download: current
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_Publish
           - download: current
+            artifact: UnsignedBin_OSX_$(BuildConfiguration)_Publish
+          - download: current
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_x86
           - download: current
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
@@ -195,6 +219,18 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
+            displayName: "Download from __testing build"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_OSX_$(BuildConfiguration)_Publish
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: $(System.DefinitionId)
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_OSX_$(BuildConfiguration)_Publish"
             displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
@@ -255,6 +291,11 @@ stages:
         - template: ./templates/template-sign-binaries-windows.yml
           parameters:
             ShouldSign: "$(SHOULDSIGN)"
+        - template: ./templates/template-sign-binaries-osx.yml
+          parameters:
+            ShouldSign: "$(SHOULDSIGN)"
+            UnsignedInput: "$(Pipeline.Workspace)/UnsignedBin_OSX_$(BuildConfiguration)_Publish"
+            SignedOutput: "$(Build.ArtifactStagingDirectory)/signedbin_osx/"
         - pwsh: |
             $vstsCommandString = "vso[build.addbuildtag]SignedBuild"
             Write-Host "sending " + $vstsCommandString
@@ -390,6 +431,10 @@ stages:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
           - download: 'current'
+            artifact: 'SignedBin_OSX_Release_AllPlatforms'
+          - download: 'current'
+            artifact: 'UnsignedBin_Linux_Release_Publish'
+          - download: 'current'
             artifact: 'UWPClient_Nuspecs'
         - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
@@ -407,6 +452,28 @@ stages:
               runVersion: 'latest'
               tags: '__testing'
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: SignedBin_OSX_Release_AllPlatforms
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: $(System.DefinitionId)
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/SignedBin_OSX_Release_AllPlatforms"
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              source: specific
+              artifact: UnsignedBin_Linux_Release_Publish
+              allowFailedBuilds: true
+              allowPartiallySucceededBuilds: true
+              project: 'OneCore'
+              pipeline: $(System.DefinitionId)
+              runVersion: 'latest'
+              tags: '__testing'
+              path: "$(Pipeline.Workspace)/UnsignedBin_Linux_Release_Publish"
             displayName: "Download from __testing build"
           - task: DownloadPipelineArtifact@2
             inputs:
@@ -425,6 +492,14 @@ stages:
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release"
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: "$(Pipeline.Workspace)/SignedBin_OSX_Release_AllPlatforms"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/Publish/osx"
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Linux_Release_Publish"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/bin/Release/Publish/linux"
 
         - template: ./templates/template-pack-sign-nuget.yml
           parameters:
@@ -446,6 +521,31 @@ stages:
           parameters:
             BuildConfiguration: 'Release'
             BuildPlatform: 'arm64'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'amd64'
+            BuildOS: 'osx'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'amd64'
+            BuildOS: 'osx'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'amd64'
+            BuildOS: 'linux'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'arm'
+            BuildOS: 'linux'
+        - template: ./templates/template-create-service-zip.yml
+          parameters:
+            BuildConfiguration: 'Release'
+            BuildPlatform: 'arm64'
+            BuildOS: 'linux'
         - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\Release\Publish\Zips\'
           artifact: ServiceZips
 

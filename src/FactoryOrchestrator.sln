@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.CoreLibrary", "CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj", "{5ED97075-7281-4FA3-8E5F-D4B8D273BDCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.Core", "CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj", "{5ED97075-7281-4FA3-8E5F-D4B8D273BDCB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrator.Service", "Service\Microsoft.FactoryOrchestrator.Service.csproj", "{1F7BBB14-DFAF-4FBD-8977-5B2C78025B74}"
 EndProject
@@ -62,18 +62,21 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{492B979A-F7D2-40A1-B311-1416F9CE7A2A}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\AutoGenerateInterfaceHelper.ps1 = ..\build\AutoGenerateInterfaceHelper.ps1
+		..\build\azure-pipelines-ci.yml = ..\build\azure-pipelines-ci.yml
 		..\build\azure-pipelines.loc.yml = ..\build\azure-pipelines.loc.yml
 		..\build\azure-pipelines.pr.yml = ..\build\azure-pipelines.pr.yml
-		..\build\azure-pipelines.yml = ..\build\azure-pipelines.yml
 		custom.props = custom.props
+		..\build\FixupAPIMarkdown.ps1 = ..\build\FixupAPIMarkdown.ps1
+		..\build\release-pipeline.yml = ..\build\release-pipeline.yml
 		..\build\SetSourceVersion.ps1 = ..\build\SetSourceVersion.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "internal", "internal", "{A33F40C3-2BAD-406E-86BE-DBE33F12BB29}"
 	ProjectSection(SolutionItems) = preProject
+		..\build\internal\CopyUniqueBins.ps1 = ..\build\internal\CopyUniqueBins.ps1
 		..\build\internal\CreateServiceManifest.ps1 = ..\build\internal\CreateServiceManifest.ps1
-		..\build\internal\CreateServiceManifestForPkgES.ps1 = ..\build\internal\CreateServiceManifestForPkgES.ps1
 		..\build\internal\CreateTestZip.ps1 = ..\build\internal\CreateTestZip.ps1
+		..\build\internal\CreateUWPClientNuGet.ps1 = ..\build\internal\CreateUWPClientNuGet.ps1
 		..\build\internal\FactoryOrchestratorServiceTemplate.wm.xml = ..\build\internal\FactoryOrchestratorServiceTemplate.wm.xml
 		..\build\internal\ftf-ci-hosted.yml = ..\build\internal\ftf-ci-hosted.yml
 		..\build\internal\ftf-pkges-vpack.yml = ..\build\internal\ftf-pkges-vpack.yml
@@ -90,7 +93,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{B4F05B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{0FD8AFF8-3868-4FD5-A8A6-DA8DAA02B52F}"
 	ProjectSection(SolutionItems) = preProject
-		..\build\templates\template-build-all-arch.yml = ..\build\templates\template-build-all-arch.yml
+		..\build\templates\template-build-app.yml = ..\build\templates\template-build-app.yml
+		..\build\templates\template-build-test-service.yml = ..\build\templates\template-build-test-service.yml
+		..\build\templates\template-build-uwpclient.yml = ..\build\templates\template-build-uwpclient.yml
+		..\build\templates\template-checkdocs.yml = ..\build\templates\template-checkdocs.yml
+		..\build\templates\template-ci-compliance.yml = ..\build\templates\template-ci-compliance.yml
+		..\build\templates\template-ci-pr-stages.yml = ..\build\templates\template-ci-pr-stages.yml
+		..\build\templates\template-create-service-zip.yml = ..\build\templates\template-create-service-zip.yml
+		..\build\templates\template-dotnet-publish-pwsh-library.yml = ..\build\templates\template-dotnet-publish-pwsh-library.yml
+		..\build\templates\template-dotnet-publish-service.yml = ..\build\templates\template-dotnet-publish-service.yml
+		..\build\templates\template-install-netcore.yml = ..\build\templates\template-install-netcore.yml
+		..\build\templates\template-pack-sign-nuget.yml = ..\build\templates\template-pack-sign-nuget.yml
+		..\build\templates\template-push-vpack-other.yml = ..\build\templates\template-push-vpack-other.yml
+		..\build\templates\template-push-vpack-service.yml = ..\build\templates\template-push-vpack-service.yml
+		..\build\templates\template-set-build-version.yml = ..\build\templates\template-set-build-version.yml
+		..\build\templates\template-set-FORepoRoot.yml = ..\build\templates\template-set-FORepoRoot.yml
+		..\build\templates\template-set-initial-variables.yml = ..\build\templates\template-set-initial-variables.yml
+		..\build\templates\template-set-should-sign.yml = ..\build\templates\template-set-should-sign.yml
+		..\build\templates\template-sign-binaries-osx.yml = ..\build\templates\template-sign-binaries-osx.yml
+		..\build\templates\template-sign-binaries-windows.yml = ..\build\templates\template-sign-binaries-windows.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{422A5B26-B858-44D2-9E64-DD88B7B0A1F1}"
