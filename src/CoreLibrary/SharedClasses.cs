@@ -1029,25 +1029,27 @@ namespace Microsoft.FactoryOrchestrator.Core
     }
 
     /// <summary>
-    /// An CommandLineTask is a .cmd, .bat, or .sh script. This is known as a Batch file on Windows and a Shell script on Linux. The exit code of the script determines if the task passed or failed.
+    /// An BatchFile is a .cmd or .bat script that is run by the FactoryOrchestratorServer. The exit code of the script determines if the task passed or failed.
     /// 0 == PASS, all others == FAIL.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
+    [Obsolete("BatchFileTask is deprecated, please use CommandLineTask instead.")]
+
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class CommandLineTask : ExecutableTask
+    public class BatchFileTask : ExecutableTask
     {
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 
-        private CommandLineTask() : base(null, TaskType.BatchFile)
+        private protected BatchFileTask() : base(null, TaskType.BatchFile)
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandLineTask"/> class.
+        /// Initializes a new instance of the <see cref="BatchFileTask"/> class.
         /// </summary>
         /// <param name="scriptPath">The script path.</param>
-        public CommandLineTask(string scriptPath) : base(scriptPath, TaskType.BatchFile)
+        public BatchFileTask(string scriptPath) : base(scriptPath, TaskType.BatchFile)
         {
             _scriptPath = scriptPath;
         }
@@ -1096,6 +1098,25 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         private readonly string _scriptPath;
         private string _testFriendlyName;
+    }
+
+    /// <summary>
+    /// An CommandLineTask is a .cmd, .bat, or .sh script. This is known as a Batch file on Windows and a Shell script on Linux. The exit code of the script determines if the task passed or failed.
+    /// 0 == PASS, all others == FAIL.
+    /// </summary>
+    [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+#pragma warning disable CS0618 // Type or member is obsolete
+    public class CommandLineTask : BatchFileTask
+#pragma warning restore CS0618 // Type or member is obsolete
+    {
+        private CommandLineTask() : base() {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatchFileTask"/> class.
+        /// </summary>
+        /// <param name="scriptPath">The script path.</param>
+        public CommandLineTask(string scriptPath) : base(scriptPath) {}
     }
 
     /// <summary>

@@ -46,8 +46,22 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     return JsonConvert.DeserializeObject<UWPTask>(jo.ToString());
                 case TaskType.PowerShell:
                     return JsonConvert.DeserializeObject<PowerShellTask>(jo.ToString());
-                case TaskType.BatchFile:
-                    return JsonConvert.DeserializeObject<CommandLineTask>(jo.ToString());
+                case TaskType.CommandLine:
+                    {
+                        // Use the object type the serializer used to ensure back-compatibiilty
+#pragma warning disable CA1062 // Validate arguments of public methods
+                        if (objectType.Equals(typeof(CommandLineTask)))
+#pragma warning restore CA1062 // Validate arguments of public methods
+                        {
+                            return JsonConvert.DeserializeObject<CommandLineTask>(jo.ToString());
+                        }
+                        else
+                        {
+#pragma warning disable CS0618 // Type or member is obsolete
+                            return JsonConvert.DeserializeObject<BatchFileTask>(jo.ToString());
+#pragma warning restore CS0618 // Type or member is obsolete
+                        }
+                    }
                 default:
                     throw new FactoryOrchestratorException(Resources.TaskBaseDeserializationException);
             }
@@ -97,8 +111,18 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                 case TaskType.PowerShell:
                     serializer.Serialize(writer, value, typeof(PowerShellTask));
                     break;
-                case TaskType.BatchFile:
-                    serializer.Serialize(writer, value, typeof(CommandLineTask));
+                case TaskType.CommandLine:
+                    // Use the exact object type to ensure back-compatibiilty
+                    if (task.GetType().Equals(typeof(CommandLineTask)))
+                    {
+                        serializer.Serialize(writer, value, typeof(CommandLineTask));
+                    }
+                    else
+                    {
+#pragma warning disable CS0618 // Type or member is obsolete
+                        serializer.Serialize(writer, value, typeof(BatchFileTask));
+#pragma warning restore CS0618 // Type or member is obsolete
+                    }
                     break;
                 default:
                     throw new FactoryOrchestratorException(Resources.TaskBaseSerializationException);
