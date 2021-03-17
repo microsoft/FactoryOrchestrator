@@ -40,6 +40,9 @@ name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 stages:
   - stage: 'Build_Test_FactoryOrchestrator_AnyCPU'
     jobs:
+    # Build the solution on Linux and run tests.
+    # The binaries released for Linux are built in Build_Test_FactoryOrchestrator_Windows_AnyCPU on a Windows host,
+    # but this ensures the solution and code works properly on Linux.
     - job: "Build_Test_FactoryOrchestrator_Linux"
       pool:
         vmImage: 'ubuntu-20.04'
