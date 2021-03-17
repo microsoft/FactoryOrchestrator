@@ -5,13 +5,13 @@ parameters:
   BuildOS: 'win'
 
 steps:
-- ${{ if (eq('{{ parameters.BuildOS }}'', 'win')) }}:
+- ${{ if (eq('{{ parameters.BuildOS }}', 'win')) }}:
   - pwsh: |
       $vstsCommandString = "vso[task.setvariable variable=ReadyToRun]true"
       Write-Host "sending " + $vstsCommandString
       Write-Host "##$vstsCommandString"
     displayName: 'Set ReadyToRun true'
-- ${{ if (ne('{{ parameters.BuildOS }}'', 'win')) }}:
+- ${{ if (ne('{{ parameters.BuildOS }}', 'win')) }}:
   - pwsh: |
       $vstsCommandString = "vso[task.setvariable variable=ReadyToRun]false"
       Write-Host "sending " + $vstsCommandString
