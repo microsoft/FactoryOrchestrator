@@ -5,18 +5,19 @@ parameters:
   BuildOS: 'win'
 
 steps:
-- ${{ if eq({{ parameters.BuildOS }}, 'win') }}:
-  - pwsh: |
+- pwsh: |
+    if ('${{ parameters.BuildOS }}' -eq 'win')
+    {
       $vstsCommandString = "vso[task.setvariable variable=ReadyToRun]true"
-      Write-Host "sending " + $vstsCommandString
-      Write-Host "##$vstsCommandString"
-    displayName: 'Set ReadyToRun true'
-- ${{ if ne({{ parameters.BuildOS }}, 'win') }}:
-  - pwsh: |
+    }
+    else
+    {
       $vstsCommandString = "vso[task.setvariable variable=ReadyToRun]false"
-      Write-Host "sending " + $vstsCommandString
-      Write-Host "##$vstsCommandString"
-    displayName: 'Set ReadyToRun false'
+    }
+
+    Write-Host "sending " + $vstsCommandString
+    Write-Host "##$vstsCommandString"
+  displayName: 'Set ReadyToRun'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
