@@ -1110,6 +1110,9 @@ namespace Microsoft.FactoryOrchestrator.Core
     [JsonConverter(typeof(NoConverter))]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 #pragma warning disable CS0618 // Type or member is obsolete
+    // Ideally BatchFileTask would be renamed CommandLineTask when Linux support was added. However, that would be a breaking change.
+    // By creating a new class that inherits from the now "obsolete" BatchFileTask, we can maintain back compatibility with existing code
+    // while directing any new code to the CommandLineTask class.
     public class CommandLineTask : BatchFileTask
 #pragma warning restore CS0618 // Type or member is obsolete
     {
