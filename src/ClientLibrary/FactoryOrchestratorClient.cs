@@ -501,9 +501,14 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
             else if (ex is IpcFaultException ipc)
             {
-                // Return the actual exception the server threw
+                if (ipc.Status == IpcStatus.BadRequest)
+                {
+                    // This is almost certainly due to a client<->server version mismatch
+                    ex = new FactoryOrchestratorVersionMismatchException(Resources.IpcInvalidOperationError, ex);
+                }
                 if ((ipc.Status == IpcStatus.InternalServerError) && (ipc.InnerException != null))
                 {
+                    // Return the actual exception the server threw
                     ex = ipc.InnerException;
 
                     if ((ex.InnerException != null) && (ex is TargetInvocationException))

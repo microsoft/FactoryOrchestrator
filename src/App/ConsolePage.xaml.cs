@@ -94,7 +94,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
 
-            _isWindows = await Client.GetOSPlatform() == PlatformID.Win32NT;
+            try
+            {
+                _isWindows = await Client.GetOSPlatform() == PlatformID.Win32NT;
+            }
+            catch (FactoryOrchestratorVersionMismatchException)
+            {
+                // Assume service is Windows and this API isn't implemented (Service version < 9.1.0)
+                _isWindows = true;
+            }
 
             base.OnNavigatedTo(e);
         }
