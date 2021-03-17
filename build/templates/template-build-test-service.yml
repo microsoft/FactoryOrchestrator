@@ -29,5 +29,5 @@ steps:
 - task: PublishPipelineArtifact@1
   displayName: 'Publish msbuild log for AnyCPU build'
   inputs:
-    artifactName: MSBuildLog_$(BuildConfiguration)_AnyCPU
+    artifactName: MSBuildLog_Hosted$(Agent.OS)_$(BuildConfiguration)_AnyCPU
     targetPath: $(Build.ARTIFACTSTAGINGDIRECTORY)/Hosted$(Agent.OS)_$(BuildConfiguration)_AnyCPU_MsBuild.log
