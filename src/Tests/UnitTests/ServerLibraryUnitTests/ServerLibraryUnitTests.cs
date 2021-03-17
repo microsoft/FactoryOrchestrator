@@ -5,6 +5,7 @@ using System.Xml.Schema;
 using Microsoft.FactoryOrchestrator.Server;
 using System.IO;
 using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.FactoryOrchestrator.Test
 {
@@ -17,7 +18,6 @@ namespace Microsoft.FactoryOrchestrator.Test
         static bool validXmlLoaded = false;
 
         [ClassInitialize]
-        [DeploymentItem("Valid.xml")]
         public static void Init(TestContext context)
         {
 #pragma warning disable CA1062
@@ -41,11 +41,14 @@ namespace Microsoft.FactoryOrchestrator.Test
             }
 
             t.LoadTaskListsFromXmlFile(Path.Combine(DeploymentDir, "Valid.xml"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                t.LoadTaskListsFromXmlFile(Path.Combine(DeploymentDir, "Valid_Windows.xml"));
+            }
             validXmlLoaded = true;
         }
 
         [TestMethod]
-        [DeploymentItem("DupGuid1.xml")]
         public void TestDuplicateGuidInXmlAndKnownTaskList()
         {
             if (!validXmlLoaded)
@@ -69,7 +72,6 @@ namespace Microsoft.FactoryOrchestrator.Test
         }
 
         [TestMethod]
-        [DeploymentItem("DupGuid2.xml")]
         public void TestDuplicateGuidInXmlAndKnownTaskList2()
         {
             if (!validXmlLoaded)

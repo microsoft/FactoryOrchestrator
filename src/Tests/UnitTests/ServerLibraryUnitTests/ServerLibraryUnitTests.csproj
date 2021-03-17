@@ -31,6 +31,9 @@
     <None Update="DupGuid2.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Valid_Windows.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Valid.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

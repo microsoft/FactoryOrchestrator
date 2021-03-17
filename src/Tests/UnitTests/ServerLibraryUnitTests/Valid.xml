@@ -116,18 +116,18 @@
     </TaskList>
     <TaskList Guid="97d0eae2-913d-428a-a51b-160fd9bf0826" Name="Camera Tests" RunInParallel="false" AllowOtherTaskListsToRun="false">
       <Tasks>
-        <Task xsi:type="UWPTask" Name="CameraPhotoVideoTest" Path="Microsoft.CameraPhotoVideoCaptureSample_8wekyb3d8bbwe" Arguments="Could you take photos and record video on all devices?" Guid="fce74829-42e2-4f94-a39f-067bff8c13de" />
+        <Task xsi:type="CommandLineTask" Name="CameraPhotoVideoTest" Path="Microsoft.CameraPhotoVideoCaptureSample_8wekyb3d8bbwe" Arguments="Could you take photos and record video on all devices?" Guid="fce74829-42e2-4f94-a39f-067bff8c13de" />
       </Tasks>
     </TaskList>
     <TaskList Guid="8886302c-070c-4e19-b9e3-1b76f8c03f4e" Name="Display Tests" RunInParallel="false" AllowOtherTaskListsToRun="false">
       <Tasks>
-        <Task xsi:type="UWPTask" Name="DeadPixelTest" Path="Microsoft.ColorCycleSample_8wekyb3d8bbwe" Arguments="Did you see any dead pixels?" Guid="9fe8d491-546b-4622-b5a2-035e68f69f36" />
+        <Task xsi:type="CommandLineTask" Name="DeadPixelTest" Path="Microsoft.ColorCycleSample_8wekyb3d8bbwe" Arguments="Did you see any dead pixels?" Guid="9fe8d491-546b-4622-b5a2-035e68f69f36" />
         <!-- <Task xsi:type="UWPTask" Name="VideoPlaybackTest" Path="Microsoft.VideoPlaybackSample_8wekyb3d8bbwe" Arguments="Did you see the video and hear audio?" Guid="3a84168d-5f38-4120-a318-6bb671b9b37f" /> -->
       </Tasks>
     </TaskList>
     <TaskList Guid="baf64435-022d-4c8b-880e-c4bb06a2f67b" Name="Touch and Ink Tests" RunInParallel="false" AllowOtherTaskListsToRun="false">
       <Tasks>
-        <Task xsi:type="UWPTask" Name="TouchTest" Path="Microsoft.TouchAndPenSample_8wekyb3d8bbwe" Arguments="Could you trace the lines?" Guid="57c9b758-9778-45ae-bcb2-44c55c71adf3" />
+        <Task xsi:type="CommandLineTask" Name="TouchTest" Path="Microsoft.TouchAndPenSample_8wekyb3d8bbwe" Arguments="Could you trace the lines?" Guid="57c9b758-9778-45ae-bcb2-44c55c71adf3" />
         <!-- <Task xsi:type="UWPTask" Name="InkTest" Path="Microsoft.TouchAndPenSample_8wekyb3d8bbwe" Arguments="Could you ink on the screen with various pressure?" Guid="fc008cf9-95ac-43ff-81be-e4540967a7a2" /> -->
       </Tasks>
     </TaskList>
