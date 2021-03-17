@@ -32,5 +32,5 @@ steps:
   displayName: 'Create README.txt'
 
 - publish: $(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_MsBuild.log
-  artifact: MSBuildLog_Publish_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_${{ parameters.BuildConfiguration }}
+  artifact: Build_Logs
   displayName: 'Publish msbuild log for publish ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
