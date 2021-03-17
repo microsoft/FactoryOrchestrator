@@ -7,6 +7,9 @@ An BatchFile is a .cmd or .bat script that is run by the FactoryOrchestratorServ
 public class BatchFileTask : Microsoft.FactoryOrchestrator.Core.ExecutableTask
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; [TaskBase](./Microsoft-FactoryOrchestrator-Core-TaskBase.md 'Microsoft.FactoryOrchestrator.Core.TaskBase') &#129106; [ExecutableTask](./Microsoft-FactoryOrchestrator-Core-ExecutableTask.md 'Microsoft.FactoryOrchestrator.Core.ExecutableTask') &#129106; BatchFileTask  
+
+Derived  
+&#8627; [CommandLineTask](./Microsoft-FactoryOrchestrator-Core-CommandLineTask.md 'Microsoft.FactoryOrchestrator.Core.CommandLineTask')  
 ### Constructors
 - [BatchFileTask(string)](./Microsoft-FactoryOrchestrator-Core-BatchFileTask-BatchFileTask(string).md 'Microsoft.FactoryOrchestrator.Core.BatchFileTask.BatchFileTask(string)')
 ### Properties

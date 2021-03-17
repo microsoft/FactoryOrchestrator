@@ -180,6 +180,9 @@ namespace Microsoft.FactoryOrchestrator.Core
     [XmlInclude(typeof(ExternalTask))]
     [XmlInclude(typeof(TAEFTest))]
     [XmlInclude(typeof(PowerShellTask))]
+#pragma warning disable CS0618 // Type or member is obsolete
+    [XmlInclude(typeof(BatchFileTask))]
+#pragma warning restore CS0618 // Type or member is obsolete
     [XmlInclude(typeof(CommandLineTask))]
     public abstract class TaskBase : NotifyPropertyChangedBase
     {
@@ -1113,7 +1116,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         private CommandLineTask() : base() {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BatchFileTask"/> class.
+        /// Initializes a new instance of the <see cref="CommandLineTask"/> class.
         /// </summary>
         /// <param name="scriptPath">The script path.</param>
         public CommandLineTask(string scriptPath) : base(scriptPath) {}

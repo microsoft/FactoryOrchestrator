@@ -50,7 +50,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     {
                         // Use the object type the serializer used to ensure back-compatibiilty
 #pragma warning disable CA1062 // Validate arguments of public methods
-                        if (objectType.Equals(typeof(CommandLineTask)))
+                        if (jo["$type"].Value<string>().Equals("Microsoft.FactoryOrchestrator.Core.CommandLineTask, Microsoft.FactoryOrchestrator.Core", StringComparison.InvariantCultureIgnoreCase))
 #pragma warning restore CA1062 // Validate arguments of public methods
                         {
                             return JsonConvert.DeserializeObject<CommandLineTask>(jo.ToString());
@@ -71,6 +71,14 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
         /// <value>
         ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter"/> can write JSON; otherwise, <c>false</c>.</value>
         public override bool CanWrite
+        {
+            get { return true; }
+        }
+
+        /// <summary>Gets a value indicating whether this <see cref="Newtonsoft.Json.JsonConverter"/> can read JSON.</summary>
+        /// <value>
+        ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter"/> can read JSON; otherwise, <c>false</c>.</value>
+        public override bool CanRead
         {
             get { return true; }
         }
