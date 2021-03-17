@@ -49,8 +49,7 @@ stages:
         FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
       - checkout: self
-      - template: ./template-set-build-version.yml
-      - template: ./template-install-netcore.yml
+      - template: ./templates/template-set-initial-variables.yml
       - pwsh: |
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
