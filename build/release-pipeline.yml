@@ -140,7 +140,7 @@ stages:
       - msbuild
       - visualstudio
 
-    jobs:      
+    jobs:
     - job: "Build_FactoryOrchestrator_App"
       strategy:
         matrix:
