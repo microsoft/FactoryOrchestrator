@@ -3,19 +3,26 @@ parameters:
   BuildConfiguration: 'Release'
   BuildPlatform: 'x64'
   BuildOS: 'win'
-variables:
-  ${{ if (eq('{{ parameters.BuildOS }}'', 'win')) }}:
-    ReadyToRun: 'true'
-  ${{ if (ne('{{ parameters.BuildOS }}'', 'win')) }}:
-    ReadyToRun: 'false'
 
 steps:
+- ${{ if (eq('{{ parameters.BuildOS }}'', 'win')) }}:
+  - pwsh: |
+      $vstsCommandString = "vso[task.setvariable variable=ReadyToRun]true"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    displayName: 'Set ReadyToRun true'
+- ${{ if (ne('{{ parameters.BuildOS }}'', 'win')) }}:
+  - pwsh: |
+      $vstsCommandString = "vso[task.setvariable variable=ReadyToRun]false"
+      Write-Host "sending " + $vstsCommandString
+      Write-Host "##$vstsCommandString"
+    displayName: 'Set ReadyToRun false'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
     publishWebProjects: False
     zipAfterPublish: false
-    arguments: '$(System.DefaultWorkingDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj --nologo -p:PublishReadyToRun=true;SolutionDir=$(System.DefaultWorkingDirectory)\src\ --self-contained --configuration ${{ parameters.BuildConfiguration }} -r ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_MsBuild.log;Verbosity=Detailed --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} $(VERSIONSUFFIXDOTNET)'
+    arguments: '$(System.DefaultWorkingDirectory)\src\Service\Microsoft.FactoryOrchestrator.Service.csproj --nologo -p:PublishReadyToRun=$(ReadyToRun);SolutionDir=$(System.DefaultWorkingDirectory)\src\ --self-contained --configuration ${{ parameters.BuildConfiguration }} -r ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} --no-dependencies --no-restore -fl -flp:LogFile=$(Build.ARTIFACTSTAGINGDIRECTORY)\BuildLogs\${{ parameters.BuildConfiguration }}_Service_${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}_MsBuild.log;Verbosity=Detailed --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} $(VERSIONSUFFIXDOTNET)'
   displayName: 'dotnet publish for ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to publish'
