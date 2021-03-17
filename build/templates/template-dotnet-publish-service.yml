@@ -3,6 +3,12 @@ parameters:
   BuildConfiguration: 'Release'
   BuildPlatform: 'x64'
   BuildOS: 'win'
+variables:
+  ${{ if (eq('{{ parameters.BuildOS }}'', 'win')) }}:
+    ReadyToRun: 'true'
+  ${{ if (ne('{{ parameters.BuildOS }}'', 'win')) }}:
+    ReadyToRun: 'false'
+
 steps:
 - task: DotNetCoreCLI@2
   inputs:
