@@ -284,6 +284,9 @@ stages:
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
             targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/ARM"
+        - template: ./templates/template-sign-binaries-windows.yml
+          parameters:
+            ShouldSign: "$(SHOULDSIGN)"
         - pwsh: |
             $vstsCommandString = "vso[build.addbuildtag]SignedBuild"
             Write-Host "sending " + $vstsCommandString
