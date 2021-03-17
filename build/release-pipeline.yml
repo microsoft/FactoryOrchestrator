@@ -54,7 +54,7 @@ stages:
           Get-Item -Path env:* | Sort-Object Name
         displayName: "Print all variables"
       # Build & Test (Linux)
-      - template: ./template-build-test-service.yml
+      - template:  ./templates/template-build-test-service.yml
     - job: "Build_Test_FactoryOrchestrator_Windows_AnyCPU"
       pool:
         name: "Hosted Windows 2019 with VS2019"
