@@ -271,7 +271,7 @@ stages:
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
-            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/Publish"
+            targetFolder: "$(Build.ARTIFACTSTAGINGDIRECTORY)/unsignedbin/Publish/win"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
