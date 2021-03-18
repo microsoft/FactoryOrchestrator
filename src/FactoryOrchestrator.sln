@@ -110,7 +110,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		..\build\templates\template-set-FORepoRoot.yml = ..\build\templates\template-set-FORepoRoot.yml
 		..\build\templates\template-set-initial-variables.yml = ..\build\templates\template-set-initial-variables.yml
 		..\build\templates\template-set-should-sign.yml = ..\build\templates\template-set-should-sign.yml
-		..\build\templates\template-sign-binaries-osx.yml = ..\build\templates\template-sign-binaries-osx.yml
 		..\build\templates\template-sign-binaries-windows.yml = ..\build\templates\template-sign-binaries-windows.yml
 	EndProjectSection
 EndProject
