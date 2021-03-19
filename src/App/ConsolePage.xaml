@@ -25,7 +25,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="CommandConst" x:Uid="CommandConst" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Visible"/>
-            <TextBox Name="CommandBox" AutomationProperties.LabeledBy="{Binding ElementName=CommandConst}"  Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible" KeyDown="CommandBox_KeyDown"/>
+            <TextBox Name="CommandBox" AutomationProperties.LabeledBy="{Binding ElementName=CommandConst}"  Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Visibility="Visible"/>
             <CheckBox Padding="5" Name="ContainerCheckBox" x:Uid="ContainerCheckBox" IsThreeState="False" Grid.Column="2"  Unchecked="ContainerCheckBox_StateChanged" Checked="ContainerCheckBox_StateChanged"/>
             <Button Name="RunButton" x:Uid="RunCommandButton" Click="RunButton_Click" Grid.Column="3">
                 <SymbolIcon x:Name="RunButtonIcon" Symbol="Play" />
