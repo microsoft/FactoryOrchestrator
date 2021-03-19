@@ -1,7 +1,7 @@
 stages:
 - stage: 'Build_and_Test'
   jobs:
-  - job: "Build_Test_FactoryOrchestrator_Windows"  
+  - job: "Build_Test_FactoryOrchestrator_Windows"
     pool:
       name: "Hosted Windows 2019 with VS2019"
       demands:
@@ -33,6 +33,8 @@ stages:
     - template: ./template-checkdocs.yml
 
   - job: "Compliance"
+    pool:
+      vmImage: windows-2019
     variables:
       BuildPlatform: 'AnyCPU'
       BuildConfiguration: 'Release'
