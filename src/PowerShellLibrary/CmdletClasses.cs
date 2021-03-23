@@ -125,6 +125,23 @@ namespace Microsoft.FactoryOrchestrator.Client
         public string Arguments { get; set; }
 
         /// <summary>
+        /// Create a BatchFileTask instead of a CommandLineTask. Only needed for backwards compatibility with FactoryOrchestrator version 9.0.0 or order.
+        /// </summary>
+        [Parameter(Mandatory = false)]
+        public SwitchParameter ForceBatchFileTaskType
+        {
+            get
+            {
+                return forceBatch;
+            }
+            set
+            {
+                forceBatch = value;
+            }
+        }
+        private bool forceBatch;
+
+        /// <summary>
         /// Creates a PowerShell object.
         /// </summary>
         protected override void ProcessRecord()
@@ -133,7 +150,16 @@ namespace Microsoft.FactoryOrchestrator.Client
             switch (Type)
             {
                 case TaskType.BatchFile:
-                    t = new CommandLineTask(Path);
+                    if (ForceBatchFileTaskType)
+                    {
+#pragma warning disable CS0618 // Type or member is obsolete
+                        t = new BatchFileTask(Path);
+#pragma warning restore CS0618 // Type or member is obsolete
+                    }
+                    else
+                    {
+                        t = new CommandLineTask(Path);
+                    }
                     t.Arguments = Arguments;
                     t.Name = Name;
                     break;
