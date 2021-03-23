@@ -111,7 +111,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError($"Unable to parse {filename}. {e.Message}");
+                    logger?.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.UnableToParseError, filename)} {e.Message}");
                     status = null;
                 }
             }
@@ -189,7 +189,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    throw new PlatformNotSupportedException();
+                    throw new PlatformNotSupportedException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "LocalLoopbackEnabled"));
                 }
 
                 if (!Equals(value, _localLoopbackEnabled))
@@ -233,7 +233,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError($"Unable to parse {filename}. {e.Message}");
+                    logger?.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.UnableToParseError, filename)} {e.Message}");
                     status = null;
                 }
             }

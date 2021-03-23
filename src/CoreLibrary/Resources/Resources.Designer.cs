@@ -962,6 +962,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to parse {0}!.
+        /// </summary>
+        public static string UnableToParseError {
+            get {
+                return ResourceManager.GetString("UnableToParseError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unknown.
         /// </summary>
         public static string Unknown {

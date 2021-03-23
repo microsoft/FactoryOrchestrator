@@ -896,8 +896,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                         taskRun.WriteLogHeader();
 
                         // Attempt to start the UWP app
-                        if ((taskRun.TaskType == TaskType.UWP) && (_isWindows))
+                        if (taskRun.TaskType == TaskType.UWP)
                         {
+                            if (!_isWindows)
+                            {
+                                throw new PlatformNotSupportedException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, taskRun.TaskType));
+                            }
+
                             HttpWebResponse response = null;
                             bool restFailed = false;
                             var errorCode = 0;
@@ -993,7 +998,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                                     taskRun.TaskStatus = TaskStatus.Aborted;
 
-                                    if ((UWPTask != null) && (_isWindows))
+                                    if (UWPTask != null)
                                     {
                                         KillAppProcess(taskRun);
                                     }
@@ -1010,6 +1015,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     taskRun.ExitCode = (e.HResult == 0) ? -2147467259 : e.HResult; // E_FAIL
                     taskRun.TimeFinished = DateTime.Now;
                     taskRun.TaskStatus = TaskStatus.Failed;
+                    waitingForResult = false;
                 }
                 finally
                 {
@@ -1026,8 +1032,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     if (waitingForResult)
                     {
                         // Exit the app (if desired)
-                        if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
-                            _isWindows && KillAppProcess(taskRun))
+                        if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted && KillAppProcess(taskRun))
                         {
                             taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.AppTerminated, taskRun.TaskPath));
                         }

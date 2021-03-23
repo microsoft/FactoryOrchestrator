@@ -1561,7 +1561,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             if (!_isWindows)
             {
-                throw new PlatformNotSupportedException();
+                throw new PlatformNotSupportedException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "GetOEMVersionString"));
             }
 
             using var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false);
@@ -2362,23 +2362,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     ServiceStatus.LogFolder = logFolder;
                     source.DeleteValue("LogFolder");
-                }
-            }
-
-            if (File.Exists(_volatileServiceStatusFilename))
-            {
-                try
-                {
-                    var deserializer = new XmlSerializer(typeof(FOVolatileServiceStatus));
-                    using (FileStream fs = new FileStream(_volatileServiceStatusFilename, FileMode.Open))
-                    using (XmlReader reader = XmlReader.Create(fs))
-                    {
-                        VolatileServiceStatus = (FOVolatileServiceStatus)deserializer.Deserialize(reader);
-                    }
-                }
-                catch (Exception e)
-                {
-                    ServiceLogger.LogError($"Unable to parse {_volatileServiceStatusFilename}. {e.Message}");
                 }
             }
 
