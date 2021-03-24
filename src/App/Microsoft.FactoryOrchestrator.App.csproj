@@ -147,7 +147,7 @@
       <DependentUpon>WdpPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup Condition="">
+  <ItemGroup>
     <AppxManifest Include="obj\Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
