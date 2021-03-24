@@ -4,14 +4,16 @@
 ## Install or Run the service
 **The service can be downloaded from the [GitHub releases page](https://github.com/microsoft/FactoryOrchestrator/releases).**
 
-The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service.exe) runs on your Device under Test and acts as the engine powering Factory Orchestrator. To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service [programmatically using the Factory Orchestrator client APIs](use-the-factory-orchestrator-api.md). Multiple clients can be connected to the same service simultaneously.
+The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service) runs on your Device under Test and acts as the engine powering Factory Orchestrator. To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service [programmatically using the Factory Orchestrator client APIs](use-the-factory-orchestrator-api.md). Multiple clients can be connected to the same service simultaneously.
 
 The service can either be "run" (one time, not started on boot) or "installed" so that it automatically starts every boot.
 
-### Run the service
-Download and unzip the service for your target OS and architecture. Then simply run Microsoft.FactoryOrchestrator.Service.exe as administrator/sudo.
+![Image of service start](./images/service-start.png) 
 
-### Install the service
+### Run the service
+Download and unzip the service for your target OS and architecture. Then simply run Microsoft.FactoryOrchestrator.Service as administrator/sudo.
+
+### Install the service (Windows)
 Download and unzip the service for your target OS and architecture. Then use an Administrator/Sudo PowerShell to install the Factory Orchestrator service on your device. When installed as a system service (daemon), the service will start every boot until disabled or uninstalled:
 
 ```PowerShell
