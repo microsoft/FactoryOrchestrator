@@ -45,7 +45,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             _taskMapLock = new object();
             TaskListStateFile = taskListStateFile;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (_isWindows)
             {
                 _supportsWin32Gui = NativeMethods.IsApiSetImplemented("ext-ms-win-ntuser-window-l1-1-4");
             }
@@ -79,7 +79,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                         if (moveFiles && (LogFolder != null) && (Directory.Exists(LogFolder)))
                         {
                             // Move existing folder to temp folder
-                            var tempDir = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "FOTemp");
+                            var tempDir = Path.Combine(Path.GetTempPath(), "FOTemp");
                             CopyDirectory(LogFolder, tempDir, true);
 
                             // Delete old folder
@@ -151,8 +151,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             var exes = Directory.EnumerateFiles(path, "*.exe", searchOption);
             var dlls = Directory.EnumerateFiles(path, "*.dll", searchOption);
-            var bats = Directory.EnumerateFiles(path, "*.bat", searchOption);
-            var cmds = Directory.EnumerateFiles(path, "*.cmd", searchOption);
+            var commands = Directory.EnumerateFiles(path, "*.bat", searchOption).Concat(Directory.EnumerateFiles(path, "*.cmd", searchOption)).Concat(Directory.EnumerateFiles(path, "*.sh", searchOption));
             var ps1s = Directory.EnumerateFiles(path, "*.ps1", searchOption);
             TaskList tests = new TaskList(path, Guid.NewGuid());
 
@@ -179,15 +178,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                 tests.Tasks.Add(task);
             }
 
-            foreach (var cmd in cmds)
+            foreach (var command in commands)
             {
-                var task = new BatchFileTask(cmd);
-                tests.Tasks.Add(task);
-            }
-
-            foreach (var bat in bats)
-            {
-                var task = new BatchFileTask(bat);
+                var task = new CommandLineTask(command);
                 tests.Tasks.Add(task);
             }
 
@@ -903,8 +896,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                         taskRun.WriteLogHeader();
 
                         // Attempt to start the UWP app
-                        if ((taskRun.TaskType == TaskType.UWP) && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)))
+                        if (taskRun.TaskType == TaskType.UWP)
                         {
+                            if (!_isWindows)
+                            {
+                                throw new PlatformNotSupportedException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, taskRun.TaskType));
+                            }
+
                             HttpWebResponse response = null;
                             bool restFailed = false;
                             var errorCode = 0;
@@ -1000,7 +998,7 @@ namespace Microsoft.FactoryOrchestrator.Server
 
                                     taskRun.TaskStatus = TaskStatus.Aborted;
 
-                                    if ((UWPTask != null) && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)))
+                                    if (UWPTask != null)
                                     {
                                         KillAppProcess(taskRun);
                                     }
@@ -1017,6 +1015,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     taskRun.ExitCode = (e.HResult == 0) ? -2147467259 : e.HResult; // E_FAIL
                     taskRun.TimeFinished = DateTime.Now;
                     taskRun.TaskStatus = TaskStatus.Failed;
+                    waitingForResult = false;
                 }
                 finally
                 {
@@ -1033,8 +1032,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                     if (waitingForResult)
                     {
                         // Exit the app (if desired)
-                        if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted &&
-                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && KillAppProcess(taskRun))
+                        if (UWPTask != null && !UWPTask.AutoPassedIfLaunched && UWPTask.TerminateOnCompleted && KillAppProcess(taskRun))
                         {
                             taskRun.TaskOutput.Add(string.Format(CultureInfo.CurrentCulture, Resources.AppTerminated, taskRun.TaskPath));
                         }
@@ -1723,6 +1721,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly SemaphoreSlim _startNonParallelTaskRunLock;
         private readonly bool _supportsWin32Gui;
         private bool _isDisposed;
+        private bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         /// <summary>
         /// Tracks all the task runs that have ever occured, mapped by the task run GUID
@@ -1830,8 +1829,8 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (string.IsNullOrEmpty(_globalTeExePath))
                 {
-                    // Default TAEF (TE.exe) path.
-                    return Environment.ExpandEnvironmentVariables(@"%SystemDrive%\taef\te.exe");
+                    // Default TAEF (TE.exe) path, will use %PATH% var to find te.exe
+                    return "te.exe";
                 }
                 else
                 {
@@ -1922,23 +1921,38 @@ namespace Microsoft.FactoryOrchestrator.Server
             }
             else if (ActiveTaskRun.TaskType == TaskType.PowerShell)
             {
-                if (FindFileInPath("pwsh.exe") != "pwsh.exe")
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    // pwsh.exe (PowerShell Core 6, PowerShell 7+) is installed on the system, use it
-                    startInfo.FileName = "pwsh.exe";
+                    if (FindFileInPath("pwsh.exe") != "pwsh.exe")
+                    {
+                        // pwsh.exe (PowerShell Core 6, PowerShell 7+) is installed on the system, use it
+                        startInfo.FileName = "pwsh.exe";
+                    }
+                    else
+                    {
+                        // Assume legacy powershell.exe is present. If it isn't, StartProcess() will fail gracefully.
+                        startInfo.FileName = "powershell.exe";
+                    }
                 }
                 else
                 {
-                    // Assume legacy powershell.exe is present. If it isn't, StartProcess() will fail gracefully.
-                    startInfo.FileName = "powershell.exe";
+                    startInfo.FileName = "pwsh";
                 }
 
                 startInfo.Arguments += $"-NonInteractive -File \"{ActiveTaskRun.TaskPath}\" ";
             }
             else if (ActiveTaskRun.TaskType == TaskType.BatchFile)
             {
-                startInfo.FileName = "cmd.exe";
-                startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\" ";
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments += $"/C \"{ActiveTaskRun.TaskPath}\" ";
+                }
+                else
+                {
+                    startInfo.FileName = "bash";
+                    startInfo.Arguments += $" \"{ActiveTaskRun.TaskPath}\" ";
+                }
             }
             else
             {
@@ -1953,11 +1967,11 @@ namespace Microsoft.FactoryOrchestrator.Server
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.CreateNoWindow = true;
-            startInfo.Environment["Path"] = Environment.GetEnvironmentVariable("Path");
+            startInfo.Environment["PATH"] = Environment.GetEnvironmentVariable("PATH");
 
             if (ActiveTaskRun.TaskType == TaskType.TAEFDll)
             {
-                startInfo.Environment["Path"] += ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
+                startInfo.Environment["PATH"] += ";" + Path.GetDirectoryName(ActiveTaskRun.TaskPath);
                 startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
             }
             else
@@ -2552,7 +2566,17 @@ namespace Microsoft.FactoryOrchestrator.Server
             {
                 if (String.IsNullOrEmpty(Path.GetDirectoryName(file)))
                 {
-                    foreach (string testPath in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+                    string[] paths;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';');
+                    }
+                    else
+                    {
+                        paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(':');
+                    }
+
+                    foreach (string testPath in paths)
                     {
                         string path = testPath.Trim();
                         if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, file)))

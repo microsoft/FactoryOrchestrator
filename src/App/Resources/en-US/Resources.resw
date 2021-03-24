@@ -417,7 +417,8 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <value>Network information</value>
   </data>
   <data name="NewCMDButton.Content" xml:space="preserve">
-    <value>New Batch File Task</value>
+    <value>New Command Line File Task</value>
+    <comment>button to create a new command line file task (batch file on windows, shell script on linux)</comment>
   </data>
   <data name="NewExecutableButton.Content" xml:space="preserve">
     <value>New Executable Task</value>

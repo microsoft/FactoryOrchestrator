@@ -25,13 +25,13 @@ namespace Microsoft.FactoryOrchestrator.Service
             lock (_logLock)
             {
                 _logCount++;
-                String _logPath = Path.Combine(FOServiceExe.ServiceLogFolder, LogName);
+                String _logPath = Path.Combine(FOServiceExe.ServiceExeLogFolder, LogName);
 
                 if (_logStream == null)
                 {
                     try
                     {
-                        Directory.CreateDirectory(FOServiceExe.ServiceLogFolder);
+                        Directory.CreateDirectory(FOServiceExe.ServiceExeLogFolder);
                         _logStream = new StreamWriter(_logPath, true);
                     }
                     catch (Exception)

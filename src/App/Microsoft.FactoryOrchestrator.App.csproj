@@ -99,11 +99,8 @@
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(AssemblyName)</OutputPath>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AboutPage.xaml.cs">
@@ -298,7 +295,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile">
-    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+    <Exec Command="$(PowerShellExeName) $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
   <Target Name="AfterBuild" Condition="'$(AGENT_ID)' != ''">
     <Copy SourceFiles="$(AppxPackageOutput)" DestinationFolder="$(OutputPath)" />

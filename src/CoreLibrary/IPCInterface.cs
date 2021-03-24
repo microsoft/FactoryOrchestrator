@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -210,10 +211,15 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <returns>string representing the Service version.</returns>
         string GetServiceVersionString();
         /// <summary>
-        /// Returns the version of the Windows OS.
+        /// Returns the version of the OS.
         /// </summary>
-        /// <returns>string representing the Windows OS version.</returns>
+        /// <returns>string representing the OS version.</returns>
         string GetOSVersionString();
+        /// <summary>
+        /// Returns the platform of the OS.
+        /// </summary>
+        /// <returns>System.PlatformID enum value representing the OS platform (Unix or Windows).</returns>
+        PlatformID GetOSPlatform();
         /// <summary>
         /// Returns the version set by the OEM duing WSK Image Customization.
         /// </summary>

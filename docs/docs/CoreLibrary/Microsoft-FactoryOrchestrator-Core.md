@@ -2,6 +2,7 @@
 ## Microsoft.FactoryOrchestrator.Core Namespace
 ### Classes
 - [BatchFileTask](./Microsoft-FactoryOrchestrator-Core-BatchFileTask.md 'Microsoft.FactoryOrchestrator.Core.BatchFileTask')
+- [CommandLineTask](./Microsoft-FactoryOrchestrator-Core-CommandLineTask.md 'Microsoft.FactoryOrchestrator.Core.CommandLineTask')
 - [ExecutableTask](./Microsoft-FactoryOrchestrator-Core-ExecutableTask.md 'Microsoft.FactoryOrchestrator.Core.ExecutableTask')
 - [ExternalTask](./Microsoft-FactoryOrchestrator-Core-ExternalTask.md 'Microsoft.FactoryOrchestrator.Core.ExternalTask')
 - [FactoryOrchestratorContainerDisabledException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerDisabledException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerDisabledException')

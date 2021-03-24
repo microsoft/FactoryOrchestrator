@@ -66,7 +66,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             Client = ((App)Application.Current).Client;
 
@@ -92,6 +92,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     ContainerCheckBox.IsEnabled = false;
                     ContainerCheckBox.IsChecked = false;
                 }
+            }
+
+            try
+            {
+                _isWindows = await Client.GetOSPlatform() == PlatformID.Win32NT;
+            }
+            catch (FactoryOrchestratorVersionMismatchException)
+            {
+                // Assume service is Windows and this API isn't implemented (Service version < 9.1.0)
+                _isWindows = true;
             }
 
             base.OnNavigatedTo(e);
@@ -180,7 +190,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
             try
             {
                 _activeRunSem.Wait();
-                _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null, (bool)ContainerCheckBox.IsChecked);
+                if (_isWindows)
+                {
+                    _activeCmdTaskRun = await Client.RunExecutable(@"cmd.exe", $"/C \"{command}\"", null, (bool)ContainerCheckBox.IsChecked);
+                }
+                else
+                {
+                    // Unlike Windows, every command is a file in $PATH, so we need to split the given string into the program & arguments
+                    var spaceIndex = command.IndexOf(" ", StringComparison.InvariantCultureIgnoreCase);
+                    string program;
+                    string args = null;
+                    if (spaceIndex == -1)
+                    {
+                        program = command;
+                    }
+                    else
+                    {
+                        program = command.Substring(0, spaceIndex);
+                        args = command.Substring(spaceIndex);
+                    }
+
+                    _activeCmdTaskRun = await Client.RunExecutable(program, args, null, (bool)ContainerCheckBox.IsChecked);
+                }
             }
             finally
             {
@@ -422,7 +453,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private readonly SemaphoreSlim _outSem;
         private readonly SemaphoreSlim _activeRunSem;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
-
+        private bool _isWindows;
         private const int MaxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
         private const int MaxLinesPerBlock = 500;
     }

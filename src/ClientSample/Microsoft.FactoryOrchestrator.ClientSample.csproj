@@ -9,15 +9,12 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="../ClientLibrary/Microsoft.FactoryOrchestrator.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

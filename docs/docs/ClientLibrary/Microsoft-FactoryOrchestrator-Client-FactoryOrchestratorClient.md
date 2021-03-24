@@ -49,6 +49,7 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 - [GetLastServiceError()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLastServiceError().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetLastServiceError()')
 - [GetLogFolder()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetLogFolder()')
 - [GetOEMVersionString()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetOEMVersionString().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetOEMVersionString()')
+- [GetOSPlatform()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetOSPlatform().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetOSPlatform()')
 - [GetOSVersionString()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetOSVersionString().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetOSVersionString()')
 - [GetServiceEvents()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetServiceEvents().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetServiceEvents()')
 - [GetServiceEvents(System.DateTime)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetServiceEvents(System-DateTime).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.GetServiceEvents(System.DateTime)')

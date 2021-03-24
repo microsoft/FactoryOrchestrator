@@ -132,9 +132,13 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         PowerShell = 4,
         /// <summary>
+        /// The Task is a batch file or shell script.
+        /// </summary>
+        CommandLine = 5,
+        /// <summary>
         /// The Task is a Command Prompt script.
         /// </summary>
-        BatchFile = 5
+        BatchFile = CommandLine,
     }
 
 #pragma warning disable CS1591 //  Missing XML comment for publicly visible type or member
@@ -176,7 +180,10 @@ namespace Microsoft.FactoryOrchestrator.Core
     [XmlInclude(typeof(ExternalTask))]
     [XmlInclude(typeof(TAEFTest))]
     [XmlInclude(typeof(PowerShellTask))]
+#pragma warning disable CS0618 // Type or member is obsolete
     [XmlInclude(typeof(BatchFileTask))]
+#pragma warning restore CS0618 // Type or member is obsolete
+    [XmlInclude(typeof(CommandLineTask))]
     public abstract class TaskBase : NotifyPropertyChangedBase
     {
         // TODO: Quality: Use Semaphore internally to guarantee accurate state if many things are setting task state
@@ -810,7 +817,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             switch (run.TaskType)
             {
                 case TaskType.BatchFile:
-                    task = new BatchFileTask(run.TaskPath);
+                    task = new CommandLineTask(run.TaskPath);
                     (task as ExecutableTask).BackgroundTask = run.BackgroundTask;
                     break;
                 case TaskType.Executable:
@@ -1029,12 +1036,14 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// 0 == PASS, all others == FAIL.
     /// </summary>
     [JsonConverter(typeof(NoConverter))]
+    [Obsolete("BatchFileTask is deprecated, please use CommandLineTask instead.")]
+
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class BatchFileTask : ExecutableTask
     {
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 
-        private BatchFileTask() : base(null, TaskType.BatchFile)
+        private protected BatchFileTask() : base(null, TaskType.BatchFile)
         {
 
         }
@@ -1092,6 +1101,28 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         private readonly string _scriptPath;
         private string _testFriendlyName;
+    }
+
+    /// <summary>
+    /// An CommandLineTask is a .cmd, .bat, or .sh script. This is known as a Batch file on Windows and a Shell script on Linux. The exit code of the script determines if the task passed or failed.
+    /// 0 == PASS, all others == FAIL.
+    /// </summary>
+    [JsonConverter(typeof(NoConverter))]
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+#pragma warning disable CS0618 // Type or member is obsolete
+    // Ideally BatchFileTask would be renamed CommandLineTask when Linux support was added. However, that would be a breaking change.
+    // By creating a new class that inherits from the now "obsolete" BatchFileTask, we can maintain back compatibility with existing code
+    // while directing any new code to the CommandLineTask class.
+    public class CommandLineTask : BatchFileTask
+#pragma warning restore CS0618 // Type or member is obsolete
+    {
+        private CommandLineTask() : base() {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandLineTask"/> class.
+        /// </summary>
+        /// <param name="scriptPath">The script path.</param>
+        public CommandLineTask(string scriptPath) : base(scriptPath) {}
     }
 
     /// <summary>

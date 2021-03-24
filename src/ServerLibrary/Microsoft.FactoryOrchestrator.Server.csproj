@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
+  <Import Project="../common.props" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,18 +7,15 @@
     <PackageId>Microsoft.FactoryOrchestrator.Server</PackageId>
     <Description>A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj" />
-    <ProjectReference Include="..\..\oss\Pe-Utility\Pe-Utility.csproj">
+    <ProjectReference Include="../CoreLibrary/Microsoft.FactoryOrchestrator.Core.csproj" />
+    <ProjectReference Include="../../oss/Pe-Utility/Pe-Utility.csproj">
       <IncludeAssets>none</IncludeAssets>
     </ProjectReference>
   </ItemGroup>
@@ -30,23 +27,23 @@
   <!-- Add Pe-Utility OSS binaries to package -->
   <Target Name="CopyProjectReferencesToPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.dll"/>
+      <BuildOutputInPackage Include="$(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.dll"/>
     </ItemGroup>
 
     <!-- Print for debug purposes -->
-    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.dll found: @(BuildOutputInPackage)" Importance="High"/>
+    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.dll found: @(BuildOutputInPackage)" Importance="High"/>
   </Target>
 
   <!-- Add Pe-Utility OSS symbols to symbol package -->
   <Target Name="UpdateSymTfm" BeforeTargets="_GetDebugSymbolsWithTfm">
       <ItemGroup>
-        <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.pdb">
+        <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.pdb">
           <TargetFramework>netstandard2.0</TargetFramework>
         </_TargetPathsToSymbolsWithTfm>
       </ItemGroup>
 
     <!-- Print for debug purposes -->
-    <Message Text="UpdateSymTfm - $(OutputRootPath)\$(Configuration)\$(Platform)\(OutputRootPath)\$(Configuration)\$(Platform)\Pe-Utility\**\*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
+    <Message Text="UpdateSymTfm - $(OutputRootPath)/$(Configuration)/$(Platform)/(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
   </Target>
 
 </Project>

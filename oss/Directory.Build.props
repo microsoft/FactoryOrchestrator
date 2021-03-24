@@ -8,6 +8,10 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <OutputRootPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)/bin/</OutputRootPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' == '' And '$(GITHUB_ACTIONS)' != 'true'">
+    <OutputRootPath>$(MSBuildThisFileDirectory)../bin/</OutputRootPath>
   </PropertyGroup>
   <ItemGroup Condition="'$(BUILD_REPOSITORY_URI.Contains(`dev.azure.com`))' == 'true' Or '$(BUILD_REPOSITORY_URI.Contains(`visualstudio.com`))' == 'true'">
     <!-- Use AzureRepos version of SourceLink if source code is from ADO. -->

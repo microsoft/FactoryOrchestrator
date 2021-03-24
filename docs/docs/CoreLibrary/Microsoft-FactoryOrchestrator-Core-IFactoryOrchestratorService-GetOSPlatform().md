@@ -1,10 +1,10 @@
 #### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core').[IFactoryOrchestratorService](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService.md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService')
-## IFactoryOrchestratorService.GetOSVersionString() Method
-Returns the version of the OS.  
+## IFactoryOrchestratorService.GetOSPlatform() Method
+Returns the platform of the OS.  
 ```csharp
-string GetOSVersionString();
+System.PlatformID GetOSPlatform();
 ```
 #### Returns
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-string representing the OS version.  
+[System.PlatformID](https://docs.microsoft.com/en-us/dotnet/api/System.PlatformID 'System.PlatformID')  
+System.PlatformID enum value representing the OS platform (Unix or Windows).  

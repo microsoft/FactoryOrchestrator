@@ -5,8 +5,14 @@
     <MaxCpuCount>1</MaxCpuCount>
     <TargetPlatform>x64</TargetPlatform>
     <TargetFrameworkVersion>FrameworkCore10</TargetFrameworkVersion>
-    <ResultsDirectory>..\..\bin\TestResults</ResultsDirectory>
+    <ResultsDirectory>../../bin/TestResults</ResultsDirectory>
     <!-- Specify timeout in milliseconds. A valid value should be greater than 0 -->
     <TestSessionTimeout>60000</TestSessionTimeout>
   </RunConfiguration>
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console" enabled="True"/>
+      <Logger friendlyName="trx" enabled="True"/>
+    </Loggers>
+  </LoggerRunSettings>
 </RunSettings>

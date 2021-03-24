@@ -1,12 +1,12 @@
 stages:
-- stage: 'Build_and_Test_Windows'
-  pool:
-    name: "Hosted Windows 2019 with VS2019"
-    demands:
-    - msbuild
-    - visualstudio
+- stage: 'Build_and_Test'
   jobs:
   - job: "Build_Test_FactoryOrchestrator_Windows"
+    pool:
+      name: "Hosted Windows 2019 with VS2019"
+      demands:
+      - msbuild
+      - visualstudio
     variables:
       BuildPlatform: 'AnyCPU'
       BuildConfiguration: 'Release'
@@ -33,6 +33,8 @@ stages:
     - template: ./template-checkdocs.yml
 
   - job: "Compliance"
+    pool:
+      vmImage: windows-2019
     variables:
       BuildPlatform: 'AnyCPU'
       BuildConfiguration: 'Release'
@@ -44,3 +46,21 @@ stages:
         Get-Item -Path env:* | Sort-Object Name
       displayName: "Print all variables"
     - template: ./template-ci-compliance.yml
+
+  - job: "Build_Test_FactoryOrchestrator_Linux"
+    pool:
+      vmImage: 'ubuntu-20.04'
+    variables:
+      BuildPlatform: 'AnyCPU'
+      BuildConfiguration: 'Release'
+      FORepoRoot: '$(Build.SourcesDirectory)'
+    steps:
+    - checkout: self
+    - template: ./template-set-build-version.yml
+    - template: ./template-install-netcore.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+    
+    # Build & Test (Linux)
+    - template: ./template-build-test-service.yml

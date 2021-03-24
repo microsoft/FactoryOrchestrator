@@ -1,7 +1,7 @@
 # Retrieves build version.
 steps:
 - pwsh: |
-    [xml]$customprops = Get-Content "$env:FORepoRoot\src\common.props"
+    [xml]$customprops = Get-Content "$(FORepoRoot)\src\common.props"
     $msbldns = "http://schemas.microsoft.com/developer/msbuild/2003"
     $ns = @{msbld = "$msbldns"}
     $fullVersion = Select-Xml -Xml $customprops -XPath "//msbld:VersionPrefix" -Namespace $ns | Select-Object -First 1

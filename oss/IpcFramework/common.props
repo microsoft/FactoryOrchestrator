@@ -6,7 +6,7 @@
     <PackageLicenseUrl>https://github.com/jacqueskang/IpcServiceFramework/blob/develop/LICENSE</PackageLicenseUrl>
     <!-- Below is the official repo for IpcServiceFramework. However, it confuses SourceLink, as the source used is from the FactoryOrchestrator repo. -->
     <!-- Commenting out to resolve the SourceLink error, ex: -->
-    <!-- C:\Users\VssAdministrator\.nuget\packages\microsoft.sourcelink.common\1.0.0\build\Microsoft.SourceLink.Common.targets(52,5): warning : Source control information is not available - the generated source link is empty. [D:\a\1\s\oss\IpcFramework\JKang.IpcServiceFramework.Core\JKang.IpcServiceFramework.Core.csproj] -->
+    <!-- C:/Users/VssAdministrator/.nuget/packages/microsoft.sourcelink.common/1.0.0/build/Microsoft.SourceLink.Common.targets(52,5): warning : Source control information is not available - the generated source link is empty. [D:/a/1/s/oss/IpcFramework/JKang.IpcServiceFramework.Core/JKang.IpcServiceFramework.Core.csproj] -->
     <!-- <RepositoryUrl>https://github.com/jacqueskang/IpcServiceFramework</RepositoryUrl> -->
     <PackageProjectUrl>https://github.com/jacqueskang/IpcServiceFramework</PackageProjectUrl>
     <Version>3.1.0</Version>
@@ -23,7 +23,16 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <OutputRootPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)/bin/</OutputRootPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(AGENT_ID)' == '' And '$(GITHUB_ACTIONS)' != 'true'">
+    <OutputRootPath>$(MSBuildThisFileDirectory)../../bin/</OutputRootPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutDir>$(OutputRootPath)$(Configuration)/$(Platform)/$(MSBuildProjectName)</OutDir>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(BUILD_REPOSITORY_URI.Contains(`dev.azure.com`))' == 'true' Or '$(BUILD_REPOSITORY_URI.Contains(`visualstudio.com`))' == 'true'">
     <!-- Use AzureRepos version of SourceLink if source code is from ADO. -->
     <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.0.0" PrivateAssets="All"/>
@@ -37,11 +46,5 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(DisableDynamicCodeGeneration)' == 'true'">
     <DefineConstants>DISABLE_DYNAMIC_CODE_GENERATION</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutDir>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutDir>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>
