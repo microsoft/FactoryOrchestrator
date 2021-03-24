@@ -9,7 +9,7 @@
         <meta name="description" content="Factory Orchestrator Documentation">
       
       
-        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/CoreLibrary/Microsoft-FactoryOrchestrator-Core-BatchFileTask/">
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/CoreLibrary/Microsoft-FactoryOrchestrator-Core-CommandLineTask/">
       
       
         <meta name="author" content="themar-msft;hajya">
@@ -19,7 +19,7 @@
     
     
       
-        <title>Microsoft FactoryOrchestrator Core BatchFileTask - Factory Orchestrator</title>
+        <title>Microsoft FactoryOrchestrator Core CommandLineTask - Factory Orchestrator</title>
       
     
     
@@ -93,7 +93,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Microsoft FactoryOrchestrator Core BatchFileTask
+              Microsoft FactoryOrchestrator Core CommandLineTask
             
           </span>
         </div>
@@ -328,30 +328,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#batchfiletask-class" class="md-nav__link">
-    BatchFileTask Class
+  <a href="#commandlinetask-class" class="md-nav__link">
+    CommandLineTask Class
   </a>
   
-    <nav class="md-nav" aria-label="BatchFileTask Class">
+    <nav class="md-nav" aria-label="CommandLineTask Class">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#constructors" class="md-nav__link">
     Constructors
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#properties" class="md-nav__link">
-    Properties
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
-    Methods
   </a>
   
 </li>
@@ -373,34 +359,24 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/CoreLibrary/Microsoft-FactoryOrchestrator-Core-BatchFileTask.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/CoreLibrary/Microsoft-FactoryOrchestrator-Core-CommandLineTask.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>Microsoft FactoryOrchestrator Core BatchFileTask</h1>
+                  <h1>Microsoft FactoryOrchestrator Core CommandLineTask</h1>
                 
                 <h4 id="microsoftfactoryorchestratorcore"><a href="../Microsoft-FactoryOrchestrator-Core/" title="Microsoft.FactoryOrchestrator.Core">Microsoft.FactoryOrchestrator.Core</a></h4>
 <h3 id="microsoftfactoryorchestratorcore_1"><a href="../Microsoft-FactoryOrchestrator-Core/" title="Microsoft.FactoryOrchestrator.Core">Microsoft.FactoryOrchestrator.Core</a></h3>
-<h2 id="batchfiletask-class">BatchFileTask Class</h2>
-<p>An BatchFile is a .cmd or .bat script that is run by the FactoryOrchestratorServer. The exit code of the script determines if the task passed or failed.<br />
+<h2 id="commandlinetask-class">CommandLineTask Class</h2>
+<p>An CommandLineTask is a .cmd, .bat, or .sh script. This is known as a Batch file on Windows and a Shell script on Linux. The exit code of the script determines if the task passed or failed.<br />
 0 == PASS, all others == FAIL.  </p>
-<pre><code class="language-csharp">public class BatchFileTask : Microsoft.FactoryOrchestrator.Core.ExecutableTask
+<pre><code class="language-csharp">public class CommandLineTask : Microsoft.FactoryOrchestrator.Core.BatchFileTask
 </code></pre>
-<p>Inheritance <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Object" title="System.Object">System.Object</a> &#129106; <a href="./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase" title="Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase">Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase</a> &#129106; <a href="../Microsoft-FactoryOrchestrator-Core-TaskBase/" title="Microsoft.FactoryOrchestrator.Core.TaskBase">TaskBase</a> &#129106; <a href="../Microsoft-FactoryOrchestrator-Core-ExecutableTask/" title="Microsoft.FactoryOrchestrator.Core.ExecutableTask">ExecutableTask</a> &#129106; BatchFileTask  </p>
-<p>Derived<br />
-&#8627; <a href="../Microsoft-FactoryOrchestrator-Core-CommandLineTask/" title="Microsoft.FactoryOrchestrator.Core.CommandLineTask">CommandLineTask</a>  </p>
+<p>Inheritance <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Object" title="System.Object">System.Object</a> &#129106; <a href="./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase" title="Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase">Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase</a> &#129106; <a href="../Microsoft-FactoryOrchestrator-Core-TaskBase/" title="Microsoft.FactoryOrchestrator.Core.TaskBase">TaskBase</a> &#129106; <a href="../Microsoft-FactoryOrchestrator-Core-ExecutableTask/" title="Microsoft.FactoryOrchestrator.Core.ExecutableTask">ExecutableTask</a> &#129106; <a href="../Microsoft-FactoryOrchestrator-Core-BatchFileTask/" title="Microsoft.FactoryOrchestrator.Core.BatchFileTask">BatchFileTask</a> &#129106; CommandLineTask  </p>
 <h3 id="constructors">Constructors</h3>
 <ul>
-<li><a href="../Microsoft-FactoryOrchestrator-Core-BatchFileTask-BatchFileTask%28string%29/" title="Microsoft.FactoryOrchestrator.Core.BatchFileTask.BatchFileTask(string)">BatchFileTask(string)</a></li>
-</ul>
-<h3 id="properties">Properties</h3>
-<ul>
-<li><a href="../Microsoft-FactoryOrchestrator-Core-BatchFileTask-Name/" title="Microsoft.FactoryOrchestrator.Core.BatchFileTask.Name">Name</a></li>
-</ul>
-<h3 id="methods">Methods</h3>
-<ul>
-<li><a href="../Microsoft-FactoryOrchestrator-Core-BatchFileTask-Equals%28object%29/" title="Microsoft.FactoryOrchestrator.Core.BatchFileTask.Equals(object)">Equals(object)</a></li>
+<li><a href="../Microsoft-FactoryOrchestrator-Core-CommandLineTask-CommandLineTask%28string%29/" title="Microsoft.FactoryOrchestrator.Core.CommandLineTask.CommandLineTask(string)">CommandLineTask(string)</a></li>
 </ul>
                 
               
