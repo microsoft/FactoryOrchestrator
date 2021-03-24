@@ -28,6 +28,7 @@ using System.Threading;
 using Microsoft.Extensions.Configuration;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -83,6 +84,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
+                              options.SslCertificate = GetCertificate();
+                              options.EnableSsl = true;
                           });
                       }
                       else
@@ -93,6 +96,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
+                              options.SslCertificate = GetCertificate();
+                              options.EnableSsl = true;
                           });
                       }
                   })
@@ -101,6 +106,36 @@ namespace Microsoft.FactoryOrchestrator.Service
                         // optionally configure logging
                         builder.SetMinimumLevel(LogLevel.Trace);
                   }).Build();
+
+        private static X509Certificate2 GetCertificate()
+        {
+            var assm = Assembly.GetExecutingAssembly();
+            var binPath = System.IO.Path.GetDirectoryName(assm.GetName().CodeBase);
+            string certName = "FactoryServer.pfx";
+            string certPath = binPath.Substring(6) + "\\" + certName;
+            X509Certificate2 sslCert;
+
+            // Check for user provided Certificate.
+            if (File.Exists(certPath))
+            {
+                sslCert = new X509Certificate2(certPath);
+            }
+            else
+            {   
+                // Read embeded Certificate.
+                using (Stream cs = assm.GetManifestResourceStream(assm.GetName().Name + "." + certName))
+                {
+                    Byte[] raw = new Byte[cs.Length];
+
+                    for (Int32 i = 0; i < cs.Length; ++i)
+                        raw[i] = (Byte)cs.ReadByte();
+
+                    sslCert = new X509Certificate2(raw);
+                }
+            }
+
+            return sslCert;
+        }
 
         public static void Main(string[] args)
         {

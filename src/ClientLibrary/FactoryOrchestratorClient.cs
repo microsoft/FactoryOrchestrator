@@ -12,7 +12,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Reflection;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 // Keep in sync with PowerShellLibrary\FactoryOrchestratorClientSync.cs
@@ -29,13 +32,17 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        public FactoryOrchestratorClient(IPAddress host, int port = 45684)
+        /// <param name="serverIdentity">Distinguished name for the server.</param>
+        /// <param name="certhash">Hash value for the server certificate.</param>
+        public FactoryOrchestratorClient(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
         {
             OnConnected = null;
             _IpcClient = null;
             IsConnected = false;
             IpAddress = host;
             Port = port;
+            ServerIdentity = serverIdentity;
+            CertificateHash = certhash;
         }
 
         /// <summary>
@@ -51,6 +58,9 @@ namespace Microsoft.FactoryOrchestrator.Client
                     options.ConnectionTimeout = 10000;
                     options.ServerIp = IpAddress;
                     options.ServerPort = Port;
+                    options.SslServerIdentity = ServerIdentity;
+                    options.EnableSsl = true;
+                    options.SslValidationCallback = CertificateValidationCallback;
                 })
                 .BuildServiceProvider();
 
@@ -87,6 +97,17 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             IsConnected = true;
             OnConnected?.Invoke();
+        }
+
+        private bool CertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (!(IPAddress.IsLoopback(IpAddress)))
+            {
+                if (sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch) ||
+                    certificate.GetCertHashString() != CertificateHash)
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -489,6 +510,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         private Exception CreateIpcException(Exception ex)
         {
+                var type = ex.GetType();
             if (ex is InvalidOperationException && ex.StackTrace.ToUpperInvariant().Contains("CREATEFAULTEXCEPTION") && ex.StackTrace.ToUpperInvariant().Contains("JKANG"))
             {
                 // This is almost certainly due to a client<->server version mismatch
@@ -498,6 +520,11 @@ namespace Microsoft.FactoryOrchestrator.Client
             {
                 IsConnected = false;
                 ex = new FactoryOrchestratorConnectionException(IpAddress);
+            }
+            else if (ex is AuthenticationException)
+            {
+                IsConnected = false;
+                ex = new FactoryOrchestratorConnectionException(ex.Message);
             }
             else if (ex is IpcFaultException ipc)
             {
@@ -604,6 +631,16 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// The port of the connected device used. Factory Orchestrator Service defaults to 45684.
         /// </summary>
         public int Port { get; private set; }
+
+        /// <summary>
+        /// Distinguished name for the Server.
+        /// </summary>
+        public string ServerIdentity { get; private set; }
+
+        /// <summary>
+        /// Hash value for Server Certificate.
+        /// </summary>
+        public string CertificateHash { get; private set; }
 
         /// <summary>
         /// The IPC client used to communicate with the service.

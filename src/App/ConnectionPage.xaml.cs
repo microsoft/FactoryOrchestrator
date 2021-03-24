@@ -14,6 +14,10 @@ using System.Threading;
 using Windows.ApplicationModel.Resources;
 using System.Globalization;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using Windows.UI.Xaml.Media;
+using System.Reflection;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -69,6 +73,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (localSettings.Values.ContainsKey("lastIp"))
             {
                 IpTextBox.Text = (string)localSettings.Values["lastIp"];
+            }
+
+            if (localSettings.Values.ContainsKey("lastServer"))
+            {
+                ServerNameTextBox.Text = (string)localSettings.Values["lastServer"];
+            }
+
+            if (localSettings.Values.ContainsKey("lastHash"))
+            {
+                CertHashTextBox.Text = (string)localSettings.Values["lastHash"];
                 ConnectButton.IsEnabled = true;
             }
 
@@ -118,6 +132,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             bool validIp = false;
 
             validIp = IPAddress.TryParse(IpTextBox.Text, out var ip);
+            string serverName = ServerNameTextBox.Text;
+            string certHash = CertHashTextBox.Text;
 
             if (validIp)
             {
@@ -125,13 +141,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 await connectionSem.WaitAsync();
                 try
                 {
-                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684);
+                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684,serverName,certHash);
                     ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                     if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch))
                     {
                         ((App)Application.Current).OnConnectionPage = false;
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);
                         localSettings.Values["lastIp"] = IpTextBox.Text;
+                        localSettings.Values["lastServer"] = ServerNameTextBox.Text;
+                        localSettings.Values["lastHash"] = CertHashTextBox.Text;
                     }
                     else
                     {
@@ -157,29 +175,61 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             _ = await failedConnectDialog.ShowAsync();
         }
-
-        private void IpTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if(!string.IsNullOrWhiteSpace(IpTextBox.Text))
-            {
-                ConnectButton.IsEnabled = true;
-            }
-        }
-
-        private void IpTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                if (!String.IsNullOrWhiteSpace(IpTextBox.Text))
-                {
-                    ConnectButton_Click(null, null);
-                }
-            }
-        }
-
+        
         private void AboutButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AboutPage));
+        }
+
+        List<TextBox> GetAllTextBoxes(DependencyObject parent)
+        {
+            var list = new List<TextBox>();
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is TextBox)
+                    list.Add(child as TextBox);
+                list.AddRange(GetAllTextBoxes(child));
+            }
+            return list;
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var allTextBoxes = GetAllTextBoxes(this);
+            bool validData = true;
+            foreach (TextBox textbox in allTextBoxes)
+            {
+                if (String.IsNullOrWhiteSpace(textbox.Text))
+                {
+                    validData = false;
+                }
+            }
+            if (validData)
+            {
+                ConnectButton.IsEnabled = true;
+            }
+
+        }
+        
+        private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            var allTextBoxes = GetAllTextBoxes(this);
+            bool validData = true;
+            foreach (TextBox textbox in allTextBoxes)
+            {
+                if (e.Key == Windows.System.VirtualKey.Enter)
+                {
+                    if (String.IsNullOrWhiteSpace(textbox.Text))
+                    {
+                        validData = false;
+                    }
+                }
+            }
+            if (validData && e.Key == Windows.System.VirtualKey.Enter)
+            {
+                ConnectButton_Click(null, null);
+            }
         }
 
         private void ConfirmExit_Click(object sender, RoutedEventArgs e)
@@ -261,6 +311,5 @@ namespace Microsoft.FactoryOrchestrator.UWP
             GC.SuppressFinalize(this);
         }
         #endregion
-
     }
 }

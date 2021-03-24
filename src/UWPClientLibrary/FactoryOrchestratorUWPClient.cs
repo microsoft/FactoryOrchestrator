@@ -27,7 +27,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        public FactoryOrchestratorUWPClient(IPAddress host, int port = 45684) : base(host, port)
+        /// <param name="serverIdentity">CN name for the server.</param>
+        /// <param name="certhash">CN name for the server.</param>
+        public FactoryOrchestratorUWPClient(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F") : base(host, port, serverIdentity, certhash)
         { }
 
         /// <summary>
