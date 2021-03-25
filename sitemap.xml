@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/tasks-and-tasklists/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/service-configuration/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/factory-orchestrator-client-usage-samples/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/ClientLibrary/Microsoft-FactoryOrchestrator-Client/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://microsoft.github.io/FactoryOrchestrator/CoreLibrary/Microsoft-FactoryOrchestrator-Core/</loc>
-     <lastmod>2021-03-24</lastmod>
+     <lastmod>2021-03-25</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
