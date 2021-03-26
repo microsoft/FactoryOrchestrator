@@ -67,7 +67,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateHost(bool allowNetworkAccess, int port) =>
+        public static IHost CreateHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate) =>
               Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
@@ -84,7 +84,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
-                              options.SslCertificate = GetCertificate();
+                              options.SslCertificate = sslCertificate;
                               options.EnableSsl = true;
                           });
                       }
@@ -96,7 +96,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
-                              options.SslCertificate = GetCertificate();
+                              options.SslCertificate = sslCertificate;
                               options.EnableSsl = true;
                           });
                       }
@@ -106,36 +106,6 @@ namespace Microsoft.FactoryOrchestrator.Service
                         // optionally configure logging
                         builder.SetMinimumLevel(LogLevel.Trace);
                   }).Build();
-
-        private static X509Certificate2 GetCertificate()
-        {
-            var assm = Assembly.GetExecutingAssembly();
-            var binPath = System.IO.Path.GetDirectoryName(assm.GetName().CodeBase);
-            string certName = "FactoryServer.pfx";
-            string certPath = binPath.Substring(6) + "\\" + certName;
-            X509Certificate2 sslCert;
-
-            // Check for user provided Certificate.
-            if (File.Exists(certPath))
-            {
-                sslCert = new X509Certificate2(certPath);
-            }
-            else
-            {   
-                // Read embeded Certificate.
-                using (Stream cs = assm.GetManifestResourceStream(assm.GetName().Name + "." + certName))
-                {
-                    Byte[] raw = new Byte[cs.Length];
-
-                    for (Int32 i = 0; i < cs.Length; ++i)
-                        raw[i] = (Byte)cs.ReadByte();
-
-                    sslCert = new X509Certificate2(raw);
-                }
-            }
-
-            return sslCert;
-        }
 
         public static void Main(string[] args)
         {
@@ -1423,6 +1393,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Prevents service from polling container status.
         /// </summary>
         private readonly string _disableContainerValue = @"DisableContainerSupport";
+        private readonly string _sslCertificateFile = @"SSLCertificateFile";
 
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
@@ -1527,6 +1498,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableFileTransferPage { get; private set; }
         public bool IsNetworkAccessEnabled { get => _networkAccessEnabled && !_networkAccessDisabled; }
         public int NetworkPort { get; private set; }
+        public X509Certificate2 SSLCertificate { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
         public bool IsContainerSupportEnabled { get; private set; }
 
@@ -1651,7 +1623,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Start IPC server on desired port. Only start after all boot tasks are complete.
-            FOServiceExe.ipcHost = FOServiceExe.CreateHost(IsNetworkAccessEnabled, NetworkPort);
+            FOServiceExe.ipcHost = FOServiceExe.CreateHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -2924,7 +2896,6 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             LocalLoopbackApps = loopbackAppsString.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-
             try
             {
                 NetworkPort = Convert.ToInt32(GetAppSetting(_servicePortValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
@@ -2932,6 +2903,35 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception)
             {
                 NetworkPort = 45684;
+            }
+
+            string sslCertificateFile;
+            try
+            {
+                sslCertificateFile = (string)(GetAppSetting(_sslCertificateFile) ?? new ArgumentNullException());
+            }
+            catch (Exception)
+            {
+                sslCertificateFile = "";
+            }
+
+            if(string.IsNullOrEmpty(sslCertificateFile))
+            {
+                var assm = Assembly.GetExecutingAssembly();
+                string defaultCertName = "FactoryServer.pfx";
+                using (Stream cs = assm.GetManifestResourceStream(assm.GetName().Name + "." + defaultCertName))
+                {
+                    Byte[] raw = new Byte[cs.Length];
+
+                    for (Int32 i = 0; i < cs.Length; ++i)
+                        raw[i] = (Byte)cs.ReadByte();
+
+                    SSLCertificate = new X509Certificate2(raw);
+                }
+            }
+            else
+            {
+                SSLCertificate = new X509Certificate2(sslCertificateFile);
             }
 
             return true;

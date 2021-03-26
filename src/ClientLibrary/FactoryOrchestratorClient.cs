@@ -32,8 +32,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        /// <param name="serverIdentity">Distinguished name for the server.</param>
-        /// <param name="certhash">Hash value for the server certificate.</param>
+        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
+        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
         public FactoryOrchestratorClient(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
         {
             OnConnected = null;
@@ -510,7 +510,6 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         private Exception CreateIpcException(Exception ex)
         {
-                var type = ex.GetType();
             if (ex is InvalidOperationException && ex.StackTrace.ToUpperInvariant().Contains("CREATEFAULTEXCEPTION") && ex.StackTrace.ToUpperInvariant().Contains("JKANG"))
             {
                 // This is almost certainly due to a client<->server version mismatch
@@ -633,12 +632,12 @@ namespace Microsoft.FactoryOrchestrator.Client
         public int Port { get; private set; }
 
         /// <summary>
-        /// Distinguished name for the Server.
+        /// Distinguished name for the server.
         /// </summary>
         public string ServerIdentity { get; private set; }
 
         /// <summary>
-        /// Hash value for Server Certificate.
+        /// Hash value for server certificate.
         /// </summary>
         public string CertificateHash { get; private set; }
 

@@ -20,8 +20,8 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        /// <param name="serverIdentity">Distinguished name for the server.</param>
-        /// <param name="certhash">Hash value for the server certificate.</param>
+        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
+        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
         public FactoryOrchestratorClientSync(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
         {
             OnConnected = null;
