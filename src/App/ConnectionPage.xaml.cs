@@ -214,22 +214,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
-            var allTextBoxes = GetAllTextBoxes(this);
-            bool validData = true;
-            foreach (TextBox textbox in allTextBoxes)
-            {
-                if (e.Key == Windows.System.VirtualKey.Enter)
+                if (ConnectButton.IsEnabled && e.Key == Windows.System.VirtualKey.Enter)
                 {
-                    if (String.IsNullOrWhiteSpace(textbox.Text))
-                    {
-                        validData = false;
-                    }
+                    ConnectButton_Click(null, null);
                 }
-            }
-            if (validData && e.Key == Windows.System.VirtualKey.Enter)
-            {
-                ConnectButton_Click(null, null);
-            }
         }
 
         private void ConfirmExit_Click(object sender, RoutedEventArgs e)

@@ -36,6 +36,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
         public FactoryOrchestratorClient(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
         {
+            ServerCertificateValidationCallback = CertificateValidationCallback;
             OnConnected = null;
             _IpcClient = null;
             IsConnected = false;
@@ -45,6 +46,19 @@ namespace Microsoft.FactoryOrchestrator.Client
             CertificateHash = certhash;
         }
 
+        /// <summary> 
+        /// Creates a new FactoryOrchestratorClient instance. WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
+        /// </summary>
+        /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
+        /// <param name="certificateValidationCallback">A System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.</param>
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
+        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
+        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
+        public FactoryOrchestratorClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F"):this(host,port,serverIdentity,certhash)
+        {
+
+            ServerCertificateValidationCallback = certificateValidationCallback;
+        }
         /// <summary>
         /// Establishes a connection to the Factory Orchestrator Service.
         /// Throws an exception if it cannot connect.
@@ -60,7 +74,7 @@ namespace Microsoft.FactoryOrchestrator.Client
                     options.ServerPort = Port;
                     options.SslServerIdentity = ServerIdentity;
                     options.EnableSsl = true;
-                    options.SslValidationCallback = CertificateValidationCallback;
+                    options.SslValidationCallback = ServerCertificateValidationCallback;
                 })
                 .BuildServiceProvider();
 
@@ -523,7 +537,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             else if (ex is AuthenticationException)
             {
                 IsConnected = false;
-                ex = new FactoryOrchestratorConnectionException(ex.Message);
+                ex = new FactoryOrchestratorConnectionException(Resources.IpcAuthenticationError, ex);
             }
             else if (ex is IpcFaultException ipc)
             {
@@ -640,6 +654,11 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Hash value for server certificate.
         /// </summary>
         public string CertificateHash { get; private set; }
+
+        /// <summary>
+        /// System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate
+        /// </summary>
+        public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; private set; }
 
         /// <summary>
         /// The IPC client used to communicate with the service.

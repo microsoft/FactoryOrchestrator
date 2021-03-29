@@ -438,6 +438,10 @@
     <value>Factory Orchestrator Service did not recognize the command! This is most likely due to a version mismatch between the Client and Service.</value>
     <comment>Error when service does not recognize a command from client. Almost always due to using an older client with a newer service.</comment>
   </data>
+  <data name="IpcAuthenticationError" xml:space="preserve">
+    <value>FactoryOrchestratorClient could not validate remote certificate! This is most likely due to a distinguished server name mismatch or remote certificate hash value mismatch.</value>
+    <comment>Error when client side validation for remote certificate fails.</comment>
+  </data>
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>

@@ -564,7 +564,18 @@ namespace Microsoft.FactoryOrchestrator.Core {
                 return ResourceManager.GetString("IpcInvalidOperationError", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   FactoryOrchestratorClient could not validate remote certificate! This is most likely due to a distinguished server name mismatch or remote certificate hash value mismatch.
+        /// </summary>
+        public static string IpcAuthenticationError
+        {
+            get
+            {
+                return ResourceManager.GetString("IpcAuthenticationError", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to WARNING: Log File {0} could not be created.
         /// </summary>
@@ -1085,6 +1096,6 @@ namespace Microsoft.FactoryOrchestrator.Core {
             get {
                 return ResourceManager.GetString("WindowsOnlyError", resourceCulture);
             }
-        }
+        }        
     }
 }
