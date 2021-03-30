@@ -570,8 +570,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         /// </summary>
         public static string IpcAuthenticationError
         {
-            get
-            {
+            get {
                 return ResourceManager.GetString("IpcAuthenticationError", resourceCulture);
             }
         }

@@ -1,34 +1,32 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using PeterKottas.DotNetCore.WindowsService;
-using System.Net;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using JKang.IpcServiceFramework.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.FactoryOrchestrator.Client;
 using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
-using System.Reflection;
-using System.Linq;
 using Microsoft.Win32;
-using System.IO;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
+using PeterKottas.DotNetCore.WindowsService;
+using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
-using Microsoft.FactoryOrchestrator.Client;
-using System.Globalization;
-using JKang.IpcServiceFramework.Hosting;
-using Microsoft.Extensions.Hosting;
-using System.Threading;
-using Microsoft.Extensions.Configuration;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {

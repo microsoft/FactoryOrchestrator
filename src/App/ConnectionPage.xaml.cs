@@ -1,23 +1,21 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-using Microsoft.FactoryOrchestrator.Core;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.FactoryOrchestrator.Core;
+using Windows.ApplicationModel.Resources;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.Storage;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Navigation;
-using System.Threading.Tasks;
-using System.Threading;
-using Windows.ApplicationModel.Resources;
-using System.Globalization;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
 using Windows.UI.Xaml.Media;
-using System.Reflection;
+using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -209,7 +207,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 ConnectButton.IsEnabled = true;
             }
-
         }
         
         private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)

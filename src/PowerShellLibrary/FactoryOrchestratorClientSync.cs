@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Management.Automation;
 using System.Net;
 using System.Net.Security;
+using Microsoft.FactoryOrchestrator.Core;
+
 // Keep in sync with CoreLibrary\FactoryOrchestratorClient.cs
 namespace Microsoft.FactoryOrchestrator.Client
 {
@@ -36,11 +36,10 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="certificateValidationCallback">A System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
         /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
-        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
-        public FactoryOrchestratorClientSync(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
+        public FactoryOrchestratorClientSync(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer")
         {
             OnConnected = null;
-            AsyncClient = new FactoryOrchestratorClient(host, certificateValidationCallback, port, serverIdentity, certhash);
+            AsyncClient = new FactoryOrchestratorClient(host, certificateValidationCallback, port, serverIdentity);
         }
 
         /// <summary>

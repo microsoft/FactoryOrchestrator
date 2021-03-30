@@ -1,10 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-using JKang.IpcServiceFramework;
-using JKang.IpcServiceFramework.Client;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,6 +13,10 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using JKang.IpcServiceFramework;
+using JKang.IpcServiceFramework.Client;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FactoryOrchestrator.Core;
 
 // Keep in sync with PowerShellLibrary\FactoryOrchestratorClientSync.cs
 namespace Microsoft.FactoryOrchestrator.Client
@@ -53,8 +53,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="certificateValidationCallback">A System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
         /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
-        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
-        public FactoryOrchestratorClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F"):this(host,port,serverIdentity,certhash)
+        public FactoryOrchestratorClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer"):this(host,port,serverIdentity)
         {
 
             ServerCertificateValidationCallback = certificateValidationCallback;

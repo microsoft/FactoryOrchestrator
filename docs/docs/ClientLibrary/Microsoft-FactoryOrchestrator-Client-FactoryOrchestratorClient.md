@@ -9,7 +9,7 @@ public class FactoryOrchestratorClient
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; FactoryOrchestratorClient  
 ### Constructors
 - [FactoryOrchestratorClient(System.Net.IPAddress, int, string, string)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient(System-Net-IPAddress_int_string_string).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.FactoryOrchestratorClient(System.Net.IPAddress, int, string, string)')
-- [FactoryOrchestratorClient(System.Net.IPAddress, System.Net.Security.RemoteCertificateValidationCallback, int, string, string)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient(System-Net-IPAddress_System-Net-Security-RemoteCertificateValidationCallback_int_string_string).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.FactoryOrchestratorClient(System.Net.IPAddress, System.Net.Security.RemoteCertificateValidationCallback, int, string, string)')
+- [FactoryOrchestratorClient(System.Net.IPAddress, System.Net.Security.RemoteCertificateValidationCallback, int, string)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient(System-Net-IPAddress_System-Net-Security-RemoteCertificateValidationCallback_int_string).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.FactoryOrchestratorClient(System.Net.IPAddress, System.Net.Security.RemoteCertificateValidationCallback, int, string)')
 ### Fields
 - [_IpcClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-_IpcClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient._IpcClient')
 ### Properties
