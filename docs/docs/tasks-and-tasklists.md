@@ -3,6 +3,10 @@
 
 Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
 
+## Factory Orchestrator Task log files
+
+The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
+
 ## Factory Orchestrator tasks
 
 ## Task types
@@ -66,7 +70,7 @@ Once you've run a task, the Factory Orchestrator service creates a **[TaskRun](.
 
 You can define a collection of tasks in a **[TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.
 
-Factory Orchestrator uses XML files to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
+Factory Orchestrator uses XML files, called FactoryOrchestratorXML, to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
 
 The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](#managing-tasklists) section.
 
@@ -78,7 +82,7 @@ Use the Factory Orchestrator app to manage a TaskList. TaskLists can be made up 
 
 When you run Factory Orchestrator, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app won't show any TaskLists. Once you create a TaskList, it will show on this screen.
 
-Factory Orchestrator supports using environment variables (ex: %ProgramData%) in all commands.
+Factory Orchestrator supports using environment variables (ex: %ProgramData%, $PATH) in all commands.
 
 To create, modify, and delete TaskLists, click on 'Manage TaskLists'.
 
@@ -146,11 +150,11 @@ This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks
 
 - Use the delete buttons to delete an existing Task.
 
-#### Configure Factory Orchestrator to automatically load TaskLists when it starts
+#### Configure Factory Orchestrator to automatically load or execute TaskLists when it starts
 
 Factory Orchestrator looks for certain FactoryOrchestratorXML files when it starts. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator, run tasks the first time a device boots, or run tasks every time a device boots.
 
-See [Special FactoryOrchestratorXML files](tasks-and-tasklists.md#special-factoryorchestratorxml-files) for more information.
+See [Service Configuration](service-configuration.md#configure-factory-orchestrator-to-automatically-load-or-execute-tasklists-when-it-starts) for information on how to setup this.
 
 #### Export TaskLists
 
@@ -171,27 +175,6 @@ From this page, you can:
 - Export all TaskLists by clicking on the **Save All TaskLists to File** button.
 
 After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.
-
-## Special FactoryOrchestratorXML files
-
-When it starts, the Factory Orchestrator service looks in `%DataDrive%\TestContent` for the following FactoryOrchestratorXML files that determine startup behavior:
-
-| Filename              | Usage                                                                                                                                                                                        |
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| InitialTaskLists.xml  | These Factory Orchestrator TaskLists are loaded on first boot only. This file defines the default state of Factory Orchestrator, that is the TaskLists & tasks that are shown in the FO UI.  |
-| FirstBootTasks.xml    | These TaskLists are run once, on the first boot of the DUT.                                                                                                                  |
-| EveryBootTasks.xml    | These TaskLists are run on every boot of the DUT, including first boot. On first boot, it is always run after FirstBootTasks.                                                |
-
-When Factory Orchestrator is running these tasks, you'll see a warning in the Factory Orchestrator UI:
-
-![Service is executing Boot tasks, many functions are disabled until finished or aborted](./images/fo-background-tasks-executing.png)
-
-**Notes**:
-
-- The Factory Orchestrator Service does not allow communication with clients such as the Factory Orchestrator app until any `<Tasks>` defined in the relevant *BootTasks.xml files are done executing.
-- **DO NOT use External or UWP Tasks in these files**, as there is no way to mark those Tasks as completed without a connected Factory Orchestrator client.
-- While you can author normal `<Tasks>` in the *BootTasks.xml files, `<BackgroundTasks>` are very useful for the FirstBootTasks and EveryBootTasks XML files, as you can define `<BackgroundTasks>` which start on boot, aren't expected to ever exit, and will run in the background forever (provided `TerminateBackgroundTasksOnCompletion="false"`).
-- You can inspect the [FactoryOrchestrator log files](service-configuration.md#factory-orchestrator-logs) for details about the execution of these special FactoryOrchestratorXML files.
 
 ## Factory Orchestrator XML Schema
 
