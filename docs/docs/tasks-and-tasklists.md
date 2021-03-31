@@ -1,11 +1,11 @@
 
 # Tasks and TasksLists
 
-Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
+Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks.
 
-## Factory Orchestrator Task log files
+You can define a collection of tasks in a **[TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
 
-The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
+Factory Orchestrator supports using environment variables (ex: %ProgramData%, $TMPDIR) in all Tasks.
 
 ## Factory Orchestrator tasks
 
@@ -33,7 +33,7 @@ Factory Orchestrator TaskLists allow adding different types of tasks:
 
     Allows you to run a UWP app as a task.
 
-    UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via a result prompt that the Factory Orchestrator App launches when the UWP app exits. You can also exit apps via ALT+F4 or Windows Device Portal.
+    UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via a result prompt that the Factory Orchestrator App launches when the UWP app exits.
 
     The Factory Orchestrator service can launch apps even if the Factory Orchestrator app isn't running.
 
@@ -66,115 +66,13 @@ When editing a task from the Factory Orchestrator app, you can choose the option
 
 Once you've run a task, the Factory Orchestrator service creates a **[TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)** that is the output and results of the task, as well as other details about the task such as runtime.
 
-# Author and manage Factory Orchestrator TaskLists
+# Author and manage Factory Orchestrator TaskLists with FactoryOrchestratorXML
 
-You can define a collection of tasks in a **[TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running.
+Factory Orchestrator uses XML files, called FactoryOrchestratorXML, to manage TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
 
-Factory Orchestrator uses XML files, called FactoryOrchestratorXML, to define TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
+The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](use-the-factory-orchestrator-app.md#managing-tasklists) page.
 
-The XML can either be hand-authored; or authored, imported, and/or exported using the [Factory Orchestrator app's "Manage TaskLists"](#managing-tasklists) section.
-
-You can get started with Factory Orchestrator by using the **Manage TaskLists** screen in the Factory Orchestrator app to create a TaskList. TaskLists allow you to create collections of tasks that you use to validate your device under test. The Factory Orchestrator app also allows you to export TaskLists for use on other systems. See [Managing TaskLists](#managing-tasklists) below.
-
-## Managing TaskLists
-
-Use the Factory Orchestrator app to manage a TaskList. TaskLists can be made up from a combination of the different task types. You can choose whether the tasks in the TaskList will be run one-at-a-time (series), or in parallel.
-
-When you run Factory Orchestrator, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app won't show any TaskLists. Once you create a TaskList, it will show on this screen.
-
-Factory Orchestrator supports using environment variables (ex: %ProgramData%, $PATH) in all commands.
-
-To create, modify, and delete TaskLists, click on 'Manage TaskLists'.
-
-### Create and manage TaskLists
-
-The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists.
-
-#### Create or import TaskLists
-
-- **Add a whole folder as a TaskList**
-
-    Adds the contents of a local folder into a new TaskList. After you've added a folder, you can edit individual tasks to configure additional arguments, timeout settings, etc.
-
-    ![Load folder as tasklist menu item](./images/load-folder-as-tasklist.png)
-
-- **Choose individual files to add to a TaskList**
-
-    Use `Create new TaskList` to create a new [TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/) where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.
-
-    ![Create new TaskList button](./images/create-new-tasklist.png)
-
-- **Import a previously generated FactoryOrchestratorXML file**
-
-    This enables you to generate and export a TaskList on one device, and import it into your device. Once loaded, imported TaskList XML files can be modified like any other Task List.
-
-    To import a TaskList:
-
-    1. On the **Manage TaskLists** page, click on **Import FactoryOrchestratorXML file**
-      ![Import an existing TaskList](./images/import-sxml.png)
-
-    2. Enter the full path to the FactoryOrchestratorXML you want to import and click ✓
-
-      ![TaskLists XML file to load from dialog box](./images/load-tasklist-from.png)
-
-    When you import a TaskList:
-
-  - All the TaskLists defined in the file are imported
-  - If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results
-
-When you create a new TaskList, the Factory Orchestrator app generates a GUID that it assigns as the TaskList's name.
-
-#### Create and modify TaskLists
-
-Once you've added tasks to a TaskList, you can click the pencil icon to modify as TaskList.
-
-![Modify TaskList pencil button](./images/existing-tasklists.png)
-
-When you click the pencil icon, you'll see the following screen:
-
-![Edit tasklist screen](./images/edit-tasklist-page.png)
-
-This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks, or edit Tasks.
-
-- Use the "New `<TaskType>` Task" buttons to create a new Task in the TaskList
-
-- Use the rename icon (![Rename icon](./images/tasklist-rename.png)) to rename TaskLists
-
-- Click and drag on the bars to the left of a Task to reorder the Tasks.
-
-- Use the pencil (edit) button to edit a task. When you click the edit or "New `<TaskType>` Task" buttons, you'll see something similar to:
-
-    ![Task edit screen](./images/edit-task.png)
-
-    See [FactoryOrchestratorXML](tasks-and-tasklists.md) for information about the different options on this screen.
-
-- Use the delete buttons to delete an existing Task.
-
-#### Configure Factory Orchestrator to automatically load or execute TaskLists when it starts
-
-Factory Orchestrator looks for certain FactoryOrchestratorXML files when it starts. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator, run tasks the first time a device boots, or run tasks every time a device boots.
-
-See [Service Configuration](service-configuration.md#configure-factory-orchestrator-to-automatically-load-or-execute-tasklists-when-it-starts) for information on how to setup this.
-
-#### Export TaskLists
-
-If you create one or more TaskLists, you can export and save them. This allows you to add them onto another device. From the 'Manage TaskLists" screen:
-
-- Save a single TaskList by clicking on the disk icon next to the TaskList name
-- Save all your TaskLists by clicking on the button that says 'Save All TaskLists to XML File`
-
-To export TaskLists:
-
-Here is an image of the **Manage TaskLists** page with one TaskList loaded:
-
-![Manage TaskLists page with one TaskList loaded](./images/save-tasklists.png)
-
-From this page, you can:
-
-- Export a specific TaskList by clicking on the save icon (./images/save-icon.png) next to the Task
-- Export all TaskLists by clicking on the **Save All TaskLists to File** button.
-
-After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.
+You can get started with Factory Orchestrator TaskLists by using the [**Manage TaskLists**](use-the-factory-orchestrator-app.md#managing-tasklists) page in the Factory Orchestrator app to create a TaskList.
 
 ## Factory Orchestrator XML Schema
 
@@ -304,19 +202,6 @@ A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executab
 <Task xsi:type="ExecutableTask" Name="Exe with abort tasklist on fail" Path="%DataDrive%\TestContent\testapp4.exe" Arguments="" Guid="6279616a-345d-4469-bba0-fd019c78b531" AbortTaskListOnFailed="true"/>
 ```
 
-#### Validate Factory Orchestrator XML
-
-You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a Windows PC, even without having to connect to a Factory Orchestrator service.
-
-1. [Install the Factory Orchestrator app](../get-started-with-factory-orchestrator/#install-the-app) on a Windows PC and launch it.
-2. Click "Validate FactoryOrchestratorXML" in the bottom left of the app's connect page.
-3. Browse to the path of your FactoryOrchestratorXML file and click open.
-4. The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the Windows PC, it will only catch XML syntax errors. It will not catch runtime errors such as duplicate GUIDs or invalid file paths.
-
-    - If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."
-
-    - If the FactoryOrchestratorXML is invalid, you'll see a message that says "FactoryOrchestratorXML failed validation", with a description of why it failed validation.
-
 ### Background tasks
 
 A Background Task is a type of Task which is not expected to return a pass/fail result. Instead, Background Tasks are started before any Tasks defined in the TaskList, and are not tracked by the Factory Orchestrator Service, though their output is logged to a file. Background Tasks are intended to be used for logging/monitoring tasks that need to be running before any Task in the TaskList executes.
@@ -338,6 +223,18 @@ Background Tasks are defined the exactly the same as a normal Task with the foll
 </BackgroundTasks>
 ```
 
+## Validate Factory Orchestrator XML
+
+You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a Windows PC, even without having to connect to a Factory Orchestrator service.
+
+1. [Install the Factory Orchestrator app](../get-started-with-factory-orchestrator/#install-the-app) on a Windows PC and launch it.
+2. Click "Validate FactoryOrchestratorXML" in the bottom left of the app's connect page.
+3. Browse to the path of your FactoryOrchestratorXML file and click open.
+4. The FactoryOrchestratorXML file will be validated against the schema. Because this validation happens on the Windows PC, it will only catch XML syntax errors. It will not catch runtime errors such as duplicate GUIDs or invalid file paths.
+
+    - If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."
+
+    - If the FactoryOrchestratorXML is invalid, you'll see a message that says "FactoryOrchestratorXML failed validation", with a description of why it failed validation.
 ## Sample Factory Orchestrator XML file
 
 The following sample FactoryOrchestratorXML file shows two TaskLists containing various types of tests, as well as a [BackgroundTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun-BackgroundTask/) that is part of the first TaskList.
@@ -377,3 +274,13 @@ The following sample FactoryOrchestratorXML file shows two TaskLists containing 
   </TaskLists>
 </FactoryOrchestratorXML>
 ```
+
+## Configure Factory Orchestrator to automatically load or execute TaskLists when it starts
+
+Factory Orchestrator looks for certain FactoryOrchestratorXML files when it starts. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator, run tasks the first time a device boots, or run tasks every time a device boots.
+
+See [Service Configuration](service-configuration.md#configure-factory-orchestrator-to-automatically-load-or-execute-tasklists-when-it-starts) for information on how to setup this.
+
+## Factory Orchestrator Task log files
+
+The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
