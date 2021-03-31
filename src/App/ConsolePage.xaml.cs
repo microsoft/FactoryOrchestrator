@@ -461,8 +461,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void LaunchRD_Click(object sender, RoutedEventArgs e)
         {
-            //var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:factoryosconnect?ip={containerIp}&username=Abby"));
-            var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:"));
+            var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:factoryosconnect?ip={containerIp}&username=Abby"));
         }
 
         #region IDisposable Support
