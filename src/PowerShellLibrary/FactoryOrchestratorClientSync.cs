@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Management.Automation;
 using System.Net;
+using System.Net.Security;
+using Microsoft.FactoryOrchestrator.Core;
+
 // Keep in sync with CoreLibrary\FactoryOrchestratorClient.cs
 namespace Microsoft.FactoryOrchestrator.Client
 {
@@ -20,10 +21,25 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        public FactoryOrchestratorClientSync(IPAddress host, int port = 45684)
+        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
+        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
+        public FactoryOrchestratorClientSync(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
         {
             OnConnected = null;
-            AsyncClient = new FactoryOrchestratorClient(host, port);
+            AsyncClient = new FactoryOrchestratorClient(host, port, serverIdentity, certhash);
+        }
+
+        /// <summary>
+        /// Creates a new FactoryOrchestratorSyncClient instance. Most .NET clients are recommended to use FactoryOrchestratorClient instead which is fully asynchronous.
+        /// </summary>
+        /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
+        /// <param name="certificateValidationCallback">A System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.</param>
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
+        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
+        public FactoryOrchestratorClientSync(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer")
+        {
+            OnConnected = null;
+            AsyncClient = new FactoryOrchestratorClient(host, certificateValidationCallback, port, serverIdentity);
         }
 
         /// <summary>
@@ -240,6 +256,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// The port of the connected device used. Factory Orchestrator Service defaults to 45684.
         /// </summary>
         public int Port { get => AsyncClient.Port; }
+
+        /// <summary>
+        /// Distinguished name for the server.
+        /// </summary>
+        public string ServerIdentity { get => AsyncClient.ServerIdentity; }
+
+        /// <summary>
+        /// Hash value for server certificate.
+        /// </summary>
+        public string CertificateHash { get => AsyncClient.CertificateHash; }
+
+        /// <summary>
+        /// System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.
+        /// </summary>
+        public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get => AsyncClient.ServerCertificateValidationCallback; }
 
         /// <summary>
         /// The async client used to communicate with the service. Needed for using the ServerPoller class in PowerShell.

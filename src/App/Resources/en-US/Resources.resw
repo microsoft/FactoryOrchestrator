@@ -172,7 +172,8 @@
   <data name="BadIpContent" xml:space="preserve">
     <value>Could not connect to {0}.
 
-Check that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.</value>
+Check that the IP address, Server Name and Certificate Hash  is correct and that the Factory Orchestrator Service is running on the target IP.</value>
+	<comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
     <value>Unable to connect to target IP</value>
@@ -738,5 +739,13 @@ On retry</value>
   <data name="ServiceInformation.Text" xml:space="preserve">
     <value>Factory Orchestrator Service Information</value>
     <comment>text field header for showing info that relate to what features are enabled / disabled in the Service.</comment>
+  </data>
+  <data name="CertHash.Text" xml:space="preserve">
+    <value>Certificate Hash:</value>
+	<comment>Hash value of the Certificate of the target machine.</comment>
+  </data>
+  <data name="ServerName.Text" xml:space="preserve">
+    <value>Server Identity:</value>
+	<comment>Distinguished Name of the target machine.</comment>
   </data>
 </root>
