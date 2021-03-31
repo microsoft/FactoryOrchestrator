@@ -8,14 +8,18 @@ public class FactoryOrchestratorClient
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; FactoryOrchestratorClient  
 ### Constructors
-- [FactoryOrchestratorClient(System.Net.IPAddress, int)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient(System-Net-IPAddress_int).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.FactoryOrchestratorClient(System.Net.IPAddress, int)')
+- [FactoryOrchestratorClient(System.Net.IPAddress, int, string, string)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient(System-Net-IPAddress_int_string_string).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.FactoryOrchestratorClient(System.Net.IPAddress, int, string, string)')
+- [FactoryOrchestratorClient(System.Net.IPAddress, System.Net.Security.RemoteCertificateValidationCallback, int, string)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient(System-Net-IPAddress_System-Net-Security-RemoteCertificateValidationCallback_int_string).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.FactoryOrchestratorClient(System.Net.IPAddress, System.Net.Security.RemoteCertificateValidationCallback, int, string)')
 ### Fields
 - [_IpcClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-_IpcClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient._IpcClient')
 ### Properties
+- [CertificateHash](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-CertificateHash.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.CertificateHash')
 - [IpAddress](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IpAddress.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.IpAddress')
 - [IsConnected](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsConnected.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.IsConnected')
 - [IsLocalHost](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsLocalHost.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.IsLocalHost')
 - [Port](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Port.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.Port')
+- [ServerCertificateValidationCallback](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-ServerCertificateValidationCallback.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.ServerCertificateValidationCallback')
+- [ServerIdentity](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-ServerIdentity.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.ServerIdentity')
 ### Methods
 - [AbortAll()](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-AbortAll().md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.AbortAll()')
 - [AbortTaskList(System.Guid)](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-AbortTaskList(System-Guid).md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient.AbortTaskList(System.Guid)')

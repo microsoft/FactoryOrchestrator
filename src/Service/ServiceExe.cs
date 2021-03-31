@@ -1,33 +1,32 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using PeterKottas.DotNetCore.WindowsService;
-using System.Net;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using JKang.IpcServiceFramework.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.FactoryOrchestrator.Client;
 using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
-using System.Reflection;
-using System.Linq;
 using Microsoft.Win32;
-using System.IO;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
+using PeterKottas.DotNetCore.WindowsService;
+using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
-using Microsoft.FactoryOrchestrator.Client;
-using System.Globalization;
-using JKang.IpcServiceFramework.Hosting;
-using Microsoft.Extensions.Hosting;
-using System.Threading;
-using Microsoft.Extensions.Configuration;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -66,7 +65,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateHost(bool allowNetworkAccess, int port) =>
+        public static IHost CreateHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate) =>
               Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
@@ -83,6 +82,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
+                              options.SslCertificate = sslCertificate;
+                              options.EnableSsl = true;
                           });
                       }
                       else
@@ -93,6 +94,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
                               options.MaxConcurrentCalls = 5;
+                              options.SslCertificate = sslCertificate;
+                              options.EnableSsl = true;
                           });
                       }
                   })
@@ -1388,6 +1391,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Prevents service from polling container status.
         /// </summary>
         private readonly string _disableContainerValue = @"DisableContainerSupport";
+        private readonly string _sslCertificateFile = @"SSLCertificateFile";
 
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
@@ -1395,11 +1399,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _disableCmdPromptValue = @"DisableCommandPromptPage";
         private readonly string _disableWindowsDevicePortalValue = @"DisableWindowsDevicePortalPage";
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
-        private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
+        private readonly string _disableTaskManagerValue = @"DisableManageTaskListsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
         private readonly string _localLoopbackAppsValue = @"AllowedLocalLoopbackApps";
         private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
-        internal readonly string _logFolderValue = @"LogFolder";
+        internal readonly string _logFolderValue = @"TaskRunLogFolder";
         private readonly string _servicePortValue = "NetworkPort";
 
         /// <summary>
@@ -1492,6 +1496,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         public bool DisableFileTransferPage { get; private set; }
         public bool IsNetworkAccessEnabled { get => _networkAccessEnabled && !_networkAccessDisabled; }
         public int NetworkPort { get; private set; }
+        public X509Certificate2 SSLCertificate { get; private set; }
         public bool RunInitialTaskListsOnFirstBoot { get; private set; }
         public bool IsContainerSupportEnabled { get; private set; }
 
@@ -1616,7 +1621,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Start IPC server on desired port. Only start after all boot tasks are complete.
-            FOServiceExe.ipcHost = FOServiceExe.CreateHost(IsNetworkAccessEnabled, NetworkPort);
+            FOServiceExe.ipcHost = FOServiceExe.CreateHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -2759,11 +2764,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             // If not set in either, use the default set in code below
             try
             {
-                _networkAccessDisabled = Convert.ToBoolean(GetAppSetting(_disableNetworkAccessValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                // This is exposed only as an OEM customization, not a appsetting.json value. Unlike normal uses, FactoryOS enables network access by default, and this OEM customization disables it.
+                _networkAccessDisabled = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
-                _networkAccessDisabled = true;
+                _networkAccessDisabled = false;
             }
 
             try
@@ -2889,7 +2895,6 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             LocalLoopbackApps = loopbackAppsString.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-
             try
             {
                 NetworkPort = Convert.ToInt32(GetAppSetting(_servicePortValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
@@ -2897,6 +2902,35 @@ namespace Microsoft.FactoryOrchestrator.Service
             catch (Exception)
             {
                 NetworkPort = 45684;
+            }
+
+            string sslCertificateFile;
+            try
+            {
+                sslCertificateFile = (string)(GetAppSetting(_sslCertificateFile) ?? new ArgumentNullException());
+            }
+            catch (Exception)
+            {
+                sslCertificateFile = "";
+            }
+
+            if(string.IsNullOrEmpty(sslCertificateFile))
+            {
+                var assm = Assembly.GetExecutingAssembly();
+                string defaultCertName = "FactoryServer.pfx";
+                using (Stream cs = assm.GetManifestResourceStream(assm.GetName().Name + "." + defaultCertName))
+                {
+                    Byte[] raw = new Byte[cs.Length];
+
+                    for (Int32 i = 0; i < cs.Length; ++i)
+                        raw[i] = (Byte)cs.ReadByte();
+
+                    SSLCertificate = new X509Certificate2(raw);
+                }
+            }
+            else
+            {
+                SSLCertificate = new X509Certificate2(sslCertificateFile);
             }
 
             return true;

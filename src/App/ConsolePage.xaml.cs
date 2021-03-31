@@ -30,6 +30,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _outSem = new SemaphoreSlim(1, 1);
             _activeRunSem = new SemaphoreSlim(1, 1);
             _newCmd = false;
+            _cmdHistory = new List<string>(20);
+            _cmdHistoryIndex = 0;
+            // Use a custom routed event handler to ensure we see ALL key events,
+            // without this, some are silently handled by the UI framework
+            CommandBox.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(CommandBox_KeyDown), true);
             ((App)Application.Current).PropertyChanged += ConsolePage_AppPropertyChanged;
         }
 
@@ -128,6 +133,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     _taskRunPoller = null;
                     await Client.AbortTaskRun(_activeCmdTaskRun.Guid);
                     CommandBox.IsEnabled = true;
+                    CommandBox.Text = "";
                     RunButtonIcon.Symbol = Symbol.Play;
                 }
                 else
@@ -156,6 +162,25 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     await ExecuteCommand(CommandBox.Text);
                 }
             }
+
+            if (e.Key == Windows.System.VirtualKey.Up)
+            {
+                if (_cmdHistoryIndex > 0)
+                {
+                    CommandBox.Text = _cmdHistory[--_cmdHistoryIndex];
+                    CommandBox.SelectionStart = CommandBox.Text.Length;
+                    CommandBox.SelectionLength = 0;
+                }
+            }
+            if (e.Key == Windows.System.VirtualKey.Down)
+            {
+                if ((_cmdHistoryIndex + 1 < _cmdHistory.Count))
+                {
+                    CommandBox.Text = _cmdHistory[++_cmdHistoryIndex];
+                    CommandBox.SelectionStart = CommandBox.Text.Length;
+                    CommandBox.SelectionLength = 0;
+                }
+            }
         }
 
         /// <summary>
@@ -163,10 +188,25 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// </summary>
         private async Task ExecuteCommand(string command)
         {
+            // Update history & reset index
+            if ((_cmdHistory.Count == 0) || (!_cmdHistory[_cmdHistory.Count - 1].Equals(command, StringComparison.CurrentCulture)))
+            {
+                _cmdHistory.Add(command);
+                if (_cmdHistory.Count > MaxCmdHistory)
+                {
+                    // TODO: this is O(n) - not super efficient. Using a cicular list would be ideal.
+                    // However it is unlikely to occur, and with MaxCmdHistory set to 100 it still only took a few hundred ticks, not even a millisecond.
+                    _cmdHistory.RemoveAt(0);
+                }
+
+                _cmdHistory.Add(command);
+            }
+
+            _cmdHistoryIndex = _cmdHistory.Count;
+
             // Update UI
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-
                 RunButtonIcon.Symbol = Symbol.Stop;
                 CommandBox.IsEnabled = false;
 
@@ -267,6 +307,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     {
                         // Allow new commands to run
                         CommandBox.IsEnabled = true;
+                        CommandBox.Text = "";
                         RunButtonIcon.Symbol = Symbol.Play;
                     });
                 }
@@ -454,6 +495,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private readonly SemaphoreSlim _activeRunSem;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
         private bool _isWindows;
+        private List<string> _cmdHistory;
+        private int _cmdHistoryIndex;
+
+        private const int MaxCmdHistory = 100;
         private const int MaxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
         private const int MaxLinesPerBlock = 500;
     }
