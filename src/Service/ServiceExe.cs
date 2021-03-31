@@ -1395,11 +1395,11 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _disableCmdPromptValue = @"DisableCommandPromptPage";
         private readonly string _disableWindowsDevicePortalValue = @"DisableWindowsDevicePortalPage";
         private readonly string _disableUWPAppsValue = @"DisableUWPAppsPage";
-        private readonly string _disableTaskManagerValue = @"DisableManageTasklistsPage";
+        private readonly string _disableTaskManagerValue = @"DisableManageTaskListsPage";
         private readonly string _disableFileTransferValue = @"DisableFileTransferPage";
         private readonly string _localLoopbackAppsValue = @"AllowedLocalLoopbackApps";
         private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
-        internal readonly string _logFolderValue = @"LogFolder";
+        internal readonly string _logFolderValue = @"TaskRunLogFolder";
         private readonly string _servicePortValue = "NetworkPort";
 
         /// <summary>
@@ -2759,11 +2759,12 @@ namespace Microsoft.FactoryOrchestrator.Service
             // If not set in either, use the default set in code below
             try
             {
-                _networkAccessDisabled = Convert.ToBoolean(GetAppSetting(_disableNetworkAccessValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                // This is exposed only as an OEM customization, not a appsetting.json value. Unlike normal uses, FactoryOS enables network access by default, and this OEM customization disables it.
+                _networkAccessDisabled = Convert.ToBoolean(GetValueFromRegistry(_disableNetworkAccessValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
-                _networkAccessDisabled = true;
+                _networkAccessDisabled = false;
             }
 
             try
