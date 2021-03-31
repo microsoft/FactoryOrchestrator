@@ -5,7 +5,9 @@ Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be execu
 
 ## Factory Orchestrator Task log files
 
-The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
+The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)).
+
+By default, the files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [TaskRunLogFolder setting](service-configuration.md) or the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
 
 ## Factory Orchestrator tasks
 
@@ -15,25 +17,27 @@ Factory Orchestrator TaskLists allow adding different types of tasks:
 
 - **Executable**
 
-    These tasks are .exe files which are run directly. When you add this type of task, you can specify additional arguments and if the task should run as a background task.
+    These tasks are executable files (.exe on Windows) which are run directly. When you add this type of task, you can specify additional arguments and if the task should run as a background task.
 
-- **Batch File**
+- **CommandLine**
 
-    These tasks are .bat or .cmd files which are run by the command prompt (cmd.exe). When you add this type of task, you can specify additional arguments and if the task should run as a background task.
+    On Windows, these tasks are .bat or .cmd files which are run by the command prompt (cmd.exe). On Linux, they are .sh files which are run by bash. When you add this type of task, you can specify additional arguments and if the task should run as a background task.
 
 - **PowerShell**
 
-    These tasks are .ps1 files which are run by PowerShell Core (pwsh.exe). When you add this type of task, you can specify additional arguments and if the task should run as a background task.
+    These tasks are .ps1 files which are run by PowerShell 7+ (pwsh). When you add this type of task, you can specify additional arguments and if the task should run as a background task. On Windows these tasks will use "Windows PowerShell" (powershell.exe) if PowerShell 7+ is not installed.
 
 - **TAEF**
 
-    [TAEF tests](https://docs.microsoft.com/windows-hardware/drivers/taef/) can be added to a TaskList, and you can specify arguments and if the task should run as a background task.
+    **Windows Only.** [TAEF tests](https://docs.microsoft.com/windows-hardware/drivers/taef/) can be added to a TaskList, and you can specify arguments and if the task should run as a background task.
 
-- **UWP App**
+- **UWP**
 
-    Allows you to run a UWP app as a task.
+    **Windows Only.** Allows you to run a UWP app as a task.
 
-    UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via a result prompt that the Factory Orchestrator App launches when the UWP app exits. You can also exit apps via ALT+F4 or Windows Device Portal.
+    UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via the UpdateTaskRun() API or via a result prompt that the Factory Orchestrator App launches when the app exits. If using the app, the operator must manually specify if the task passed or failed via a result prompt that the Factory Orchestrator App launches when the app exits, like is shown on this screen:  
+
+    ![External task windows](./images/externalTaskNoMedia.png)
 
     The Factory Orchestrator service can launch apps even if the Factory Orchestrator app isn't running.
 
@@ -43,9 +47,9 @@ Factory Orchestrator TaskLists allow adding different types of tasks:
 
     These are tasks that require interaction from a technician before completing. These types of tasks could be used to tell a technician to connect a cable, check a device for scratches, move the device to the next station, etc.
 
-    External Tasks can't automatically return a pass/fail result. The operator must manually specify if the Task passed or failed via a result prompt that the Factory Orchestrator App launches when the Task executes. External tasks will only run on devices that support displaying graphics. Devices configured to boot into a console that can't display graphics won't display external tasks.
+    External Tasks can't automatically return a pass/fail result. The operator must manually specify if the Task passed or failed via the UpdateTaskRun() API or via a result prompt that the Factory Orchestrator App launches when the task executes.
 
-    The operator must manually specify if the app passed or failed via a result prompt that the Factory Orchestrator App launches when the app exits, like is shown on this screen:  
+    If using the app, the operator must manually specify if the task passed or failed via a result prompt that the Factory Orchestrator App launches when the app exits, like is shown on this screen:  
 
     ![External task windows](./images/externalTaskNoMedia.png)
 
