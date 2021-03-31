@@ -258,6 +258,21 @@ namespace Microsoft.FactoryOrchestrator.Client
         public int Port { get => AsyncClient.Port; }
 
         /// <summary>
+        /// Distinguished name for the server.
+        /// </summary>
+        public string ServerIdentity { get => AsyncClient.ServerIdentity; }
+
+        /// <summary>
+        /// Hash value for server certificate.
+        /// </summary>
+        public string CertificateHash { get => AsyncClient.CertificateHash; }
+
+        /// <summary>
+        /// System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.
+        /// </summary>
+        public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get => AsyncClient.ServerCertificateValidationCallback; }
+
+        /// <summary>
         /// The async client used to communicate with the service. Needed for using the ServerPoller class in PowerShell.
         /// </summary>
         public FactoryOrchestratorClient AsyncClient { get; private set; }
