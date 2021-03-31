@@ -10,7 +10,7 @@ Param
 $ErrorActionPreference = "stop"
 
 
-[xml]$customprops = Get-Content "$PSScriptRoot\..\src\common.props"
+[xml]$customprops = Get-Content "$PSScriptRoot/../src/common.props"
 $msbldns = "http://schemas.microsoft.com/developer/msbuild/2003"
 $ns = @{msbld = "$msbldns"}
 $assemblyVersion = Select-Xml -Xml $customprops -XPath "//msbld:VersionPrefix" -Namespace $ns | Select-Object -First 1
@@ -25,18 +25,18 @@ if ([string]::IsNullOrEmpty($versionSuffix))
 }
 else
 {
-    $productVersion = "$assemblyVersion-$env:VersionSuffix"    
+    $productVersion = "$assemblyVersion-$env:VersionSuffix"
 }
 Write-Host "ProductVersion/AssemblyInformationalVersion is $productVersion"
 
-if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
+if (Test-Path -Path "$SrcPath/Properties/AssemblyInfo.cs")
 {
     Write-Host "Generating AssemblyInfo.cs for $SrcPath"
 
-    $file = Get-Item -Path "$SrcPath\Properties\AssemblyInfo.cs"
+    $file = Get-Item -Path "$SrcPath/Properties/AssemblyInfo.cs"
 
     [string]$randString = Get-Random
-    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+    $tempFile = [System.IO.Path]::GetTempPath() + $file.Name + $randString + ".tmp"
 
     Write-Host "Using temp file $tempFile"
     Write-Host "Creating assembly info file for:" $file.FullName " version:" $assemblyVersion
@@ -60,7 +60,7 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
 
     Write-Host "Sucessfully modified $tempFile"
 
-    $destDir = $file.DirectoryName + "\..\obj\"
+    $destDir = $file.DirectoryName + "/../obj/"
     $null = New-Item -Path $destDir -ItemType Directory -Force
     $destFile = $destDir + $file.Name
     $skip = $false
@@ -102,9 +102,10 @@ if (Test-Path -Path "$SrcPath\Properties\AssemblyInfo.cs")
 $psds = Get-ChildItem -Path $SrcPath -Filter "*.psd1"
 ForEach ($psd in $psds)
 {
-    $destDir = $psd.DirectoryName + "\obj\"
+    $destDir = $psd.DirectoryName + "/obj/"
     $null = New-Item -Path $destDir -ItemType Directory -Force
     $destFile = $destDir + $psd.Name
+    $needsUpdate = @($true, $true)
 
     if (Test-Path $destFile -PathType Leaf)
     {
@@ -114,7 +115,8 @@ ForEach ($psd in $psds)
         {
             if ($versionStr -match $assemblyVersion)
             {
-                Write-Host "$psd ModuleVersion is up-to-date"
+                Write-Host "$destFile ModuleVersion is up-to-date"
+                $needsUpdate[0] = $false
             }
         }
         $preStr = $currentFileContent | Where-Object {$_ -like "*Prerelease =*"}
@@ -122,45 +124,98 @@ ForEach ($psd in $psds)
         {
             if ((-not [string]::IsNullOrEmpty($versionSuffix)) -and ($preStr -match $versionSuffix))
             {
-                Write-Host "$psd Prerelease version is up-to-date"
-                continue
+                Write-Host "$destFile Prerelease version is up-to-date"
+                $needsUpdate[1] = $false
             }
         }
     }
 
-    [string]$randString = Get-Random
-    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+    if ($needsUpdate.Where({ $_ -eq $true }, 'First').Count -gt 0)
+    {
+        [string]$randString = Get-Random
+        $tempFile = [System.IO.Path]::GetTempPath() + $psd.Name + $randString + ".tmp"
 
-    $psdContents = Get-Content $psd.FullName |
-                        ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$assemblyVersion'"} |
-                        ForEach-Object{$_ -replace 'Prerelease =.+', "Prerelease = '$versionSuffix'"} |
-                        Set-Content $tempFile
+        $null = Get-Content $psd.FullName |
+                            ForEach-Object{$_ -replace 'ModuleVersion.+', "ModuleVersion = '$assemblyVersion'"} |
+                            ForEach-Object{$_ -replace 'Prerelease =.+', "Prerelease = '$versionSuffix'"} |
+                            Set-Content $tempFile
 
-    Write-Host "Moving $tempFile to $destFile"
-    Move-Item $tempFile $destFile -force
+        Write-Host "Moving $tempFile to $destFile"
+        Move-Item $tempFile $destFile -force
+    }
 }
+
 
 
 $appxs = Get-ChildItem -Path $SrcPath -Filter "*.appxmanifest"
 ForEach ($appx in $appxs)
 {
-    $currentFileContent = Get-Content $appx
-    $versionStr = $currentFileContent | Where-Object {$_ -like "*Identity Version=*"}
-    if ($null -ne $versionStr)
+    $destDir = $appx.DirectoryName + "/obj/"
+    $null = New-Item -Path $destDir -ItemType Directory -Force
+    $destFile = $destDir + $appx.Name
+    $needsUpdate = @($true, $true, $true)
+
+    if ($null -eq $env:AGENT_MACHINENAME)
     {
-        if ($versionStr -match $assemblyVersion)
+        $appName = "Factory Orchestrator (DEV)"
+        $identityName = "Microsoft.FactoryOrchestratorApp.DEV"
+    }
+    else
+    {
+        $appName = "Factory Orchestrator"
+        $identityName = "Microsoft.FactoryOrchestratorApp"
+    }
+
+    if (-not [string]::IsNullOrEmpty($versionSuffix))
+    {
+        $appName += " Prerelease-$versionSuffix"
+        $identityName += ".Prerelease-$versionSuffix"
+    }
+
+    if (Test-Path $destFile -PathType Leaf)
+    {
+        $currentFileContent = Get-Content $destFile
+        $versionStr = $currentFileContent | Where-Object {$_ -like "*Identity Version=*"}
+        if ($null -ne $versionStr)
         {
-            continue
+            if ($versionStr -match $assemblyVersion)
+            {
+                Write-Host "$destFile Identity Version is up-to-date"
+                $needsUpdate[0] = $false
+            }
+        }
+        $indentStr = $currentFileContent | Where-Object {$_ -match "<Identity.+ Name="}
+        if ($null -ne $indentStr)
+        {
+            if ($indentStr -match "`"$identityName`"")
+            {
+                Write-Host "$destFile Identity Name is up-to-date"
+                $needsUpdate[1] = $false
+            }
+        }
+        $appStr = $currentFileContent | Where-Object {$_ -like "*<uap:VisualElements DisplayName=*"}
+        if ($null -ne $appStr)
+        {
+            if ($appStr -match "`"$appName`"")
+            {
+                Write-Host "$destFile Display Name is up-to-date"
+                $needsUpdate[2] = $false
+            }
         }
     }
 
-    [string]$randString = Get-Random
-    $tempFile = $env:TEMP + "\" + $file.Name + $randString + ".tmp"
+    if ($needsUpdate.Where({ $_ -eq $true }, 'First').Count -gt 0)
+    {
+        [string]$randString = Get-Random
+        $tempFile = [System.IO.Path]::GetTempPath() + $appx.Name + $randString + ".tmp"
 
-    $appxContents = $currentFileContent |
-                        ForEach-Object{$_ -replace 'Identity Version="[0-9,.]+?"', "Identity Version=`"$assemblyVersion.0`"" } |
-                        Set-Content -Path $tempFile
+        $null = Get-Content $appx.FullName |
+                            ForEach-Object{$_ -replace 'Identity Version="\$Version\$"', "Identity Version=`"$assemblyVersion.0`"" } |
+                            ForEach-Object{$_ -replace '\$AppName\$', $appName } |
+                            ForEach-Object{$_ -replace '\$IdentityName\$', $identityName } |                
+                            Set-Content $tempFile
 
-    Write-Host "Moving $tempFile to $appx"
-    Move-Item $tempFile $appx -force
+        Write-Host "Moving $tempFile to $destFile"
+        Move-Item $tempFile $destFile -force
+    }
 }

@@ -61,6 +61,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 AppComboBox.ItemsSource = new List<string>();
             }
 
+            try
+            {
+                _ = await Client.GetOSPlatform();
+                supportsCommandLineTask = true;
+            }
+            catch (FactoryOrchestratorVersionMismatchException)
+            {
+                // Service version < 9.1.0, must use BatchFileTask
+                supportsCommandLineTask = false;
+            }
+
             ParallelCheck.IsChecked = activeList.RunInParallel;
             BlockingCheck.IsChecked = activeList.AllowOtherTaskListsToRun;
             TerminateBgTasksCheck.IsChecked = activeList.TerminateBackgroundTasksOnCompletion;
@@ -208,7 +219,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         activeTask = new TAEFTest(TaskPathBox.Text);
                         break;
                     case TaskType.BatchFile:
-                        activeTask = new BatchFileTask(TaskPathBox.Text);
+                        if (supportsCommandLineTask)
+                        {
+                            activeTask = new CommandLineTask(TaskPathBox.Text);
+                        }
+                        else
+                        {
+#pragma warning disable CS0618 // Type or member is obsolete
+                            activeTask = new BatchFileTask(TaskPathBox.Text);
+#pragma warning restore CS0618 // Type or member is obsolete
+                        }
                         break;
                     case TaskType.PowerShell:
                         activeTask = new PowerShellTask(TaskPathBox.Text);
@@ -428,7 +448,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         resourceLoader.GetString("Path");
                         break;
                     case TaskType.BatchFile:
-                        var cmd = activeTask as BatchFileTask;
+                        var cmd = activeTask as CommandLineTask;
                         TaskPathBox.Text = cmd.Path;
                         ArgumentsBox.Text = cmd.Arguments;
                         EditFlyoutTextHeader.Text = resourceLoader.GetString("EditFlyoutTextHeaderEditingCMD");
@@ -739,6 +759,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool activeTaskIsNowBg;
         private bool isNewList;
         private bool listEdited;
+        private bool supportsCommandLineTask;
         private readonly FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
     }

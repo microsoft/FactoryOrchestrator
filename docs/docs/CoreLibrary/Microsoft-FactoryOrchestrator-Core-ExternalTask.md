@@ -4,9 +4,9 @@
 An ExternalTest is a task run outside of the FactoryOrchestratorServer.  
 task results must be returned to the server via SetTaskRunStatus().  
 ```csharp
-public class ExternalTask : TaskBase
+public class ExternalTask : Microsoft.FactoryOrchestrator.Core.TaskBase
 ```
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [NotifyPropertyChangedBase](./Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase.md 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; [TaskBase](./Microsoft-FactoryOrchestrator-Core-TaskBase.md 'Microsoft.FactoryOrchestrator.Core.TaskBase') &#129106; ExternalTask  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; [TaskBase](./Microsoft-FactoryOrchestrator-Core-TaskBase.md 'Microsoft.FactoryOrchestrator.Core.TaskBase') &#129106; ExternalTask  
 
 Derived  
 &#8627; [UWPTask](./Microsoft-FactoryOrchestrator-Core-UWPTask.md 'Microsoft.FactoryOrchestrator.Core.UWPTask')  

@@ -3,7 +3,7 @@
 ## FactoryOrchestratorXmlException Class
 An exception denoting an issue with given FactoryOrchestratorXML file.  
 ```csharp
-public class FactoryOrchestratorXmlException : FactoryOrchestratorException
+public class FactoryOrchestratorXmlException : Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [FactoryOrchestratorException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; FactoryOrchestratorXmlException  
 ### Constructors

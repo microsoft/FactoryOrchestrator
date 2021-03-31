@@ -172,7 +172,8 @@
   <data name="BadIpContent" xml:space="preserve">
     <value>Could not connect to {0}.
 
-Check that the IP address is correct and that the Factory Orchestrator Service is running on the target IP.</value>
+Check that the IP address, Server Name and Certificate Hash  is correct and that the Factory Orchestrator Service is running on the target IP.</value>
+	<comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
     <value>Unable to connect to target IP</value>
@@ -417,7 +418,8 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <value>Network information</value>
   </data>
   <data name="NewCMDButton.Content" xml:space="preserve">
-    <value>New Batch File Task</value>
+    <value>New Command Line File Task</value>
+    <comment>button to create a new command line file task (batch file on windows, shell script on linux)</comment>
   </data>
   <data name="NewExecutableButton.Content" xml:space="preserve">
     <value>New Executable Task</value>
@@ -741,5 +743,12 @@ On retry</value>
   <data name="LaunchRD.Content" xml:space="preserve">
     <value>Show Container UI (exit with ALT+F4)</value>
     <comment>button to launch remote desktop uwp app &amp; auto connect to the running container</comment>
+  <data name="CertHash.Text" xml:space="preserve">
+    <value>Certificate Hash:</value>
+	<comment>Hash value of the Certificate of the target machine.</comment>
+  </data>
+  <data name="ServerName.Text" xml:space="preserve">
+    <value>Server Identity:</value>
+	<comment>Distinguished Name of the target machine.</comment>
   </data>
 </root>

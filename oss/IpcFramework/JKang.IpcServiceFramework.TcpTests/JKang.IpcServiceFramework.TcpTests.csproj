@@ -26,12 +26,6 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>false</RunAnalyzers>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutDir>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutDir>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(MSBuildProjectName)</OutDir>
+    <OutDir>$(OutputRootPath)Tests/$(Configuration)/$(Platform)/$(MSBuildProjectName)</OutDir>
   </PropertyGroup>
 </Project>

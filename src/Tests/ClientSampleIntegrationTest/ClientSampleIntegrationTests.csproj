@@ -14,15 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ClientLibrary\Microsoft.FactoryOrchestrator.Client.csproj" />
-    <ProjectReference Include="..\..\ClientSample\Microsoft.FactoryOrchestrator.ClientSample.csproj" />
+    <ProjectReference Include="../../ClientLibrary/Microsoft.FactoryOrchestrator.Client.csproj" />
+    <ProjectReference Include="../../ClientSample/Microsoft.FactoryOrchestrator.ClientSample.csproj" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\..\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\Tests\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)Tests/$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
 
 </Project>

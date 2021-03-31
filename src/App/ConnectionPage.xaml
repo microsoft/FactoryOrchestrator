@@ -71,10 +71,17 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" x:Uid="IpAddress" x:Name="IpText"/>
-                <TextBox Grid.Row="0" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="IpTextBox_TextChanged" InputScope="Number" KeyDown="IpTextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}"/>
-                <Button Grid.Row="0" Grid.Column="4" x:Name="ConnectButton" Margin="1" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" x:Uid="ServerName" x:Name="ServerNameText"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="ServerNameTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ServerNameText}" />
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" x:Uid="CertHash" x:Name="CertHashText"/>
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="CertHashTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=CertHashText}"/>
+                <Button Grid.Row="3" Grid.Column="1" x:Name="ConnectButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
             </Grid>
             <StackPanel Orientation="Horizontal" Grid.Row="9" HorizontalAlignment="Right">
                 <Button x:Name="ValidateXMLButton" x:Uid="ValidateXMLButton" Margin="5" Click="ValidateXMLButton_Click"/>

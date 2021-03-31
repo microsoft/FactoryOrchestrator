@@ -3,7 +3,7 @@
 ## FactoryOrchestratorConnectionException Class
 A FactoryOrchestratorConnectionException describes a Factory Orchestrator Client-Service connection issue.  
 ```csharp
-public class FactoryOrchestratorConnectionException : FactoryOrchestratorException
+public class FactoryOrchestratorConnectionException : Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorException 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; FactoryOrchestratorConnectionException  
 ### Constructors

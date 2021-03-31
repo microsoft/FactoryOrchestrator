@@ -3,7 +3,7 @@
 ## ServerPollerExceptionHandlerEventArgs Class
 Class containing the exception thrown from the latest poll operation.  
 ```csharp
-public class ServerPollerExceptionHandlerEventArgs : EventArgs
+public class ServerPollerExceptionHandlerEventArgs : System.EventArgs
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.EventArgs](https://docs.microsoft.com/en-us/dotnet/api/System.EventArgs 'System.EventArgs') &#129106; ServerPollerExceptionHandlerEventArgs  
 ### Constructors

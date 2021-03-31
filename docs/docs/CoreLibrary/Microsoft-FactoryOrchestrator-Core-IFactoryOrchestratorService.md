@@ -27,6 +27,7 @@ public interface IFactoryOrchestratorService
 - [GetLastServiceError()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetLastServiceError().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetLastServiceError()')
 - [GetLogFolder()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetLogFolder().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetLogFolder()')
 - [GetOEMVersionString()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetOEMVersionString().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetOEMVersionString()')
+- [GetOSPlatform()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetOSPlatform().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetOSPlatform()')
 - [GetOSVersionString()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetOSVersionString().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetOSVersionString()')
 - [GetServiceEvents()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetServiceEvents().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetServiceEvents()')
 - [GetServiceEvents(System.DateTime)](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetServiceEvents(System-DateTime).md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetServiceEvents(System.DateTime)')

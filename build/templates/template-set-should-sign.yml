@@ -1,13 +1,14 @@
 steps:
 - pwsh: |
-    $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]true"
+    if ($env:SKIPSIGN -eq 'false' -or (($null -ne $env:FORCESIGN) -and ($env:FORCESIGN -eq $true)))
+    {
+      $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]true"
+    }
+    else
+    {
+      $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]false"
+    }
     Write-Host "sending " + $vstsCommandString
     Write-Host "##$vstsCommandString"
-  condition: or(eq(variables['SKIPSIGNING'], 'false'), eq(variables['FORCESIGNING'], 'true'))
-  displayName: 'Set SHOULDSIGN=true'
-- pwsh: |
-    $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]false"
-    Write-Host "sending " + $vstsCommandString
-    Write-Host "##$vstsCommandString"
-  condition: ne(variables['SHOULDSIGN'], 'true')
-  displayName: 'Set SHOULDSIGN=false'
+  displayName: 'Set SHOULDSIGN'
+  name: SetSHOULDSIGN

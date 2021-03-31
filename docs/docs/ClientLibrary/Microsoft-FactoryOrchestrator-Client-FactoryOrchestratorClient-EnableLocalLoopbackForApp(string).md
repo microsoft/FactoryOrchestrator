@@ -1,7 +1,7 @@
 #### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
 ### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')
 ## FactoryOrchestratorClient.EnableLocalLoopbackForApp(string) Method
-Asynchronously Enables local loopback on the given UWP app.  
+Asynchronously Enables local loopback on the given UWP app. Local loopback is enabled permanently for this app, persisting through reboots.  
 ```csharp
 public System.Threading.Tasks.Task EnableLocalLoopbackForApp(string aumid);
 ```

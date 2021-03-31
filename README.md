@@ -2,31 +2,32 @@
 
  [![Build Status](https://microsoft.visualstudio.com/OneCore/_apis/build/status/FactoryOrchestrator/FO-PublicFacing-CI?branchName=main)](https://microsoft.visualstudio.com/OneCore/_build/latest?definitionId=54749&branchName=main)
 
-Factory Orchestrator provides a simple and reliable way to run and manage factory line validation and fault analysis workflows. Beyond the factory floor Factory Orchestrator can be during os and hardware development to support various developer inner-loop and diagnostics activities.
+Built to allow device manufacturers and developers to focus more on their validation and calibration software, and less on how to run, audit, and manage the lifecycle of their programs, Factory Orchestrator is a .NET Core cross-platform system service for organizing, executing, and logging a set of executable scripts, binaries, or ["Tasks"](https://microsoft.github.io/FactoryOrchestrator/tasks-and-tasklists/) on a system. Factory Orchestrator tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to system failure. Factory Orchestrator also provides an optional [client app](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/) for Windows and a [robust client API surface](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/) for clients to monitor & interact with the service via the App or C# .NET, C# UWP, or PowerShell code. The app and and any other client can communicate with any Factory Orchestrator service running on the same system and/or over a network to a remote [device under test (DUT)](https://en.wikipedia.org/wiki/Device_under_test)!
 
 Learn more about this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/).
 
-The [getting started](https://microsoft.github.io/FactoryOrchestrator/get-started-with-factory-orchestrator/) page is a great place to go once you've built the binaries for the project.
-
-## **Factory Orchestrator consists of the following projects:**
+## **Factory Orchestrator consists of the following projects and binary releases:**
 
 * **Microsoft.FactoryOrchestrator.Core**
- A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects.
-
-* **Microsoft.FactoryOrchestrator.Server**
- A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects.
-
-* **Microsoft.FactoryOrchestrator.Service**
- .NET Core Executable project for Microsoft.FactoryOrchestrator.Service.exe, the FactoryOrchestrator server implementation. Requires administrator access to run.
+ A .NET Standard library containing the core FactoryOrchestrator classes. Required in all projects. This is available as ["Microsoft.FactoryOrchestrator.Core" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Core/).
 
 * **Microsoft.FactoryOrchestrator.Client**
- .NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Microsoft.FactoryOrchestrator.Service. Also contains optional helper classes.
+ .NET Standard library containing the client-side FactoryOrchestrator classes, required to interact with Microsoft.FactoryOrchestrator.Service. Also contains optional helper classes. This is available as ["Microsoft.FactoryOrchestrator.Client" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Client/).
 
-* **FactoryOrchestratorPowerShellLibrary**
- .NET Standard library containing a synchronous client-side FactoryOrchestrator class and Cmdlet wrapper classes, designed to be used via PowerShell.
+* **Microsoft.FactoryOrchestrator.UWPClient**
+ UWP library containing the client-side FactoryOrchestrator classes, required to interact with Microsoft.FactoryOrchestrator.Service from a Universal Windows Platform app. This is available as ["Microsoft.FactoryOrchestrator.UWPClient" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.UWPClient/).
+
+* **Microsoft.FactoryOrchestrator.PowerShell**
+PowerShell module containing a synchronous client-side FactoryOrchestrator class and Cmdlet wrapper classes, designed to be used WITH PowerShell 6+. This is available as ["Microsoft.FactoryOrchestrator.Client" on PowerShell Gallery](https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/). 
+
+* **Microsoft.FactoryOrchestrator.Server**
+ A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects. ["Microsoft.FactoryOrchestrator.Server" on NuGet](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Server/).
+
+* **Microsoft.FactoryOrchestrator.Service**
+ .NET Core Executable project for Microsoft.FactoryOrchestrator.Service.exe, the FactoryOrchestrator server implementation. Requires administrator access to run. This is available on [the GitHub Releases page as a .zip](https://github.com/microsoft/FactoryOrchestrator/releases).
 
 * **Microsoft.FactoryOrchestrator.App**
- C# UWP app project for Microsoft.FactoryOrchestrator.App.exe, the UWP provides a GUI (Graphical User Interface) to manually interact with Microsoft.FactoryOrchestrator.Service.
+ C# UWP app project for Microsoft.FactoryOrchestrator.App.exe, the UWP provides a GUI (Graphical User Interface) to manually interact with Microsoft.FactoryOrchestrator.Service. This is available on [the GitHub Releases page as a .msixbundle](https://github.com/microsoft/FactoryOrchestrator/releases).
 
 Factory Orchestrator :green_heart: OSS.
 
@@ -50,13 +51,14 @@ FactoryOrchestrator
     |   ClientLibrary
     |   ClientSample
     |   CoreLibrary
+    |   PowerShellLibrary
     |   ServerLibrary
     |   Service
     |   Tests
     └   UWPClientLibrary
 ```
 
-## Prerequisites
+## Prerequisites to build source code
 
 ### Install dependencies
 
@@ -83,7 +85,6 @@ FactoryOrchestrator contains a series of unsigned powershell scripts. Windows se
 https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7
 
 ## Other notes
-* When building the source code, keep in mind that certain actions only occur when the build is run as part of an Azure DevOps Pipeline or when run in the "Release" configuration locally. For example, [DocFX documentation](https://dotnet.github.io/docfx/) for the Core and Client Libraries is only generated when the build is run in in one of those two modes. These actions are skipped in Debug builds to increase inner-dev-loop speed.
 
 * You may see IntelliSense errors before building Microsoft.FactoryOrchestrator.Core, as that project creates Autogenerated C# files used in other projects.
 
@@ -128,3 +129,5 @@ Please refer to [SECURITY.md](./SECURITY.md).
 [Pe-Utility](https://github.com/AndresTraks/pe-utility) - Andres Traks - [MIT License](https://github.com/AndresTraks/pe-utility/blob/master/LICENSE)
 
 [WindowsDevicePortalWrapper (mgurlitz .NET Standard fork)](https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard) - Microsoft Corporation and mgurlitz - [MIT License](https://github.com/mgurlitz/WindowsDevicePortalWrapper/blob/feat-standard/License.txt)
+
+[DefaultDocumentation](https://github.com/Doraku/DefaultDocumentation) - Paillat Laszlo - [MIT No Attribution License](https://github.com/Doraku/DefaultDocumentation/blob/master/LICENSE.md)

@@ -3,7 +3,7 @@
 ## FactoryOrchestratorContainerDisabledException Class
 An exception denoting that container support is disabled.  
 ```csharp
-public class FactoryOrchestratorContainerDisabledException : FactoryOrchestratorContainerException
+public class FactoryOrchestratorContainerDisabledException : Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerException
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [FactoryOrchestratorException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; [FactoryOrchestratorContainerException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorContainerException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorContainerException') &#129106; FactoryOrchestratorContainerDisabledException  
 ### Constructors

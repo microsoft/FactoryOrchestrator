@@ -5,6 +5,10 @@
       "file": "WindowsDev_TemporaryKey.pfx", 
       "_justification": "APPX certificate file with common Microsoft app dev key"
     },
+	{
+      "file": "FactoryServer.pfx",
+      "_justification": "Server certificate to enable SSL encryption."
+    },
     {
       "folder": "ClientLibrary\\obj\\",
       "_justification": "Object directory"

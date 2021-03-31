@@ -48,13 +48,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(AGENT_ID)' == ''">
-    <OutputPath>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <DocumentationFile>..\..\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(AGENT_ID)' != ''">
-    <OutputPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)</OutputPath>
-    <DocumentationFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\bin\$(Configuration)\$(Platform)\$(TargetName)\$(TargetName).XML</DocumentationFile>
+  <PropertyGroup>
+    <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
+    <DocumentationFile>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)/$(TargetFramework)/$(TargetName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <PackageOutputPath>$(OutputPath)\..\$(TargetName).NuGet</PackageOutputPath>
@@ -85,7 +81,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Target Name="BeforeBuildPS" BeforeTargets="Build;CoreCompile;XefVersionResourceCompile;XamlPreCompile">
-    <Exec Command="Powershell.exe $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
+    <Exec Command="$(PowerShellExeName) $(ProjectDir)..\..\build\SetSourceVersion.ps1 -SrcPath $(ProjectDir)" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

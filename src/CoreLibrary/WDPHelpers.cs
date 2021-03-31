@@ -17,6 +17,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Application install status
     /// </summary>
+    /// <exclude/>
     public enum ApplicationInstallStatus
     {
         /// <summary>
@@ -43,6 +44,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Install phase
     /// </summary>
+    /// <exclude/>
     public enum ApplicationInstallPhase
     {
         /// <summary>
@@ -69,6 +71,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Helper APIs for Windows Device Portal.
     /// </summary>
+    /// <exclude/>
     public static class WDPHelpers
     {
         /// <summary>
@@ -298,6 +301,8 @@ namespace Microsoft.FactoryOrchestrator.Core
         }
     }
 
+
+    /// <exclude/>
     internal sealed class HttpMultipartFileContent : HttpContent
     {
         /// <summary>
@@ -422,6 +427,7 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// Object containing additional error information from
     /// an HTTP response.
     /// </summary>
+    /// <exclude/>
     [DataContract]
     public class HttpErrorResponse
     {

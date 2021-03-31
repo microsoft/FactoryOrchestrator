@@ -5,7 +5,7 @@ Factory Ochestrator uses a polling model. ServerPoller is used to create a polli
 All Factory Orchestrator GUID types are supported.  
 ```csharp
 public class ServerPoller :
-IDisposable
+System.IDisposable
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; ServerPoller  
 

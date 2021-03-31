@@ -19,8 +19,18 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
     /// </summary>
     public static class FactoryOrchestratorNETCoreClientSample
     {
+        /// <summary>
+        /// Gets the failed TaskRun guids. This is used for Factory Orchestrator testing only, not by this sample code.
+        /// See src\Tests\ClientSampleIntegrationTest\ClientSampleIntegrationTests.cs for details.
+        /// </summary>
+        /// <value>
+        /// The failed run guids.
+        /// </value>
+        public static List<Guid> FailedRunGuids { get; private set; }
+
         public static async Task<int> Main(string[] args)
         {
+            FailedRunGuids = new List<Guid>();
             return await RunAsync(args);
         }
 
@@ -354,7 +364,15 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
                 Console.WriteLine($"{Resources.OverallResult}: {taskList.TaskListStatus}");
                 foreach (var task in taskList.Tasks)
                 {
+
                     Console.WriteLine($"{task.Name}: {task.LatestTaskRunStatus} {Resources.WithExitCode} {task.LatestTaskRunExitCode.GetValueOrDefault()}. {string.Format(CultureInfo.CurrentCulture, Resources.TaskTime, task.LatestTaskRunRunTime.GetValueOrDefault().TotalSeconds)}");
+
+                    if (task.LatestTaskRunStatus != TaskStatus.Passed)
+                    {
+                        // Add to FailedRunGuids. This is used for Factory Orchestrator testing only, not by this sample code.
+                        // See src\Tests\ClientSampleIntegrationTest\ClientSampleIntegrationTests.cs for details.
+                        FailedRunGuids.Add((Guid)task.LatestTaskRunGuid);
+                    }
                 }
             }
 

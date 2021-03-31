@@ -9,8 +9,6 @@ steps:
     pushPkgName: 'FactoryOrchestrator.msixbundle'
     description: 'FactoryOrchestrator.msixbundle'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
-  enabled: true
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest to Drop msixbundle'
@@ -18,7 +16,6 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), eq(variables['SHOULDPUSH'], 'true'))
 
 - task: PkgESVPack@10
   env:
@@ -29,8 +26,6 @@ steps:
     pushPkgName: 'FactoryOrchestrator.NetCoreTests'
     description: 'FactoryOrchestrator.NetCoreTests'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
-  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))
-  enabled: true
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest NET Core Tests'
@@ -38,4 +33,3 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(succeeded(), and(succeeded(), eq(variables['SHOULDPUSH'], 'true')))

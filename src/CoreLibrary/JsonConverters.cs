@@ -12,6 +12,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
     /// <summary>
     /// TaskBaseConverter serializes "instances" of the abstract class TaskBase.
     /// </summary>
+    /// <exclude/>
     public class TaskBaseConverter : JsonConverter
     {
         /// <summary>Determines whether this instance can convert the specified object type.</summary>
@@ -45,8 +46,22 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                     return JsonConvert.DeserializeObject<UWPTask>(jo.ToString());
                 case TaskType.PowerShell:
                     return JsonConvert.DeserializeObject<PowerShellTask>(jo.ToString());
-                case TaskType.BatchFile:
-                    return JsonConvert.DeserializeObject<BatchFileTask>(jo.ToString());
+                case TaskType.CommandLine:
+                    {
+                        // Use the object type the serializer used to ensure back-compatibiilty
+#pragma warning disable CA1062 // Validate arguments of public methods
+                        if (jo["$type"].Value<string>().Equals("Microsoft.FactoryOrchestrator.Core.CommandLineTask, Microsoft.FactoryOrchestrator.Core", StringComparison.InvariantCultureIgnoreCase))
+#pragma warning restore CA1062 // Validate arguments of public methods
+                        {
+                            return JsonConvert.DeserializeObject<CommandLineTask>(jo.ToString());
+                        }
+                        else
+                        {
+#pragma warning disable CS0618 // Type or member is obsolete
+                            return JsonConvert.DeserializeObject<BatchFileTask>(jo.ToString());
+#pragma warning restore CS0618 // Type or member is obsolete
+                        }
+                    }
                 default:
                     throw new FactoryOrchestratorException(Resources.TaskBaseDeserializationException);
             }
@@ -56,6 +71,14 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
         /// <value>
         ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter"/> can write JSON; otherwise, <c>false</c>.</value>
         public override bool CanWrite
+        {
+            get { return true; }
+        }
+
+        /// <summary>Gets a value indicating whether this <see cref="Newtonsoft.Json.JsonConverter"/> can read JSON.</summary>
+        /// <value>
+        ///   <c>true</c> if this <see cref="Newtonsoft.Json.JsonConverter"/> can read JSON; otherwise, <c>false</c>.</value>
+        public override bool CanRead
         {
             get { return true; }
         }
@@ -96,8 +119,18 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
                 case TaskType.PowerShell:
                     serializer.Serialize(writer, value, typeof(PowerShellTask));
                     break;
-                case TaskType.BatchFile:
-                    serializer.Serialize(writer, value, typeof(BatchFileTask));
+                case TaskType.CommandLine:
+                    // Use the exact object type to ensure back-compatibiilty
+                    if (task.GetType().Equals(typeof(CommandLineTask)))
+                    {
+                        serializer.Serialize(writer, value, typeof(CommandLineTask));
+                    }
+                    else
+                    {
+#pragma warning disable CS0618 // Type or member is obsolete
+                        serializer.Serialize(writer, value, typeof(BatchFileTask));
+#pragma warning restore CS0618 // Type or member is obsolete
+                    }
                     break;
                 default:
                     throw new FactoryOrchestratorException(Resources.TaskBaseSerializationException);
@@ -109,6 +142,7 @@ namespace Microsoft.FactoryOrchestrator.Core.JSONConverters
     /// NoConverter class is used children of abstract classes (ex: ExecutableTask), to prevent infinite loop.
     /// All serialization is done by the Abstract class converter (TaskBaseConverter)
     /// </summary>
+    /// <exclude/>
     [JsonConverter(typeof(NoConverter))]
     public class NoConverter : JsonConverter
     {

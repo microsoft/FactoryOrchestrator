@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FactoryOrchestratorXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TaskLists>
+    <TaskList Guid="baf64435-022d-4c8b-880e-c4bb06a2f687" Name="Touch and Ink Tests" RunInParallel="false" AllowOtherTaskListsToRun="false">
+      <Tasks>
+        <Task xsi:type="UWPTask" Name="TouchTest" Path="Microsoft.TouchAndPenSample_8wekyb3d8bbwe" Arguments="Could you trace the lines?" Guid="57c9b758-9778-45ae-bcb2-44c55c71ad03" AutoPassedIfLaunched="true" />
+        <Task xsi:type="UWPTask" Name="TouchTest" Path="Microsoft.TouchAndPenSample_8wekyb3d8bbwe" Arguments="Could you trace the lines?" Guid="57c9b758-9778-45ae-bcb2-44c55c71ad04" AutoPassedIfLaunched="false" TerminateOnCompleted="true" />
+        <!-- <Task xsi:type="UWPTask" Name="InkTest" Path="Microsoft.TouchAndPenSample_8wekyb3d8bbwe" Arguments="Could you ink on the screen with various pressure?" Guid="fc008cf9-95ac-43ff-81be-e4540967a7a2" /> -->
+      </Tasks>
+    </TaskList>
+  </TaskLists>
+</FactoryOrchestratorXML>

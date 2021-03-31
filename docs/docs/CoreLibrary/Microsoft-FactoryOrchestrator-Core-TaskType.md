@@ -30,6 +30,10 @@ The Task is a UWP app.
 `PowerShell` 4  
 The Task is a PowerShell Core script.  
   
+<a name='Microsoft-FactoryOrchestrator-Core-TaskType-CommandLine'></a>
+`CommandLine` 5  
+The Task is a batch file or shell script.  
+  
 <a name='Microsoft-FactoryOrchestrator-Core-TaskType-BatchFile'></a>
 `BatchFile` 5  
 The Task is a Command Prompt script.  

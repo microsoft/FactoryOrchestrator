@@ -4,12 +4,12 @@
 A wrapper for the List class that locks the list on any modification operations.  
 ```csharp
 public class LockingList<T> :
-ICollection<T>,
-IEnumerable<T>,
-IEnumerable,
-IList<T>,
-IReadOnlyCollection<T>,
-IReadOnlyList<T>
+System.Collections.Generic.ICollection<T>,
+System.Collections.Generic.IEnumerable<T>,
+System.Collections.IEnumerable,
+System.Collections.Generic.IList<T>,
+System.Collections.Generic.IReadOnlyCollection<T>,
+System.Collections.Generic.IReadOnlyList<T>
 ```
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; LockingList&lt;T&gt;  
 

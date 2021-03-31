@@ -438,6 +438,10 @@
     <value>Factory Orchestrator Service did not recognize the command! This is most likely due to a version mismatch between the Client and Service.</value>
     <comment>Error when service does not recognize a command from client. Almost always due to using an older client with a newer service.</comment>
   </data>
+  <data name="IpcAuthenticationError" xml:space="preserve">
+    <value>FactoryOrchestratorClient could not validate remote certificate! This is most likely due to a distinguished server name mismatch or remote certificate hash value mismatch.</value>
+    <comment>Error when client side validation for remote certificate fails.</comment>
+  </data>
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
@@ -464,5 +468,13 @@
   <data name="ContainerSupportNotPresent" xml:space="preserve">
     <value>Operating System does not support containers. Disabling container support.</value>
     <comment>Message shown when the operating system doesn't support containers.</comment>
+  </data>
+  <data name="ServiceStatusTypeException" xml:space="preserve">
+    <value>Argument must be FOServiceStatus or FOVolatileServiceStatus object!</value>
+    <comment>Exception message when UpdateServiceStatusFile() is passed an invalid object type.</comment>
+  </data>
+  <data name="UnableToParseError" xml:space="preserve">
+    <value>Unable to parse {0}!</value>
+    <comment>Error shown if the given file cannot be read properly (missing/corrupt)</comment>
   </data>
 </root>

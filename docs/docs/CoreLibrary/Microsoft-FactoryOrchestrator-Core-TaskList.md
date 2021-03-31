@@ -3,9 +3,9 @@
 ## TaskList Class
 A TaskList is a grouping of Factory Orchestrator Tasks.  
 ```csharp
-public class TaskList : NotifyPropertyChangedBase
+public class TaskList : Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase
 ```
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [NotifyPropertyChangedBase](./Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase.md 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; TaskList  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase](./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-NotifyPropertyChangedBase 'Microsoft.FactoryOrchestrator.Core.NotifyPropertyChangedBase') &#129106; TaskList  
 ### Constructors
 - [TaskList(string, System.Guid)](./Microsoft-FactoryOrchestrator-Core-TaskList-TaskList(string_System-Guid).md 'Microsoft.FactoryOrchestrator.Core.TaskList.TaskList(string, System.Guid)')
 ### Properties

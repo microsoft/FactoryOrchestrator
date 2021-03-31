@@ -2,5 +2,4 @@
 steps:
 - template: template-set-FORepoRoot.yml
 - template: template-set-build-version.yml
-- template: template-set-should-push.yml
 - template: template-set-should-sign.yml
