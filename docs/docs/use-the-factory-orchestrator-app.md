@@ -1,9 +1,8 @@
-
-# Run tasks with Factory Orchestrator
-
-Once you've created or imported a TaskList into Factory Orchestrator, you can run it. This topic covers the process of running a TaskList.
+# Use the Factory Orchestrator app
+The app is a Windows-only app and it depends on the service to run. However, it can connect to a service running on any DUT on your local network, not just to the same device the app is running on. This includes connecting to a DUT running Linux!
 
 ## Run a TaskList
+Once you've [created or imported a TaskList into Factory Orchestrator, you can run it](tasks-and-tasklists.md). This topic covers the process of running a TaskList.
 
 When you click on the **Run TaskLists** menu item, you'll be see the "Run TaskLists" screen.
 
