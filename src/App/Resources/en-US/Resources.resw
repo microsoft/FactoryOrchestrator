@@ -743,6 +743,7 @@ On retry</value>
   <data name="LaunchRD.Content" xml:space="preserve">
     <value>Show Container UI (exit with ALT+F4)</value>
     <comment>button to launch remote desktop uwp app &amp; auto connect to the running container</comment>
+  </data>
   <data name="CertHash.Text" xml:space="preserve">
     <value>Certificate Hash:</value>
 	<comment>Hash value of the Certificate of the target machine.</comment>
