@@ -491,7 +491,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         OnServiceDoneExecutingBootTasks?.Invoke();
                         break;
                     case ServiceEventType.WaitingForExternalTaskRun:
-                        // Check if we are localhost, if so we are the DUT and need to run the UWP task for the server.
+                        // Check if we are localhost, if so we are the DUT and will show UI for the External task.
                         // If not, do nothing, as we are not the DUT.
                         if (Client.IsLocalHost)
                         {
@@ -535,11 +535,56 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         IsContainerRunning = false;
                         IsContainerDisabled = true;
                         break;
+                    case ServiceEventType.ContainerTaskRunRedirectedToRunAsRDUser:
+                        // Check if we are localhost, if so we are the DUT and can try to initiate a RD connection via protocol for the server.
+                        // If not, do nothing, as we are not the DUT.
+                        if (Client.IsLocalHost)
+                        {
+                            // TODO: Performance: this should be in its own thread, so other service events can be handled
+                            // Only allow one container run at a time
+                            TaskRun run = null;
+
+                            while (run == null)
+                            {
+                                try
+                                {
+                                    run = await Client.QueryTaskRun((Guid)evnt.Guid);
+
+                                    if (run == null)
+                                    {
+                                        return;
+                                    }
+                                }
+                                catch (FactoryOrchestratorConnectionException)
+                                {
+                                    OnConnectionFailure();
+                                    while ((OnConnectionPage) || (!Client.IsConnected))
+                                    {
+                                        await Task.Delay(1000);
+                                    }
+                                }
+                            }
+                            if (!run.TaskRunComplete)
+                            {
+                                await HandleContainerTaskRunRedirectedToRunAsRDUserAsync();
+                            }
+                        }
+                        break;
                     default:
                         // Ignore other events
                         break;
                 }
             }
+        }
+
+        private async Task HandleContainerTaskRunRedirectedToRunAsRDUserAsync()
+        {
+            var containerIp = (await Client.GetContainerIpAddresses())[0];
+            // Try to initiate a RD connection via protocol 
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async ()  =>
+            {
+                var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:factoryosconnect?ip={containerIp}&username=Abby"));
+            });
         }
 
         private async Task HandleExternalTaskRunAsync(TaskRun run)

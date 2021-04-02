@@ -256,6 +256,49 @@ namespace Microsoft.FactoryOrchestrator.Core
                 status = await GetInstallStatusAsync(ipAddress);
             }
         }
+
+
+        /// <summary>
+        /// Closes a running app package application with Windows Device Portal.
+        /// </summary>
+        /// <param name="app">The app package to exit .</param>
+        /// <param name="ipAddress">The ip address of the device to exit the app on.</param>
+        /// <exception cref="ArgumentException">
+        /// </exception>
+        public static async Task CloseAppWithWDP(string app, string ipAddress = "localhost")
+        {
+            if (string.IsNullOrWhiteSpace(app))
+            {
+                throw new ArgumentException(Resources.WDPError, nameof(app));
+            }
+
+            var uri = BuildEndpoint(new Uri($"http://{ipAddress}"),
+                                "api/taskmanager/app",
+                                $"package={Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(app))}");
+
+            await WdpHttpClient.DeleteAsync(uri);
+        }
+
+        /// <summary>
+        /// Gets the collection of applications installed on the device.
+        /// </summary>
+        /// <param name="ipAddress">The ip address of the device to query.</param>
+        /// <returns>AppPackages object containing the list of installed application packages.</returns>
+        public static async Task<AppPackages> GetInstalledAppPackagesAsync(string ipAddress = "localhost")
+        {
+            Uri uri = BuildEndpoint(
+                new Uri($"http://{ipAddress}"),
+                "api/app/packagemanager/packages");
+
+            var resp =  await WdpHttpClient.GetAsync(uri).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException(Resources.WDPNotRunningError);
+            }
+
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AppPackages));
+            return (AppPackages)serializer.ReadObject(await resp.Content.ReadAsStreamAsync());
+        }
     }
 
 
@@ -418,4 +461,154 @@ namespace Microsoft.FactoryOrchestrator.Core
         [DataMember(Name = "Success")]
         public bool Success { get; private set; }
     }
-}
+
+        /// <summary>
+        /// Object representing a list of Application Packages
+        /// </summary>
+        [DataContract]
+        public class AppPackages
+        {
+            /// <summary>
+            /// Gets a list of the packages
+            /// </summary>
+            [DataMember(Name = "InstalledPackages")]
+            public List<PackageInfo> Packages { get; private set; }
+
+            /// <summary>
+            /// Presents a user readable representation of a list of AppPackages
+            /// </summary>
+            /// <returns>User readable list of AppPackages.</returns>
+            public override string ToString()
+            {
+                string output = "Packages:\n";
+                foreach (PackageInfo package in this.Packages)
+                {
+                    output += package;
+                }
+
+                return output;
+            }
+        }
+
+        /// <summary>
+        /// object representing the package information
+        /// </summary>
+        [DataContract]
+        public class PackageInfo
+        {
+            /// <summary>
+            /// Gets package name
+            /// </summary>
+            [DataMember(Name = "Name")]
+            public string Name { get; private set; }
+
+            /// <summary>
+            /// Gets package family name
+            /// </summary>
+            [DataMember(Name = "PackageFamilyName")]
+            public string FamilyName { get; private set; }
+
+            /// <summary>
+            /// Gets package full name
+            /// </summary>
+            [DataMember(Name = "PackageFullName")]
+            public string FullName { get; private set; }
+
+            /// <summary>
+            /// Gets package relative Id
+            /// </summary>
+            [DataMember(Name = "PackageRelativeId")]
+            public string AppId { get; private set; }
+
+            /// <summary>
+            /// Gets package publisher
+            /// </summary>
+            [DataMember(Name = "Publisher")]
+            public string Publisher { get; private set; }
+
+            /// <summary>
+            /// Gets package version
+            /// </summary>
+            [DataMember(Name = "Version")]
+            public PackageVersion Version { get; private set; }
+
+            /// <summary>
+            /// Gets package origin, a measure of how the app was installed. 
+            /// PackageOrigin_Unknown            = 0,
+            /// PackageOrigin_Unsigned           = 1,
+            /// PackageOrigin_Inbox              = 2,
+            /// PackageOrigin_Store              = 3,
+            /// PackageOrigin_DeveloperUnsigned  = 4,
+            /// PackageOrigin_DeveloperSigned    = 5,
+            /// PackageOrigin_LineOfBusiness     = 6
+            /// </summary>
+            [DataMember(Name = "PackageOrigin")]
+            public int PackageOrigin { get; private set; }
+
+            /// <summary>
+            /// Helper method to determine if the app was sideloaded and therefore can be used with e.g. GetFolderContentsAsync
+            /// </summary>
+            /// <returns> True if the package is sideloaded. </returns>
+            public bool IsSideloaded()
+            {
+                return this.PackageOrigin == 4 || this.PackageOrigin == 5;
+            }
+
+            /// <summary>
+            /// Get a string representation of the package
+            /// </summary>
+            /// <returns>String representation</returns>
+            public override string ToString()
+            {
+                return string.Format(CultureInfo.CurrentCulture, "\t{0}\n\t\t{1}\n", this.FullName, this.AppId);
+            }
+        }
+
+        /// <summary>
+        /// Object representing a package version
+        /// </summary>
+        [DataContract]
+        public class PackageVersion
+        {
+            /// <summary>
+            ///  Gets version build
+            /// </summary>
+            [DataMember(Name = "Build")]
+            public int Build { get; private set; }
+
+            /// <summary>
+            /// Gets package Major number
+            /// </summary>
+            [DataMember(Name = "Major")]
+            public int Major { get; private set; }
+
+            /// <summary>
+            /// Gets package minor number
+            /// </summary>
+            [DataMember(Name = "Minor")]
+            public int Minor { get; private set; }
+
+            /// <summary>
+            /// Gets package revision
+            /// </summary>
+            [DataMember(Name = "Revision")]
+            public int Revision { get; private set; }
+
+            /// <summary>
+            /// Gets package version
+            /// </summary>
+            public Version Version
+            {
+                get { return new Version(this.Major, this.Minor, this.Build, this.Revision); }
+            }
+
+            /// <summary>
+            /// Get a string representation of a version
+            /// </summary>
+            /// <returns>String representation</returns>
+            public override string ToString()
+            {
+                return Version.ToString();
+            }
+        }
+    }

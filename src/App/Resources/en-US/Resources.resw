@@ -740,6 +740,10 @@ On retry</value>
     <value>Factory Orchestrator Service Information</value>
     <comment>text field header for showing info that relate to what features are enabled / disabled in the Service.</comment>
   </data>
+  <data name="LaunchRD.Content" xml:space="preserve">
+    <value>Show Container UI (exit with ALT+F4)</value>
+    <comment>button to launch remote desktop uwp app &amp; auto connect to the running container</comment>
+  </data>
   <data name="CertHash.Text" xml:space="preserve">
     <value>Certificate Hash:</value>
 	<comment>Hash value of the Certificate of the target machine.</comment>

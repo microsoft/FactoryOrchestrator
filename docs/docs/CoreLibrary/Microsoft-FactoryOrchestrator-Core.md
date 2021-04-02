@@ -1,6 +1,7 @@
 #### [Microsoft.FactoryOrchestrator.Core](./Microsoft-FactoryOrchestrator-Core.md 'Microsoft.FactoryOrchestrator.Core')
 ## Microsoft.FactoryOrchestrator.Core Namespace
 ### Classes
+- [AppPackages](./Microsoft-FactoryOrchestrator-Core-AppPackages.md 'Microsoft.FactoryOrchestrator.Core.AppPackages')
 - [BatchFileTask](./Microsoft-FactoryOrchestrator-Core-BatchFileTask.md 'Microsoft.FactoryOrchestrator.Core.BatchFileTask')
 - [CommandLineTask](./Microsoft-FactoryOrchestrator-Core-CommandLineTask.md 'Microsoft.FactoryOrchestrator.Core.CommandLineTask')
 - [ExecutableTask](./Microsoft-FactoryOrchestrator-Core-ExecutableTask.md 'Microsoft.FactoryOrchestrator.Core.ExecutableTask')
@@ -13,6 +14,8 @@
 - [FactoryOrchestratorXML](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorXML.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorXML')
 - [FactoryOrchestratorXmlException](./Microsoft-FactoryOrchestrator-Core-FactoryOrchestratorXmlException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorXmlException')
 - [LockingList&lt;T&gt;](./Microsoft-FactoryOrchestrator-Core-LockingList-T-.md 'Microsoft.FactoryOrchestrator.Core.LockingList&lt;T&gt;')
+- [PackageInfo](./Microsoft-FactoryOrchestrator-Core-PackageInfo.md 'Microsoft.FactoryOrchestrator.Core.PackageInfo')
+- [PackageVersion](./Microsoft-FactoryOrchestrator-Core-PackageVersion.md 'Microsoft.FactoryOrchestrator.Core.PackageVersion')
 - [PowerShellTask](./Microsoft-FactoryOrchestrator-Core-PowerShellTask.md 'Microsoft.FactoryOrchestrator.Core.PowerShellTask')
 - [ServiceEvent](./Microsoft-FactoryOrchestrator-Core-ServiceEvent.md 'Microsoft.FactoryOrchestrator.Core.ServiceEvent')
 - [TAEFTest](./Microsoft-FactoryOrchestrator-Core-TAEFTest.md 'Microsoft.FactoryOrchestrator.Core.TAEFTest')

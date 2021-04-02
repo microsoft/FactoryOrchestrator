@@ -46,6 +46,18 @@ The Factory Orchestrator Service container support is disabled by policy.
 `NetworkAccessDisabled` 9  
 The Factory Orchestrator Service network access is disabled by policy.  
   
+<a name='Microsoft-FactoryOrchestrator-Core-ServiceEventType-TaskRunRedirectedToRunAsRDUser'></a>
+`TaskRunRedirectedToRunAsRDUser` 10  
+The TaskRun has GUI and was redirected to RunAsRDUser.exe. It will not run until a remote user is logged in.  
+  
+<a name='Microsoft-FactoryOrchestrator-Core-ServiceEventType-ContainerServiceError'></a>
+`ContainerServiceError` 11  
+The Factory Orchestrator Service inside a connected container threw an exception.  
+  
+<a name='Microsoft-FactoryOrchestrator-Core-ServiceEventType-ContainerTaskRunRedirectedToRunAsRDUser'></a>
+`ContainerTaskRunRedirectedToRunAsRDUser` 12  
+The Factory Orchestrator Service inside a connected container has a TaskRun with GUI and it was redirected to RunAsRDUser.exe. It will not run until a remote user is logged in.  
+  
 <a name='Microsoft-FactoryOrchestrator-Core-ServiceEventType-Unknown'></a>
 `Unknown` 2147483647  
 An unknown Factory Orchestrator Service event occurred.  

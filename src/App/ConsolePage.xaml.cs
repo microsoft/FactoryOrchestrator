@@ -42,6 +42,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (e.PropertyName.Equals("IsContainerRunning", StringComparison.Ordinal))
             {
+                if (((App)Application.Current).IsContainerRunning)
+                {
+                    _containerIp = (await Client.GetContainerIpAddresses().ConfigureAwait(false))[0];
+                }
+
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     if (((App)Application.Current).IsContainerRunning)
@@ -91,6 +96,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (((App)Application.Current).IsContainerRunning)
                 {
                     ContainerCheckBox.IsEnabled = true;
+                    _containerIp = (await Client.GetContainerIpAddresses())[0];
                 }
                 else
                 {
@@ -456,6 +462,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContainerGuiWarning.Visibility = (bool)ContainerCheckBox.IsChecked ? Visibility.Visible : Visibility.Collapsed;
             ContainerGuiWarningExample.Visibility = ContainerGuiWarning.Visibility;
+            LaunchRD.Visibility = ContainerGuiWarning.Visibility;
+        }
+
+        private async void LaunchRD_Click(object sender, RoutedEventArgs e)
+        {
+            var result = await Windows.System.Launcher.LaunchUriAsync(new Uri($"ms-rd:factoryosconnect?ip={_containerIp}&username=Abby"));
         }
 
         #region IDisposable Support
@@ -497,7 +509,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private bool _isWindows;
         private List<string> _cmdHistory;
         private int _cmdHistoryIndex;
-
+        private string _containerIp;
         private const int MaxCmdHistory = 100;
         private const int MaxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
         private const int MaxLinesPerBlock = 500;
