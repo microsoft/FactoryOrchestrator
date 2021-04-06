@@ -23,6 +23,7 @@ The following table describes each setting and its usage:
 | DisableUWPAppsPage | bool | **Windows only.** If set to "true", the Factory Orchestrator app will not show the "UWP apps" page. |
 | DisableManageTasklistsPage | bool | If set to "true", the Factory Orchestrator app will not show the "Manage TaskLists" page. |
 | DisableFileTransferPage | bool | If set to "true", the Factory Orchestrator app will not show the "File Transfer" page. |
+| SSLCertificateFile | string | Path to X509Certificate2 file. If provided the Factory Orchestrator Service will use the provided certificate for ssl encryption to communicate with client. |
 
 # Additional details
 ## Network Access
