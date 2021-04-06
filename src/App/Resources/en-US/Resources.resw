@@ -227,6 +227,30 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
   <data name="ConfirmEdit.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="AdvancedOptionsButton.Content" xml:space="preserve">
+    <value>Advanced Options</value>
+    <comment>Content for button to show advanced options.</comment>
+  </data>
+  <data name="HideAdvancedOptionsButton" xml:space="preserve">
+    <value>Hide Advanced Options</value>
+    <comment>Content for button to hide advanced options.</comment>
+  </data>
+  <data name="Port.Text" xml:space="preserve">
+    <value>Port:</value>
+    <comment>Port number on which Microsoft.FactoryOrchestrator.Service is running.</comment>
+  </data>
+  <data name="PortTextBox.Text" xml:space="preserve">
+    <value>45684</value>
+    <comment>Default port number for Microsoft.FactoryOrchestrator.Service.</comment>
+  </data>
+  <data name="CertHashTextBox.Text" xml:space="preserve">
+    <value>E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F</value>
+    <comment>Default certificate hash for target machine.</comment>
+  </data>
+  <data name="ServerNameTextBox.Text" xml:space="preserve">
+    <value>FactoryServer</value>
+    <comment>Default distinguished name for target machine.</comment>
+  </data>
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>Connect</value>
   </data>

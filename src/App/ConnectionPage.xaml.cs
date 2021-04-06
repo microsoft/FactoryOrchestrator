@@ -35,7 +35,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             connectionSem = new SemaphoreSlim(1, 1);
             localSettings = ApplicationData.Current.LocalSettings;
         }
-        
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             var profs = Windows.Networking.Connectivity.NetworkInformation.GetConnectionProfiles();
@@ -68,9 +68,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 lastNavTag = e.Parameter as string;
             }
 
-            if (localSettings.Values.ContainsKey("lastIp"))
+            if (localSettings.Values.ContainsKey("lastPort"))
             {
-                IpTextBox.Text = (string)localSettings.Values["lastIp"];
+                PortTextBox.Text = (string)localSettings.Values["lastPort"];
             }
 
             if (localSettings.Values.ContainsKey("lastServer"))
@@ -81,10 +81,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (localSettings.Values.ContainsKey("lastHash"))
             {
                 CertHashTextBox.Text = (string)localSettings.Values["lastHash"];
+            }
+
+            if (localSettings.Values.ContainsKey("lastIp"))
+            {
+                IpTextBox.Text = (string)localSettings.Values["lastIp"];
                 ConnectButton.IsEnabled = true;
             }
 
-            Task.Run(async ()  =>
+            Task.Run(async () =>
             {
                 // Attempt to connect to localhost every 2 seconds in a background task
                 while (!((App)Application.Current).Client.IsConnected)
@@ -98,7 +103,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             if (((App)Application.Current).Client.IpAddress != IPAddress.Loopback)
                             {
                                 // User connection attempted and failed. Recreate Client
-                                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+                                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, int.Parse(PortTextBox.Text));
                                 ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                             }
 
@@ -128,24 +133,26 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
             bool validIp = false;
-
+            bool validPort = false;
             validIp = IPAddress.TryParse(IpTextBox.Text, out var ip);
+            validPort = Int32.TryParse(PortTextBox.Text, out int port);
             string serverName = ServerNameTextBox.Text;
             string certHash = CertHashTextBox.Text;
 
-            if (validIp)
+            if (validIp && validPort)
             {
                 ConnectButton.IsEnabled = false;
                 await connectionSem.WaitAsync();
                 try
                 {
-                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, 45684,serverName,certHash);
+                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverName, certHash);
                     ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                     if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch))
                     {
                         ((App)Application.Current).OnConnectionPage = false;
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);
                         localSettings.Values["lastIp"] = IpTextBox.Text;
+                        localSettings.Values["lastPort"] = PortTextBox.Text;
                         localSettings.Values["lastServer"] = ServerNameTextBox.Text;
                         localSettings.Values["lastHash"] = CertHashTextBox.Text;
                     }
@@ -173,7 +180,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             _ = await failedConnectDialog.ShowAsync();
         }
-        
+
         private void AboutButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AboutPage));
@@ -208,13 +215,37 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 ConnectButton.IsEnabled = true;
             }
         }
-        
+
+        private void OptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.PortTextBox.Visibility == Visibility.Collapsed)
+            {
+                ToggleVisibility(Visibility.Visible);
+                OptionsButton.Content = resourceLoader.GetString("HideAdvancedOptionsButton");
+            }
+            else
+            {
+                ToggleVisibility(Visibility.Collapsed);
+                OptionsButton.Content = resourceLoader.GetString("AdvancedOptionsButton/Content");
+            }
+        }
+
+        private void ToggleVisibility(Visibility visibility)
+        {
+            ServerNameText.Visibility = visibility;
+            ServerNameTextBox.Visibility = visibility;
+            PortTextBox.Visibility = visibility;
+            PortText.Visibility = visibility;
+            CertHashText.Visibility = visibility;
+            CertHashTextBox.Visibility = visibility;
+        }
+
         private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
-                if (ConnectButton.IsEnabled && e.Key == Windows.System.VirtualKey.Enter)
-                {
-                    ConnectButton_Click(null, null);
-                }
+            if (ConnectButton.IsEnabled && e.Key == Windows.System.VirtualKey.Enter)
+            {
+                ConnectButton_Click(null, null);
+            }
         }
 
         private void ConfirmExit_Click(object sender, RoutedEventArgs e)
