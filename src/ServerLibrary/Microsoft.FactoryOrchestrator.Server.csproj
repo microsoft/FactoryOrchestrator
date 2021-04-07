@@ -2,7 +2,7 @@
   <Import Project="../common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
     <TargetName>Microsoft.FactoryOrchestrator.Server</TargetName>
     <PackageId>Microsoft.FactoryOrchestrator.Server</PackageId>
     <Description>A .NET Standard library containing the server-side FactoryOrchestrator classes. Required on all FactoryOrchestrator server projects. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
@@ -27,23 +27,23 @@
   <!-- Add Pe-Utility OSS binaries to package -->
   <Target Name="CopyProjectReferencesToPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.dll"/>
+      <BuildOutputInPackage Include="$(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.dll" />
     </ItemGroup>
 
     <!-- Print for debug purposes -->
-    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.dll found: @(BuildOutputInPackage)" Importance="High"/>
+    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.dll found: @(BuildOutputInPackage)" Importance="High" />
   </Target>
 
   <!-- Add Pe-Utility OSS symbols to symbol package -->
   <Target Name="UpdateSymTfm" BeforeTargets="_GetDebugSymbolsWithTfm">
       <ItemGroup>
         <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.pdb">
-          <TargetFramework>netstandard2.0</TargetFramework>
+          <TargetFramework>$(TargetFramework)</TargetFramework>
         </_TargetPathsToSymbolsWithTfm>
       </ItemGroup>
 
     <!-- Print for debug purposes -->
-    <Message Text="UpdateSymTfm - $(OutputRootPath)/$(Configuration)/$(Platform)/(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
+    <Message Text="UpdateSymTfm $(TargetFramework) - $(OutputRootPath)/$(Configuration)/$(Platform)/(OutputRootPath)/$(Configuration)/$(Platform)/Pe-Utility/**/*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High" />
   </Target>
 
 </Project>

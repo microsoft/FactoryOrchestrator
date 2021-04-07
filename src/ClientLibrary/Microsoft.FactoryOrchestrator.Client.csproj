@@ -64,7 +64,7 @@
   <Target Name="UpdateSymTfm" BeforeTargets="_GetDebugSymbolsWithTfm">
       <ItemGroup>
         <_TargetPathsToSymbolsWithTfm Include="$(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.pdb">
-          <TargetFramework>netstandard2.0</TargetFramework>
+          <TargetFramework>$(TargetFramework)</TargetFramework>
         </_TargetPathsToSymbolsWithTfm>
       </ItemGroup>
 

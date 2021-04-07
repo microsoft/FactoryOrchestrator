@@ -2183,9 +2183,13 @@ namespace Microsoft.FactoryOrchestrator.Server
                 TaskAborted = true;
                 try
                 {
-                    // todo: Process.Kill() doesn't terminate child processes. This is most noticable when using the FO app command prompt as it launches cmd.exe /C"<User input>".
-                    // NET Core 3.1 has a Kill(true) method to terminate child processes, but it isn't available in NET Standard, yet. Until then, this will leak processes.
+#if NET5_0_OR_GREATER
+                    // On NET 5.0+ we can kill child processes in addition to the original process.
+                    TaskProcess.Kill(true);
+#else
+                    // On older NET versions, we will leak any child processes.
                     TaskProcess.Kill();
+#endif
                 }
                 catch (Exception)
                 {
@@ -2291,7 +2295,7 @@ namespace Microsoft.FactoryOrchestrator.Server
         private readonly object outputLock = new object();
 
         private static readonly ConcurrentDictionary<Guid, TaskRunner> _taskRunnerMap = new ConcurrentDictionary<Guid, TaskRunner>();
-        #region IDisposable Support
+#region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -2316,7 +2320,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+#endregion
     }
 
     /// <summary>
