@@ -1468,10 +1468,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _firstBootTasksDefaultPath = Environment.ExpandEnvironmentVariables(@"%DataDrive%\TestContent\FirstBootTasks.xml");
         private readonly string _everyBootTasksDefaultPath = Environment.ExpandEnvironmentVariables(@"%DataDrive%\TestContent\EveryBootTasks.xml");
 
-        // Registry fallbacks for user tasklists
-        private readonly string _firstBootTasksPathValue = @"FirstBootTaskListsXML";
-        private readonly string _everyBootTasksPathValue = @"EveryBootTaskListsXML";
-        private readonly string _initialTasksPathValue = @"FirstBootStateTaskListsXML";
+        // Appsettings.json / registry fallbacks for user tasklists
+        private readonly string _firstBootTasksPathValue = @"FirstBootTasks";
+        private readonly string _everyBootTasksPathValue = @"EveryBootTasks";
+        private readonly string _initialTasksPathValue = @"InitialTaskLists";
 
 
         // PFNs for Factory Orchestrator
