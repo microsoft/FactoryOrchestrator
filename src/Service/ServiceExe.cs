@@ -24,15 +24,7 @@ using Microsoft.FactoryOrchestrator.Client;
 using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
 using Microsoft.Win32;
-using PeterKottas.DotNetCore.WindowsService;
-using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
-using System.Runtime.InteropServices;
-using Microsoft.FactoryOrchestrator.Client;
-using System.Globalization;
-using JKang.IpcServiceFramework.Hosting;
-using Microsoft.Extensions.Hosting;
-using System.Threading;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -48,7 +40,6 @@ namespace Microsoft.FactoryOrchestrator.Service
     public sealed class FOServiceExe
     {
         public static IHost ipcHost { get; internal set; }
-        private static ServiceProvider ipcSvcProvider;
         /// <summary>
         /// Directory where service the log and TaskList XML are saved. The directory path cannot be changed by the user, unlike the TaskRun log directory (FOServiceStatus.LogFolder). Therefore it is not necessarily the directory where TaskRun logs are saved.
         /// </summary>
@@ -71,7 +62,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate) =>
+        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate) =>
               Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
@@ -107,88 +98,28 @@ namespace Microsoft.FactoryOrchestrator.Service
                   })
                   .ConfigureLogging(builder =>
                   {
-                        // optionally configure logging
-                        builder.SetMinimumLevel(LogLevel.Trace);
+#if DEBUG
+                      var _logLevel = LogLevel.Information;
+#else
+                      var _logLevel = LogLevel.Error;
+#endif
+                      builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
                   }).Build();
 
         public static void Main(string[] args)
         {
-#if DEBUG
-            var _logLevel = LogLevel.Debug;
-#else
-    var _logLevel = LogLevel.Information;
-#endif
-            // Create service collection
-            var servicesIpc = new ServiceCollection();
-            var services = new ServiceCollection();
-
-
-          
-
-            // Configure service providers for logger creation and managment
-            ipcSvcProvider = servicesIpc
-                .AddLogging(builder =>
-                {
-                    // Only log IPC framework errors
-                    builder
-                    .SetMinimumLevel(LogLevel.Error).AddConsole().AddProvider(new LogFileProvider());
-
-                })
-                .AddOptions()
-#pragma warning disable CA2000 // Dispose objects before losing scope
-                .AddSingleton(new LoggerFactory())
-                .BuildServiceProvider();
-
-            ServiceProvider foSvcProvider = services
-                .AddLogging(builder =>
-                {
-                    // Log level based on DEBUG ifdef
-                    builder
-                    .SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
-
-                })
-                .AddOptions()
-                .AddSingleton(new LoggerFactory())
-#pragma warning restore CA2000 // Dispose objects before losing scope
-                .BuildServiceProvider();
-
-            var _logger = foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOServiceExe>();
-
-            // FactoryOrchestratorService handler
-            ServiceRunner<FOService>.Run(config =>
+            Host.CreateDefaultBuilder(null).UseSystemd().UseWindowsService().ConfigureServices((hostContext, services) =>
             {
-                var name = config.GetDefaultName();
-                config.Service(serviceConfig =>
-                {
-                    serviceConfig.ServiceFactory((extraArguments, controller) =>
-                    {
-                        return new FOService(foSvcProvider.GetRequiredService<ILoggerFactory>().CreateLogger<FOService>());
-                    });
-
-                    serviceConfig.OnStart((service, extraParams) =>
-                    {
-                        _logger.LogInformation(Resources.ServiceStarting, name);
-                        service.Start();
-                        _logger.LogInformation(Resources.ServiceStarted, name);
-                    });
-
-                    serviceConfig.OnStop(service =>
-                    {
-                        _logger.LogInformation(Resources.ServiceStopping, name);
-                        service.Stop();
-                        _logger.LogInformation(Resources.ServiceStopped, name);
-                    });
-
-                    serviceConfig.OnError(e =>
-                    {
-                        _logger?.LogCritical(e, string.Format(CultureInfo.CurrentCulture, Resources.ServiceErrored, name));
-                        throw e;
-                    });
-                });
-            });
-            // Dispose of loggers, this needs to be done manually
-            ipcSvcProvider.GetService<ILoggerFactory>().Dispose();
-            foSvcProvider.GetService<ILoggerFactory>().Dispose();
+                services.AddHostedService<Worker>();
+            }).ConfigureLogging(builder =>
+            {
+#if DEBUG
+                var _logLevel = LogLevel.Debug;
+#else
+                var _logLevel = LogLevel.Error;
+#endif
+                builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
+            }).Build().Run();
         }
     }
 
@@ -588,7 +519,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 if (factoryReset)
                 {
                     // Pause a bit to allow the IPC call to return before we kill it off
-                    Task.Run(() => { System.Threading.Thread.Sleep(500); FOService.Instance.Stop(); FOService.Instance.Start(true); });
+                    Task.Run(() => { System.Threading.Thread.Sleep(500); FOService.Instance.Stop(); FOService.Instance.Start(new CancellationToken(), true); });
                 }
             }
             catch (Exception e)
@@ -1413,7 +1344,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         }
     }
 
-    public class FOService : IMicroService, IDisposable
+    public class FOService : IDisposable
     {
         internal enum RegKeyType
         {
@@ -1525,7 +1456,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <value>
         /// The service logger.
         /// </value>
-        public ILogger<FOService> ServiceLogger { get; private set; }
+        public ILogger<Worker> ServiceLogger { get; private set; }
 
         /// <summary>
         /// A configuration (possibly empty) of service settings that are in a well-known appsettings.json file.
@@ -1628,7 +1559,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             return version;
         }
 
-        public FOService(ILogger<FOService> logger)
+        public FOService(ILogger<Worker> logger)
         {
             lock (_constructorLock)
             {
@@ -1647,18 +1578,23 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <summary>
         /// Service start.
         /// </summary>
-        public void Start()
+        public void Start(CancellationToken cancellationToken)
         {
-            Start(false);
+            Start(cancellationToken, false);
         }
 
         /// <summary>
         /// Service start.
         /// </summary>
-        public void Start(bool forceUserTaskRerun)
+        public void Start(CancellationToken cancellationToken, bool forceUserTaskRerun)
         {
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
-            ExecuteServerBootTasks();
+            ExecuteServerBootTasks(cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             // Load first boot state file, or try to load known TaskLists from the existing state file.
             bool firstBootFileLoaded = LoadFirstBootStateFile(forceUserTaskRerun);
@@ -1674,8 +1610,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
             }
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             // Start IPC server on desired port. Only start after all boot tasks are complete.
-            FOServiceExe.ipcHost = FOServiceExe.CreateHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
+            FOServiceExe.ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
             FOServiceExe.ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -1691,15 +1632,21 @@ namespace Microsoft.FactoryOrchestrator.Service
             ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
             LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceStart, null, Resources.BootTasksStarted));
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             // Execute user defined tasks.
-            ExecuteUserBootTasks(forceUserTaskRerun);
+            ExecuteUserBootTasks(cancellationToken, forceUserTaskRerun);
 
             IsExecutingBootTasks = false;
             LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
 
             if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
             {
-                _taskExecutionManager.RunAllTaskLists();
+                // Use a new thread so service Start isn't blocked by these TaskLists executing.
+                Task.Run(() => _taskExecutionManager.RunAllTaskLists());
             }
         }
 
@@ -2403,7 +2350,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Executes server required tasks that should run on first boot (of FactoryOrchestrator) or every boot.
         /// </summary>
         /// <returns></returns>
-        public void ExecuteServerBootTasks()
+        public void ExecuteServerBootTasks(CancellationToken cancellationToken)
         {
             if (_isWindows)
             {
@@ -2442,6 +2389,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Load ServiceStatus files or registry.
             ServiceStatus = FOServiceStatus.CreateOrLoad(_serviceStatusFilename, ServiceLogger);
             VolatileServiceStatus = FOVolatileServiceStatus.CreateOrLoad(_volatileServiceStatusFilename, _volatileKey, ServiceLogger);
+
+            if(cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             if (_isWindows)
             {
@@ -2484,6 +2436,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             _lastContainerEventIndex = 0;
             _containerGUITaskRuns = new HashSet<Guid>();
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             LoadOEMCustomizations();
 
             // Now that we know the log folders, we can create the TaskManager instance
@@ -2504,6 +2461,11 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, ServiceStatus.LogFolder)} {e.Message}");
                 throw;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
             }
 
             _taskExecutionManager = new TaskManager(ServiceStatus.LogFolder, Path.Combine(FOServiceExe.ServiceExeLogFolder, "FactoryOrchestratorKnownTaskLists.xml"));
@@ -2529,6 +2491,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                 LogServiceEvent(new ServiceEvent(ServiceEventType.ContainerDisabled, null, Resources.ContainerDisabledException));
             }
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             // Enable local loopback every boot.
             EnableUWPLocalLoopback();
         }
@@ -2537,7 +2504,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Executes user defined tasks that should run on first boot (of FactoryOrchestrator) or every boot.
         /// </summary>
         /// <returns></returns>
-        public void ExecuteUserBootTasks(bool force)
+        public void ExecuteUserBootTasks(CancellationToken cancellationToken, bool force)
         {
             bool firstBootTasksFailed = false;
             bool everyBootTasksFailed = false;
@@ -2575,6 +2542,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     foreach (var listGuid in firstBootTaskListGuids)
                     {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
                         BootTaskExecutionManager.RunTaskList(listGuid);
                         ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.FirstBootRunningTaskList, listGuid));
                     }
@@ -2592,7 +2564,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             // Wait for all first boot tasks to complete
             int sleepCount = 0;
-            while (BootTaskExecutionManager.IsTaskListRunning)
+            while (BootTaskExecutionManager.IsTaskListRunning && !cancellationToken.IsCancellationRequested)
             {
                 System.Threading.Thread.Sleep(1000);
                 sleepCount++;
@@ -2600,6 +2572,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     ServiceLogger.LogInformation(Resources.FirstBootWaiting);
                 }
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
             }
 
             if (!firstBootTasksFailed)
@@ -2643,6 +2620,11 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     foreach (var listGuid in everyBootTaskListGuids)
                     {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
                         BootTaskExecutionManager.RunTaskList(listGuid);
                         ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.EveryBootRunningTaskList, listGuid));
                     }
@@ -2660,7 +2642,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             // Wait for all tasks to complete
             sleepCount = 0;
-            while (BootTaskExecutionManager.IsTaskListRunning)
+            while (BootTaskExecutionManager.IsTaskListRunning && !cancellationToken.IsCancellationRequested)
             {
                 System.Threading.Thread.Sleep(1000);
                 sleepCount++;
@@ -2668,6 +2650,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     ServiceLogger.LogInformation(Resources.EveryBootWaiting);
                 }
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
             }
 
             if (!everyBootTasksFailed)

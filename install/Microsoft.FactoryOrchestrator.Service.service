@@ -1,0 +1,9 @@
+[Unit]
+Description=Microsoft Factory Orchestrator service
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/FactoryOrchestrator/Microsoft.FactoryOrchestrator.Service
+
+[Install]
+WantedBy=multi-user.target
