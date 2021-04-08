@@ -1939,11 +1939,19 @@ namespace Microsoft.FactoryOrchestrator.Service
                             try
                             {
                                 // Exit URDC if we launched it.
-                                var rdApp = (await WDPHelpers.GetInstalledAppPackagesAsync()).Packages.Where(x => x.FullName.StartsWith("Microsoft.RemoteDesktop", StringComparison.OrdinalIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
+                                // There may be a preview app & official app installed, close them all
+                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync()).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
 
-                                if (rdApp != null)
+                                foreach (var app in rdApps)
                                 {
-                                    await WDPHelpers.CloseAppWithWDP(rdApp.FullName);
+                                    try
+                                    {
+                                        await WDPHelpers.CloseAppWithWDP(app.FullName);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // Ignore failure to exit RD
+                                    }
                                 }
                             }
                             catch (Exception)
