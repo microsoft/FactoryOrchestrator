@@ -12,6 +12,11 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 sudo cp -f $SCRIPTDIR/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
+# delete old service files if present
+if [[ -d "/usr/sbin/FactoryOrchestator" ]] then
+    rm -r -f /usr/sbin/FactoryOrchestator
+fi
+
 # unzip binary files
 sudo unzip -q $SCRIPTDIR/Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip -d /usr/sbin/FactoryOrchestator -o
 sudo cp -f $SCRIPTDIR/Microsoft.FactoryOrchestator.CleanVolatile.sh /usr/sbin/FactoryOrchestator/
