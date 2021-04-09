@@ -13,11 +13,11 @@ if (-not $IsWindows)
     $command = $PSScriptRoot.Replace(".ps1", ".sh")
     if ($AutoStart)
     {
-        . bash $command install
+        . sudo bash $command enable
     }
     else
     {
-        . bash $command
+        . sudo bash $command
     }
 }
 else
@@ -39,7 +39,7 @@ else
     }
 
     # Install new service
-    $binzip = Join-Path $PSScriptRoot "Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip"
+    $binzip = Join-Path $PSScriptRoot "Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$-bin.zip"
     Expand-Archive $binzip -DestinationPath $installdir
     $null = New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$installdir\Microsoft.FactoryOrchestrator.Service.exe" -Description "Factory Orchestrator service version $Version$" -StartupType Manual
     Write-Host "FactoryOrchestrator service version $Version$ is installed to $installdir and configured as a Windows service!"

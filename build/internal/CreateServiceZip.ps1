@@ -48,17 +48,17 @@ else
 foreach ($file in $files)
 {
     $destfile = Join-Path $tmpdir $($file.Name)
-    $null = Get-Content $file.FullName |
+    $null = Get-Content $file.FullName -raw |
     ForEach-Object{$_ -replace '\$Version\$', "$version"} |
     ForEach-Object{$_ -replace '\$BuildPlatform\$', "$BuildPlatform"} |
     ForEach-Object{$_ -replace '\$BuildOS\$', "$BuildOS"} |
-    Set-Content $destfile
+    Set-Content $destfile -NoNewline
 }
 
 # create bin zip in temp dir
 $publishdir = Join-Path $BinDir "$BuildConfiguration/Publish/$BuildOS/Microsoft.FactoryOrchestrator.Service.$BuildOS-$BuildPlatform"
 Copy-Item -Path $publishdir -recurse -exclude "*.pdb" -destination $tmppublishdir
-Compress-Archive -Path "$tmppublishdir/*" -DestinationPath "$tmpdir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.zip" -Force
+Compress-Archive -Path "$tmppublishdir/*" -DestinationPath "$tmpdir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform-bin.zip" -Force
 
 # create zip with bin zip and install files
 if ((Test-Path $DestinationDir) -eq $false)
