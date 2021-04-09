@@ -1,0 +1,1 @@
+rm /var/log/FactoryOrchestrator/FactoryOrchestratorVolatileServiceStatus.xml

@@ -1,6 +1,7 @@
 [Unit]
 Description=Microsoft Factory Orchestrator service
-
+After=Microsoft.FactoryOrchestrator.CleanVolatile.service
+Requires=Microsoft.FactoryOrchestrator.CleanVolatile.service
 [Service]
 Type=notify
 ExecStart=/usr/sbin/FactoryOrchestrator/Microsoft.FactoryOrchestrator.Service
