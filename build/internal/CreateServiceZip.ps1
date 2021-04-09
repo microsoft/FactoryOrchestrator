@@ -4,12 +4,25 @@
 # Creates a .zip file with the service and installer.
 Param
 (
-    [string]$BuildConfiguration,
-    [string]$BuildPlatform,
-    [string]$BuildOS,
-    [string]$BinDir,
-    [string]$DestinationDir
+    [Parameter(Mandatory = $true)][string]$BuildConfiguration,
+    [Parameter(Mandatory = $true)][string]$BuildPlatform,
+    [Parameter(Mandatory = $true)][string]$BuildOS,
+    [Parameter(Mandatory = $true)][string]$BinDir,
+    [Parameter(Mandatory = $true)][string]$DestinationDir
 )
+
+[string]$randString = Get-Random
+$tmpdir = join-path "$([System.IO.Path]::GetTempPath())" "$randString"
+if ((Test-Path $tmpdir) -eq $false)
+{
+    $null = New-Item -Path $tmpdir -ItemType Directory
+}
+[string]$randString = Get-Random
+$tmppublishdir = join-path "$([System.IO.Path]::GetTempPath())" "$randString"
+if ((Test-Path $tmpdir) -eq $false)
+{
+    $null = New-Item -Path $tmpdir -ItemType Directory
+}
 
 if ($null -ne $($env:VERSIONSUFFIXVPACK))
 {
@@ -24,35 +37,35 @@ else
 $installdir = Join-Path $env:FORepoRoot "install"
 if ($BuildOS -eq "win")
 {
-    Copy-Item -Path $installdir -Destination $tmpdir -Filter "*.ps1"
+    $files = Get-ChildItem -Path $installdir -Filter "*.ps1"
 }
 else
 {
-    Copy-Item -Path $installdir -Destination $tmpdir -Filter "*"
+    $files =  Get-ChildItem -Path $installdir  -Filter "*"
 }
 
 # Set $variables$ in tempdir files
-foreach ($file in Get-ChildItem $tmpdir)
+foreach ($file in $files)
 {
+    $destfile = Join-Path $tmpdir $($file.Name)
     $null = Get-Content $file.FullName |
-    ForEach-Object{$_ -replace '$Version$', "$version"} |
-    ForEach-Object{$_ -replace '$BuildPlatform$', "$BuildPlatform"} |
-    ForEach-Object{$_ -replace '$BuildOS$', "$BuildOS"} |
-    Set-Content $tempFile
+    ForEach-Object{$_ -replace '\$Version\$', "$version"} |
+    ForEach-Object{$_ -replace '\$BuildPlatform\$', "$BuildPlatform"} |
+    ForEach-Object{$_ -replace '\$BuildOS\$', "$BuildOS"} |
+    Set-Content $destfile
 }
 
 # create bin zip in temp dir
 $publishdir = Join-Path $BinDir "$BuildConfiguration/Publish/$BuildOS/Microsoft.FactoryOrchestrator.Service.$BuildOS-$BuildPlatform"
 Copy-Item -Path $publishdir -recurse -exclude "*.pdb" -destination $tmppublishdir
-Compress-Archive -Path "$tmppublishdir" -DestinationPath "$tmpdir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.zip" -Force
+Compress-Archive -Path "$tmppublishdir/*" -DestinationPath "$tmpdir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.zip" -Force
 
 # create zip with bin zip and install files
-
 if ((Test-Path $DestinationDir) -eq $false)
 {
     $null = New-Item -Path $DestinationDir -ItemType Directory
 }
-Compress-Archive -Path "$tmpdir" -DestinationPath "$DestinationDir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.zip" -Force
+Compress-Archive -Path "$tmpdir/*" -DestinationPath "$DestinationDir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.zip" -Force
 
 # clean temp dirs
 Remove-Item $tmpdir -Recurse -Force

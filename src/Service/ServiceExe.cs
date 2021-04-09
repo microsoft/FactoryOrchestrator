@@ -189,6 +189,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
         private static readonly SemaphoreSlim _containerConnectionSem = new SemaphoreSlim(1, 1);
+        private IHost _ipcHost = null;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
         private Dictionary<string, (Stream stream, System.Threading.Timer timer)> _openedFiles;
 
@@ -411,13 +412,13 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         public void Start(CancellationToken cancellationToken)
         {
-            Start(cancellationToken, false);
+            Start(false, cancellationToken);
         }
 
         /// <summary>
         /// Service start.
         /// </summary>
-        public void Start(CancellationToken cancellationToken, bool forceUserTaskRerun)
+        public void Start(bool forceUserTaskRerun, CancellationToken cancellationToken)
         {
             // Execute "first run" tasks. They do nothing if already run, but might need to run every boot on a state separated WCOS image.
             ExecuteServerBootTasks(cancellationToken);
@@ -447,9 +448,9 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Start IPC server on desired port. Only start after all boot tasks are complete.
-            var ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
+            _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
             _ipcCancellationToken = new System.Threading.CancellationTokenSource();
-            var ipcHost.RunAsync(_ipcCancellationToken.Token);
+            _ipcHost.RunAsync(_ipcCancellationToken.Token);
 
             if (IsNetworkAccessEnabled)
             {
@@ -469,7 +470,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
 
             // Execute user defined tasks.
-            ExecuteUserBootTasks(cancellationToken, forceUserTaskRerun);
+            ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
 
             IsExecutingBootTasks = false;
             LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
@@ -747,7 +748,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             try
             {
-                await VerifyContainerConnection(retrySeconds);
+                await VerifyContainerConnection(retrySeconds).ConfigureAwait(false);
                 return true;
             }
             catch (Exception)
@@ -778,7 +779,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     try
                     {
                         // Throws FactoryOrchestratorContainerException if unable to connect
-                        await ConnectToContainer();
+                        await ConnectToContainer().ConfigureAwait(false);
 
                         if (IsContainerConnected && previousContainerStatus)
                         {
@@ -845,7 +846,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 throw new FactoryOrchestratorContainerException(Resources.ContainerDisabledException);
             }
 
-            if (ContainerGuid != null)
+            if (ContainerGuid != Guid.Empty)
             {
                 if (ContainerIpAddress != null)
                 {
@@ -1315,7 +1316,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                         await TryVerifyContainerConnection();
                         await Task.Delay(5000);
                     }
-                });
+                }, cancellationToken);
             }
             else
             {
@@ -1335,7 +1336,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// Executes user defined tasks that should run on first boot (of FactoryOrchestrator) or every boot.
         /// </summary>
         /// <returns></returns>
-        public void ExecuteUserBootTasks(CancellationToken cancellationToken, bool force)
+        public void ExecuteUserBootTasks(bool force, CancellationToken cancellationToken)
         {
             bool firstBootTasksFailed = false;
             bool everyBootTasksFailed = false;
@@ -1932,6 +1933,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 if (disposing)
                 {
+                    _ipcHost.Dispose();
                     _ipcCancellationToken?.Dispose();
                     _containerHeartbeatToken?.Dispose();
                     _mutableKey?.Dispose();

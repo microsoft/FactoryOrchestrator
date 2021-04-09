@@ -3,7 +3,7 @@
 
 Param
 (
-    [Parameter(Mandatory = $true)][switch]$AutoStart
+    [switch]$AutoStart
 )
 $ErrorActionPreference = "stop"
 
@@ -38,13 +38,12 @@ else
     }
 
     # Install new service
-    $dir = [System.IO.Path]::GetDirectoryName($PSScriptRoot)
-    $binzip = Get-ChildItem $dir -Filter 'Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip'
+    $binzip = Join-Path $PSScriptRoot "Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip"
     Expand-Archive $binzip -DestinationPath $installdir
-    $null = New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$dir\Microsoft.FactoryOrchestrator.Service.exe" -Description "Factory Orchestrator service version $Version$" -StartupType Manual
+    $null = New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$installdir\Microsoft.FactoryOrchestrator.Service.exe" -Description "Factory Orchestrator service version $Version$" -StartupType Manual
     Write-Host "FactoryOrchestrator service version $Version$ is installed to $installdir and configured as a Windows service!"
     Write-Host "Start it manually with: Start-Service -Name `"Microsoft.FactoryOrchestrator`""
-    
+
     if ($AutoStart)
     {
         Set-Service -Name "Microsoft.FactoryOrchestrator" -StartupType Automatic

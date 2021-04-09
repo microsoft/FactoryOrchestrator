@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # exit when any command fails
 set -e
 
@@ -13,13 +16,13 @@ sudo cp -f $SCRIPTDIR/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 # delete old service files if present
-if [[ -d "/usr/sbin/FactoryOrchestator" ]] then
-    rm -r -f /usr/sbin/FactoryOrchestator
+if [[ -d "/usr/sbin/FactoryOrchestrator" ]] then
+    rm -r -f /usr/sbin/FactoryOrchestrator
 fi
 
 # unzip binary files
-sudo unzip -q $SCRIPTDIR/Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip -d /usr/sbin/FactoryOrchestator -o
-sudo cp -f $SCRIPTDIR/Microsoft.FactoryOrchestator.CleanVolatile.sh /usr/sbin/FactoryOrchestator/
+sudo unzip -q $SCRIPTDIR/Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip -d /usr/sbin/FactoryOrchestrator -o
+sudo cp -f $SCRIPTDIR/Microsoft.FactoryOrchestrator.CleanVolatile.sh /usr/sbin/FactoryOrchestrator/
 echo "The FactoryOrchestrator service is installed as a systemd service!"
 echo "Start it manually with: sudo systemctl start Microsoft.FactoryOrchestrator.service"
 
