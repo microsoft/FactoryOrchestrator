@@ -9,12 +9,12 @@ trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # copy .service files
-sudo cp $SCRIPTDIR/*.service /etc/systemd/system/
+sudo cp -f $SCRIPTDIR/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 # unzip binary files
-sudo unzip -q $SCRIPTDIR/Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip -d /usr/sbin/FactoryOrchestator
-sudo cp $SCRIPTDIR/Microsoft.FactoryOrchestator.CleanVolatile.sh /usr/sbin/FactoryOrchestator/
+sudo unzip -q $SCRIPTDIR/Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip -d /usr/sbin/FactoryOrchestator -o
+sudo cp -f $SCRIPTDIR/Microsoft.FactoryOrchestator.CleanVolatile.sh /usr/sbin/FactoryOrchestator/
 echo "The FactoryOrchestrator service is installed as a systemd service!"
 echo "Start it manually with: sudo systemctl start Microsoft.FactoryOrchestrator.service"
 
