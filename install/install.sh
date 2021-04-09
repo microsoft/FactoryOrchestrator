@@ -12,7 +12,9 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 sudo cp $SCRIPTDIR/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
-# copy binary files
+# unzip binary files
+sudo unzip -q $SCRIPTDIR/Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip -d /usr/sbin/FactoryOrchestator
+sudo cp $SCRIPTDIR/Microsoft.FactoryOrchestator.CleanVolatile.sh /usr/sbin/FactoryOrchestator/
 echo "The FactoryOrchestrator service is installed as a systemd service!"
 echo "Start it manually with: sudo systemctl start Microsoft.FactoryOrchestrator.service"
 
@@ -22,5 +24,5 @@ if [ $1 = "enable" ]; then
     echo "The FactoryOrchestrator service is enabled! It will start on next boot or if started manually."
 else
     echo "The service must be manually started. If you wish to later enable it to start on next boot, run:"
-    echp "sudo systemctl enable Microsoft.FactoryOrchestrator.CleanVolatile.service; sudo systemctl enable Microsoft.FactoryOrchestrator.service"
+    echo "sudo systemctl enable Microsoft.FactoryOrchestrator.CleanVolatile.service; sudo systemctl enable Microsoft.FactoryOrchestrator.service"
 fi

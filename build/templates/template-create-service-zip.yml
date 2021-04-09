@@ -11,7 +11,6 @@ steps:
     targetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.Symbols'
   displayName: "Copy pdbs ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
 
-
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.Symbols' 
@@ -32,6 +31,41 @@ steps:
     rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}' 
     includeRootFolder: false
     archiveType: 'zip' # Options: zip, 7z, tar, wim
-    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service-$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip' 
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\ZipStaging-${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service-$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip' 
     replaceExistingArchive: true 
   displayName: "Create bin-only service zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
+
+- ${{ if eq(parameters.BuildOS, 'win') }}:
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(FORepoRoot)/install'
+      contents: |
+        *.ps1
+      targetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\ZipStaging-${{ parameters.BuildOS }}'
+    displayName: "Copy install files ${{ parameters.BuildOS }}"
+
+- ${{ if ne(parameters.BuildOS, 'win') }}:
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(FORepoRoot)/install'
+      contents: |
+        *.sh
+        *.service
+        *.ps1
+      targetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\ZipStaging-${{ parameters.BuildOS }}'
+    displayName: "Copy install files ${{ parameters.BuildOS }}"
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\ZipStaging-${{ parameters.BuildOS }}' 
+    includeRootFolder: false
+    archiveType: 'zip' # Options: zip, 7z, tar, wim
+    archiveFile: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\Zips\Microsoft.FactoryOrchestrator.Service-$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip' 
+    replaceExistingArchive: true 
+  displayName: "Create install service zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}"
+
+- task: DeleteFiles@1
+  inputs:
+    SourceFolder: $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\ZipStaging-${{ parameters.BuildOS }}
+    Contents: '**/*' 
+  displayName: "Clean staging directory"

@@ -21,20 +21,33 @@ if (-not $IsWindows)
 }
 else
 {
-    $dir = [System.IO.Path]::GetDirectoryName($PSScriptRoot)
     $installdir = Join-Path -path $env:ProgramFiles -childpath "FactoryOrchestrator"
-    Write-Host "The FactoryOrchestrator service is installed as a systemd service!"
-`   Write-Host "Start it manually with: Start-Service -Name `"Microsoft.FactoryOrchestrator`""
 
+    # Uninstall existing service, if installed
+    $ErrorActionPreference = "SilentlyContinue"
+    $service = Get-Service -Name "Microsoft.FactoryOrchestrator"
+    $ErrorActionPreference = "stop"
+    if ($null -ne $service)
+    {
+        Set-Service -InputObject $service -Status Stopped
+        Remove-Service -InputObject $service
+    }
+    if ((Test-Path $installdir) -ne $false)
+    {
+        Remove-Item $installdir -Recurse -Force
+    }
 
+    # Install new service
+    $dir = [System.IO.Path]::GetDirectoryName($PSScriptRoot)
+    $binzip = Get-ChildItem $dir -Filter 'Microsoft.FactoryOrchestator.Service-$Version$-$BuildOS$-$BuildPlatform$.zip'
+    Expand-Archive $binzip -DestinationPath $installdir
+    $null = New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$dir\Microsoft.FactoryOrchestrator.Service.exe" -Description "Factory Orchestrator service version $Version$" -StartupType Manual
+    Write-Host "FactoryOrchestrator service version $Version$ is installed to $installdir and configured as a Windows service!"
+    Write-Host "Start it manually with: Start-Service -Name `"Microsoft.FactoryOrchestrator`""
+    
     if ($AutoStart)
     {
-        New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "Microsoft.FactoryOrchestrator.Service.exe" -StartupType Automatic
-        Write-Host "The FactoryOrchestrator service is enabled! It will start on next boot or if started manually."
+        Set-Service -Name "Microsoft.FactoryOrchestrator" -StartupType Automatic
+        Write-Host "The FactoryOrchestrator service is set to `"Auto`" start! It will start on next boot or if started manually."
     }
-    else
-    {
-        New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$dir\Microsoft.FactoryOrchestrator.Service.exe" -StartupType Manual
-    }
-    Write-Host ""
 }
