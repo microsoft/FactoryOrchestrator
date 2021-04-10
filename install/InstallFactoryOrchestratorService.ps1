@@ -10,7 +10,7 @@ $ErrorActionPreference = "stop"
 
 if (-not $IsWindows)
 {
-    $command = $PSScriptRoot.Replace(".ps1", ".sh")
+    $command = $PSCommandPath.Replace(".ps1", ".sh")
     if ($AutoStart)
     {
         . sudo bash $command enable
