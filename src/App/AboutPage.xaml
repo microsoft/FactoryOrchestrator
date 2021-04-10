@@ -34,7 +34,6 @@
             <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Grid.Row="3" Margin="5">
                 <TextBlock x:Name="oss" x:Uid="OSSAcknowledgments" HorizontalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}"/>
                 <TextBlock Text="IpcServiceFramework - Jacques Kang - MIT License - https://github.com/jacqueskang/IpcServiceFramework" HorizontalAlignment="Left"/>
-                <TextBlock Text="DotNetCore.WindowsService - Peter Kottas - MIT License - https://github.com/PeterKottas/DotNetCore.WindowsService" HorizontalAlignment="Left"/>
                 <TextBlock Text="WindowsDevicePortalWrapper - Microsoft Corporation and mgurlitz - MIT License - https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard" HorizontalAlignment="Left"/>
                 <TextBlock Text="Pe-Utility - Andres Traks - MIT License - https://github.com/AndresTraks/pe-utility" HorizontalAlignment="Left"/>
             </StackPanel>

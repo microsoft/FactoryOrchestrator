@@ -50,7 +50,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125
 	ProjectSection(SolutionItems) = preProject
 		..\oss\cgmanifest.json = ..\oss\cgmanifest.json
 		..\oss\Directory.Build.props = ..\oss\Directory.Build.props
-		..\oss\DotNetCore.WindowsService.txt = ..\oss\DotNetCore.WindowsService.txt
 		..\oss\IpcServiceFramework.txt = ..\oss\IpcServiceFramework.txt
 		..\oss\Pe-Utility.txt = ..\oss\Pe-Utility.txt
 	EndProjectSection
