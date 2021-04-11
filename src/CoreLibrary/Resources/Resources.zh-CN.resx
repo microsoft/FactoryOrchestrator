@@ -438,6 +438,10 @@
     <value>Factory Orchestrator 服务未识别该命令! 最大的原因是客户端和服务之间版本不匹配。</value>
     <comment>Error when service does not recognize a command from client. Almost always due to using an older client with a newer service.</comment>
   </data>
+  <data name="IpcAuthenticationError" xml:space="preserve">
+    <value>FactoryOrchestratorClient 无法验证远程证书！最可能的原因是服务器名称不匹配或远程证书哈希值不匹配。</value>
+    <comment>Error when client side validation for remote certificate fails.</comment>
+  </data>
   <data name="Unknown" xml:space="preserve">
     <value>未知</value>
   </data>
@@ -449,6 +453,10 @@
     <value>错误：TaskRun 在执行期间引发了未处理的异常！</value>
     <comment>Error message shown when TaskRun encounters an unhandled exception while running.</comment>
   </data>
+  <data name="ContainerDisabledException" xml:space="preserve">
+    <value>容器支持已禁用或不受操作系统支持！</value>
+    <comment>Message shown when a container operation is requested by the user but containers are disabled by policy or the operating system doesn't support containers.</comment>
+  </data>
   <data name="WaitingForContainerStart" xml:space="preserve">
     <value>正在等待容器准备就绪…</value>
     <comment>Message shown when the container inside the host is not yet ready to execute the desired Task.</comment>
@@ -456,5 +464,17 @@
   <data name="ContainerTaskTypeException" xml:space="preserve">
     <value>容器中运行的任务的类型必须为 ExecutableTask、BatchFileTask 或 PowerShellTask！</value>
     <comment>Exception message when a Task the user wants run in the container is of an invalid type</comment>
+  </data>
+  <data name="ContainerSupportNotPresent" xml:space="preserve">
+    <value>操作系统不支持容器。正在禁用容器支持。</value>
+    <comment>Message shown when the operating system doesn't support containers.</comment>
+  </data>
+  <data name="ServiceStatusTypeException" xml:space="preserve">
+    <value>参数必须是 FOServiceStatus 或 FOVolatileServiceStatus 对象！</value>
+    <comment>Exception message when UpdateServiceStatusFile() is passed an invalid object type.</comment>
+  </data>
+  <data name="UnableToParseError" xml:space="preserve">
+    <value>无法分析{0}！</value>
+    <comment>Error shown if the given file cannot be read properly (missing/corrupt)</comment>
   </data>
 </root>

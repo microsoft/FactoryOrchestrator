@@ -172,7 +172,8 @@
   <data name="BadIpContent" xml:space="preserve">
     <value>無法連線到 {0}。
 
-請檢查 IP 位址是否正確，以及 Factory Orchestrator 服務是否在目標 IP 上執行。</value>
+請檢查 IP 位址、伺服器名稱及憑證雜湊是否正確，以及 Factory Orchestrator 服務是否在目標 IP 上執行。</value>
+	<comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
     <value>無法連線到目標 IP</value>
@@ -225,6 +226,30 @@
   </data>
   <data name="ConfirmEdit.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>儲存</value>
+  </data>
+  <data name="AdvancedOptionsButton.Content" xml:space="preserve">
+    <value>進階選項</value>
+    <comment>Content for button to show advanced options.</comment>
+  </data>
+  <data name="HideAdvancedOptionsButton" xml:space="preserve">
+    <value>隱藏進階選項</value>
+    <comment>Content for button to hide advanced options.</comment>
+  </data>
+  <data name="Port.Text" xml:space="preserve">
+    <value>連接埠：</value>
+    <comment>Port number on which Microsoft.FactoryOrchestrator.Service is running.</comment>
+  </data>
+  <data name="PortTextBox.Text" xml:space="preserve">
+    <value>45684</value>
+    <comment>Default port number for Microsoft.FactoryOrchestrator.Service.</comment>
+  </data>
+  <data name="CertHashTextBox.Text" xml:space="preserve">
+    <value>E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F</value>
+    <comment>Default certificate hash for target machine.</comment>
+  </data>
+  <data name="ServerNameTextBox.Text" xml:space="preserve">
+    <value>FactoryServer</value>
+    <comment>Default distinguished name for target machine.</comment>
   </data>
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>連線</value>
@@ -417,7 +442,8 @@
     <value>網路資訊</value>
   </data>
   <data name="NewCMDButton.Content" xml:space="preserve">
-    <value>新增批次檔工作</value>
+    <value>新命令列檔案工作</value>
+    <comment>button to create a new command line file task (batch file on windows, shell script on linux)</comment>
   </data>
   <data name="NewExecutableButton.Content" xml:space="preserve">
     <value>新的可執行工作​​</value>
@@ -721,5 +747,33 @@
   <data name="ContainerGuiWarningExample.Text" xml:space="preserve">
     <value>例如：  RunAsRDUser.exe c:\windows\regedit.exe</value>
     <comment>Example of how to run win32 gui executables inside the container</comment>
+  </data>
+  <data name="ContainerSupport.Text" xml:space="preserve">
+    <value>已啟用容器支援</value>
+    <comment>text field showing if the Service allows container support.</comment>
+  </data>
+  <data name="ContainerRunning.Text" xml:space="preserve">
+    <value>正在執行容器</value>
+    <comment>text field showing if the Service has a container running.</comment>
+  </data>
+  <data name="NetworkAccess.Text" xml:space="preserve">
+    <value>已允許網路存取</value>
+    <comment>text field showing if the Service allows network connections.</comment>
+  </data>
+  <data name="ServiceInformation.Text" xml:space="preserve">
+    <value>[Factory Orchestrator 服務] 資訊</value>
+    <comment>text field header for showing info that relate to what features are enabled / disabled in the Service.</comment>
+  </data>
+  <data name="LaunchRD.Content" xml:space="preserve">
+    <value>顯示容器 UI (使用 ALT + F4 結束)</value>
+    <comment>button to launch remote desktop uwp app &amp; auto connect to the running container</comment>
+  </data>
+  <data name="CertHash.Text" xml:space="preserve">
+    <value>憑證雜湊:</value>
+	<comment>Hash value of the Certificate of the target machine.</comment>
+  </data>
+  <data name="ServerName.Text" xml:space="preserve">
+    <value>伺服器身分識別:</value>
+	<comment>Distinguished Name of the target machine.</comment>
   </data>
 </root>
