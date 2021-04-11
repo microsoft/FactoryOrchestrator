@@ -54,7 +54,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OSS", "OSS", "{AB6C2AD9-125
 	ProjectSection(SolutionItems) = preProject
 		..\oss\cgmanifest.json = ..\oss\cgmanifest.json
 		..\oss\Directory.Build.props = ..\oss\Directory.Build.props
-		..\oss\DotNetCore.WindowsService.txt = ..\oss\DotNetCore.WindowsService.txt
 		..\oss\IpcServiceFramework.txt = ..\oss\IpcServiceFramework.txt
 		..\oss\Pe-Utility.txt = ..\oss\Pe-Utility.txt
 	EndProjectSection
@@ -143,6 +142,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLibraryUnitTests", "Tests\UnitTests\ServerLibraryUnitTests\ServerLibraryUnitTests.csproj", "{A8F10625-D42E-4BA2-967F-F863425C7394}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSampleIntegrationTests", "Tests\ClientSampleIntegrationTest\ClientSampleIntegrationTests.csproj", "{9E8EA146-0C62-419D-8ADA-80635F96D30C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "install", "install", "{B414E410-80A7-435D-B578-D4AD08222EE7}"
+	ProjectSection(SolutionItems) = preProject
+		..\install\install.sh = ..\install\install.sh
+		..\install\Microsoft.FactoryOrchestrator.Service.service = ..\install\Microsoft.FactoryOrchestrator.Service.service
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

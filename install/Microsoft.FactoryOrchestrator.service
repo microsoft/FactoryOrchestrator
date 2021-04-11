@@ -1,0 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+[Unit]
+Description=Microsoft Factory Orchestrator service
+After=Microsoft.FactoryOrchestrator.CleanVolatile.service
+Requires=Microsoft.FactoryOrchestrator.CleanVolatile.service
+[Service]
+Type=notify
+ExecStart=/usr/sbin/FactoryOrchestrator/Microsoft.FactoryOrchestrator.Service
+
+[Install]
+WantedBy=multi-user.target

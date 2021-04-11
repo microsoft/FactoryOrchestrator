@@ -1,0 +1,14 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+[Unit]
+Description=Microsoft Factory Orchestrator volatile file cleanup service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /usr/sbin/FactoryOrchestrator/Microsoft.FactoryOrchestrator.CleanVolatile.sh
+RemainAfterExit=true
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

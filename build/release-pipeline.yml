@@ -79,7 +79,7 @@ stages:
         displayName: 'Create NET Core Test Files Zip'
         inputs:
           targetType: filePath
-          filePath: $(Build.SourcesDirectory)/build/internal/CreateTestZip.ps1
+          filePath: $(FORepoRoot)/build/internal/CreateTestZip.ps1
           arguments: '-TestBinRoot $(Build.ARTIFACTSTAGINGDIRECTORY)/bin/tests/$(BuildConfiguration)/AnyCPU/ -OutFolder $(Build.ARTIFACTSTAGINGDIRECTORY)/bin/tests/TestZip'
           failOnStderr: true
           pwsh: true
