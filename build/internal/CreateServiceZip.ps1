@@ -19,9 +19,9 @@ if ((Test-Path $tmpdir) -eq $false)
 }
 [string]$randString = Get-Random
 $tmppublishdir = join-path "$([System.IO.Path]::GetTempPath())" "$randString"
-if ((Test-Path $tmpdir) -eq $false)
+if ((Test-Path $tmppublishdir) -eq $false)
 {
-    $null = New-Item -Path $tmpdir -ItemType Directory
+    $null = New-Item -Path $tmppublishdir -ItemType Directory
 }
 
 if ($null -ne $($env:VERSIONSUFFIXVPACK))
@@ -48,11 +48,21 @@ else
 foreach ($file in $files)
 {
     $destfile = Join-Path $tmpdir $($file.Name)
-    $null = Get-Content $file.FullName -raw |
+    $content = Get-Content $file.FullName -raw |
     ForEach-Object{$_ -replace '\$Version\$', "$version"} |
     ForEach-Object{$_ -replace '\$BuildPlatform\$', "$BuildPlatform"} |
-    ForEach-Object{$_ -replace '\$BuildOS\$', "$BuildOS"} |
-    Set-Content $destfile -NoNewline
+    ForEach-Object{$_ -replace '\$BuildOS\$', "$BuildOS"}
+
+    # Set correct line ending
+    if ($BuildOS -eq "win")
+    {
+        $content = $content | ForEach-Object{$_ -replace '\n', "`r`n"}
+    }
+    else
+    {
+        $content = $content | ForEach-Object{$_ -replace '\r\n', "`n"}
+    }
+    Set-Content -Path $destfile -Value $content -NoNewline
 }
 
 # create bin zip in temp dir
