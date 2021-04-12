@@ -34,7 +34,7 @@ else
 }
 
 # copy install scripts to temp dir
-$installdir = Join-Path $env:FORepoRoot "install"
+$installdir = Join-Path $PSScriptRoot "../../install"
 if ($BuildOS -eq "win")
 {
     $files = Get-ChildItem -Path $installdir -Filter "*.ps1"
@@ -44,7 +44,7 @@ else
     $files =  Get-ChildItem -Path $installdir  -Filter "*"
 }
 
-# Set $variables$ in tempdir files
+# Set $variables$ and correct line ending in tempdir files
 foreach ($file in $files)
 {
     $destfile = Join-Path $tmpdir $($file.Name)
@@ -53,10 +53,9 @@ foreach ($file in $files)
     ForEach-Object{$_ -replace '\$BuildPlatform\$', "$BuildPlatform"} |
     ForEach-Object{$_ -replace '\$BuildOS\$', "$BuildOS"}
 
-    # Set correct line ending
     if ($BuildOS -eq "win")
     {
-        $content = $content | ForEach-Object{$_ -replace '\n', "`r`n"}
+        $content = $content | ForEach-Object{$_ -replace '\r\n', "`n"} | ForEach-Object{$_ -replace '\n', "`r`n"}
     }
     else
     {
