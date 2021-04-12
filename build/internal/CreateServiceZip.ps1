@@ -66,7 +66,7 @@ foreach ($file in $files)
 
 # create bin zip in temp dir
 $publishdir = Join-Path $BinDir "$BuildConfiguration/Publish/$BuildOS/Microsoft.FactoryOrchestrator.Service.$BuildOS-$BuildPlatform"
-Copy-Item -Path $publishdir -recurse -exclude "*.pdb" -destination $tmppublishdir
+Copy-Item -Path "$publishdir/*" -recurse -exclude "*.pdb" -destination $tmppublishdir
 Compress-Archive -Path "$tmppublishdir/*" -DestinationPath "$tmpdir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform-bin.zip" -Force
 
 # create zip with bin zip and install files

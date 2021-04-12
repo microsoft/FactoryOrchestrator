@@ -29,7 +29,7 @@ then
 fi
 
 # unzip binary files
-sudo unzip -q -d /usr/sbin/FactoryOrchestrator -o $SCRIPTDIR/Microsoft.FactoryOrchestrator.Service-10.0.0-foo-linux-x64-bin.zip
+sudo unzip -q -d /usr/sbin/FactoryOrchestrator -o $SCRIPTDIR/Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$-linux-x64-bin.zip
 sudo cp -f $SCRIPTDIR/Microsoft.FactoryOrchestrator.CleanVolatile.sh /usr/sbin/FactoryOrchestrator/
 # mark everything as executable
 sudo chmod -R +x /usr/sbin/FactoryOrchestrator/*
