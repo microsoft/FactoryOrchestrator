@@ -33,7 +33,7 @@ sudo unzip -q -d /usr/sbin/FactoryOrchestrator -o $SCRIPTDIR/Microsoft.FactoryOr
 
 # copy loose files
 sudo cp -f $SCRIPTDIR/Microsoft.FactoryOrchestrator.CleanVolatile.sh /usr/sbin/FactoryOrchestrator/
-sudo cp -f $SCRIPTDIR/uninstall.sh /usr/sbin/FactoryOrchestrator/
+sudo cp -f $SCRIPTDIR/UninstallFactoryOrchestratorService.sh /usr/sbin/FactoryOrchestrator/
 
 # mark everything as executable
 sudo chmod -R +x /usr/sbin/FactoryOrchestrator/*
