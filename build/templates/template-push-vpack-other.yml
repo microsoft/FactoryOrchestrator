@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Creates vPacks for everything but the Service.
 steps:
 - task: PkgESVPack@10

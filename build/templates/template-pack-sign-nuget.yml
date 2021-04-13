@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Creates NuGet packages for desired projects. Publishes to NuGet.org.
 parameters:
   - name: "UwpClientNuspecFolder"

@@ -1,6 +1,0 @@
-- name: Core Library
-  href: api/Microsoft.FactoryOrchestrator.Core.yml
-  homepage: api/Microsoft.FactoryOrchestrator.Core.html
-- name: Client Library
-  href: api/Microsoft.FactoryOrchestrator.Client.yml
-  homepage: api/Microsoft.FactoryOrchestrator.Client.html

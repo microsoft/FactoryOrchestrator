@@ -1,4 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
 <identity
     xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"

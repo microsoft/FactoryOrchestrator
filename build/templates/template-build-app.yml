@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Builds UWP App for desired architecture. Assumes dotnet & UWPClient builds have already been completed for desired configuration. No msixbundle.
 steps:
 - task: NuGetToolInstaller@0

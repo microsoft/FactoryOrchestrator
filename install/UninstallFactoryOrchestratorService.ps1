@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 if ((-not $PSEdition -eq "Desktop") -and (-not $IsWindows))
 {
     $command = $PSCommandPath.Replace(".ps1", ".sh")

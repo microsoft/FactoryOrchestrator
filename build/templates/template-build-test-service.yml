@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Builds all AnyCPU (MSIL) .NET Core/Standard projects and runs all unit tests.
 steps:
 - task: DotNetCoreCLI@2

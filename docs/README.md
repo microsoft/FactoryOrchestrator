@@ -1,3 +1,6 @@
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
 # Factory Orchestrator Documentation
 
 [Factory Orchestrator](https://microsoft.github.io/FactoryOrchestrator/) uses [MkDocs](https://www.mkdocs.org/) to generate usage documentation.
