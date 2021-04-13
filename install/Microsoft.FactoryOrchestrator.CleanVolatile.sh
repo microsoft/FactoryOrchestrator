@@ -1,4 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-rm /var/log/FactoryOrchestrator/FactoryOrchestratorVolatileServiceStatus.xml
+if [[ -f "/var/log/FactoryOrchestrator/FactoryOrchestratorVolatileServiceStatus.xml" ]]
+then
+    rm /var/log/FactoryOrchestrator/FactoryOrchestratorVolatileServiceStatus.xml
+fi

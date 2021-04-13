@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 [Unit]
-Description=Microsoft Factory Orchestrator service
+Description=Microsoft Factory Orchestrator service version $Version$
 After=Microsoft.FactoryOrchestrator.CleanVolatile.service
 Requires=Microsoft.FactoryOrchestrator.CleanVolatile.service
 [Service]

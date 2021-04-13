@@ -100,7 +100,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 #if DEBUG
                       var _logLevel = LogLevel.Information;
 #else
-                      var _logLevel = LogLevel.Error;
+                      var _logLevel = LogLevel.Critical;
 #endif
                       builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
                   }).Build();
@@ -115,7 +115,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 #if DEBUG
                 var _logLevel = LogLevel.Debug;
 #else
-                var _logLevel = LogLevel.Error;
+                var _logLevel = LogLevel.Information;
 #endif
                 builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
             }).Build().Run();
