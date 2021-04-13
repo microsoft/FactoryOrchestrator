@@ -47,8 +47,9 @@ else
     }
 
     # Install new service
-    $binzip = Join-Path $PSScriptRoot "Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$-bin.zip"
-    Expand-Archive $binzip -DestinationPath $installdir
+    Join-Path $PSScriptRoot "Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$-bin.zip" | Expand-Archive -DestinationPath $installdir
+    Join-Path $PSScriptRoot "uninstall.ps1" | Copy-Item -DestinationPath $installdir
+
     if ($null -ne $service)
     {
         Set-Service -InputObject $service -Description "Factory Orchestrator service version $Version$" -StartupType Manual

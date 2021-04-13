@@ -24,4 +24,5 @@ nav:
   - Client API samples: 'factory-orchestrator-client-usage-samples.md'
   - Client Library Class Reference: 'ClientLibrary\Microsoft-FactoryOrchestrator-Client.md'
   - Core Library Class Reference: 'CoreLibrary\Microsoft-FactoryOrchestrator-Core.md'
+  - Uninstall Factory Orchestrator: 'uninstall-factory-orchestrator.md'
   

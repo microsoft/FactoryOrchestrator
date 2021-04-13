@@ -1,26 +1,45 @@
 
 # Get started with Factory Orchestrator
 
-## Install or Run the service
+## Install the service
 **The service can be downloaded from the [GitHub releases page](https://github.com/microsoft/FactoryOrchestrator/releases).**
 
-The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service) runs on your Device under Test and acts as the engine powering Factory Orchestrator. To connect to the service, you can use the Factory Orchestrator UWP app, or interact with the service [programmatically using the Factory Orchestrator client APIs](use-the-factory-orchestrator-api.md). Multiple clients can be connected to the same service simultaneously.
+The Factory Orchestrator service (Microsoft.FactoryOrchestrator.Service) runs on your device under test (DUT) and acts as the engine powering Factory Orchestrator. To interact with the service, you can use the Factory Orchestrator [Windows app](use-the-factory-orchestrator-app.md) or [programmatically using the Factory Orchestrator client APIs](use-the-factory-orchestrator-api.md). Multiple clients can be connected to the same service simultaneously.
 
-The service can either be "run" (one time, not started on boot) or "installed" so that it automatically starts every boot.
+Once installed, the service can either be started manually (on demand) or configured to automatically start every boot.
 
 ![Image of service start](./images/service-start.png) 
 
-### Run the service
-Download and unzip the service for your target OS and architecture. Then simply run Microsoft.FactoryOrchestrator.Service as administrator/sudo.
-
-### Install the service (Windows)
-Download and unzip the service for your target OS and architecture. Then use an Administrator/Sudo PowerShell to install the Factory Orchestrator service on your device. When installed as a system service (daemon), the service will start every boot until disabled or uninstalled:
+### Install the service on Windows
+[Download](https://github.com/microsoft/FactoryOrchestrator/releases) and unzip the service for your target OS and architecture. Then use an Administrator PowerShell to run the included InstallFactoryOrchestratorService.ps1 file. If you want the service to start automatically every boot, use the -AutoStart switch. Without this switch the service must be started manually every boot.
 
 ```PowerShell
-     ## Optionally set it's start up to automatic with: -StartupType Automatic
-    New-Service -Name "FactoryOrchestrator" -BinaryPathName "Microsoft.FactoryOrchestrator.Service.exe"
+     ## Optionally set its start up to automatic with: -AutoStart
+    .\InstallFactoryOrchestratorService.ps1 # -AutoStart
+```
 
-    Start-Service -Name "FactoryOrchestrator"
+### Start the service manually on Windows
+To start the service manually, run the following from an administrator PowerShell:
+
+```PowerShell
+     Start-Service -Name "Microsoft.FactoryOrchestrator"
+```
+
+### Install the service on Linux
+[Download](https://github.com/microsoft/FactoryOrchestrator/releases) and unzip the service for your target OS and architecture. Then run the included InstallFactoryOrchestratorService.sh file with bash as sudo. If you want the service to start automatically every boot, add an "enable" argument. Without this the service must be started manually every boot.
+
+```Bash
+     ## Optionally set its start up to automatic with: enable
+    sudo bash ./InstallFactoryOrchestratorService.sh # enable
+```
+
+The install script requires the ["unzip"](https://linuxize.com/post/how-to-unzip-files-in-linux/#installing-unzip) command. If you prefer to use another command to unzip a .zip file, edit InstallFactoryOrchestratorService.sh, replacing "unzip" with your desired command.
+
+### Start the service manually on Linux
+To start the service manually, run the following from bash:
+
+```Bash
+    sudo systemctl start Microsoft.FactoryOrchestrator.service
 ```
 
 ### Service configuration
