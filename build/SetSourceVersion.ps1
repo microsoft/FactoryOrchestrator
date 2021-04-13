@@ -169,7 +169,6 @@ ForEach ($appx in $appxs)
     if (-not [string]::IsNullOrEmpty($versionSuffix))
     {
         $appName += " Prerelease-$versionSuffix"
-        $identityName += ".Prerelease-$versionSuffix"
     }
 
     if (Test-Path $destFile -PathType Leaf)
