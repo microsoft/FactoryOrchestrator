@@ -48,7 +48,7 @@ else
 
     # Install new service
     Join-Path $PSScriptRoot "Microsoft.FactoryOrchestrator.Service-$Version$-$BuildOS$-$BuildPlatform$-bin.zip" | Expand-Archive -DestinationPath $installdir
-    Join-Path $PSScriptRoot "uninstall.ps1" | Copy-Item -DestinationPath $installdir
+    Join-Path $PSScriptRoot "uninstall.ps1" | Copy-Item -Destination $installdir
 
     if ($null -ne $service)
     {
