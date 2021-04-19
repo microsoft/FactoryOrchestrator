@@ -583,7 +583,7 @@ stages:
               # Publish PowerShell module to PowerShell Gallery with API key in secret variable OCSYM.PSGalleryApiKey
               - pwsh: |
                   $userModulePath = $env:PSModulePath.Split(';')[0]
-                  . robocopy /S "$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\Publish\Microsoft.FactoryOrchestrator.PowerShell" "$userModulePath\Microsoft.FactoryOrchestrator.Client"
+                  . robocopy /S "$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\Publish\win\Microsoft.FactoryOrchestrator.PowerShell" "$userModulePath\Microsoft.FactoryOrchestrator.Client"
                   publish-module -Name "Microsoft.FactoryOrchestrator.Client" -NuGetApiKey $(OCSYM.PSGalleryApiKey) -AllowPrerelease
                   remove-item -recurse -path "$userModulePath\Microsoft.FactoryOrchestrator.Client"
                 displayName: 'Publish PowerShell module to PSGallery'
