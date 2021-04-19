@@ -1,12 +1,13 @@
 # publishes the PowerShell library
 steps:
+# While this is cross-OS, publish to win subdirectory so it gets signed with the Windows signature
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish FactoryOrchestratorClient PowerShell'
   inputs:
     command: publish
     publishWebProjects: False
     zipAfterPublish: false
-    arguments: '$(FORepoRoot)\src\PowerShellLibrary\Microsoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(FORepoRoot)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\Publish\Microsoft.FactoryOrchestrator.PowerShell --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
+    arguments: '$(FORepoRoot)\src\PowerShellLibrary\Microsoft.FactoryOrchestrator.PowerShell.csproj -p:SolutionDir=$(FORepoRoot)\src --configuration $(BuildConfiguration) --output $(Build.ARTIFACTSTAGINGDIRECTORY)\bin\$(BuildConfiguration)\Publish\win\Microsoft.FactoryOrchestrator.PowerShell --verbosity Detailed --no-build $(VERSIONSUFFIXDOTNET)'
 - task: CopyFiles@2
   displayName: 'Copy NOTICE to publish'
   inputs:
