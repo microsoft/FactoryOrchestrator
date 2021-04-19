@@ -16,6 +16,11 @@ steps:
     git fetch
     git checkout gh-pages
 
+    if ((Test-Path "$(Build.ArtifactStagingDirectory)/gh-pages") -eq $false)
+    {
+        $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/gh-pages" -ItemType Directory
+    }
+
     # backup new website
     Compress-Archive -Path $(FORepoRoot)/docs/site/* -DestinationPath $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -Force
     
@@ -44,7 +49,7 @@ steps:
   displayName: 'Publish gh-pages artifact if website has changes'
   condition: eq(variables['hasChanges'], '1')
   inputs:
-    artifactName: GitOutput
+    artifactName: gh-pages
     targetPath: $(Build.ArtifactStagingDirectory)\gh-pages
 - script: |
     echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published gh-pages artifact from the CI build to update the gh-pages branch.
