@@ -8,7 +8,7 @@ Param
 )
 $ErrorActionPreference = "stop"
 
-if ((-not $PSEdition -eq "Desktop") -and (-not $IsWindows))
+if (($PSEdition -ne "Desktop") -and (-not $IsWindows))
 {
     $command = $PSCommandPath.Replace(".ps1", ".sh")
     if ($AutoStart)
