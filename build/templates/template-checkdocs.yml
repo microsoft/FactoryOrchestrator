@@ -21,6 +21,11 @@ steps:
         $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/gh-pages" -ItemType Directory
     }
 
+    if ((Test-Path "$(Build.ArtifactStagingDirectory)/GitOutput") -eq $false)
+    {
+        $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/GitOutput" -ItemType Directory
+    }
+
     # backup new website
     Compress-Archive -Path $(FORepoRoot)/docs/site/* -DestinationPath $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -Force
     
@@ -28,15 +33,15 @@ steps:
     get-childitem $(FORepoRoot) -Directory | remove-item -recurse -force
 
     # copy new website build to repro root
-    Expand-Archive -Path $(Build.ArtifactStagingDirectory)\gh-pages\gh-pages.zip -DestinationPath $(FORepoRoot) -Force
+    Expand-Archive -Path $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -DestinationPath $(FORepoRoot) -Force
 
     # restore sitemap.xml, as it has a timestamp that changes on build
     git restore sitemap.xml*
 
     # add all files and check for changes
     git add -A
-    git status > $(Build.ArtifactStagingDirectory)\GitOutput\GitStatus.txt
-    git diff --cached --exit-code > $(Build.ArtifactStagingDirectory)\GitOutput\GitDiff.txt
+    git status > $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
+    git diff --cached --exit-code > $(Build.ArtifactStagingDirectory)/GitOutput/GitDiff.txt
     echo ##vso[task.setvariable variable=hasChanges]%errorlevel%
   displayName: 'Check website for changes'
 - task: PublishPipelineArtifact@1
@@ -44,13 +49,13 @@ steps:
   condition: eq(variables['hasChanges'], '1')
   inputs:
     artifactName: GitOutput
-    targetPath: $(Build.ArtifactStagingDirectory)\GitOutput
+    targetPath: $(Build.ArtifactStagingDirectory)/GitOutput
 - task: PublishPipelineArtifact@1
   displayName: 'Publish gh-pages artifact if website has changes'
   condition: eq(variables['hasChanges'], '1')
   inputs:
     artifactName: gh-pages
-    targetPath: $(Build.ArtifactStagingDirectory)\gh-pages
+    targetPath: $(Build.ArtifactStagingDirectory)/gh-pages
 - script: |
     echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published gh-pages artifact from the CI build to update the gh-pages branch.
   displayName: 'Warn if website has changes'
