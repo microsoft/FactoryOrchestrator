@@ -45,8 +45,11 @@ steps:
     # restore sitemap.xml, as it has a timestamp that changes on build
     git restore sitemap.xml*
     # add all files and check for changes
+    write-host "1"
     git add -A
+    write-host "2"
     git status | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
+    write-host "3"
     git diff --cached --exit-code | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitDiff.txt
     write-host "##vso[task.setvariable variable=hasChanges]$LASTEXITCODE"
   displayName: 'Check website for changes'
