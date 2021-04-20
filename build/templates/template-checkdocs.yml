@@ -4,11 +4,11 @@
 # Runs mkdocs to check if docs need updating on gh-pages.
 # Core and Client projects must be built for it to detect API changes.
 steps:
-- script: |
+- pwsh: |
     cd $(FORepoRoot)
-    mkdir $(Build.ArtifactStagingDirectory)\Patch
-    pip install --upgrade pip --upgrade -r $(FORepoRoot)\docs\requirements.txt
-    mkdocs build --clean --config-file $(FORepoRoot)\docs\mkdocs.yml
+    mkdir $(Build.ArtifactStagingDirectory)/Patch
+    pip install --upgrade pip --upgrade -r $(FORepoRoot)/docs/requirements.txt
+    mkdocs build --clean --config-file $(FORepoRoot)/docs/mkdocs.yml
   displayName: 'Build website'
 - pwsh: |
     # checkout gh-pages
