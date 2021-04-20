@@ -5,12 +5,12 @@ pr:
 - none
 
 parameters:
-- name: UseTestingArtifacts
-  displayName: TEST BUILDS ONLY - Use artifacts from __testing tagged build? (UseTestingArtifacts)
+- name: UseOlderBuildArtifacts
+  displayName: (Expert option) Use artifacts from build id set in BUILDIDFORARTIFACTS variable? (UseOlderBuildArtifacts)
   type: boolean
   default: false
 - name: VPackVersionAppendId
-  displayName: TEST BUILDS ONLY - Append build id to VPack versions (VPackVersionAppendId)
+  displayName: (Expert option) Append build id to VPack versions (VPackVersionAppendId)
   type: boolean
   default: false
 
@@ -190,7 +190,7 @@ stages:
         - pwsh: |
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
-        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
+        - ${{ if ne(parameters.UseOlderBuildArtifacts, true) }}:
           - download: current
             artifact: UnsignedBin_$(BuildConfiguration)_AnyCPU
           - download: current
@@ -201,11 +201,10 @@ stages:
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_x64
           - download: current
             artifact: UnsignedBin_Windows_$(BuildConfiguration)_ARM
-        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
+        - ${{ if eq(parameters.UseOlderBuildArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
-        # Tag the older build whose artifacts you want to use with '__testing',
-        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
+        # Set BUILDIDFORARTIFACTS variable to the desired build you want to use binaries from.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -214,10 +213,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -226,10 +225,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_Publish"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -238,10 +237,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x86"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -250,10 +249,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_x64"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -262,10 +261,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UnsignedBin_Windows_$(BuildConfiguration)_ARM"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
         - task: CopyFiles@2
           inputs:
             sourceFolder: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
@@ -317,7 +316,7 @@ stages:
             Get-Item -Path env:* | Sort-Object Name
           displayName: "Print all variables"
 
-        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
+        - ${{ if ne(parameters.UseOlderBuildArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
             patterns: |
@@ -329,11 +328,10 @@ stages:
               **/*.msixbundle
               **/*.msix
 
-        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
+        - ${{ if eq(parameters.UseOlderBuildArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
-        # Tag the older build whose artifacts you want to use with '__testing',
-        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
+        # Set BUILDIDFORARTIFACTS variable to the desired build you want to use binaries from.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -342,8 +340,8 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
               patterns: |
                 **/JKang.*.dll
@@ -353,7 +351,7 @@ stages:
                 **/Microsoft.FactoryOrchestrator*.@(dll|exe)
                 **/*.msixbundle
                 **/*.msix
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
 
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
@@ -421,18 +419,17 @@ stages:
             projects: '$(FORepoRoot)/src/FactoryOrchestratorNoApp.sln'
           displayName: 'dotnet restore'
 
-        - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
+        - ${{ if ne(parameters.UseOlderBuildArtifacts, true) }}:
           - download: 'current'
             artifact: 'SignedBin_Windows_Release_AllPlatforms'
           - download: 'current'
             artifact: 'UnsignedBin_Linux_Release_Publish'
           - download: 'current'
             artifact: 'UWPClient_Nuspecs'
-        - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
+        - ${{ if eq(parameters.UseOlderBuildArtifacts, true) }}:
         # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
         # Useful to quickly iterate on later stages of the build.
-        # Tag the older build whose artifacts you want to use with '__testing',
-        # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
+        # Set BUILDIDFORARTIFACTS variable to the desired build you want to use binaries from.
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -441,9 +438,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -452,10 +450,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UnsignedBin_Linux_Release_Publish"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
             inputs:
               source: specific
@@ -464,10 +462,10 @@ stages:
               allowPartiallySucceededBuilds: true
               project: 'OneCore'
               pipeline: $(System.DefinitionId)
-              runVersion: 'latest'
-              tags: '__testing'
+              runVersion: 'specific'
+              runId: $(BUILDIDFORARTIFACTS)
               path: "$(Pipeline.Workspace)/UWPClient_Nuspecs"
-            displayName: "Download from __testing build"
+            displayName: "Download from BUILDIDFORARTIFACTS build"
 
         - task: CopyFiles@2
           inputs:
@@ -550,7 +548,7 @@ stages:
                   Get-Item -Path env:* | Sort-Object Name
                 displayName: "Print all variables"
 
-              - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
+              - ${{ if ne(parameters.UseOlderBuildArtifacts, true) }}:
                 - download: 'current'
                   artifact: 'SignedBin_Windows_Release_AllPlatforms'
                 - download: 'current'
@@ -558,10 +556,10 @@ stages:
                 - download: 'current'
                   artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
                   patterns: 'TestZip/*'
-              - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
+              - ${{ if eq(parameters.UseOlderBuildArtifacts, true) }}:
               # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for publishing.
               # Useful to release a build in stages if things went awry.
-              # Set BUILDIDFORPUBLISH variable to the desired build you want to use binaries from for publishing.
+              # Set BUILDIDFORARTIFACTS variable to the desired build you want to use binaries from for publishing.
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     source: specific
@@ -571,10 +569,10 @@ stages:
                     project: 'OneCore'
                     pipeline: $(System.DefinitionId)
                     runVersion: 'specific'
-                    runId: $(BUILDIDFORPUBLISH)
+                    runId: $(BUILDIDFORARTIFACTS)
                     tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
-                    displayName: "Download from BUILDIDFORPUBLISH build"
+                    displayName: "Download from BUILDIDFORARTIFACTS build"
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     source: specific
@@ -584,10 +582,10 @@ stages:
                     project: 'OneCore'
                     pipeline: $(System.DefinitionId)
                     runVersion: 'specific'
-                    runId: $(BUILDIDFORPUBLISH)
+                    runId: $(BUILDIDFORARTIFACTS)
                     tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedNugets_Windows_Release"
-                  displayName: "Download from BUILDIDFORPUBLISH build"
+                  displayName: "Download from BUILDIDFORARTIFACTS build"
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     source: specific
@@ -598,10 +596,10 @@ stages:
                     project: 'OneCore'
                     pipeline: $(System.DefinitionId)
                     runVersion: 'specific'
-                    runId: $(BUILDIDFORPUBLISH)
+                    runId: $(BUILDIDFORARTIFACTS)
                     tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
-                  displayName: "Download from BUILDIDFORPUBLISH build"
+                  displayName: "Download from BUILDIDFORARTIFACTS build"
 
               # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
               - pwsh: |
