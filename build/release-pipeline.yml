@@ -215,6 +215,7 @@ stages:
               pipeline: $(System.DefinitionId)
               runVersion: 'specific'
               runId: $(BUILDIDFORARTIFACTS)
+              tags: 'SignedBuild'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
             displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
