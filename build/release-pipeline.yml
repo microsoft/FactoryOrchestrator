@@ -549,13 +549,56 @@ stages:
               - pwsh: |
                   Get-Item -Path env:* | Sort-Object Name
                 displayName: "Print all variables"
-              - download: 'current'
-                artifact: 'SignedBin_Windows_Release_AllPlatforms'
-              - download: 'current'
-                artifact: 'SignedNugets_Windows_Release'
-              - download: 'current'
-                artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
-                patterns: 'TestZip/*'
+
+              - ${{ if ne(parameters.UseTestingArtifacts, true) }}:
+                - download: 'current'
+                  artifact: 'SignedBin_Windows_Release_AllPlatforms'
+                - download: 'current'
+                  artifact: 'SignedNugets_Windows_Release'
+                - download: 'current'
+                  artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
+                  patterns: 'TestZip/*'
+              - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
+              # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
+              # Useful to quickly iterate on later stages of the build.
+              # Tag the older build whose artifacts you want to use with '__testing',
+              # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    source: specific
+                    artifact: SignedBin_Windows_Release_AllPlatforms
+                    allowFailedBuilds: true
+                    allowPartiallySucceededBuilds: true
+                    project: 'OneCore'
+                    pipeline: $(System.DefinitionId)
+                    runVersion: 'latest'
+                    tags: '__testing,SignedBuild'
+                    path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    source: specific
+                    artifact: SignedNugets_Windows_Release
+                    allowFailedBuilds: true
+                    allowPartiallySucceededBuilds: true
+                    project: 'OneCore'
+                    pipeline: $(System.DefinitionId)
+                    runVersion: 'latest'
+                    tags: '__testing,SignedBuild'
+                    path: "$(Pipeline.Workspace)/SignedNugets_Windows_Release"
+                  displayName: "Download from __testing build"
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    source: specific
+                    artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
+                    patterns: 'TestZip/*'
+                    allowFailedBuilds: true
+                    allowPartiallySucceededBuilds: true
+                    project: 'OneCore'
+                    pipeline: $(System.DefinitionId)
+                    runVersion: 'latest'
+                    tags: '__testing,SignedBuild'
+                    path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
+                  displayName: "Download from __testing build"
 
               # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
               - pwsh: |
@@ -574,6 +617,7 @@ stages:
                   SymbolsArtifactName: 'Symbols_Release'
                   SymbolsProduct: 'FactoryOrchestrator'
                   SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
+                condition: and(ne(['SKIPPDBPUBLISH'], 'true'), succeeded())
                 displayName: 'publish symbols to public server'
 
               # Publish PowerShell module to PowerShell Gallery with API key in secret variable OCSYM.PSGalleryApiKey
@@ -581,7 +625,7 @@ stages:
                   $userModulePath = $env:PSModulePath.Split(';')[0]
                   . robocopy /S "$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\Publish\win\Microsoft.FactoryOrchestrator.PowerShell" "$userModulePath\Microsoft.FactoryOrchestrator.Client"
                   publish-module -Name "Microsoft.FactoryOrchestrator.Client" -NuGetApiKey $(OCSYM.PSGalleryApiKey) -AllowPrerelease
-                  remove-item -recurse -path "$userModulePath\Microsoft.FactoryOrchestrator.Client"
+                condition: and(ne(['SKIPPWSHPUBLISH'], 'true'), succeeded())
                 displayName: 'Publish PowerShell module to PSGallery'
 
               # Publish NuGet binary & symbol packages to NuGet.org with API key in secret variable OCSYM.NuGetApiKey
@@ -594,6 +638,7 @@ stages:
                     push $(Pipeline.Workspace)\SignedNugets_Windows_Release\*.nupkg
                     -s https://api.nuget.org/v3/index.json
                     -k $(OCSYM.NuGetApiKey)
+                condition: and(ne(['SKIPNUGETPUBLISH'], 'true'), succeeded())
 
               - task: CopyFiles@2
                 inputs:
