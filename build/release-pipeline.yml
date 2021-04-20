@@ -559,10 +559,9 @@ stages:
                   artifact: 'UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests'
                   patterns: 'TestZip/*'
               - ${{ if eq(parameters.UseTestingArtifacts, true) }}:
-              # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for testing.
-              # Useful to quickly iterate on later stages of the build.
-              # Tag the older build whose artifacts you want to use with '__testing',
-              # and then use the 'Use artifacts from __testing' checkbox when queuing your build.
+              # Use these DownloadPipelineArtifact@2 tasks to use an older build artifact for publishing.
+              # Useful to release a build in stages if things went awry.
+              # Set BUILDIDFORPUBLISH variable to the desired build you want to use binaries from for publishing.
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     source: specific
@@ -575,6 +574,7 @@ stages:
                     runId: $(BUILDIDFORPUBLISH)
                     tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
+                    displayName: "Download from BUILDIDFORPUBLISH build"
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     source: specific
@@ -587,7 +587,7 @@ stages:
                     runId: $(BUILDIDFORPUBLISH)
                     tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedNugets_Windows_Release"
-                  displayName: "Download from __testing build"
+                  displayName: "Download from BUILDIDFORPUBLISH build"
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     source: specific
@@ -601,7 +601,7 @@ stages:
                     runId: $(BUILDIDFORPUBLISH)
                     tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
-                  displayName: "Download from __testing build"
+                  displayName: "Download from BUILDIDFORPUBLISH build"
 
               # Expects ArtifactServices.Symbol.PAT secret variable to be defined with a PAT
               - pwsh: |
