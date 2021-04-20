@@ -25,6 +25,17 @@ The following table describes each setting and its usage:
 | DisableFileTransferPage | bool | If set to "true", the Factory Orchestrator app will not show the "File Transfer" page. |
 | SSLCertificateFile | string | Path to X509Certificate2 file. If provided the Factory Orchestrator Service will use the provided certificate for ssl encryption to communicate with client. |
 
+## Sample appsettings.json
+Here's an example of what a valid appsettings.json file looks like.
+```json
+{
+    "EnableNetworkAccess":"true",
+    "NetworkPort":"45000",
+    "DisableFileTransferPage":"true",
+    "InitialTaskLists":"/etc/InitialTaskLists.xml"
+}
+```
+
 # Additional details
 ## Network Access
 By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.
