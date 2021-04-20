@@ -51,6 +51,7 @@ steps:
     git status | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
     write-host "3"
     git diff --cached --exit-code | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitDiff.txt
+    write-host "4"
     write-host "##vso[task.setvariable variable=hasChanges]$LASTEXITCODE"
   displayName: 'Check website for changes'
 - task: PublishPipelineArtifact@1
