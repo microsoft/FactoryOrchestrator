@@ -9,13 +9,14 @@
         <meta name="description" content="Factory Orchestrator Documentation">
       
       
-        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/">
-      
       
         <meta name="author" content="themar-msft;hajya">
       
+      
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/">
+      
       <link rel="shortcut icon" href="../images/fo-logo.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.3">
     
     
       
@@ -23,10 +24,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.1655a90d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.7fa14f5b.min.css">
         
           
           
@@ -38,9 +39,9 @@
     
       
         
-        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
       
     
     
@@ -60,13 +61,14 @@
     <body dir="ltr" data-md-color-scheme="" data-md-color-primary="blue-grey" data-md-color-accent="amber">
       
   
+    
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
         
-        <a href="#run-tasks-with-factory-orchestrator" class="md-skip">
+        <a href="#use-the-factory-orchestrator-app" class="md-skip">
           Skip to content
         </a>
       
@@ -75,45 +77,52 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
-  <nav class="md-header-nav md-grid" aria-label="Header">
-    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header-nav__button md-logo" aria-label="Factory Orchestrator">
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-header__button md-logo" aria-label="Factory Orchestrator">
       
   <img src="../images/fo-logo.png" alt="logo">
 
     </a>
-    <label class="md-header-nav__button md-icon" for="__drawer">
+    <label class="md-header__button md-icon" for="__drawer">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
     </label>
-    <div class="md-header-nav__title" data-md-component="header-title">
-      
-        <div class="md-header-nav__ellipsis">
-          <span class="md-header-nav__topic md-ellipsis">
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
             Factory Orchestrator
           </span>
-          <span class="md-header-nav__topic md-ellipsis">
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
             
               Run using the application
             
           </span>
         </div>
+      </div>
+    </div>
+    <div class="md-header__options">
       
     </div>
     
-      <label class="md-header-nav__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
       
 <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
       </button>
     </form>
@@ -131,12 +140,12 @@
 </div>
     
     
-      <div class="md-header-nav__source">
+      <div class="md-header__source">
         
-<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -156,10 +165,16 @@
         <div class="md-main__inner md-grid">
           
             
-              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://microsoft.github.io/FactoryOrchestrator/" title="Factory Orchestrator" class="md-nav__button md-logo" aria-label="Factory Orchestrator">
       
@@ -171,10 +186,10 @@
   
     <div class="md-nav__source">
       
-<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source">
+<a href="https://github.com/microsoft/FactoryOrchestrator/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -188,48 +203,15 @@
       
       
 
-
-  <li class="md-nav__item">
-    <a href=".." class="md-nav__link">
-      Overview
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
-      Get Started
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../tasks-and-tasklists/" class="md-nav__link">
-      Tasks & TaskLists
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../service-configuration/" class="md-nav__link">
-      Service Configuration
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
 
     
       
@@ -237,25 +219,72 @@
       
 
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../get-started-with-factory-orchestrator/" class="md-nav__link">
+        Get Started
+      </a>
+    </li>
+  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
       
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks-and-tasklists/" class="md-nav__link">
+        Tasks & TaskLists
+      </a>
+    </li>
+  
+
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service-configuration/" class="md-nav__link">
+        Service configuration
+      </a>
+    </li>
+  
+
     
-      <label class="md-nav__link md-nav__link--active" for="__toc">
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Run using the application
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Run using the application
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
-      Run using the application
-    </a>
-    
+      </a>
       
+        
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -266,7 +295,7 @@
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#run-a-tasklist" class="md-nav__link">
@@ -275,59 +304,134 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#managing-tasklists" class="md-nav__link">
+    Managing TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-and-manage-tasklists" class="md-nav__link">
+    Create and manage TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and manage TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-or-import-tasklists" class="md-nav__link">
+    Create or import TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-and-modify-tasklists" class="md-nav__link">
+    Create and modify TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-tasklists" class="md-nav__link">
+    Export TaskLists
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
-    
-  </li>
+      
+    </li>
+  
 
     
       
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
-      Run using the client API
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../factory-orchestrator-client-usage-samples/" class="md-nav__link">
-      Client API samples
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
+        Run using the client API
+      </a>
+    </li>
+  
 
     
       
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
-      Client Library Class Reference
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../factory-orchestrator-client-usage-samples/" class="md-nav__link">
+        Client API samples
+      </a>
+    </li>
+  
 
     
       
       
       
 
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client/" class="md-nav__link">
+        Client Library Class Reference
+      </a>
+    </li>
+  
 
-  <li class="md-nav__item">
-    <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
-      Core Library Class Reference
-    </a>
-  </li>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core/" class="md-nav__link">
+        Core Library Class Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uninstall-factory-orchestrator/" class="md-nav__link">
+        Uninstall Factory Orchestrator
+      </a>
+    </li>
+  
 
     
   </ul>
@@ -337,7 +441,8 @@
               </div>
             
             
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -351,12 +456,59 @@
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#run-a-tasklist" class="md-nav__link">
     Run a TaskList
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-tasklists" class="md-nav__link">
+    Managing TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-and-manage-tasklists" class="md-nav__link">
+    Create and manage TaskLists
+  </a>
+  
+    <nav class="md-nav" aria-label="Create and manage TaskLists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-or-import-tasklists" class="md-nav__link">
+    Create or import TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-and-modify-tasklists" class="md-nav__link">
+    Create and modify TaskLists
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-tasklists" class="md-nav__link">
+    Export TaskLists
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -368,7 +520,7 @@
               </div>
             
           
-          <div class="md-content">
+          <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
                 
@@ -377,9 +529,11 @@
                   </a>
                 
                 
-                <h1 id="run-tasks-with-factory-orchestrator">Run tasks with Factory Orchestrator</h1>
-<p>Once you've created or imported a TaskList into Factory Orchestrator, you can run it. This topic covers the process of running a TaskList.</p>
+                <h1 id="use-the-factory-orchestrator-app">Use the Factory Orchestrator app</h1>
+<p>The app is a Windows-only app and it depends on the service to run. However, it can connect to a service running on any DUT on your local network, not just to the same device the app is running on. This includes connecting to a DUT running Linux!</p>
 <h2 id="run-a-tasklist">Run a TaskList</h2>
+<p>When you first run the Factory Orchestrator app, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app likely won't show any TaskLists. Once you create a TaskList, it will show up on this screen.</p>
+<p>Once you've <a href="#managing-tasklists">created or imported a TaskList into Factory Orchestrator, you can run it</a>. This topic covers the process of running a TaskList.</p>
 <p>When you click on the <strong>Run TaskLists</strong> menu item, you'll be see the "Run TaskLists" screen.</p>
 <p>Hit the 'Play' button to run a TaskList. As tasks complete, the tasks' output will show next to the task.</p>
 <p><img alt="TaskList with the Play button" src="../images/run-a-tasklist.png" /></p>
@@ -393,6 +547,84 @@
 <p><img alt="Results of an aborted running TaskList" src="../images/re-run-task.png" /></p>
 <p>If you click on a Task, the results page will load and show you the status of the latest "run" (<a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/">TaskRun</a>) of that Task, including the any output of the Task. The results page also allows you to see the log file path for that run. You can also use the buttons at the top of the page to view older or newer runs of the Task, provided it has been run multiple times.</p>
 <p><img alt="Clicking on a Task that has run" src="../images/test-results.png" /></p>
+<h2 id="managing-tasklists">Managing TaskLists</h2>
+<p>You can use the Factory Orchestrator app to manage a <a href="../tasks-and-tasklists/">TaskList</a>. To create, modify, and delete TaskLists, click on 'Manage TaskLists'.</p>
+<h3 id="create-and-manage-tasklists">Create and manage TaskLists</h3>
+<p>The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create, modify, and delete TaskLists.</p>
+<h4 id="create-or-import-tasklists">Create or import TaskLists</h4>
+<ul>
+<li>
+<p><strong>Add a whole folder as a TaskList</strong></p>
+<p>Adds the contents of a local folder into a new TaskList. After you've added a folder, you can edit individual tasks to configure additional arguments, timeout settings, etc.</p>
+<p><img alt="Load folder as tasklist menu item" src="../images/load-folder-as-tasklist.png" /></p>
+</li>
+<li>
+<p><strong>Choose individual files to add to a TaskList</strong></p>
+<p>Use <code>Create new TaskList</code> to create a new <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a> where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.</p>
+<p><img alt="Create new TaskList button" src="../images/create-new-tasklist.png" /></p>
+</li>
+<li>
+<p><strong>Import a previously generated FactoryOrchestratorXML file</strong></p>
+<p>This enables you to generate and export a TaskList on one device, and import it into your device. Once loaded, imported TaskList XML files can be modified like any other Task List.</p>
+<p>To import a TaskList:</p>
+<ol>
+<li>
+<p>On the <strong>Manage TaskLists</strong> page, click on <strong>Import FactoryOrchestratorXML file</strong>
+  <img alt="Import an existing TaskList" src="../images/import-sxml.png" /></p>
+</li>
+<li>
+<p>Enter the full path to the FactoryOrchestratorXML you want to import and click ✓</p>
+</li>
+</ol>
+<p><img alt="TaskLists XML file to load from dialog box" src="../images/load-tasklist-from.png" /></p>
+<p>When you import a TaskList:</p>
+</li>
+<li>
+<p>All the TaskLists defined in the file are imported</p>
+</li>
+<li>If the TaskList(s) were previously run, the TaskList state is also imported but not Task run results</li>
+</ul>
+<p>When you create a new TaskList, the Factory Orchestrator app generates a GUID that it assigns as the TaskList's name.</p>
+<h4 id="create-and-modify-tasklists">Create and modify TaskLists</h4>
+<p>Once you've added tasks to a TaskList, you can click the pencil icon to modify as TaskList.</p>
+<p><img alt="Modify TaskList pencil button" src="../images/existing-tasklists.png" /></p>
+<p>When you click the pencil icon, you'll see the following screen:</p>
+<p><img alt="Edit tasklist screen" src="../images/edit-tasklist-page.png" /></p>
+<p>This screen allows you to create new Tasks, rename existing Tasks, reorder Tasks, or edit Tasks.</p>
+<ul>
+<li>
+<p>Use the "New <code>&lt;TaskType&gt;</code> Task" buttons to create a new Task in the TaskList</p>
+</li>
+<li>
+<p>Use the rename icon (<img alt="Rename icon" src="../images/tasklist-rename.png" />) to rename TaskLists</p>
+</li>
+<li>
+<p>Click and drag on the bars to the left of a Task to reorder the Tasks.</p>
+</li>
+<li>
+<p>Use the pencil (edit) button to edit a task. When you click the edit or "New <code>&lt;TaskType&gt;</code> Task" buttons, you'll see something similar to:</p>
+<p><img alt="Task edit screen" src="../images/edit-task.png" /></p>
+<p>See <a href="../tasks-and-tasklists/">FactoryOrchestratorXML</a> for information about the different options on this screen.</p>
+</li>
+<li>
+<p>Use the delete buttons to delete an existing Task.</p>
+</li>
+</ul>
+<h4 id="export-tasklists">Export TaskLists</h4>
+<p>If you create one or more TaskLists in the app, you can export and save them. This allows you to import them onto another device. From the 'Manage TaskLists" screen:</p>
+<ul>
+<li>Save a single TaskList by clicking on the disk icon next to the TaskList name</li>
+<li>Save all your TaskLists by clicking on the button that says 'Save All TaskLists to XML File`</li>
+</ul>
+<p>To export TaskLists:</p>
+<p>Here is an image of the <strong>Manage TaskLists</strong> page with one TaskList loaded:</p>
+<p><img alt="Manage TaskLists page with one TaskList loaded" src="../images/save-tasklists.png" /></p>
+<p>From this page, you can:</p>
+<ul>
+<li>Export a specific TaskList by clicking on the save icon (./images/save-icon.png) next to the Task</li>
+<li>Export all TaskLists by clicking on the <strong>Save All TaskLists to File</strong> button.</li>
+</ul>
+<p>After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.</p>
 <h1 id="factory-orchestrator-utilities">Factory Orchestrator utilities</h1>
 <p>The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.</p>
 <!-- ## UWP Apps
@@ -444,40 +676,38 @@ You can exit a launched UWP with ALT+F4, or from Windows Device Portal. -->
         
 <footer class="md-footer">
   
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
-        
-          <a href="../service-configuration/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../service-configuration/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Service configuration
             </div>
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                Service Configuration
-              </div>
+          </div>
+        </a>
+      
+      
+        <a href="../use-the-factory-orchestrator-api/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Run using the client API
             </div>
-          </a>
-        
-        
-          <a href="../use-the-factory-orchestrator-api/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Run using the client API
-              </div>
-            </div>
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -494,19 +724,13 @@ You can exit a launched UWP with ALT+F4, or from Windows Device Portal. -->
 </footer>
       
     </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
     
-      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
-      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
-      
-      <script>
-        app = initialize({
-          base: "..",
-          features: [],
-          search: Object.assign({
-            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
-          }, typeof search !== "undefined" && search)
-        })
-      </script>
+    
+      <script src="../assets/javascripts/bundle.ca5457b8.min.js"></script>
       
     
   </body>
