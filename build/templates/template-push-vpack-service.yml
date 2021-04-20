@@ -8,7 +8,7 @@ steps:
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     Contents: '*.pdb' 
-  condition: and(ne(['SKIPVPACKPUBLISH'], 'true'), succeeded())
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
   displayName: "Delete pdbs ${{ parameters.BuildPlatform }}"
 - task: PowerShell@2
   displayName: 'Create Microsoft.FactoryOrchestrator.Service Manifest for VPack'
@@ -19,7 +19,7 @@ steps:
     failOnStderr: true
     pwsh: true
   timeoutInMinutes: 5
-  condition: and(ne(['SKIPVPACKPUBLISH'], 'true'), succeeded())
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 - task: PkgESVPack@10
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
@@ -29,18 +29,18 @@ steps:
     pushPkgName: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     description: 'FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
-  condition: and(ne(['SKIPVPACKPUBLISH'], 'true'), succeeded())
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest Service ${{ parameters.BuildPlatform }}'
   inputs:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(ne(['SKIPVPACKPUBLISH'], 'true'), succeeded())
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 - task: CopyFiles@2
   displayName: 'Copy Service Manifest ${{ parameters.BuildPlatform }}'
   inputs:
     SourceFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\bin\${{ parameters.BuildConfiguration }}\Publish\${{ parameters.BuildOS }}\Microsoft.FactoryOrchestrator.Service.${{ parameters.BuildPlatform }}'
     Contents: 'Microsoft-OneCore-FactoryOrchestrator-Service-${{ parameters.BuildPlatform }}.wm.xml'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
-  condition: and(ne(['SKIPVPACKPUBLISH'], 'true'), succeeded())
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())

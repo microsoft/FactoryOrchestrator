@@ -617,7 +617,7 @@ stages:
                   SymbolsArtifactName: 'Symbols_Release'
                   SymbolsProduct: 'FactoryOrchestrator'
                   SymbolsVersion: '$(VersionPrefix)$(VERSIONSUFFIXVPACK)'
-                condition: and(ne(['SKIPPDBPUBLISH'], 'true'), succeeded())
+                condition: and(ne(variables['SKIPPDBPUBLISH'], 'true'), succeeded())
                 displayName: 'publish symbols to public server'
 
               # Publish PowerShell module to PowerShell Gallery with API key in secret variable OCSYM.PSGalleryApiKey
@@ -625,7 +625,7 @@ stages:
                   $userModulePath = $env:PSModulePath.Split(';')[0]
                   . robocopy /S "$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\Publish\win\Microsoft.FactoryOrchestrator.PowerShell" "$userModulePath\Microsoft.FactoryOrchestrator.Client"
                   publish-module -Name "Microsoft.FactoryOrchestrator.Client" -NuGetApiKey $(OCSYM.PSGalleryApiKey) -AllowPrerelease
-                condition: and(ne(['SKIPPWSHPUBLISH'], 'true'), succeeded())
+                condition: and(ne(variables['SKIPPWSHPUBLISH'], 'true'), succeeded())
                 displayName: 'Publish PowerShell module to PSGallery'
 
               # Publish NuGet binary & symbol packages to NuGet.org with API key in secret variable OCSYM.NuGetApiKey
@@ -638,7 +638,7 @@ stages:
                     push $(Pipeline.Workspace)\SignedNugets_Windows_Release\*.nupkg
                     -s https://api.nuget.org/v3/index.json
                     -k $(OCSYM.NuGetApiKey)
-                condition: and(ne(['SKIPNUGETPUBLISH'], 'true'), succeeded())
+                condition: and(ne(variables['SKIPNUGETPUBLISH'], 'true'), succeeded())
 
               - task: CopyFiles@2
                 inputs:
