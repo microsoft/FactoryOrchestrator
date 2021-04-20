@@ -6,11 +6,11 @@ pr:
 
 parameters:
 - name: UseTestingArtifacts
-  displayName: TEST BUILDS ONLY - Use artifacts from __testing tagged build?
+  displayName: TEST BUILDS ONLY - Use artifacts from __testing tagged build? (UseTestingArtifacts)
   type: boolean
   default: false
 - name: VPackVersionAppendId
-  displayName: TEST BUILDS ONLY - Append build id to VPack versions
+  displayName: TEST BUILDS ONLY - Append build id to VPack versions (VPackVersionAppendId)
   type: boolean
   default: false
 
@@ -29,11 +29,11 @@ variables:
   ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranchName'], 'main')) }}:
     TEMPVERSIONSUFFIX: ''
     SKIPSIGN: 'false'
-    SKIPPUSH: 'false'
+    SKIPPUBLISH: 'false'
   ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
     TEMPVERSIONSUFFIX: '$(Build.SourceBranchName)'
     SKIPSIGN: 'true'
-    SKIPPUSH: 'true'
+    SKIPPUBLISH: 'true'
 
 name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 
@@ -397,17 +397,17 @@ stages:
 
         # Set output variable used as condition for final stage (public release)
         - pwsh: |
-            if ($env:SKIPPUSH -eq 'false' -or (($null -ne $env:FORCEPUSH) -and ($env:FORCEPUSH -eq $true)))
+            if ($env:SKIPPUBLISH -eq 'false' -or (($null -ne $env:FORCEPUBLISH) -and ($env:FORCEPUBLISH -eq $true)))
             {
-              $vstsCommandString = "vso[task.setvariable variable=SHOULDPUSH;isOutput=true]true"
+              $vstsCommandString = "vso[task.setvariable variable=SHOULDPUBLISH;isOutput=true]true"
             }
             else
             {
-              $vstsCommandString = "vso[task.setvariable variable=SHOULDPUSH;isOutput=true]false"
+              $vstsCommandString = "vso[task.setvariable variable=SHOULDPUBLISH;isOutput=true]false"
             }
             Write-Host "sending " + $vstsCommandString
             Write-Host "##$vstsCommandString"
-          displayName: 'Set SHOULDPUSH Global'
+          displayName: 'Set SHOULDPUBLISH Global'
           name: SPOutput
 
         - template: ./templates/template-install-netcore.yml
@@ -521,7 +521,7 @@ stages:
   # TODO: see if we can get this to publish a GitHub release
   - stage: 'Publish_vPack_PSGallery_NuGet_Symbols_PUBLIC'
     displayName: 'Public publish of packages and symbols'
-    condition: and(or(eq(variables['FORCEPUSH'], true),eq(stageDependencies.Sign_Publish_NuGet_ServiceZip_Artifacts.outputs['Job_Sign_Publish_NuGet_ServiceZip_Artifacts.SPOutput.SHOULDPUSH'], 'true')), succeeded())
+    condition: and(or(eq(variables['FORCEPUBLISH'], true),eq(stageDependencies.Sign_Publish_NuGet_ServiceZip_Artifacts.outputs['Job_Sign_Publish_NuGet_ServiceZip_Artifacts.SPOutput.SHOULDPUBLISH'], 'true')), succeeded())
     dependsOn:
       - 'Sign_Publish_NuGet_ServiceZip_Artifacts'
       - 'compliance'
@@ -571,8 +571,9 @@ stages:
                     allowPartiallySucceededBuilds: true
                     project: 'OneCore'
                     pipeline: $(System.DefinitionId)
-                    runVersion: 'latest'
-                    tags: '__testing,SignedBuild'
+                    runVersion: 'specific'
+                    runId: $(BUILDIDFORPUBLISH)
+                    tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
                 - task: DownloadPipelineArtifact@2
                   inputs:
@@ -582,8 +583,9 @@ stages:
                     allowPartiallySucceededBuilds: true
                     project: 'OneCore'
                     pipeline: $(System.DefinitionId)
-                    runVersion: 'latest'
-                    tags: '__testing,SignedBuild'
+                    runVersion: 'specific'
+                    runId: $(BUILDIDFORPUBLISH)
+                    tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedNugets_Windows_Release"
                   displayName: "Download from __testing build"
                 - task: DownloadPipelineArtifact@2
@@ -595,8 +597,9 @@ stages:
                     allowPartiallySucceededBuilds: true
                     project: 'OneCore'
                     pipeline: $(System.DefinitionId)
-                    runVersion: 'latest'
-                    tags: '__testing,SignedBuild'
+                    runVersion: 'specific'
+                    runId: $(BUILDIDFORPUBLISH)
+                    tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
                   displayName: "Download from __testing build"
 
