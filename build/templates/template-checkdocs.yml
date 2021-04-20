@@ -45,8 +45,8 @@ steps:
     git restore sitemap.xml*
     # add all files and check for changes
     git add -A
-    git status > $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
-    git diff --cached --exit-code > $(Build.ArtifactStagingDirectory)/GitOutput/GitDiff.txt
+    git status | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
+    git diff --cached --exit-code | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitDiff.txt
     write-host "##vso[task.setvariable variable=hasChanges]$LASTEXITCODE"
   displayName: 'Check website for changes'
 - task: PublishPipelineArtifact@1
