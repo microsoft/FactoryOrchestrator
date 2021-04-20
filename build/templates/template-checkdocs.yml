@@ -15,7 +15,7 @@ steps:
     git reset HEAD --hard
     git fetch
     git checkout gh-pages
-
+    write-host "Checked out gh-pages branch"
     if ((Test-Path "$(Build.ArtifactStagingDirectory)/gh-pages") -eq $false)
     {
         $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/gh-pages" -ItemType Directory
@@ -26,18 +26,23 @@ steps:
         $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/GitOutput" -ItemType Directory
     }
 
+    write-host "Archiving built website..."
     # backup new website
     Compress-Archive -Path $(FORepoRoot)/docs/site/* -DestinationPath $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -Force
+    write-host "Archiving built website... DONE!"
     
     # wipe subfolders, to ensure we also catch page and media deletions
+    write-host "Deleting all subfolders..."
     get-childitem $(FORepoRoot) -Directory | remove-item -recurse -force
-
+    
     # copy new website build to repro root
+    write-host "Extracting built website..."
     Expand-Archive -Path $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -DestinationPath $(FORepoRoot) -Force
+    write-host "Extracting built website... DONE!"
 
+    write-host "Using git commands to check for changes..."
     # restore sitemap.xml, as it has a timestamp that changes on build
     git restore sitemap.xml*
-
     # add all files and check for changes
     git add -A
     git status > $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
