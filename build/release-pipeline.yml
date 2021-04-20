@@ -521,7 +521,7 @@ stages:
   # TODO: see if we can get this to publish a GitHub release
   - stage: 'Publish_vPack_PSGallery_NuGet_Symbols_PUBLIC'
     displayName: 'Public publish of packages and symbols'
-    condition: and(eq(stageDependencies.Sign_Publish_NuGet_ServiceZip_Artifacts.outputs['Job_Sign_Publish_NuGet_ServiceZip_Artifacts.SPOutput.SHOULDPUSH'], 'true'), succeeded())
+    condition: and(or(eq(variables['FORCEPUSH'], true),eq(stageDependencies.Sign_Publish_NuGet_ServiceZip_Artifacts.outputs['Job_Sign_Publish_NuGet_ServiceZip_Artifacts.SPOutput.SHOULDPUSH'], 'true')), succeeded())
     dependsOn:
       - 'Sign_Publish_NuGet_ServiceZip_Artifacts'
       - 'compliance'
