@@ -5,12 +5,13 @@
 # Core and Client projects must be built for it to detect API changes.
 steps:
 - pwsh: |
-    cd $(FORepoRoot)
+    Set-Location $(FORepoRoot)
     mkdir $(Build.ArtifactStagingDirectory)/Patch
     pip install --upgrade pip --upgrade -r $(FORepoRoot)/docs/requirements.txt
     mkdocs build --clean --config-file $(FORepoRoot)/docs/mkdocs.yml
   displayName: 'Build website'
 - pwsh: |
+    Set-Location $(FORepoRoot)
     # checkout gh-pages
     git reset HEAD --hard
     git fetch
