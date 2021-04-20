@@ -215,7 +215,6 @@ stages:
               pipeline: $(System.DefinitionId)
               runVersion: 'specific'
               runId: $(BUILDIDFORARTIFACTS)
-              tags: 'SignedBuild'
               path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU"
             displayName: "Download from BUILDIDFORARTIFACTS build"
           - task: DownloadPipelineArtifact@2
@@ -571,7 +570,6 @@ stages:
                     pipeline: $(System.DefinitionId)
                     runVersion: 'specific'
                     runId: $(BUILDIDFORARTIFACTS)
-                    tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms"
                     displayName: "Download from BUILDIDFORARTIFACTS build"
                 - task: DownloadPipelineArtifact@2
@@ -584,7 +582,6 @@ stages:
                     pipeline: $(System.DefinitionId)
                     runVersion: 'specific'
                     runId: $(BUILDIDFORARTIFACTS)
-                    tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/SignedNugets_Windows_Release"
                   displayName: "Download from BUILDIDFORARTIFACTS build"
                 - task: DownloadPipelineArtifact@2
@@ -598,7 +595,6 @@ stages:
                     pipeline: $(System.DefinitionId)
                     runVersion: 'specific'
                     runId: $(BUILDIDFORARTIFACTS)
-                    tags: 'SignedBuild'
                     path: "$(Pipeline.Workspace)/UnsignedBin_$(BuildConfiguration)_AnyCPU_Tests"
                   displayName: "Download from BUILDIDFORARTIFACTS build"
 
