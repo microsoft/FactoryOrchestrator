@@ -260,9 +260,38 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Service configuration
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Service configuration
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sample-appsettingsjson" class="md-nav__link">
+    Sample appsettings.json
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -376,6 +405,21 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sample-appsettingsjson" class="md-nav__link">
+    Sample appsettings.json
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -480,6 +524,15 @@
 </tr>
 </tbody>
 </table>
+<h2 id="sample-appsettingsjson">Sample appsettings.json</h2>
+<p>Here's an example of what a valid appsettings.json file looks like.</p>
+<pre><code class="language-json">{
+    &quot;EnableNetworkAccess&quot;:&quot;true&quot;,
+    &quot;NetworkPort&quot;:&quot;45000&quot;,
+    &quot;DisableFileTransferPage&quot;:&quot;true&quot;,
+    &quot;InitialTaskLists&quot;:&quot;/etc/InitialTaskLists.xml&quot;
+}
+</code></pre>
 <h1 id="additional-details">Additional details</h1>
 <h2 id="network-access">Network Access</h2>
 <p>By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.</p>
