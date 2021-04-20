@@ -551,10 +551,6 @@ stages:
                 displayName: "Print all variables"
               - download: 'current'
                 artifact: 'SignedBin_Windows_Release_AllPlatforms'
-                patterns: |
-                  **/*.pdb
-                  **/*.msixbundle
-                  **/Publish/*
               - download: 'current'
                 artifact: 'SignedNugets_Windows_Release'
               - download: 'current'
