@@ -48,12 +48,6 @@ steps:
     git add -A
     git status | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
     git diff --cached --exit-code
-    $hasChanges = $LASTEXITCODE
-
-    if ($hasChanges -ne 0)
-    {
-        git diff --cached --exit-code | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitDiff.txt
-    }
     write-host "##vso[task.setvariable variable=hasChanges]$LASTEXITCODE"
   displayName: 'Check website for changes'
 - task: PublishPipelineArtifact@1
