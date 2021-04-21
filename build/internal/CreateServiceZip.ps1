@@ -76,6 +76,9 @@ if ((Test-Path $DestinationDir) -eq $false)
 }
 Compress-Archive -Path "$tmpdir/*" -DestinationPath "$DestinationDir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.zip" -Force
 
+# create Symbols zip
+Get-ChildItem -Recurse -Filter "*.pdb" -Path "$publishdir" | Compress-Archive -DestinationPath "$DestinationDir/Microsoft.FactoryOrchestrator.Service-$version-$BuildOS-$BuildPlatform.Symbols.zip" -Force
+
 # clean temp dirs
 Remove-Item $tmpdir -Recurse -Force
 Remove-Item $tmppublishdir -Recurse -Force
