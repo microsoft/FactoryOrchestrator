@@ -1,29 +1,68 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Runs mkdocs to check if docs need updating on gh-pages.
 # Core and Client projects must be built for it to detect API changes.
 steps:
-- script: |
-    cd $(FORepoRoot)
-    mkdir $(Build.ArtifactStagingDirectory)\Patch
-    pip install --upgrade pip --upgrade -r $(FORepoRoot)\docs\requirements.txt
-    mkdocs build --clean --config-file $(FORepoRoot)\docs\mkdocs.yml
+- pwsh: |
+    Set-Location $(FORepoRoot)
+    mkdir $(Build.ArtifactStagingDirectory)/Patch
+    pip install --upgrade pip --upgrade -r $(FORepoRoot)/docs/requirements.txt
+    mkdocs build --clean --config-file $(FORepoRoot)/docs/mkdocs.yml
+  displayName: 'Build website'
+- pwsh: |
+    Set-Location $(FORepoRoot)
+    # checkout gh-pages
     git reset HEAD --hard
     git fetch
     git checkout gh-pages
-    robocopy $(FORepoRoot)\docs\site\ $(FORepoRoot)\ /S
+    write-host "Checked out gh-pages branch"
+    if ((Test-Path "$(Build.ArtifactStagingDirectory)/gh-pages") -eq $false)
+    {
+        $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/gh-pages" -ItemType Directory
+    }
+
+    if ((Test-Path "$(Build.ArtifactStagingDirectory)/GitOutput") -eq $false)
+    {
+        $null = New-Item -Path "$(Build.ArtifactStagingDirectory)/GitOutput" -ItemType Directory
+    }
+
+    write-host "Archiving built website..."
+    # backup new website
+    Compress-Archive -Path $(FORepoRoot)/docs/site/* -DestinationPath $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -Force
+    write-host "Archiving built website... DONE!"
+    
+    # wipe subfolders, to ensure we also catch page and media deletions
+    write-host "Deleting all subfolders..."
+    get-childitem $(FORepoRoot) -Directory | remove-item -recurse -force
+    
+    # copy new website build to repro root
+    write-host "Extracting built website..."
+    Expand-Archive -Path $(Build.ArtifactStagingDirectory)/gh-pages/gh-pages.zip -DestinationPath $(FORepoRoot) -Force
+    write-host "Extracting built website... DONE!"
+
+    write-host "Using git commands to check for changes..."
+    # restore sitemap.xml, as it has a timestamp that changes on build
     git restore sitemap.xml*
+    # add all files and check for changes
     git add -A
-    git status > $(Build.ArtifactStagingDirectory)\Patch\GitStatus.txt
-    git diff --cached --exit-code > $(Build.ArtifactStagingDirectory)\Patch\GitDiff.txt
-    echo ##vso[task.setvariable variable=hasChanges]%errorlevel%
-    git diff --cached > $(Build.ArtifactStagingDirectory)\Patch\UpdatedDocs.patch
-  displayName: 'Build website and check for changes'
+    git status | out-file $(Build.ArtifactStagingDirectory)/GitOutput/GitStatus.txt
+    git diff --cached --exit-code
+    write-host "##vso[task.setvariable variable=hasChanges]$LASTEXITCODE"
+  displayName: 'Check website for changes'
 - task: PublishPipelineArtifact@1
-  displayName: 'Publish patch file as artifact if website has changes'
+  displayName: 'Publish git output artifact if website has changes'
   condition: eq(variables['hasChanges'], '1')
   inputs:
-    artifactName: UpdatedDocsPatch
-    targetPath: $(Build.ArtifactStagingDirectory)\Patch
+    artifactName: GitOutput
+    targetPath: $(Build.ArtifactStagingDirectory)/GitOutput
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish gh-pages artifact if website has changes'
+  condition: eq(variables['hasChanges'], '1')
+  inputs:
+    artifactName: gh-pages
+    targetPath: $(Build.ArtifactStagingDirectory)/gh-pages
 - script: |
-    echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published UpdatedDocsPatch artifact to update the gh-pages branch after this PR is completed.
+    echo ##vso[task.logissue type=warning]gh-pages documentation needs updating! Use the published gh-pages artifact from the CI build to update the gh-pages branch.
   displayName: 'Warn if website has changes'
   condition: eq(variables['hasChanges'], '1')
