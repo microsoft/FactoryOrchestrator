@@ -1804,7 +1804,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 try
                 {
-                    IsContainerSupportEnabled = Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                    IsContainerSupportEnabled = !Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
                 }
                 catch (Exception)
                 {
