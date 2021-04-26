@@ -1941,7 +1941,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 if (disposing)
                 {
-                    _ipcHost.Dispose();
+                    _ipcHost?.Dispose();
                     _ipcCancellationToken?.Dispose();
                     _containerHeartbeatToken?.Dispose();
                     _mutableKey?.Dispose();
