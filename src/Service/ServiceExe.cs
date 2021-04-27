@@ -447,10 +447,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                 return;
             }
 
-            // Start IPC server on desired port. Only start after all boot tasks are complete.
-            _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
-            _ipcCancellationToken = new System.Threading.CancellationTokenSource();
-            _ipcHost.RunAsync(_ipcCancellationToken.Token);
+            // Start IPC server on desired port. Only start if not a reset operation.
+            if (_ipcHost == null)
+            {
+                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
+                _ipcCancellationToken = new System.Threading.CancellationTokenSource();
+                _ipcHost.RunAsync(_ipcCancellationToken.Token);
+            }
 
             if (IsNetworkAccessEnabled)
             {
@@ -531,10 +534,14 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <summary>
         /// Service stop.
         /// </summary>
-        public void Stop()
+        public void Stop(bool isFactoryReset = false)
         {
-            // Disable inter process communication interfaces
-            _ipcCancellationToken?.Cancel();
+            if (!isFactoryReset)
+            {
+                // Disable inter process communication interfaces if not a reset operation
+                _ipcCancellationToken?.Cancel();
+            }
+
             _containerHeartbeatToken?.Cancel();
             _containerClient = null;
             ContainerGuid = Guid.Empty;
@@ -1192,6 +1199,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public void ExecuteServerBootTasks(CancellationToken cancellationToken)
         {
+            IsExecutingBootTasks = true;
+
             if (_isWindows)
             {
                 // Open Registry Keys
@@ -1266,7 +1275,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             LastEventIndex = 0;
             LastEventTime = DateTime.MinValue;
             LocalLoopbackApps = new List<string>();
-            IsExecutingBootTasks = true;
             _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
 
             ContainerGuid = Guid.Empty;

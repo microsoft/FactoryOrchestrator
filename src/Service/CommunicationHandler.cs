@@ -414,8 +414,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (factoryReset)
                 {
-                    // Pause a bit to allow the IPC call to return before we kill it off
-                    Task.Run(() => { System.Threading.Thread.Sleep(500); FOService.Instance.Stop(); FOService.Instance.Start(true, new CancellationToken()); });
+                    FOService.Instance.Stop(true);
+                    FOService.Instance.Start(true, new CancellationToken());
                 }
             }
             catch (Exception e)

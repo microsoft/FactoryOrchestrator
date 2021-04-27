@@ -193,7 +193,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// Stops all running Tasks and deletes all TaskLists.
         /// </summary>
         /// <param name="preserveLogs">If true, are logs not deleted.</param>
-        /// <param name="factoryReset">If true, the service is restarted as if it is first boot.</param>
+        /// <param name="factoryReset">If true, the service is restarted as if it is first boot. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored! </param>
         void ResetService(bool preserveLogs = false, bool factoryReset = false);
         /// <summary>
         /// Gets all Service events.
