@@ -1697,7 +1697,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
             if (!_isWindows)
             {
-                builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json");
+                builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json", optional:true);
             }
 
             Appsettings = builder.Build();
