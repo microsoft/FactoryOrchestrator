@@ -1694,6 +1694,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile(Path.Combine(FOServiceExe.ServiceExeLogFolder, "appsettings.json"), optional: true)
                 .AddJsonFile("appsettings.json", optional: true);
+
+            if (!_isWindows)
+            {
+                builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json");
+            }
+
             Appsettings = builder.Build();
 
             // Look for each setting in the registry (Windows only, OEM Customizations) or in the IConfiguration

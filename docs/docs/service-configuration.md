@@ -1,10 +1,11 @@
 # Factory Orchestrator service configuration using appsettings.json
 The Factory Orchestrator service has many configurable settings that impact its startup behavior, enabled features, and more. This configuration is easily modified using an [appsettings.json file](https://docs.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#json-configuration-provider).
 
-The appsettings.json file is checked for in two locations:
+The appsettings.json file is checked for in the following locations:
 
 - The directory where the service executable (Microsoft.FactoryOrchestrator.Service) is located
-- The [service log file directory](#factory-orchestrator-service-log-file) (`%ProgramData%\FactoryOrchestrator\` or `/var/log/FactoryOrchestrator/`)
+- The [service log file directory](#factory-orchestrator-service-log-file): `%ProgramData%\FactoryOrchestrator\` (Windows) or `/var/log/FactoryOrchestrator/`(Linux)
+- (Linux only) The `/etc/FactoryOrchestrator/` directory
 
 The following table describes each setting and its usage:
 
