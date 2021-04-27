@@ -287,6 +287,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <returns><c>true</c> if the service allows connections over the local network.</returns>
         bool IsNetworkAccessEnabled();
+        /// <summary>
+        /// Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.
+        /// </summary>
+        /// <returns>The HTTP port.</returns>
+        int GetWdpHttpPort();
 
         // TaskList APIs
         /// <summary>

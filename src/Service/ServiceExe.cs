@@ -726,13 +726,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                             {
                                 // Exit URDC if we launched it.
                                 // There may be a preview app & official app installed, close them all
-                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync()).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
+                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync("localhost", WDPHelpers.GetWdpHttpPort())).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
 
                                 foreach (var app in rdApps)
                                 {
                                     try
                                     {
-                                        await WDPHelpers.CloseAppWithWDP(app.FullName);
+                                        await WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", WDPHelpers.GetWdpHttpPort());
                                     }
                                     catch (Exception)
                                     {
