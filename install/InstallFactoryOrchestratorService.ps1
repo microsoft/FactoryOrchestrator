@@ -56,7 +56,7 @@ else
     }
     else
     {
-        $null = New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$installdir\Microsoft.FactoryOrchestrator.Service.exe" -Description "Factory Orchestrator service version $Version$" -StartupType Manual
+        $null = New-Service -Name "Microsoft.FactoryOrchestrator" -BinaryPathName "$installdir\Microsoft.FactoryOrchestrator.Service.exe -IsService" -Description "Factory Orchestrator service version $Version$" -StartupType Manual
     }
    
     Write-Host "Factory Orchestrator service version $Version$ is installed to `"$installdir`" and configured as a Windows service!`n"

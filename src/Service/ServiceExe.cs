@@ -16,7 +16,9 @@ using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.EventLog;
 using Microsoft.FactoryOrchestrator.Client;
 using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
@@ -107,18 +109,42 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public static void Main(string[] args)
         {
-            Host.CreateDefaultBuilder(null).UseSystemd().UseWindowsService().ConfigureServices((hostContext, services) =>
+#if DEBUG
+            var _logLevel = LogLevel.Debug;
+#else
+            var _logLevel = LogLevel.Information;
+#endif
+            var hostBuilder = Host.CreateDefaultBuilder(null).UseSystemd().ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<Worker>();
             }).ConfigureLogging(builder =>
             {
-#if DEBUG
-                var _logLevel = LogLevel.Debug;
-#else
-                var _logLevel = LogLevel.Information;
-#endif
                 builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
-            }).Build().Run();
+            });
+
+            bool isService = ((args != null) && (args.Length > 0));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isService)
+            {
+                hostBuilder.UseContentRoot(AppContext.BaseDirectory);
+                hostBuilder.ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddEventLog();
+                    logging.SetMinimumLevel(_logLevel);
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddSingleton<IHostLifetime, WindowsServiceLifetime>();
+                    services.Configure<EventLogSettings>(settings =>
+                    {
+                        if (string.IsNullOrEmpty(settings.SourceName))
+                        {
+                            settings.SourceName = hostContext.HostingEnvironment.ApplicationName;
+                        }
+                    });
+                });
+            }
+
+            hostBuilder.Build().Run();
         }
     }
 

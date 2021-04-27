@@ -8,7 +8,7 @@
       description="Factory Orchestrator Service"
       displayName="Factory Orchestrator Service"
       errorControl="normal"
-      imagePath="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe action:run"
+      imagePath="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe -IsService"
       name="Microsoft.FactoryOrchestrator.Service"
       objectName="LocalSystem"
       start="auto"
