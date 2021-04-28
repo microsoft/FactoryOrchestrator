@@ -124,13 +124,11 @@ After you click one of these buttons, enter the full path of the file to save an
 
 The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.
 
-<!-- ## UWP Apps
+## UWP Apps (Windows only)
 
 This launches a UWP app that's installed on a device under test (DUT). This allows you to launch a UWP directly from the Factory Orchestrator app by clicking on its name in the list of installed UWP apps.
 
-Your device must be configured to launch into an environment that supports launching UWP apps.
-
-You can exit a launched UWP with ALT+F4, or from Windows Device Portal. -->
+Your device must be configured to launch into an environment that supports launching UWP apps and Windows Device Portal must be running on the device with [HTTP & no authentication](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal-desktop#turn-on-windows-device-portal).
 
 ## Command Prompt
 
