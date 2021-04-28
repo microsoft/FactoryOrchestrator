@@ -122,6 +122,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
             });
 
+            // Workaround for issue #140.
+            // On Windows, if intended to run as a Windows service, the .exe must be invoked with an argument.
+            // If invoked with no arguments, assume the .exe was run by the user directly.
             bool isService = ((args != null) && (args.Length > 0));
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isService)
             {
@@ -415,6 +418,40 @@ namespace Microsoft.FactoryOrchestrator.Service
             using var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false);
             var version = (string)reg?.GetValue("OEMVersion", null);
             return version;
+        }
+
+        /// <summary>
+        /// Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.
+        /// This is called before every WDP operation as the Factory Orchestrator service usually starts before WDP on boot and WDP can use a dynamic port on Desktop.
+        /// </summary>
+        /// <returns>The HTTP port.</returns>
+        private static int GetWdpHttpPort()
+        {
+            using (var osdata = Registry.LocalMachine.OpenSubKey(@"OSDATA\SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
+            {
+                if (osdata != null)
+                {
+                    var osdataPort = osdata.GetValue("HttpPort");
+                    if (osdataPort != null)
+                    {
+                        return (int)osdataPort;
+                    }
+                }
+            }
+
+            using (var sft = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
+            {
+                if (sft != null)
+                {
+                    var port = sft.GetValue("HttpPort");
+                    if (port != null)
+                    {
+                        return (int)port;
+                    }
+                }
+            }
+
+            return 80;
         }
 
         public FOService(ILogger<Worker> logger)
@@ -752,13 +789,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                             {
                                 // Exit URDC if we launched it.
                                 // There may be a preview app & official app installed, close them all
-                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync("localhost", WDPHelpers.GetWdpHttpPort())).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
+                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync("localhost", GetWdpHttpPort())).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
 
                                 foreach (var app in rdApps)
                                 {
                                     try
                                     {
-                                        await WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", WDPHelpers.GetWdpHttpPort());
+                                        await WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", GetWdpHttpPort());
                                     }
                                     catch (Exception)
                                     {
