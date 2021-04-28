@@ -29,7 +29,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public ConnectionPage()
         {
             this.InitializeComponent();
-            ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+            // Default to loopback on port 45684.
+            ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback);
             ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
             ((App)Application.Current).OnConnectionPage = true;
             connectionSem = new SemaphoreSlim(1, 1);
@@ -102,8 +103,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         {
                             if (((App)Application.Current).Client.IpAddress != IPAddress.Loopback)
                             {
-                                // User connection attempted and failed. Recreate Client
-                                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, int.Parse(PortTextBox.Text));
+                                // User connection attempted and failed. Recreate default loopback Client.
+                                ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback);
                                 ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                             }
 
