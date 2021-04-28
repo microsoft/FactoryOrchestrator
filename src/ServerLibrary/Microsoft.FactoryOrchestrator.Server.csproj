@@ -11,7 +11,7 @@
     <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CoreLibrary/Microsoft.FactoryOrchestrator.Core.csproj" />

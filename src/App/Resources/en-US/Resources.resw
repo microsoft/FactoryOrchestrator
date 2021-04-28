@@ -173,7 +173,7 @@
     <value>Could not connect to {0}.
 
 Check that the IP address, Server Name and Certificate Hash  is correct and that the Factory Orchestrator Service is running on the target IP.</value>
-	<comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
+    <comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
     <value>Unable to connect to target IP</value>
@@ -283,7 +283,7 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
 
 Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via "Load FactoryOrchestratorXML file".
 
-If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. "Factory Reset" will temporarily interrupt communication with clients, including this app.</value>
+If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Delete</value>
@@ -720,7 +720,7 @@ On retry</value>
     <value>Launch Windows Device Portal</value>
   </data>
   <data name="WDPFailedContent" xml:space="preserve">
-    <value>Make sure Windows Device Portal is running and try again.</value>
+    <value>Make sure Windows Device Portal is running and supports HTTP with no authentication, then try again.</value>
   </data>
   <data name="WDPFailedTitle" xml:space="preserve">
     <value>Failed to launch Windows Device Portal</value>
@@ -770,10 +770,10 @@ On retry</value>
   </data>
   <data name="CertHash.Text" xml:space="preserve">
     <value>Certificate Hash:</value>
-	<comment>Hash value of the Certificate of the target machine.</comment>
+    <comment>Hash value of the Certificate of the target machine.</comment>
   </data>
   <data name="ServerName.Text" xml:space="preserve">
     <value>Server Identity:</value>
-	<comment>Distinguished Name of the target machine.</comment>
+    <comment>Distinguished Name of the target machine.</comment>
   </data>
 </root>

@@ -193,7 +193,7 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// Stops all running Tasks and deletes all TaskLists.
         /// </summary>
         /// <param name="preserveLogs">If true, are logs not deleted.</param>
-        /// <param name="factoryReset">If true, the service is restarted as if it is first boot.</param>
+        /// <param name="factoryReset">If true, the service is restarted as if it is first boot. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored! </param>
         void ResetService(bool preserveLogs = false, bool factoryReset = false);
         /// <summary>
         /// Gets all Service events.
@@ -287,6 +287,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <returns><c>true</c> if the service allows connections over the local network.</returns>
         bool IsNetworkAccessEnabled();
+        /// <summary>
+        /// Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.
+        /// </summary>
+        /// <returns>The HTTP port.</returns>
+        int GetWdpHttpPort();
 
         // TaskList APIs
         /// <summary>

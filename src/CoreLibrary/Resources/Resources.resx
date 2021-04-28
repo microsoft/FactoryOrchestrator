@@ -358,7 +358,7 @@
     <value>Error: Failed to launch AUMID: {0}</value>
   </data>
   <data name="WDPAppLaunchFailed2" xml:space="preserve">
-    <value>Error: Device Portal is required for app launch and may not be running on the system.</value>
+    <value>Error: Device Portal is required for app launch and may not be running on the system or may not support HTTP with no authentication.</value>
   </data>
   <data name="WDPAppLaunchFailed3" xml:space="preserve">
     <value>Error: If it is running, the AUMID may be incorrect.</value>
@@ -373,7 +373,7 @@
     <value>Windows Device Portal failed with HTTP error</value>
   </data>
   <data name="WDPNotRunningError" xml:space="preserve">
-    <value>Windows Device Portal must be running to call GetInstalledApps!</value>
+    <value>Windows Device Portal may not be running or may not support HTTP with no authentication!</value>
   </data>
   <data name="WindowsOnlyError" xml:space="preserve">
     <value>{0} is only supported on Windows!</value>

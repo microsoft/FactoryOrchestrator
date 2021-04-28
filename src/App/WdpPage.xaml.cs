@@ -49,7 +49,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (await IsWindowsDevicePortalRunning())
             {
                 string ipAddress = Client.IsLocalHost ? "localhost" : $"{Client.IpAddress.ToString()}";
-                string url = "http://" + ipAddress + ":80";
+                string url = "http://" + ipAddress + ":" + await Client.GetWdpHttpPort();
                 Uri myUri = new Uri(url);
                 wdp.Navigate(myUri);
             }
