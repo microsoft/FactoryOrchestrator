@@ -173,7 +173,7 @@
     <value>无法连接到 {0}。
 
 检查 IP 地址、服务器名和证书哈希是否正确，以及是否正在目标 IP 上运行 Factory Orchestrator 服务。</value>
-	<comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
+    <comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
     <value>无法连接到目标 IP</value>
@@ -277,13 +277,6 @@
   </data>
   <data name="DeleteAll.Text" xml:space="preserve">
     <value>删除所有 TaskList</value>
-  </data>
-  <data name="DeleteAllContent" xml:space="preserve">
-    <value>将停止所有正在运行的 TaskLists。所有 TaskLists 将从服务器中永久删除。
-
-手动导出的 FactoryOrchestratorXML 文件将不会被删除，但需要通过 "Load FactoryOrchestratorXML file" 手动导入。
-
-如果选择 "恢复出厂"，则会重新启动服务，就像第一次启动一样。将重新运行首次启动和每个启动任务。将加载初始 TaskLists。"出厂重置" 将暂时中断与客户端（包括此应用）的通信。</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>删除</value>
@@ -719,9 +712,6 @@
   <data name="WDP.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>启动 Windows 设备门户</value>
   </data>
-  <data name="WDPFailedContent" xml:space="preserve">
-    <value>请确保 Windows 设备门户正在运行，然后重试。</value>
-  </data>
   <data name="WDPFailedTitle" xml:space="preserve">
     <value>未能启动 Windows 设备门户</value>
   </data>
@@ -770,10 +760,10 @@
   </data>
   <data name="CertHash.Text" xml:space="preserve">
     <value>证书哈希:</value>
-	<comment>Hash value of the Certificate of the target machine.</comment>
+    <comment>Hash value of the Certificate of the target machine.</comment>
   </data>
   <data name="ServerName.Text" xml:space="preserve">
     <value>服务器标识:</value>
-	<comment>Distinguished Name of the target machine.</comment>
+    <comment>Distinguished Name of the target machine.</comment>
   </data>
 </root>

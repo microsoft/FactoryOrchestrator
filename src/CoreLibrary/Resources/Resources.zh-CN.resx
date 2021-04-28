@@ -357,9 +357,6 @@
   <data name="WDPAppLaunchFailed" xml:space="preserve">
     <value>错误: 未能启动 AUMID: {0}</value>
   </data>
-  <data name="WDPAppLaunchFailed2" xml:space="preserve">
-    <value>错误: 需要设备门户才能启动应用，并且可能不在系统上运行。</value>
-  </data>
   <data name="WDPAppLaunchFailed3" xml:space="preserve">
     <value>错误：如果它正在运行，AUMID 可能不正确。</value>
   </data>
@@ -371,9 +368,6 @@
   </data>
   <data name="WDPHttpError" xml:space="preserve">
     <value>Windows 设备门户失败，出现 HTTP 错误</value>
-  </data>
-  <data name="WDPNotRunningError" xml:space="preserve">
-    <value>必须运行 Windows 设备门户才能调用 GetInstalledApps！</value>
   </data>
   <data name="WindowsOnlyError" xml:space="preserve">
     <value>{0} 仅在 Windows 上受支持!</value>
