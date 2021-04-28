@@ -80,38 +80,6 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         public static readonly HttpClient WdpHttpClient = new HttpClient();
 
-        /// <summary>
-        /// Gets the Windows Device Portal HTTP port.
-        /// </summary>
-        public static int GetWdpHttpPort()
-        {
-            using (var osdata = Registry.LocalMachine.OpenSubKey(@"OSDATA\SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
-            {
-                if (osdata != null)
-                {
-                    var osdataPort = osdata.GetValue("HttpPort");
-                    if (osdataPort != null)
-                    {
-                        return (int)osdataPort;
-                    }
-                }
-            }
-
-            using (var sft = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
-            {
-                if (sft != null)
-                {
-                    var port = sft.GetValue("HttpPort");
-                    if (port != null)
-                    {
-                        return (int)port;
-                    }
-                }
-            }
-
-            return 80;
-        }
-
         private static HttpMultipartFileContent CreateAppInstallContent(string appFilePath, List<string> dependentAppsFilePaths, string certFilePath)
         {
             var content = new HttpMultipartFileContent();
