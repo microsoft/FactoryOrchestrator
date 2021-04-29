@@ -138,9 +138,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     _taskRunPoller.StopPolling();
                     _taskRunPoller = null;
                     await Client.AbortTaskRun(_activeCmdTaskRun.Guid);
-                    CommandBox.IsEnabled = true;
-                    CommandBox.Text = "";
-                    RunButtonIcon.Symbol = Symbol.Play;
+                    CommandComplete();
                 }
                 else
                 {
@@ -311,15 +309,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        // Allow new commands to run
-                        CommandBox.IsEnabled = true;
-                        CommandBox.Text = "";
-                        RunButtonIcon.Symbol = Symbol.Play;
+                        CommandComplete();
                     });
                 }
             }
         }
 
+        /// <summary>
+        /// Allows new commands to run, focuses on text box.
+        /// </summary>
+        private void CommandComplete()
+        {
+            CommandBox.IsEnabled = true;
+            CommandBox.Text = "";
+            RunButtonIcon.Symbol = Symbol.Play;
+            CommandBox.Focus(FocusState.Programmatic);
+        }
 
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
@@ -333,7 +338,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _outSem.Release();
             }
         }
-
 
         /// <summary>
         /// Updates UI with latest console output
