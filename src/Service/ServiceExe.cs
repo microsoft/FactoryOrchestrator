@@ -545,16 +545,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
-                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _initialTasksDefaultPath));
-                    // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                    if (!File.Exists(firstBootStateTaskListPath))
-                    {
-                        firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
-                        if (!firstBootStateTaskListPath.Equals(_initialTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
-                        }
-                    }
+                    // Find the TaskLists XML path. Check app settings/registry, fallback to testcontent directory with well known name
+                    firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
 
                     if (File.Exists(firstBootStateTaskListPath))
                     {
@@ -1748,6 +1741,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             if (!_isWindows)
             {
                 builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json", optional:true);
+            }
+            else
+            {
+                builder.AddJsonFile(Path.Combine(Environment.ExpandEnvironmentVariables(@"%DATADRIVE%\TestContent\FactoryOrchestrator"), "appsettings.json"), optional: true);
             }
 
             Appsettings = builder.Build();
