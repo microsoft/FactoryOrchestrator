@@ -1733,18 +1733,29 @@ namespace Microsoft.FactoryOrchestrator.Service
         private bool LoadOEMCustomizations()
         {
             // Look for appsettings.json
+            // For Windows, the settings order is (higher # wins):
+            // 1) The exe directory
+            // 2) %DATADRIVE%\TestContent\Container\FactoryOrchestrator
+            // 3) The log folder, ProgramData\FactoryOrchestrator
+
+            // For Linux, the settings order is (higher # wins):
+            // 1) The exe directory
+            // 2) The log folder, /var/log/FactoryOrchestrator
+            // 3) /etc/FactoryOrchestrator
             var builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(Path.Combine(FOServiceExe.ServiceExeLogFolder, "appsettings.json"), optional: true)
                 .AddJsonFile("appsettings.json", optional: true);
+
+            if (_isWindows)
+            {
+                builder.AddJsonFile(Path.Combine(Environment.ExpandEnvironmentVariables(@"%DATADRIVE%\TestContent\Container\FactoryOrchestrator"), "appsettings.json"), optional: true);
+            }
+
+            builder.AddJsonFile(Path.Combine(FOServiceExe.ServiceExeLogFolder, "appsettings.json"), optional: true);
 
             if (!_isWindows)
             {
-                builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json", optional:true);
-            }
-            else
-            {
-                builder.AddJsonFile(Path.Combine(Environment.ExpandEnvironmentVariables(@"%DATADRIVE%\TestContent\FactoryOrchestrator"), "appsettings.json"), optional: true);
+                builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json", optional: true);
             }
 
             Appsettings = builder.Build();
