@@ -1733,12 +1733,12 @@ namespace Microsoft.FactoryOrchestrator.Service
         private bool LoadOEMCustomizations()
         {
             // Look for appsettings.json
-            // For Windows, the settings order is (higher wins):
+            // For Windows, the settings order is (higher # wins):
             // 1) The exe directory
             // 2) %DATADRIVE%\TestContent\Container\FactoryOrchestrator
             // 3) The log folder, ProgramData\FactoryOrchestrator
 
-            // For Linux, the settings order is (higher wins):
+            // For Linux, the settings order is (higher # wins):
             // 1) The exe directory
             // 2) The log folder, /var/log/FactoryOrchestrator
             // 3) /etc/FactoryOrchestrator
