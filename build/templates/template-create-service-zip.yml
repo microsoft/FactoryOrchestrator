@@ -6,11 +6,34 @@ parameters:
 # Publishes Service. Creates Service vPacks.
 steps:
 - task: PowerShell@2
+  displayName: 'Create Service Zip Install Scripts ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}'
+  inputs:
+    targetType: filePath
+    filePath: $(FORepoRoot)/build/internal/CreateServiceZip.ps1
+    arguments: '-BuildConfiguration ${{ parameters.BuildConfiguration }} -BuildPlatform ${{ parameters.BuildPlatform }} -BuildOS ${{ parameters.BuildOS }}'
+    failOnStderr: true
+    pwsh: true
+  timeoutInMinutes: 5
+# Authenticode sign install script so it is trusted
+- template: EsrpSign.yml@ComplianceRepo
+  parameters:
+    buildOutputPath: '$(FO_SERVICEZIP_TEMP_DIR)'
+    signOutputPath: '$(Agent.TempDirectory)/signedserviceziptempdir'
+    certificateId: 'CP-230012'
+    pattern: '*.ps1'
+    useMinimatch: false
+    shouldSign: ${{ parameters.ShouldSign }}
+    alwaysCopy: 'true'
+    signingService: 'FactoryOrchestratorSigning'
+    verifySignature: 'true'
+    pageHash: 'false'
+- task: PowerShell@2
   displayName: 'Create Service Zip ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}'
   inputs:
     targetType: filePath
     filePath: $(FORepoRoot)/build/internal/CreateServiceZip.ps1
-    arguments: ' -BuildConfiguration ${{ parameters.BuildConfiguration }} -BuildPlatform ${{ parameters.BuildPlatform }} -BuildOS ${{ parameters.BuildOS }} -BinDir ${{ parameters.BinDir }} -DestinationDir ${{ parameters.BinDir }}${{ parameters.BuildConfiguration }}/Publish/Zips/'
+    arguments: '-BuildConfiguration ${{ parameters.BuildConfiguration }} -BuildPlatform ${{ parameters.BuildPlatform }} -BuildOS ${{ parameters.BuildOS }} -BinDir ${{ parameters.BinDir }} -DestinationDir ${{ parameters.BinDir }}${{ parameters.BuildConfiguration }}/Publish/Zips/ -TempDir $(Agent.TempDirectory)/signedserviceziptempdir'
     failOnStderr: true
     pwsh: true
   timeoutInMinutes: 5
+# $(Agent.TempDirectory)/signedserviceziptempdir is cleaned up by the second CreateServiceZip.ps1 call
