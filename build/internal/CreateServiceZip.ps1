@@ -15,6 +15,15 @@ Param
     [Parameter(ParameterSetName = 'CreateZip', Mandatory = $false)][string]$TempDir = $env:FO_SERVICEZIP_TEMP_DIR
 )
 
+if ($null -ne $($env:VERSIONSUFFIXVPACK))
+{
+    $version = "$($env:VERSIONPREFIX)$($env:VERSIONSUFFIXVPACK)"
+}
+else
+{
+    $version = "$($env:VERSIONPREFIX)"
+}
+
 if ($PSCmdlet.ParameterSetName -eq "CreateInstallScript")
 {
     [string]$randString = Get-Random
@@ -25,15 +34,6 @@ if ($PSCmdlet.ParameterSetName -eq "CreateInstallScript")
     }
 
     Write-Host "Using $tmpdir as temporary directory."
-
-    if ($null -ne $($env:VERSIONSUFFIXVPACK))
-    {
-        $version = "$($env:VERSIONPREFIX)$($env:VERSIONSUFFIXVPACK)"
-    }
-    else
-    {
-        $version = "$($env:VERSIONPREFIX)"
-    }
 
     # copy install scripts to temp dir
     $installdir = Join-Path $PSScriptRoot "../../install"

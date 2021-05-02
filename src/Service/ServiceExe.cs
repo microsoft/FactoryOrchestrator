@@ -412,7 +412,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// This is called before every WDP operation as the Factory Orchestrator service usually starts before WDP on boot and WDP can use a dynamic port on Desktop.
         /// </summary>
         /// <returns>The HTTP port.</returns>
-        private static int GetWdpHttpPort()
+        internal static int GetWdpHttpPort()
         {
             using (var osdata = Registry.LocalMachine.OpenSubKey(@"OSDATA\SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
             {

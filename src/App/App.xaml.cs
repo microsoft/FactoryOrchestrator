@@ -239,6 +239,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             CloseButtonText = $"Disconnect from {Client.IpAddress}"
                         };
 
+                        var popups = Windows.UI.Xaml.Media.VisualTreeHelper.GetOpenPopups(Window.Current);
+                        foreach (var popup in popups)
+                        {
+                            var child = popup.Child as ContentDialog;
+                            if (child != null)
+                            {
+                                child.Hide();
+                            }
+                        }
+
                         resultTask = errorDialog.ShowAsync();
                     });
 

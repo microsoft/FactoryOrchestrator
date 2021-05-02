@@ -802,12 +802,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "TerminateApp"));
                 }
 
-                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", GetWdpHttpPort()).Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", FOService.GetWdpHttpPort()).Result;
                 var app = apps.Packages.Where(x => x.AppId.Equals(aumid, StringComparison.OrdinalIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
 
                 if (app != null)
                 {
-                    WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", GetWdpHttpPort()).Wait();
+                    WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", FOService.GetWdpHttpPort()).Wait();
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: TerminateApp {aumid}");
@@ -1014,7 +1014,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                WDPHelpers.InstallAppWithWDP(appPackagePath, dependentPackages, certificateFile, "localhost", GetWdpHttpPort()).Wait();
+                WDPHelpers.InstallAppWithWDP(appPackagePath, dependentPackages, certificateFile, "localhost", FOService.GetWdpHttpPort()).Wait();
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: InstallApp {appPackagePath}");
             }
@@ -1037,7 +1037,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Get installed packages on the system
-                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", GetWdpHttpPort()).Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", FOService.GetWdpHttpPort()).Result;
 
                 List<string> aumids = apps.Packages.Select(x => x.AppId).ToList();
 
@@ -1063,7 +1063,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Get installed packages on the system
-                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", GetWdpHttpPort()).Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", FOService.GetWdpHttpPort()).Result;
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetInstalledAppsDetailed");
                 return apps.Packages;
@@ -1244,7 +1244,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetWdpHttpPort");
-                int ret = GetWdpHttpPort();
+                int ret = FOService.GetWdpHttpPort();
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetWdpHttpPort");
                 return ret;
             }
