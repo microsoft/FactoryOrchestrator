@@ -13,14 +13,14 @@
         <meta name="author" content="themar-msft;hajya">
       
       
-        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/CoreLibrary/Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-ResetService%28bool_bool%29/">
+        <link rel="canonical" href="https://microsoft.github.io/FactoryOrchestrator/CoreLibrary/Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetWdpHttpPort%28%29/">
       
       <link rel="shortcut icon" href="../../images/fo-logo.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.3">
     
     
       
-        <title>Microsoft FactoryOrchestrator Core IFactoryOrchestratorService ResetService(bool bool) - Factory Orchestrator</title>
+        <title>Microsoft FactoryOrchestrator Core IFactoryOrchestratorService GetWdpHttpPort() - Factory Orchestrator</title>
       
     
     
@@ -99,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Microsoft FactoryOrchestrator Core IFactoryOrchestratorService ResetService(bool bool)
+              Microsoft FactoryOrchestrator Core IFactoryOrchestratorService GetWdpHttpPort()
             
           </span>
         </div>
@@ -386,16 +386,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ifactoryorchestratorserviceresetservicebool-bool-method" class="md-nav__link">
-    IFactoryOrchestratorService.ResetService(bool, bool) Method
+  <a href="#ifactoryorchestratorservicegetwdphttpport-method" class="md-nav__link">
+    IFactoryOrchestratorService.GetWdpHttpPort() Method
   </a>
   
-    <nav class="md-nav" aria-label="IFactoryOrchestratorService.ResetService(bool, bool) Method">
+    <nav class="md-nav" aria-label="IFactoryOrchestratorService.GetWdpHttpPort() Method">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
-    Parameters
+  <a href="#returns" class="md-nav__link">
+    Returns
   </a>
   
 </li>
@@ -417,26 +417,22 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/CoreLibrary/Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-ResetService(bool_bool).md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/microsoft/FactoryOrchestrator/edit/master/docs/CoreLibrary/Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetWdpHttpPort().md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
                 
-                  <h1>Microsoft FactoryOrchestrator Core IFactoryOrchestratorService ResetService(bool bool)</h1>
+                  <h1>Microsoft FactoryOrchestrator Core IFactoryOrchestratorService GetWdpHttpPort()</h1>
                 
                 <h4 id="microsoftfactoryorchestratorcore"><a href="../Microsoft-FactoryOrchestrator-Core/" title="Microsoft.FactoryOrchestrator.Core">Microsoft.FactoryOrchestrator.Core</a></h4>
 <h3 id="microsoftfactoryorchestratorcoreifactoryorchestratorservice"><a href="../Microsoft-FactoryOrchestrator-Core/" title="Microsoft.FactoryOrchestrator.Core">Microsoft.FactoryOrchestrator.Core</a>.<a href="../Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService/" title="Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService">IFactoryOrchestratorService</a></h3>
-<h2 id="ifactoryorchestratorserviceresetservicebool-bool-method">IFactoryOrchestratorService.ResetService(bool, bool) Method</h2>
-<p>Stops all running Tasks and deletes all TaskLists.  </p>
-<pre><code class="language-csharp">void ResetService(bool preserveLogs=false, bool factoryReset=false);
+<h2 id="ifactoryorchestratorservicegetwdphttpport-method">IFactoryOrchestratorService.GetWdpHttpPort() Method</h2>
+<p>Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.  </p>
+<pre><code class="language-csharp">int GetWdpHttpPort();
 </code></pre>
-<h4 id="parameters">Parameters</h4>
-<p><a name='Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-ResetService(bool_bool)-preserveLogs'></a>
-<code>preserveLogs</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Boolean" title="System.Boolean">System.Boolean</a><br />
-If true, are logs not deleted.  </p>
-<p><a name='Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-ResetService(bool_bool)-factoryReset'></a>
-<code>factoryReset</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Boolean" title="System.Boolean">System.Boolean</a><br />
-If true, the service is restarted as if it is first boot. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!  </p>
+<h4 id="returns">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/System.Int32" title="System.Int32">System.Int32</a><br />
+The HTTP port.  </p>
                 
               
               

@@ -265,6 +265,14 @@
     Install the service on Windows
   </a>
   
+    <nav class="md-nav" aria-label="Install the service on Windows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-policy" class="md-nav__link">
+    Execution Policy
+  </a>
+  
 </li>
         
           <li class="md-nav__item">
@@ -275,16 +283,34 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#windows-uwp-app-support" class="md-nav__link">
+    Windows UWP app support
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#install-the-service-on-linux" class="md-nav__link">
     Install the service on Linux
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Install the service on Linux">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#start-the-service-manually-on-linux" class="md-nav__link">
     Start the service manually on Linux
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -479,6 +505,14 @@
     Install the service on Windows
   </a>
   
+    <nav class="md-nav" aria-label="Install the service on Windows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-policy" class="md-nav__link">
+    Execution Policy
+  </a>
+  
 </li>
         
           <li class="md-nav__item">
@@ -489,16 +523,34 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#windows-uwp-app-support" class="md-nav__link">
+    Windows UWP app support
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#install-the-service-on-linux" class="md-nav__link">
     Install the service on Linux
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Install the service on Linux">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#start-the-service-manually-on-linux" class="md-nav__link">
     Start the service manually on Linux
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -552,21 +604,37 @@
 <p>Once installed, the service can either be started manually (on demand) or configured to automatically start every boot.</p>
 <p><img alt="Image of service start" src="../images/service-start.png" /> </p>
 <h3 id="install-the-service-on-windows">Install the service on Windows</h3>
-<p><a href="https://github.com/microsoft/FactoryOrchestrator/releases">Download</a> and unzip the service for your target OS and architecture. Then use an Administrator PowerShell to run the included InstallFactoryOrchestratorService.ps1 file. If you want the service to start automatically every boot, use the -AutoStart switch. Without this switch the service must be started manually every boot.</p>
-<pre><code class="language-PowerShell">     ## Optionally set its start up to automatic with: -AutoStart
+<p><a href="https://github.com/microsoft/FactoryOrchestrator/releases">Download</a> and unzip the service for 'win'(dows) and your target architecture. Then use an Administrator PowerShell to run the included InstallFactoryOrchestratorService.ps1 file. If you want the service to start automatically every boot, use the -AutoStart switch. Without this switch the service must be started manually every boot.</p>
+<pre><code class="language-PowerShell">    # Optionally, set its start up to automatic with: -AutoStart
+    # Optionally, choose the installation directory with: -DestinationPath
+    .\InstallFactoryOrchestratorService.ps1 # -AutoStart -DestinationPath C:\FactoryOrchestrator
+</code></pre>
+<h4 id="execution-policy">Execution Policy</h4>
+<p>If you see the following error, you need to set your ExecutionPolicy to RemoteSigned.</p>
+<pre><code class="language-PowerShell">File InstallFactoryOrchestratorService.ps1 cannot be loaded because running scripts is disabled on this system.
+For more information, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170.
+</code></pre>
+<p>Run the following command to temporarily allow you to run the install script:</p>
+<pre><code class="language-powershell">    # Temporarily allow your PC to run signed scripts
+    Set-ExecutionPolicy RemoteSigned -Scope Process
+
+    # Then, you can install the service!
     .\InstallFactoryOrchestratorService.ps1 # -AutoStart
 </code></pre>
-<h3 id="start-the-service-manually-on-windows">Start the service manually on Windows</h3>
+<h4 id="start-the-service-manually-on-windows">Start the service manually on Windows</h4>
 <p>To start the service manually, run the following from an administrator PowerShell:</p>
 <pre><code class="language-PowerShell">     Start-Service -Name &quot;Microsoft.FactoryOrchestrator&quot;
 </code></pre>
+<h4 id="windows-uwp-app-support">Windows UWP app support</h4>
+<p>If you want Factory Orchestrator to be able to install, launch, or exit Windows Store/UWP apps, your device must support running UWP apps and <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> must be running on the device with <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal-desktop#turn-on-windows-device-portal">HTTP enabled &amp; no authentication</a>.
+<img alt="Image of WDP settings" src="../images/wdp-no-auth.png" /> </p>
 <h3 id="install-the-service-on-linux">Install the service on Linux</h3>
-<p><a href="https://github.com/microsoft/FactoryOrchestrator/releases">Download</a> and unzip the service for your target OS and architecture. Then run the included InstallFactoryOrchestratorService.sh file with bash as sudo. If you want the service to start automatically every boot, add an "enable" argument. Without this the service must be started manually every boot.</p>
+<p><a href="https://github.com/microsoft/FactoryOrchestrator/releases">Download</a> and unzip the service for 'linux' and your target architecture. Then run the included InstallFactoryOrchestratorService.sh file with bash as sudo. If you want the service to start automatically every boot, add an "enable" argument. Without this the service must be started manually every boot.</p>
 <pre><code class="language-Bash">     ## Optionally set its start up to automatic with: enable
     sudo bash ./InstallFactoryOrchestratorService.sh # enable
 </code></pre>
 <p>The install script requires the <a href="https://linuxize.com/post/how-to-unzip-files-in-linux/#installing-unzip">"unzip"</a> command. If you prefer to use another command to unzip a .zip file, edit InstallFactoryOrchestratorService.sh, replacing "unzip" with your desired command.</p>
-<h3 id="start-the-service-manually-on-linux">Start the service manually on Linux</h3>
+<h4 id="start-the-service-manually-on-linux">Start the service manually on Linux</h4>
 <p>To start the service manually, run the following from bash:</p>
 <pre><code class="language-Bash">    sudo systemctl start Microsoft.FactoryOrchestrator.service
 </code></pre>

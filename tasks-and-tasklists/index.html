@@ -501,11 +501,10 @@
 </li>
 <li>
 <p><strong>UWP</strong></p>
-<p><strong>Windows Only.</strong> Allows you to run a UWP app as a task.</p>
+<p><strong>Windows Only.</strong> Allows you to run a UWP app as a task. See <a href="../get-started-with-factory-orchestrator/#windows-uwp-app-support">here</a> for setup requirments.</p>
 <p>UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via the UpdateTaskRun() API or via a result prompt that the Factory Orchestrator App launches when the app exits. If using the app, the operator must manually specify if the task passed or failed via a result prompt that the Factory Orchestrator App launches when the app exits, like is shown on this screen:  </p>
 <p><img alt="External task windows" src="../images/externalTaskNoMedia.png" /></p>
 <p>The Factory Orchestrator service can launch apps even if the Factory Orchestrator app isn't running.</p>
-<p>UWP App tasks will only run on DUTs booted into an environment that supports UWP apps.</p>
 </li>
 <li>
 <p><strong>External</strong></p>

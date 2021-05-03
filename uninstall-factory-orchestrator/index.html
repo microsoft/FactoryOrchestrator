@@ -377,6 +377,19 @@
     Uninstall the service on Windows
   </a>
   
+    <nav class="md-nav" aria-label="Uninstall the service on Windows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-policy" class="md-nav__link">
+    Execution Policy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -430,6 +443,19 @@
     Uninstall the service on Windows
   </a>
   
+    <nav class="md-nav" aria-label="Uninstall the service on Windows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-policy" class="md-nav__link">
+    Execution Policy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -468,6 +494,17 @@
 <h2 id="uninstall-the-service-on-windows">Uninstall the service on Windows</h2>
 <p>To uninstall the service, run the following from an administrator PowerShell:</p>
 <pre><code class="language-PowerShell">    . &quot;$env:ProgramFiles\FactoryOrchestrator\UninstallFactoryOrchestratorService.ps1&quot;
+</code></pre>
+<p>If you installed the service to a different directory, use that above.</p>
+<h4 id="execution-policy">Execution Policy</h4>
+<p>If you see the following error, you need to set your ExecutionPolicy to RemoteSigned.</p>
+<p><code>File UninstallFactoryOrchestratorService.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170.</code></p>
+<p>To resolve it, run the following command to temporarily allow you to run the install script:</p>
+<pre><code class="language-powershell">    # Temporarily allow your PC to run signed scripts
+    Set-ExecutionPolicy RemoteSigned -Scope Process
+
+    # Then, you can install the service!
+    .\UninstallFactoryOrchestratorService.ps1 # -AutoStart
 </code></pre>
 <h2 id="uninstall-the-app-on-windows">Uninstall the app on Windows</h2>
 <p>To uninstall the app <a href="https://support.microsoft.com/en-us/windows/uninstall-or-remove-apps-and-programs-in-windows-10-4b55f974-2cc6-2d2b-d092-5905080eaf98">follow these directions</a>.</p>

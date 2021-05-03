@@ -437,11 +437,13 @@
                 
                 <h1 id="factory-orchestrator-service-configuration-using-appsettingsjson">Factory Orchestrator service configuration using appsettings.json</h1>
 <p>The Factory Orchestrator service has many configurable settings that impact its startup behavior, enabled features, and more. This configuration is easily modified using an <a href="https://docs.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#json-configuration-provider">appsettings.json file</a>.</p>
-<p>The appsettings.json file is checked for in two locations:</p>
-<ul>
+<p>The appsettings.json file is checked for in the following locations in order, with the last appsettings.json file found 'winning' if there are conflicts:</p>
+<ol>
 <li>The directory where the service executable (Microsoft.FactoryOrchestrator.Service) is located</li>
-<li>The <a href="#factory-orchestrator-service-log-file">service log file directory</a> (<code>%ProgramData%\FactoryOrchestrator\</code> or <code>/var/log/FactoryOrchestrator/</code>)</li>
-</ul>
+<li><strong>(Windows only)</strong> %DATADRIVE%\TestContent\Container\FactoryOrchestrator</li>
+<li>The <a href="#factory-orchestrator-service-log-file">service log file directory</a>: <code>%ProgramData%\FactoryOrchestrator\</code> (Windows) or <code>/var/log/FactoryOrchestrator/</code>(Linux)</li>
+<li><strong>(Linux only)</strong> The <code>/etc/FactoryOrchestrator/</code> directory</li>
+</ol>
 <p>The following table describes each setting and its usage:</p>
 <table>
 <thead>
@@ -475,7 +477,7 @@
 <tr>
 <td><a href="#network-access">EnableNetworkAccess</a></td>
 <td>bool</td>
-<td>If set to "true", the service will allow connections from clients/apps anywhere on your local network. <strong>⚠ <a href="#network-access">See below for caveats.</a> ⚠</strong></td>
+<td>If set to "true", the service will allow connections from clients/apps anywhere on your local network. Defaults to false. <strong>⚠ <a href="#network-access">See below for more details.</a> ⚠</strong></td>
 </tr>
 <tr>
 <td>NetworkPort</td>
@@ -543,8 +545,8 @@
 <p></b></p>
 <ul>
 <li>⚠ The service allows any client to connect to it without authentication. Any connected client has full access to the service's computer, including the ability to send or copy files, and/or run any command or program with administrator rights. ⚠ (The service has SSL encryption, but it is server-only, clients are not authenticated.)</li>
-<li>⚠ If you "install" the service, the service may be configured to run from boot. Depending on the configuration the service may even be running before a user has logged on to the computer. ⚠</li>
-<li>⚠ Once network access is enabled, it will remain enabled until the changes to enable network access are <a href="#disable-network-access">reverted</a>. ⚠</li>
+<li>⚠ If you configure the service to automatically start, the service is configured to run from boot. Depending on the service &amp; PC configuration it may even be running before a user has logged on to the computer. ⚠</li>
+<li>⚠ Once network access is enabled, it will remain enabled until "EnableNetworkAccess" is set to "false" and the service is restarted. ⚠</li>
 <li>⚠ The service and client send information over the network in SSL encrypted JSON using TCP. It is vulnerable to man-in-the-middle attacks, as the service defaults to a predefined SSL certificate unless a custom certificate is used. ⚠</li>
 <li>⚠ The service currently has minimal logging about what clients are connected to it and what commands each client has executed. ⚠</li>
 </ul>
@@ -555,6 +557,15 @@
 <li>The <a href="#factory-orchestrator-service-log-file">service log file</a></li>
 <li>The <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsNetworkAccessEnabled%28%29/">IsNetworkAccessEnabled</a> API.</li>
 </ul>
+<h3 id="firewall-configuration">Firewall configuration</h3>
+<p>Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your locl network.</p>
+<p>On Windows, run the following command from an Administrator PowerShell window:</p>
+<pre><code class="language-powershell">$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', '');  netsh advfirewall firewall add rule name=&quot;Factory Orchestrator service&quot; dir=in action=allow program=&quot;$FoPath&quot; enable=yes
+</code></pre>
+<p>On Ubuntu and many other Linux distros, run the following Bash command:</p>
+<pre><code class="language-bash">sudo ufw allow 45684
+</code></pre>
+<p>If you set a custom network port above, use that port number instead of 45684.</p>
 <h2 id="initialtasklists-firstboottasks-and-everyboottasks">InitialTaskLists, FirstBootTasks, and EveryBootTasks</h2>
 <p><em>💡 <a href="https://github.com/microsoft/FactoryOrchestrator/issues/109">We are considering reworking InitialTaskLists and *BootTasks, as it is hard to understand the use cases and tradeoffs for each type</a>. 💡</em></p>
 <p>The Factory Orchestrator service looks for certain <a href="../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists">FactoryOrchestratorXML</a> files when it starts, based on file paths set in the InitialTaskLists, FirstBootTasks, and EveryBootTasks settings. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator (without running them), run tasks the first time a device boots, or run tasks every time a device boots.</p>
