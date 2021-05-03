@@ -1,11 +1,12 @@
 # Factory Orchestrator service configuration using appsettings.json
 The Factory Orchestrator service has many configurable settings that impact its startup behavior, enabled features, and more. This configuration is easily modified using an [appsettings.json file](https://docs.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#json-configuration-provider).
 
-The appsettings.json file is checked for in the following locations:
+The appsettings.json file is checked for in the following locations in order, with the last appsettings.json file found 'winning' if there are conflicts:
 
-- The directory where the service executable (Microsoft.FactoryOrchestrator.Service) is located
-- The [service log file directory](#factory-orchestrator-service-log-file): `%ProgramData%\FactoryOrchestrator\` (Windows) or `/var/log/FactoryOrchestrator/`(Linux)
-- (Linux only) The `/etc/FactoryOrchestrator/` directory
+1. The directory where the service executable (Microsoft.FactoryOrchestrator.Service) is located
+2. **(Windows only)** %DATADRIVE%\TestContent\Container\FactoryOrchestrator
+3. The [service log file directory](#factory-orchestrator-service-log-file): `%ProgramData%\FactoryOrchestrator\` (Windows) or `/var/log/FactoryOrchestrator/`(Linux)
+4. **(Linux only)** The `/etc/FactoryOrchestrator/` directory
 
 The following table describes each setting and its usage:
 
@@ -15,7 +16,7 @@ The following table describes each setting and its usage:
 | RunInitialTaskListsOnFirstBoot | bool | If set to "true", the TaskLists defined by InitialTaskLists are run on first boot of the DUT (or the first time the service is run). They are not run on subsquent boots. |
 | [FirstBootTasks](#initialtasklists-firstboottasks-and-everyboottasks) | string | Path to a [FactoryOrchestratorXML](tasks-and-tasklists.md#author-and-manage-factory-orchestrator-tasklists) file. These TaskLists are run once, and then "hidden", on the first boot of the DUT (or the first time the service is run). They are not run on subsquent boots. [See below for more details.](#initialtasklists-firstboottasks-and-everyboottasks) |
 | [EveryBootTasks](#initialtasklists-firstboottasks-and-everyboottasks) | string | Path to a [FactoryOrchestratorXML](tasks-and-tasklists.md#author-and-manage-factory-orchestrator-tasklists) file. These TaskLists are run on every boot of the DUT, including first boot. They are then "hidden". [See below for more details.](#initialtasklists-firstboottasks-and-everyboottasks) |
-| [EnableNetworkAccess](#network-access) | bool | If set to "true", the service will allow connections from clients/apps anywhere on your local network. **⚠ [See below for caveats.](#network-access) ⚠** |
+| [EnableNetworkAccess](#network-access) | bool | If set to "true", the service will allow connections from clients/apps anywhere on your local network. Defaults to false. **⚠ [See below for more details.](#network-access) ⚠** |
 | NetworkPort | int | The network port the service uses to communicate with clients, even local loopback clients. Defaults to 45684. |
 | TaskRunLogFolder | string | Path of the directory where you want Task run logs saved. This setting is a first run default; it can be overriden at runtime by the [SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. See [Tasks and Tasklists](tasks-and-tasklists.md#factory-orchestrator-task-log-files) for details about the log files for individual Task runs. |
 | AllowedLocalLoopbackApps | string | **Windows only.** Semi-colon separated list of Windows app "Package Family Name"(s). The Factory Orchestrator service will enable local loopback on the given apps every boot. Requires "checknetisolation.exe" is found in your %PATH%. See [this Windows IoT page](https://docs.microsoft.com/en-us/windows/iot-core/develop-your-app/loopback#enabling-loopback-for-a-uwp-application) for more information.
@@ -48,8 +49,8 @@ By default, the Factory Orchestrator service only allows client connections from
 </b>
 
 - ⚠ The service allows any client to connect to it without authentication. Any connected client has full access to the service's computer, including the ability to send or copy files, and/or run any command or program with administrator rights. ⚠ (The service has SSL encryption, but it is server-only, clients are not authenticated.)
-- ⚠ If you "install" the service, the service may be configured to run from boot. Depending on the configuration the service may even be running before a user has logged on to the computer. ⚠
-- ⚠ Once network access is enabled, it will remain enabled until the changes to enable network access are [reverted](#disable-network-access). ⚠
+- ⚠ If you configure the service to automatically start, the service is configured to run from boot. Depending on the service & PC configuration it may even be running before a user has logged on to the computer. ⚠
+- ⚠ Once network access is enabled, it will remain enabled until "EnableNetworkAccess" is set to "false" and the service is restarted. ⚠
 - ⚠ The service and client send information over the network in SSL encrypted JSON using TCP. It is vulnerable to man-in-the-middle attacks, as the service defaults to a predefined SSL certificate unless a custom certificate is used. ⚠
 - ⚠ The service currently has minimal logging about what clients are connected to it and what commands each client has executed. ⚠
 
@@ -61,7 +62,7 @@ To check if network access is currently enabled use one of the following:
 - The [IsNetworkAccessEnabled](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsNetworkAccessEnabled%28%29/) API.
 
 ### Firewall configuration
-Depending on the configuration of OS you are running the Factory Orchestrator service on, you may need to configure the firewall to allow Factory Orchestrator service to communicate over your locl network.
+Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your locl network.
 
 On Windows, run the following command from an Administrator PowerShell window:
 

@@ -9,6 +9,22 @@ To uninstall the service, run the following from an administrator PowerShell:
     . "$env:ProgramFiles\FactoryOrchestrator\UninstallFactoryOrchestratorService.ps1"
 ```
 
+If you installed the service to a different directory, use that above.
+
+#### Execution Policy
+If you see the following error, you need to set your ExecutionPolicy to RemoteSigned.
+
+```File UninstallFactoryOrchestratorService.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170.```
+
+To resolve it, run the following command to temporarily allow you to run the install script:
+```powershell
+    # Temporarily allow your PC to run signed scripts
+    Set-ExecutionPolicy RemoteSigned -Scope Process
+
+    # Then, you can install the service!
+    .\UninstallFactoryOrchestratorService.ps1 # -AutoStart
+```
+
 ## Uninstall the app on Windows
 To uninstall the app [follow these directions](https://support.microsoft.com/en-us/windows/uninstall-or-remove-apps-and-programs-in-windows-10-4b55f974-2cc6-2d2b-d092-5905080eaf98).
 
