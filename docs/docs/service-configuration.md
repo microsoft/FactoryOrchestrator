@@ -60,6 +60,23 @@ To check if network access is currently enabled use one of the following:
 - The [service log file](#factory-orchestrator-service-log-file)
 - The [IsNetworkAccessEnabled](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsNetworkAccessEnabled%28%29/) API.
 
+### Firewall configuration
+Depending on the configuration of OS you are running the Factory Orchestrator service on, you may need to configure the firewall to allow Factory Orchestrator service to communicate over your locl network.
+
+On Windows, run the following command from an Administrator PowerShell window:
+
+```powershell
+$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', '');  netsh advfirewall firewall add rule name="Factory Orchestrator service" dir=in action=allow program="$FoPath" enable=yes
+```
+
+On Ubuntu and many other Linux distros, run the following Bash command:
+
+```bash
+sudo ufw allow 45684
+```
+
+If you set a custom network port above, use that port number instead of 45684.
+
 ## InitialTaskLists, FirstBootTasks, and EveryBootTasks 
 _💡 [We are considering reworking InitialTaskLists and \*BootTasks, as it is hard to understand the use cases and tradeoffs for each type](https://github.com/microsoft/FactoryOrchestrator/issues/109). 💡_
 
