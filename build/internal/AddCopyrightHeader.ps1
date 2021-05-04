@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+# This script is manually run and makes a best effort attempt to add the copyright header to all source/build files in the repo.
 function Add-CopyrightHeader
 {	
     param
