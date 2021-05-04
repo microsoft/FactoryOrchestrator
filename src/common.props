@@ -6,7 +6,7 @@
 
   <!-- Assembly, App, Package version for all non-OSS files. Uses SemVer. -->
   <PropertyGroup Label="Version">
-    <VersionPrefix>10.0.0</VersionPrefix>
+    <VersionPrefix>10.1.0</VersionPrefix>
   </PropertyGroup>
 
   <!-- Common packaging properties -->

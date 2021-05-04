@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 
 namespace Microsoft.FactoryOrchestrator.Core
 {
@@ -102,16 +103,18 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="packageName">The name of the application package.</param>
         /// <param name="ipAddress">The ip address of the device to install the app on</param>
+        /// <param name="port">The port for WDP on the target device.</param>
         /// <param name="uri">The endpoint for the install request.</param>
         /// <param name="boundaryString">Unique string used to separate the parts of the multipart form data.</param>
         private static void CreateAppInstallEndpointAndBoundaryString(
             string packageName,
             string ipAddress,
+            int port,
             out Uri uri,
             out string boundaryString)
         {
             uri = BuildEndpoint(
-                new Uri($"http://{ipAddress}"),
+                new Uri($"http://{ipAddress}:{port}"),
                 "api/app/packagemanager/package",
                 $"package={packageName}");
 
@@ -135,12 +138,12 @@ namespace Microsoft.FactoryOrchestrator.Core
             return new Uri(baseUri, relativePart);
         }
 
-        private static async Task<ApplicationInstallStatus> GetInstallStatusAsync(string ipAddress = "localhost")
+        private static async Task<ApplicationInstallStatus> GetInstallStatusAsync(string ipAddress = "localhost", int port = 80)
         {
             ApplicationInstallStatus status = ApplicationInstallStatus.None;
 
             Uri uri = BuildEndpoint(
-                new Uri($"http://{ipAddress}"),
+                new Uri($"http://{ipAddress}:{port}"),
                 "api/app/packagemanager/state");
 
             using (HttpResponseMessage response = await WdpHttpClient.GetAsync(uri).ConfigureAwait(false))
@@ -214,9 +217,10 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// <param name="dependentAppsFilePaths">The dependent app packages file paths.</param>
         /// <param name="certFilePath">The certificate file path.</param>
         /// <param name="ipAddress">The ip address of the device to install the app on.</param>
+        /// <param name="port">The port for WDP on the target device.</param>
         /// <exception cref="FileNotFoundException">
         /// </exception>
-        public static async Task InstallAppWithWDP(string appFilePath, List<string> dependentAppsFilePaths, string certFilePath, string ipAddress = "localhost")
+        public static async Task InstallAppWithWDP(string appFilePath, List<string> dependentAppsFilePaths, string certFilePath, string ipAddress = "localhost", int port = 80)
         {
             ApplicationInstallStatus status = ApplicationInstallStatus.InProgress;
 
@@ -244,7 +248,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 }
             }
 
-            CreateAppInstallEndpointAndBoundaryString(Path.GetFileName(appFilePath), ipAddress, out var uri, out _);
+            CreateAppInstallEndpointAndBoundaryString(Path.GetFileName(appFilePath), ipAddress, port, out var uri, out _);
             using (var content = CreateAppInstallContent(appFilePath, dependentAppsFilePaths, certFilePath))
             {
                 await WdpHttpClient.PostAsync(uri, content);
@@ -253,7 +257,7 @@ namespace Microsoft.FactoryOrchestrator.Core
             while (status == ApplicationInstallStatus.InProgress)
             {
                 await Task.Delay(500);
-                status = await GetInstallStatusAsync(ipAddress);
+                status = await GetInstallStatusAsync(ipAddress, port);
             }
         }
 
@@ -263,16 +267,17 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <param name="app">The app package to exit .</param>
         /// <param name="ipAddress">The ip address of the device to exit the app on.</param>
+        /// <param name="port">The port for WDP on the target device.</param>
         /// <exception cref="ArgumentException">
         /// </exception>
-        public static async Task CloseAppWithWDP(string app, string ipAddress = "localhost")
+        public static async Task CloseAppWithWDP(string app, string ipAddress = "localhost", int port = 80)
         {
             if (string.IsNullOrWhiteSpace(app))
             {
                 throw new ArgumentException(Resources.WDPError, nameof(app));
             }
 
-            var uri = BuildEndpoint(new Uri($"http://{ipAddress}"),
+            var uri = BuildEndpoint(new Uri($"http://{ipAddress}:{port}"),
                                 "api/taskmanager/app",
                                 $"package={Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(app))}");
 
@@ -283,11 +288,12 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// Gets the collection of applications installed on the device.
         /// </summary>
         /// <param name="ipAddress">The ip address of the device to query.</param>
+        /// <param name="port">The port for WDP on the target device.</param>
         /// <returns>AppPackages object containing the list of installed application packages.</returns>
-        public static async Task<AppPackages> GetInstalledAppPackagesAsync(string ipAddress = "localhost")
+        public static async Task<AppPackages> GetInstalledAppPackagesAsync(string ipAddress = "localhost", int port = 80)
         {
             Uri uri = BuildEndpoint(
-                new Uri($"http://{ipAddress}"),
+                new Uri($"http://{ipAddress}:{port}"),
                 "api/app/packagemanager/packages");
 
             var resp =  await WdpHttpClient.GetAsync(uri).ConfigureAwait(false);

@@ -16,6 +16,7 @@ using JKang.IpcServiceFramework.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.FactoryOrchestrator.Client;
 using Microsoft.FactoryOrchestrator.Core;
@@ -107,18 +108,33 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         public static void Main(string[] args)
         {
-            Host.CreateDefaultBuilder(null).UseSystemd().UseWindowsService().ConfigureServices((hostContext, services) =>
+#if DEBUG
+            var _logLevel = LogLevel.Debug;
+#else
+            var _logLevel = LogLevel.Information;
+#endif
+            var hostBuilder = Host.CreateDefaultBuilder(null).UseSystemd().ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<Worker>();
             }).ConfigureLogging(builder =>
             {
-#if DEBUG
-                var _logLevel = LogLevel.Debug;
-#else
-                var _logLevel = LogLevel.Information;
-#endif
                 builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
-            }).Build().Run();
+            });
+
+            // Workaround for issue #140.
+            // On Windows, if intended to run as a Windows service, the .exe must be invoked with an argument.
+            // If invoked with no arguments, assume the .exe was run by the user directly.
+            bool isService = ((args != null) && (args.Length > 0));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isService)
+            {
+                hostBuilder.UseContentRoot(AppContext.BaseDirectory);
+                hostBuilder.ConfigureServices((hostContext, services) =>
+                {
+                    services.AddSingleton<IHostLifetime, WindowsServiceLifetime>();
+                });
+            }
+
+            hostBuilder.Build().Run();
         }
     }
 
@@ -391,6 +407,40 @@ namespace Microsoft.FactoryOrchestrator.Service
             return version;
         }
 
+        /// <summary>
+        /// Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.
+        /// This is called before every WDP operation as the Factory Orchestrator service usually starts before WDP on boot and WDP can use a dynamic port on Desktop.
+        /// </summary>
+        /// <returns>The HTTP port.</returns>
+        internal static int GetWdpHttpPort()
+        {
+            using (var osdata = Registry.LocalMachine.OpenSubKey(@"OSDATA\SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
+            {
+                if (osdata != null)
+                {
+                    var osdataPort = osdata.GetValue("HttpPort");
+                    if (osdataPort != null)
+                    {
+                        return (int)osdataPort;
+                    }
+                }
+            }
+
+            using (var sft = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
+            {
+                if (sft != null)
+                {
+                    var port = sft.GetValue("HttpPort");
+                    if (port != null)
+                    {
+                        return (int)port;
+                    }
+                }
+            }
+
+            return 80;
+        }
+
         public FOService(ILogger<Worker> logger)
         {
             lock (_constructorLock)
@@ -447,10 +497,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                 return;
             }
 
-            // Start IPC server on desired port. Only start after all boot tasks are complete.
-            _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
-            _ipcCancellationToken = new System.Threading.CancellationTokenSource();
-            _ipcHost.RunAsync(_ipcCancellationToken.Token);
+            // Start IPC server on desired port. Only start if not a reset operation.
+            if (_ipcHost == null)
+            {
+                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
+                _ipcCancellationToken = new System.Threading.CancellationTokenSource();
+                _ipcHost.RunAsync(_ipcCancellationToken.Token);
+            }
 
             if (IsNetworkAccessEnabled)
             {
@@ -492,16 +545,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
-                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, _initialTasksDefaultPath));
-                    // Find the TaskLists XML path. Check testcontent directory for wellknown name, fallback to registry
-                    if (!File.Exists(firstBootStateTaskListPath))
-                    {
-                        firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
-                        if (!firstBootStateTaskListPath.Equals(_initialTasksDefaultPath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
-                        }
-                    }
+                    // Find the TaskLists XML path. Check app settings/registry, fallback to testcontent directory with well known name
+                    firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
+                    ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
 
                     if (File.Exists(firstBootStateTaskListPath))
                     {
@@ -531,10 +577,14 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <summary>
         /// Service stop.
         /// </summary>
-        public void Stop()
+        public void Stop(bool isFactoryReset = false)
         {
-            // Disable inter process communication interfaces
-            _ipcCancellationToken?.Cancel();
+            if (!isFactoryReset)
+            {
+                // Disable inter process communication interfaces if not a reset operation
+                _ipcCancellationToken?.Cancel();
+            }
+
             _containerHeartbeatToken?.Cancel();
             _containerClient = null;
             ContainerGuid = Guid.Empty;
@@ -719,13 +769,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                             {
                                 // Exit URDC if we launched it.
                                 // There may be a preview app & official app installed, close them all
-                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync()).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
+                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync("localhost", GetWdpHttpPort())).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
 
                                 foreach (var app in rdApps)
                                 {
                                     try
                                     {
-                                        await WDPHelpers.CloseAppWithWDP(app.FullName);
+                                        await WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", GetWdpHttpPort());
                                     }
                                     catch (Exception)
                                     {
@@ -1192,6 +1242,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// <returns></returns>
         public void ExecuteServerBootTasks(CancellationToken cancellationToken)
         {
+            IsExecutingBootTasks = true;
+
             if (_isWindows)
             {
                 // Open Registry Keys
@@ -1266,7 +1318,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             LastEventIndex = 0;
             LastEventTime = DateTime.MinValue;
             LocalLoopbackApps = new List<string>();
-            IsExecutingBootTasks = true;
             _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
 
             ContainerGuid = Guid.Empty;
@@ -1682,10 +1733,31 @@ namespace Microsoft.FactoryOrchestrator.Service
         private bool LoadOEMCustomizations()
         {
             // Look for appsettings.json
+            // For Windows, the settings order is (higher # wins):
+            // 1) The exe directory
+            // 2) %DATADRIVE%\TestContent\Container\FactoryOrchestrator
+            // 3) The log folder, ProgramData\FactoryOrchestrator
+
+            // For Linux, the settings order is (higher # wins):
+            // 1) The exe directory
+            // 2) The log folder, /var/log/FactoryOrchestrator
+            // 3) /etc/FactoryOrchestrator
             var builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(Path.Combine(FOServiceExe.ServiceExeLogFolder, "appsettings.json"), optional: true)
                 .AddJsonFile("appsettings.json", optional: true);
+
+            if (_isWindows)
+            {
+                builder.AddJsonFile(Path.Combine(Environment.ExpandEnvironmentVariables(@"%DATADRIVE%\TestContent\Container\FactoryOrchestrator"), "appsettings.json"), optional: true);
+            }
+
+            builder.AddJsonFile(Path.Combine(FOServiceExe.ServiceExeLogFolder, "appsettings.json"), optional: true);
+
+            if (!_isWindows)
+            {
+                builder.AddJsonFile("/etc/FactoryOrchestrator/appsettings.json", optional: true);
+            }
+
             Appsettings = builder.Build();
 
             // Look for each setting in the registry (Windows only, OEM Customizations) or in the IConfiguration
@@ -1804,7 +1876,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 try
                 {
-                    IsContainerSupportEnabled = Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+                    IsContainerSupportEnabled = !Convert.ToBoolean(GetAppSetting(_disableContainerValue) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
                 }
                 catch (Exception)
                 {
@@ -1941,7 +2013,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             {
                 if (disposing)
                 {
-                    _ipcHost.Dispose();
+                    _ipcHost?.Dispose();
                     _ipcCancellationToken?.Dispose();
                     _containerHeartbeatToken?.Dispose();
                     _mutableKey?.Dispose();

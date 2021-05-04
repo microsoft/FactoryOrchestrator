@@ -414,8 +414,8 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (factoryReset)
                 {
-                    // Pause a bit to allow the IPC call to return before we kill it off
-                    Task.Run(() => { System.Threading.Thread.Sleep(500); FOService.Instance.Stop(); FOService.Instance.Start(true, new CancellationToken()); });
+                    FOService.Instance.Stop(true);
+                    FOService.Instance.Start(true, new CancellationToken());
                 }
             }
             catch (Exception e)
@@ -802,12 +802,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                     throw new FactoryOrchestratorException(string.Format(CultureInfo.CurrentCulture, Resources.WindowsOnlyError, "TerminateApp"));
                 }
 
-                var apps = WDPHelpers.GetInstalledAppPackagesAsync().Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", FOService.GetWdpHttpPort()).Result;
                 var app = apps.Packages.Where(x => x.AppId.Equals(aumid, StringComparison.OrdinalIgnoreCase)).DefaultIfEmpty(null).FirstOrDefault();
 
                 if (app != null)
                 {
-                    WDPHelpers.CloseAppWithWDP(app.FullName).Wait();
+                    WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", FOService.GetWdpHttpPort()).Wait();
                 }
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: TerminateApp {aumid}");
@@ -1014,7 +1014,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                WDPHelpers.InstallAppWithWDP(appPackagePath, dependentPackages, certificateFile).Wait();
+                WDPHelpers.InstallAppWithWDP(appPackagePath, dependentPackages, certificateFile, "localhost", FOService.GetWdpHttpPort()).Wait();
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: InstallApp {appPackagePath}");
             }
@@ -1037,7 +1037,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Get installed packages on the system
-                var apps = WDPHelpers.GetInstalledAppPackagesAsync().Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", FOService.GetWdpHttpPort()).Result;
 
                 List<string> aumids = apps.Packages.Select(x => x.AppId).ToList();
 
@@ -1063,7 +1063,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 }
 
                 // Get installed packages on the system
-                var apps = WDPHelpers.GetInstalledAppPackagesAsync().Result;
+                var apps = WDPHelpers.GetInstalledAppPackagesAsync("localhost", FOService.GetWdpHttpPort()).Result;
 
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetInstalledAppsDetailed");
                 return apps.Packages;
@@ -1230,6 +1230,22 @@ namespace Microsoft.FactoryOrchestrator.Service
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: IsNetworkAccessEnabled");
                 bool ret = FOService.Instance.IsNetworkAccessEnabled;
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: IsNetworkAccessEnabled");
+                return ret;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw;
+            }
+        }
+
+        public int GetWdpHttpPort()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetWdpHttpPort");
+                int ret = FOService.GetWdpHttpPort();
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetWdpHttpPort");
                 return ret;
             }
             catch (Exception e)

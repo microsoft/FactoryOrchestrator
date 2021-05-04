@@ -127,13 +127,17 @@ After you click one of these buttons, enter the full path of the file to save an
 
 The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.
 
-<!-- ## UWP Apps
+## UWP Apps (Windows only)
 
 This launches a UWP app that's installed on a device under test (DUT). This allows you to launch a UWP directly from the Factory Orchestrator app by clicking on its name in the list of installed UWP apps.
 
-Your device must be configured to launch into an environment that supports launching UWP apps.
+See [here](get-started-with-factory-orchestrator.md#windows-uwp-app-support) for setup requirments.
 
-You can exit a launched UWP with ALT+F4, or from Windows Device Portal. -->
+## Windows Device Portal (Windows only)
+
+This launches [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal).
+
+See [here](get-started-with-factory-orchestrator.md#windows-uwp-app-support) for setup requirments.
 
 ## Command Prompt
 
@@ -148,7 +152,7 @@ While you can run commands and see output when using the built-in command prompt
 
 A very basic file transfer function that enables you to transfer files & folders to and from your device when you're connected from a Windows PC. This feature is not visible in the Factory Orchestrator app when running the app and service on the same device (the "Transfer Files" tab will be hidden).
 
-### One-time setup
+### One-time setup for file transfer
 
 First, [install the Factory Orchestrator app](get-started-with-factory-orchestrator.md#install-the-app) on a Windows system that is __not running the Factory Orchestrator service__.
 

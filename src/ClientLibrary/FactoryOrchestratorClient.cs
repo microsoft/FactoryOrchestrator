@@ -157,7 +157,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                await WDPHelpers.InstallAppWithWDP(appFilename, dependentPackages, certificateFile, IpAddress.ToString());
+                await WDPHelpers.InstallAppWithWDP(appFilename, dependentPackages, certificateFile, IpAddress.ToString(), await GetWdpHttpPort());
             }
             catch (Exception ex)
             {

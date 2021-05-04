@@ -357,9 +357,6 @@
   <data name="WDPAppLaunchFailed" xml:space="preserve">
     <value>錯誤: 無法啟動 AUMID: {0}</value>
   </data>
-  <data name="WDPAppLaunchFailed2" xml:space="preserve">
-    <value>錯誤: 應用程式啟動需要「裝置入口網站」，而且可能未在系統上執行。</value>
-  </data>
   <data name="WDPAppLaunchFailed3" xml:space="preserve">
     <value>錯誤: 如果它正在執行，AUMID 可能不正確。</value>
   </data>
@@ -371,9 +368,6 @@
   </data>
   <data name="WDPHttpError" xml:space="preserve">
     <value>Windows 裝置入口網站因 HTTP 錯誤而失敗</value>
-  </data>
-  <data name="WDPNotRunningError" xml:space="preserve">
-    <value>Windows 裝置入口網站必須執行，才能呼叫 GetInstalledApps！</value>
   </data>
   <data name="WindowsOnlyError" xml:space="preserve">
     <value>只有在 Windows 上才支援 {0}!</value>

@@ -14,22 +14,44 @@ Once installed, the service can either be started manually (on demand) or config
 ![Image of service start](./images/service-start.png) 
 
 ### Install the service on Windows
-[Download](https://github.com/microsoft/FactoryOrchestrator/releases) and unzip the service for your target OS and architecture. Then use an Administrator PowerShell to run the included InstallFactoryOrchestratorService.ps1 file. If you want the service to start automatically every boot, use the -AutoStart switch. Without this switch the service must be started manually every boot.
+[Download](https://github.com/microsoft/FactoryOrchestrator/releases) and unzip the service for 'win'(dows) and your target architecture. Then use an Administrator PowerShell to run the included InstallFactoryOrchestratorService.ps1 file. If you want the service to start automatically every boot, use the -AutoStart switch. Without this switch the service must be started manually every boot.
 
 ```PowerShell
-     ## Optionally set its start up to automatic with: -AutoStart
+    # Optionally, set its start up to automatic with: -AutoStart
+    # Optionally, choose the installation directory with: -DestinationPath
+    .\InstallFactoryOrchestratorService.ps1 # -AutoStart -DestinationPath C:\FactoryOrchestrator
+```
+
+#### Execution Policy
+If you see the following error, you need to set your ExecutionPolicy to RemoteSigned.
+
+```PowerShell
+File InstallFactoryOrchestratorService.ps1 cannot be loaded because running scripts is disabled on this system.
+For more information, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170.
+```
+
+Run the following command to temporarily allow you to run the install script:
+```powershell
+    # Temporarily allow your PC to run signed scripts
+    Set-ExecutionPolicy RemoteSigned -Scope Process
+
+    # Then, you can install the service!
     .\InstallFactoryOrchestratorService.ps1 # -AutoStart
 ```
 
-### Start the service manually on Windows
+#### Start the service manually on Windows
 To start the service manually, run the following from an administrator PowerShell:
 
 ```PowerShell
      Start-Service -Name "Microsoft.FactoryOrchestrator"
 ```
 
+#### Windows UWP app support
+If you want Factory Orchestrator to be able to install, launch, or exit Windows Store/UWP apps, your device must support running UWP apps and [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) must be running on the device with [HTTP enabled & no authentication](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal-desktop#turn-on-windows-device-portal).
+![Image of WDP settings](./images/wdp-no-auth.png) 
+
 ### Install the service on Linux
-[Download](https://github.com/microsoft/FactoryOrchestrator/releases) and unzip the service for your target OS and architecture. Then run the included InstallFactoryOrchestratorService.sh file with bash as sudo. If you want the service to start automatically every boot, add an "enable" argument. Without this the service must be started manually every boot.
+[Download](https://github.com/microsoft/FactoryOrchestrator/releases) and unzip the service for 'linux' and your target architecture. Then run the included InstallFactoryOrchestratorService.sh file with bash as sudo. If you want the service to start automatically every boot, add an "enable" argument. Without this the service must be started manually every boot.
 
 ```Bash
      ## Optionally set its start up to automatic with: enable
@@ -38,7 +60,7 @@ To start the service manually, run the following from an administrator PowerShel
 
 The install script requires the ["unzip"](https://linuxize.com/post/how-to-unzip-files-in-linux/#installing-unzip) command. If you prefer to use another command to unzip a .zip file, edit InstallFactoryOrchestratorService.sh, replacing "unzip" with your desired command.
 
-### Start the service manually on Linux
+#### Start the service manually on Linux
 To start the service manually, run the following from bash:
 
 ```Bash

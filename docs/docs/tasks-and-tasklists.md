@@ -34,15 +34,13 @@ Factory Orchestrator TaskLists allow adding different types of tasks:
 
 - **UWP**
 
-    **Windows Only.** Allows you to run a UWP app as a task.
+    **Windows Only.** Allows you to run a UWP app as a task. See [here](get-started-with-factory-orchestrator.md#windows-uwp-app-support) for setup requirments.
 
     UWP apps cannot take arguments (though you can use arguments to pass info to the operator about the goal of the Task), nor can they automatically return a pass/fail result. Instead, the operator must manually specify if the app passed or failed via the UpdateTaskRun() API or via a result prompt that the Factory Orchestrator App launches when the app exits. If using the app, the operator must manually specify if the task passed or failed via a result prompt that the Factory Orchestrator App launches when the app exits, like is shown on this screen:  
 
     ![External task windows](./images/externalTaskNoMedia.png)
 
     The Factory Orchestrator service can launch apps even if the Factory Orchestrator app isn't running.
-
-    UWP App tasks will only run on DUTs booted into an environment that supports UWP apps.
 
 - **External**
 

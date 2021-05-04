@@ -12,6 +12,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.msixbundle'
     description: 'FactoryOrchestrator.msixbundle'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest to Drop msixbundle'
@@ -19,6 +20,7 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 
 - task: PkgESVPack@10
   env:
@@ -29,6 +31,7 @@ steps:
     pushPkgName: 'FactoryOrchestrator.NetCoreTests'
     description: 'FactoryOrchestrator.NetCoreTests'
     version: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)$(VPACKVERSIONBUILDIDSUFFIX)'
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 
 - task: CopyFiles@2
   displayName: 'Copy VPack Manifest NET Core Tests'
@@ -36,3 +39,4 @@ steps:
     SourceFolder: '$(XES_VPACKMANIFESTDIRECTORY)'
     Contents: '$(XES_VPACKMANIFESTNAME)'
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
+  condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())

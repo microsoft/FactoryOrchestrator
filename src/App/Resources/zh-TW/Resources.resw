@@ -173,7 +173,7 @@
     <value>無法連線到 {0}。
 
 請檢查 IP 位址、伺服器名稱及憑證雜湊是否正確，以及 Factory Orchestrator 服務是否在目標 IP 上執行。</value>
-	<comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
+    <comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
     <value>無法連線到目標 IP</value>
@@ -277,13 +277,6 @@
   </data>
   <data name="DeleteAll.Text" xml:space="preserve">
     <value>刪除全部 TaskList</value>
-  </data>
-  <data name="DeleteAllContent" xml:space="preserve">
-    <value>所有執行中的 TaskList 將會停止。所有 TaskList 將會永久從伺服器移除。
-
-手動匯出的 FactoryOrchestratorXML 檔案將不會被刪除，但需要透過「載入 FactoryOrchestratorXML 檔案」手動匯入。
-
-如果選擇「重設成出廠預設值」，服務就會重新啟動，就像是第一次開機一樣。第一次開機及每次開機的工作將會重新執行。初始 TaskList 將會被載入。「重設成出廠預設值」將暫時中斷與用戶端 (包括此應用程式) 的通訊。</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>刪除</value>
@@ -719,9 +712,6 @@
   <data name="WDP.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>啟動 Windows 裝置入口網站</value>
   </data>
-  <data name="WDPFailedContent" xml:space="preserve">
-    <value>請確定 Windows 裝置入口網站正在執行，然後再試一次。</value>
-  </data>
   <data name="WDPFailedTitle" xml:space="preserve">
     <value>無法啟動 Windows 裝置入口網站</value>
   </data>
@@ -770,10 +760,10 @@
   </data>
   <data name="CertHash.Text" xml:space="preserve">
     <value>憑證雜湊:</value>
-	<comment>Hash value of the Certificate of the target machine.</comment>
+    <comment>Hash value of the Certificate of the target machine.</comment>
   </data>
   <data name="ServerName.Text" xml:space="preserve">
     <value>伺服器身分識別:</value>
-	<comment>Distinguished Name of the target machine.</comment>
+    <comment>Distinguished Name of the target machine.</comment>
   </data>
 </root>

@@ -12,5 +12,5 @@ If true, are logs not deleted.
   
 <a name='Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-ResetService(bool_bool)-factoryReset'></a>
 `factoryReset` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-If true, the service is restarted as if it is first boot.  
+If true, the service is restarted as if it is first boot. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!  
   

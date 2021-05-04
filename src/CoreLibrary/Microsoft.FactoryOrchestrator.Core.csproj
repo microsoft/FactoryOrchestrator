@@ -1,6 +1,5 @@
 <!-- Copyright (c) Microsoft Corporation. -->
 <!-- Licensed under the MIT license. -->
-
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../common.props" />
 
@@ -66,7 +65,7 @@
   </Target>
   <Target Name="FixAndCopyMd" AfterTargets="Build">
     <ItemGroup>
-      <FilesToMove Include="$(DefaultDocumentationFolder)/*.md"/>
+      <FilesToMove Include="$(DefaultDocumentationFolder)/*.md" />
     </ItemGroup>
     <Exec Command="$(PowerShellExeName) $(ProjectDir)../../build/FixupAPIMarkdown.ps1 -DefaultDocumentationFolder $(DefaultDocumentationFolder)" />
     <Move SourceFiles="@(FilesToMove)" DestinationFolder="../../docs/docs/CoreLibrary" />

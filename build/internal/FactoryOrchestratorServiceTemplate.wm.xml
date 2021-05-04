@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
 <!-- Copyright (c) Microsoft Corporation. -->
 <!-- Licensed under the MIT license. -->
-
 <identity
     xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -11,7 +10,7 @@
       description="Factory Orchestrator Service"
       displayName="Factory Orchestrator Service"
       errorControl="normal"
-      imagePath="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe action:run"
+      imagePath="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe -IsService"
       name="Microsoft.FactoryOrchestrator.Service"
       objectName="LocalSystem"
       start="auto"
