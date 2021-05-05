@@ -23,6 +23,7 @@ using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
 using Microsoft.Win32;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using Makaretu.Dns;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -268,6 +269,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         private ulong _lastContainerEventIndex;
         private HashSet<Guid> _containerGUITaskRuns;
 
+        private ServiceDiscovery _serviceDiscovery;
+
         // TaskManager_Server instances
         private TaskManager _taskExecutionManager;
         /// <summary>
@@ -503,15 +506,30 @@ namespace Microsoft.FactoryOrchestrator.Service
                 _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
                 _ipcCancellationToken = new System.Threading.CancellationTokenSource();
                 _ipcHost.RunAsync(_ipcCancellationToken.Token);
-            }
 
-            if (IsNetworkAccessEnabled)
-            {
-                ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
-            }
-            else 
-            {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
+                // "Advertise" _factorch._tcp service on DNS-SD
+                string hostname = Dns.GetHostName();
+                ServiceProfile profile;
+
+                if (IsNetworkAccessEnabled)
+                {
+                    profile = new ServiceProfile(hostname, "_factorch._tcp", (ushort)NetworkPort);
+                }
+                else
+                {
+                    profile = new ServiceProfile(hostname, "_factorch._tcp", (ushort)NetworkPort, MulticastService.GetLinkLocalAddresses());
+                }
+
+                _serviceDiscovery.Advertise(profile);
+
+                if (IsNetworkAccessEnabled)
+                {
+                    ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
+                }
+                else
+                {
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
+                }
             }
 
             ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
@@ -522,17 +540,20 @@ namespace Microsoft.FactoryOrchestrator.Service
                 return;
             }
 
-            // Execute user defined tasks.
-            ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
-
-            IsExecutingBootTasks = false;
-            LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
-
-            if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+            // Use a new thread so service Start isn't blocked by these TaskLists executing.
+            Task.Run(() =>
             {
-                // Use a new thread so service Start isn't blocked by these TaskLists executing.
-                Task.Run(() => _taskExecutionManager.RunAllTaskLists());
-            }
+                // Execute user defined tasks.
+                ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
+
+                IsExecutingBootTasks = false;
+                LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
+
+                if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+                {
+                    _taskExecutionManager.RunAllTaskLists();
+                }
+            }, cancellationToken);
         }
 
         private bool LoadFirstBootStateFile(bool force)
@@ -1327,6 +1348,8 @@ namespace Microsoft.FactoryOrchestrator.Service
             _lastContainerEventIndex = 0;
             _containerGUITaskRuns = new HashSet<Guid>();
 
+            _serviceDiscovery = new ServiceDiscovery();
+
             if (cancellationToken.IsCancellationRequested)
             {
                 return;
@@ -2021,6 +2044,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     _volatileKey?.Dispose();
                     _taskExecutionManager?.Dispose();
                     BootTaskExecutionManager?.Dispose();
+                    _serviceDiscovery?.Dispose();
                 }
 
                 disposedValue = true;
