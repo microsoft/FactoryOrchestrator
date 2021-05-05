@@ -96,14 +96,16 @@ namespace Microsoft.FactoryOrchestrator.Service
                           });
                       }
                   })
-                  .ConfigureLogging(builder =>
+                  .ConfigureLogging(loggingBuilder =>
                   {
 #if DEBUG
                       var _logLevel = LogLevel.Information;
 #else
                       var _logLevel = LogLevel.Critical;
 #endif
-                      builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
+                      // Only log to console, debug, and the service log file
+                      loggingBuilder.ClearProviders()
+                                    .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
                   }).Build();
 
         public static void Main(string[] args)
@@ -113,12 +115,16 @@ namespace Microsoft.FactoryOrchestrator.Service
 #else
             var _logLevel = LogLevel.Information;
 #endif
-            var hostBuilder = Host.CreateDefaultBuilder(null).UseSystemd().ConfigureServices((hostContext, services) =>
+            var hostBuilder = Host.CreateDefaultBuilder(null)
+            .ConfigureLogging(loggingBuilder =>
+            {
+                // Only log to console, debug, and the service log file
+                loggingBuilder.ClearProviders()
+                              .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
+            })
+            .UseSystemd().ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<Worker>();
-            }).ConfigureLogging(builder =>
-            {
-                builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
             });
 
             // Workaround for issue #140.
