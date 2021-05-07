@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- Assembly, App, Package version for all non-OSS files. Uses SemVer. -->
-  <PropertyGroup Label="Version">
+  <PropertyGroup Label="Version">\
     <VersionPrefix>10.2.0</VersionPrefix>
   </PropertyGroup>
 

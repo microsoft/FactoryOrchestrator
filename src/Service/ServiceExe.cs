@@ -98,14 +98,16 @@ namespace Microsoft.FactoryOrchestrator.Service
                           });
                       }
                   })
-                  .ConfigureLogging(builder =>
+                  .ConfigureLogging(loggingBuilder =>
                   {
 #if DEBUG
                       var _logLevel = LogLevel.Information;
 #else
                       var _logLevel = LogLevel.Critical;
 #endif
-                      builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
+                      // Only log to console, debug, and the service log file
+                      loggingBuilder.ClearProviders()
+                                    .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
                   }).Build();
 
         public static void Main(string[] args)
@@ -115,12 +117,16 @@ namespace Microsoft.FactoryOrchestrator.Service
 #else
             var _logLevel = LogLevel.Information;
 #endif
-            var hostBuilder = Host.CreateDefaultBuilder(null).UseSystemd().ConfigureServices((hostContext, services) =>
+            var hostBuilder = Host.CreateDefaultBuilder(null)
+            .ConfigureLogging(loggingBuilder =>
+            {
+                // Only log to console, debug, and the service log file
+                loggingBuilder.ClearProviders()
+                              .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
+            })
+            .UseSystemd().ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<Worker>();
-            }).ConfigureLogging(builder =>
-            {
-                builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
             });
 
             // Workaround for issue #140.
@@ -570,7 +576,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
                     // Find the TaskLists XML path. Check app settings/registry, fallback to testcontent directory with well known name
-                    firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
+                    firstBootStateTaskListPath = Environment.ExpandEnvironmentVariables((string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath));
                     ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
 
                     if (File.Exists(firstBootStateTaskListPath))
@@ -1434,7 +1440,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 BootTaskExecutionManager = new TaskManager(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), _firstBootTasksDefaultPath);
 
                 // Find the TaskLists XML path.
-                var firstBootTaskListPath = (string)(GetAppSetting(_firstBootTasksPathValue) ?? _firstBootTasksDefaultPath);
+                var firstBootTaskListPath = Environment.ExpandEnvironmentVariables((string)(GetAppSetting(_firstBootTasksPathValue) ?? _firstBootTasksDefaultPath));
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootTaskListPath));
 
                 // Load first boot XML, even if we don't end up executing it, so it can be queried via FO APIs
@@ -1510,7 +1516,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 // Find the TaskLists XML path.
-                var everyBootTaskListPath = (string)(GetAppSetting(_everyBootTasksPathValue) ?? _everyBootTasksDefaultPath);
+                var everyBootTaskListPath = Environment.ExpandEnvironmentVariables((string)(GetAppSetting(_everyBootTasksPathValue) ?? _everyBootTasksDefaultPath));
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, everyBootTaskListPath));
 
                 // Load every boot XML, even if we don't end up executing it, so it can be queried via FO APIs
