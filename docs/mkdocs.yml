@@ -21,6 +21,7 @@ nav:
   - Service configuration : 'service-configuration.md'
   - Run using the application: 'use-the-factory-orchestrator-app.md'
   - Run using the client API: 'use-the-factory-orchestrator-api.md'
+  - Find Factory Orchestrator devices: 'find-factory-orchestrator-devices.md'
   - Client API samples: 'factory-orchestrator-client-usage-samples.md'
   - Client Library Class Reference: 'ClientLibrary\Microsoft-FactoryOrchestrator-Client.md'
   - Core Library Class Reference: 'CoreLibrary\Microsoft-FactoryOrchestrator-Core.md'
