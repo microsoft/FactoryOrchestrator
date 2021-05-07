@@ -118,3 +118,5 @@ Please refer to [SECURITY.md](./SECURITY.md).
 [WindowsDevicePortalWrapper (mgurlitz .NET Standard fork)](https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard) - Microsoft Corporation and mgurlitz - [MIT License](https://github.com/mgurlitz/WindowsDevicePortalWrapper/blob/feat-standard/License.txt)
 
 [DefaultDocumentation](https://github.com/Doraku/DefaultDocumentation) - Paillat Laszlo - [MIT No Attribution License](https://github.com/Doraku/DefaultDocumentation/blob/master/LICENSE.md)
+
+[net-mdns/Makaretu.Dns](https://github.com/richardschneider/net-mdns) - Richard Schneider - [MIT License](https://github.com/richardschneider/net-mdns/blob/master/LICENSE)

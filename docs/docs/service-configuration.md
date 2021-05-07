@@ -63,21 +63,22 @@ To check if network access is currently enabled use one of the following:
 - The [IsNetworkAccessEnabled](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsNetworkAccessEnabled%28%29/) API.
 
 ### Firewall configuration
-Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your locl network.
+Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your local network.
 
 On Windows, run the following command from an Administrator PowerShell window:
 
 ```powershell
-$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', '');  netsh advfirewall firewall add rule name="Factory Orchestrator service" dir=in action=allow program="$FoPath" enable=yes
+$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', '');  netsh advfirewall firewall add rule name="Factory Orchestrator service in" dir=in action=allow program="$FoPath" enable=yes; netsh advfirewall firewall add rule name="Factory Orchestrator service out" dir=out action=allow program="$FoPath" enable=yes
 ```
 
-On Ubuntu and many other Linux distros, run the following Bash command:
+On Ubuntu and many other Linux distros, run the following Bash commands:
 
 ```bash
 sudo ufw allow 45684
+sudo ufw allow 5353
 ```
 
-If you set a custom network port above, use that port number instead of 45684.
+If you set a custom network port above, use that port number instead of 45684. Port 5353 is always used for DNS Service Discovery.
 
 ## InitialTaskLists, FirstBootTasks, and EveryBootTasks 
 _💡 [We are considering reworking InitialTaskLists and \*BootTasks, as it is hard to understand the use cases and tradeoffs for each type](https://github.com/microsoft/FactoryOrchestrator/issues/109). 💡_
