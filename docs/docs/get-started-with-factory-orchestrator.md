@@ -65,7 +65,7 @@ To start the service manually, run the following from bash:
 ```
 
 ### Service configuration
-See [Service configuration](../service-configuration) for details on how you can configure the Factory Orchestraor service's default behavior.
+See [Service configuration](../service-configuration) for details on how you can configure the Factory Orchestraor service's default behavior, including enabling network access so you can communicate with the service over your local network.
 
 ## Install the app
 

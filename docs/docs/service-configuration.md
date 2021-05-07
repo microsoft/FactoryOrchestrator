@@ -41,7 +41,7 @@ Here's an example of what a valid appsettings.json file looks like.
 
 # Additional details
 ## Network Access
-By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.
+By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network, by setting EnableNetworkAccess to "true" in your [appsettings.json file](#factory-orchestrator-service-configuration-using-appsettings.json).
 
 <b>
 <p align="center">⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠</p>
@@ -63,21 +63,22 @@ To check if network access is currently enabled use one of the following:
 - The [IsNetworkAccessEnabled](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsNetworkAccessEnabled%28%29/) API.
 
 ### Firewall configuration
-Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your locl network.
+Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your local network. Factory Orchestrator uses TCP port 54684 for client<->service communication and UDP port 5353 for [DNS-SD](find-factory-orchestrator-devices.md).
 
-On Windows, run the following command from an Administrator PowerShell window:
+On Windows, run the following command from an Administrator PowerShell window to allow Factory Orchestrator through the Windows firewall:
 
 ```powershell
-$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', '');  netsh advfirewall firewall add rule name="Factory Orchestrator service" dir=in action=allow program="$FoPath" enable=yes
+$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', ''); netsh advfirewall firewall add rule name="Factory Orchestrator service in" dir=in action=allow program="$FoPath" enable=yes; netsh advfirewall firewall add rule name="Factory Orchestrator service out" dir=out action=allow program="$FoPath" enable=yes
 ```
 
-On Ubuntu and many other Linux distros, run the following Bash command:
+On Ubuntu and many other Linux distros, run the following Bash commands:
 
 ```bash
 sudo ufw allow 45684
+sudo ufw allow 5353
 ```
 
-If you set a custom network port above, use that port number instead of 45684.
+If you set a custom network port via the NetworkPort setting, use that port number instead of 45684.
 
 ## InitialTaskLists, FirstBootTasks, and EveryBootTasks 
 _💡 [We are considering reworking InitialTaskLists and \*BootTasks, as it is hard to understand the use cases and tradeoffs for each type](https://github.com/microsoft/FactoryOrchestrator/issues/109). 💡_

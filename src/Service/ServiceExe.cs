@@ -23,6 +23,8 @@ using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
 using Microsoft.Win32;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using Makaretu.Dns;
+using System.Net.NetworkInformation;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -274,6 +276,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         private ulong _lastContainerEventIndex;
         private HashSet<Guid> _containerGUITaskRuns;
 
+        private ServiceDiscovery _serviceDiscovery;
+        private ServiceProfile _profile;
+
         // TaskManager_Server instances
         private TaskManager _taskExecutionManager;
         /// <summary>
@@ -509,15 +514,21 @@ namespace Microsoft.FactoryOrchestrator.Service
                 _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
                 _ipcCancellationToken = new System.Threading.CancellationTokenSource();
                 _ipcHost.RunAsync(_ipcCancellationToken.Token);
-            }
 
-            if (IsNetworkAccessEnabled)
-            {
-                ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
-            }
-            else 
-            {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
+                if (IsNetworkAccessEnabled)
+                {
+                    ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n"); ;
+
+                    // "Advertise" _factorch._tcp service on DNS-SD
+                    _serviceDiscovery = new ServiceDiscovery();
+                    _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort);
+                    _serviceDiscovery.Advertise(_profile);
+                    NetworkChange.NetworkAvailabilityChanged += new NetworkAvailabilityChangedEventHandler(NetworkChange_NetworkAvailabilityChanged);
+                }
+                else
+                {
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
+                }
             }
 
             ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
@@ -528,17 +539,30 @@ namespace Microsoft.FactoryOrchestrator.Service
                 return;
             }
 
-            // Execute user defined tasks.
-            ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
-
-            IsExecutingBootTasks = false;
-            LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
-
-            if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+            // Use a new thread so service Start isn't blocked by these TaskLists executing.
+            Task.Run(() =>
             {
-                // Use a new thread so service Start isn't blocked by these TaskLists executing.
-                Task.Run(() => _taskExecutionManager.RunAllTaskLists());
-            }
+                // Execute user defined tasks.
+                ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
+
+                IsExecutingBootTasks = false;
+                LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
+
+                if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+                {
+                    _taskExecutionManager.RunAllTaskLists();
+                }
+            }, cancellationToken);
+        }
+
+        private void NetworkChange_NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+        {
+            _serviceDiscovery.Unadvertise();
+
+            // "Advertise" _factorch._tcp service on DNS-SD
+            var ips = MulticastService.GetIPAddresses();
+            _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort, ips);
+            _serviceDiscovery.Advertise(_profile);
         }
 
         private bool LoadFirstBootStateFile(bool force)
@@ -1329,6 +1353,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             ContainerGuid = Guid.Empty;
             ContainerIpAddress = null;
             _containerHeartbeatToken = null;
+            _serviceDiscovery = null;
             _containerClient = null;
             _lastContainerEventIndex = 0;
             _containerGUITaskRuns = new HashSet<Guid>();
@@ -2027,6 +2052,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     _volatileKey?.Dispose();
                     _taskExecutionManager?.Dispose();
                     BootTaskExecutionManager?.Dispose();
+                    _serviceDiscovery?.Dispose();
                 }
 
                 disposedValue = true;
