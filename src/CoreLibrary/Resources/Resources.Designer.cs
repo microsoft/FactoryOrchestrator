@@ -269,7 +269,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Network topology changed. DNS-SD registration updated..
+        ///   Looks up a localized string similar to Device IP addresses changed. DNS-SD updated. Advertising on IP Addresses: {0}.
         /// </summary>
         public static string DnsSdUpdated {
             get {

@@ -593,12 +593,12 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 // "Advertise" _factorch._tcp service on DNS-SD
                 _profileIps = ips;
-                _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp.local", (ushort)NetworkPort, _profileIps);
+                _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort, _profileIps);
                 _profile.AddProperty("ServiceVersion", GetServiceVersionString());
                 _profile.AddProperty("OSVersion", GetOSVersionString());
                 _serviceDiscovery.Advertise(_profile);
-                var s = "IP Addresses: " + string.Join(", ", ips.Select(x => x.ToString()).ToArray());
-                ServiceLogger.LogInformation($"{Resources.DnsSdUpdated} {s}\n");
+                var ipString = string.Join(", ", _profileIps.Select(x => x.ToString()).ToArray());
+                ServiceLogger.LogDebug(string.Format(CultureInfo.CurrentCulture, Resources.DnsSdUpdated, ipString));
             }
         }
 
