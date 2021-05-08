@@ -212,6 +212,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static readonly bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
+        private static readonly object _dnsLock = new object();
+
         private static readonly SemaphoreSlim _containerConnectionSem = new SemaphoreSlim(1, 1);
         private IHost _ipcHost = null;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
@@ -278,6 +280,7 @@ namespace Microsoft.FactoryOrchestrator.Service
 
         private ServiceDiscovery _serviceDiscovery;
         private ServiceProfile _profile;
+        private IEnumerable<IPAddress> _profileIps;
 
         // TaskManager_Server instances
         private TaskManager _taskExecutionManager;
@@ -517,13 +520,10 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                 if (IsNetworkAccessEnabled)
                 {
-                    ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n"); ;
-
-                    // "Advertise" _factorch._tcp service on DNS-SD
+                    ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
                     _serviceDiscovery = new ServiceDiscovery();
-                    _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort);
-                    _serviceDiscovery.Advertise(_profile);
-                    NetworkChange.NetworkAvailabilityChanged += new NetworkAvailabilityChangedEventHandler(NetworkChange_NetworkAvailabilityChanged);
+                    UpdateDnsSd();
+                    NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
                 }
                 else
                 {
@@ -555,14 +555,51 @@ namespace Microsoft.FactoryOrchestrator.Service
             }, cancellationToken);
         }
 
-        private void NetworkChange_NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
         {
-            _serviceDiscovery.Unadvertise();
+            UpdateDnsSd();
+        }
 
-            // "Advertise" _factorch._tcp service on DNS-SD
-            var ips = MulticastService.GetIPAddresses();
-            _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort, ips);
-            _serviceDiscovery.Advertise(_profile);
+        private void UpdateDnsSd()
+        {
+            lock (_dnsLock)
+            {
+                IEnumerable<IPAddress> ips = null;
+                while (ips == null)
+                {
+                    // Retry in case we query when an interface isn't ready
+                    try
+                    {
+                        ips = MulticastService.GetIPAddresses().Where(x => !IPAddress.IsLoopback(x));
+                    }
+                    catch (NetworkInformationException)
+                    {
+                        Thread.Sleep(500);
+                        ips = null;
+                    }
+                }
+
+                if (_profile != null)
+                {
+                    if (!ips.Except(_profileIps).Any() && !_profileIps.Except(ips).Any())
+                    {
+                        // no change
+                        return;
+                    }
+
+                    _serviceDiscovery.Unadvertise();
+                    Thread.Sleep(5000);
+                }
+
+                // "Advertise" _factorch._tcp service on DNS-SD
+                _profileIps = ips;
+                _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp.local", (ushort)NetworkPort, _profileIps);
+                _profile.AddProperty("ServiceVersion", GetServiceVersionString());
+                _profile.AddProperty("OSVersion", GetOSVersionString());
+                _serviceDiscovery.Advertise(_profile);
+                var s = "IP Addresses: " + string.Join(", ", ips.Select(x => x.ToString()).ToArray());
+                ServiceLogger.LogInformation($"{Resources.DnsSdUpdated} {s}\n");
+            }
         }
 
         private bool LoadFirstBootStateFile(bool force)

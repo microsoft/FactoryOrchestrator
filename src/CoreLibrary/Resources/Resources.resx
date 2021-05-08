@@ -477,4 +477,8 @@
     <value>Unable to parse {0}!</value>
     <comment>Error shown if the given file cannot be read properly (missing/corrupt)</comment>
   </data>
+  <data name="DnsSdUpdated" xml:space="preserve">
+    <value>Network topology changed. DNS-SD registration updated.</value>
+    <comment>Message shown when a network interface is added or removed.</comment>
+  </data>
 </root>
