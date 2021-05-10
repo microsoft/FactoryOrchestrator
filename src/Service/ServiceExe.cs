@@ -568,7 +568,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             lock (_dnsLock)
             {
-                // Wait a few seconds so it is more likely all networks have valid IPs
+                // Wait a few seconds so it is more likely all networks have valid/final IPs
                 Thread.Sleep(5000);
 
                 IEnumerable<IPAddress> ips = null;
@@ -594,7 +594,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                         return;
                     }
 
-                    _serviceDiscovery.Unadvertise();
+                    // Clear existing profile
+                    _serviceDiscovery.NameServer.Catalog.Clear();
                     Thread.Sleep(5000);
                 }
 
