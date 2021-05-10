@@ -16,19 +16,14 @@
                 <Border Grid.Column="0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Name:" Margin="0,0,5,0"/>
+                            <TextBlock x:Uid="Hostname" Margin="0,0,5,0"/>
                             <TextBlock Text="{x:Bind Name, Mode=OneWay}" FontWeight="Bold" TextWrapping="WrapWholeWords"/>
                         </StackPanel>
-                        <!--<StackPanel Orientation="Horizontal">
-                            <TextBlock Text="System.Devices.InterfaceClassGuid:" Margin="0,0,5,0"/>
-                            <TextBlock Text='{x:Bind GetPropertyForDisplay("System.Devices.InterfaceClassGuid"), Mode=OneWay}'
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="System.ItemNameDisplay:" Margin="0,0,5,0"/>
-                            <TextBlock Text="{x:Bind GetPropertyForDisplay('System.ItemNameDisplay'), Mode=OneWay}"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>-->
+                            <TextBlock x:Uid="IpAddress"  Margin="0,0,5,0"/>
+                            <TextBlock Text="{x:Bind IpAddressList, Mode=OneWay}"
+                                       TextWrapping="WrapWholeWords" />
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -114,9 +109,9 @@
                 <Button Grid.Row="4" Grid.Column="1" x:Name="ConnectButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
                 <Button Grid.Row="4" Grid.Column="0" x:Name="OptionsButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="AdvancedOptionsButton" Click="OptionsButton_Click" IsEnabled="True"/>
             </Grid>
-            <ListView Grid.Row="8" x:Name="resultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
+            <ListView Grid.Row="8" x:Name="ResultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
                               MinHeight="20" Margin="0,10,0,0"
-                              ItemTemplate="{StaticResource ResultsListViewTemplate}"/>
+                              ItemTemplate="{StaticResource ResultsListViewTemplate}" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="ResultsListView_ItemClick"/>
             <StackPanel Orientation="Horizontal" Grid.Row="9" HorizontalAlignment="Right">
                 <Button x:Name="ValidateXMLButton" x:Uid="ValidateXMLButton" Margin="5" Click="ValidateXMLButton_Click"/>
                 <Button x:Name="AboutButton" x:Uid="AboutButton" Margin="5" Click="AboutButton_Click"/>

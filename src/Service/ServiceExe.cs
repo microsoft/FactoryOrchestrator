@@ -577,7 +577,8 @@ namespace Microsoft.FactoryOrchestrator.Service
                     // Retry in case we query when an interface isn't ready
                     try
                     {
-                        ips = MulticastService.GetIPAddresses().Where(x => !IPAddress.IsLoopback(x));
+                        // Only IPv4 is allowed
+                        ips = MulticastService.GetIPAddresses().Where(x => !IPAddress.IsLoopback(x) && x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
                     }
                     catch (NetworkInformationException)
                     {

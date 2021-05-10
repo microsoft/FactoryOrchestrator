@@ -43,7 +43,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            resultsListView.ItemsSource = _resultCollection;
+            ResultsListView.ItemsSource = _resultCollection;
 
             if (e == null)
             {
@@ -146,8 +146,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);
                         localSettings.Values["lastIp"] = IpTextBox.Text;
                         localSettings.Values["lastPort"] = PortTextBox.Text;
-                        localSettings.Values["lastServer"] = ServerNameTextBox.Text;
-                        localSettings.Values["lastHash"] = CertHashTextBox.Text;
+                        localSettings.Values["lastServer"] = serverName;
+                        localSettings.Values["lastHash"] = certHash;
                     }
                     else
                     {
@@ -291,70 +291,79 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private async void ResultsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            // Use certificate info from advanced options
+            string serverName = ServerNameTextBox.Text;
+            string certHash = CertHashTextBox.Text;
+
+            // Get IP and port from DNS-SD information
+            var item = e.ClickedItem as DeviceInformationDisplay;
+            var ipStrings = item.Properties[DnsSdConstants.IpAddressProperty] as string[];
+            var port = (UInt16)item.Properties[DnsSdConstants.PortNumberProperty];
+
+            if ((ipStrings == null) || string.IsNullOrWhiteSpace(serverName) || string.IsNullOrWhiteSpace(certHash))
+            {
+                return;
+            }
+
+            try
+            {
+                await connectionSem.WaitAsync().ConfigureAwait(true);
+                ConnectButton.IsEnabled = false;
+
+                // Try to connect to every IP address listed
+                for (int i = 0; i < ipStrings.Length; i++)
+                {
+                    string ipString = ipStrings[i];
+                    IPAddress ip;
+                    if (IPAddress.TryParse(ipString, out ip))
+                    {
+                        ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverName, certHash);
+                        ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
+                        if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch).ConfigureAwait(true))
+                        {
+                            // We were able to connect to an IP!
+                            ((App)Application.Current).OnConnectionPage = false;
+                            localSettings.Values["lastIp"] = ipString;
+                            localSettings.Values["lastPort"] = port.ToString(CultureInfo.InvariantCulture);
+                            localSettings.Values["lastServer"] = serverName;
+                            localSettings.Values["lastHash"] = certHash;
+                            this.Frame.Navigate(typeof(MainPage), lastNavTag);
+                            break;
+                        }
+                    }
+                }
+
+                if (!((App)Application.Current).Client.IsConnected)
+                {
+                    ShowConnectFailure(item.Name);
+                }
+            }
+            finally
+            {
+                connectionSem.Release();
+                ConnectButton.IsEnabled = true;
+            }
+        }
+
         private string lastNavTag;
         private readonly SemaphoreSlim connectionSem;
         private readonly ApplicationDataContainer localSettings;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
-
-        /// <summary>
-        /// The protocol ID that identifies DNS-SD.
-        /// </summary>
-        private const string PROTOCOL_GUID = "{4526e8c1-8aac-4153-9b16-55e86ada0e54}";
-
-        /// <summary>
-        /// The host name property.
-        /// </summary>
-        private const string HOSTNAME_PROPERTY = "System.Devices.Dnssd.HostName";
-
-        /// <summary>
-        /// The service name property.
-        /// </summary>
-        private const string SERVICENAME_PROPERTY = "System.Devices.Dnssd.ServiceName";
-
-        /// <summary>
-        /// The instance name property.
-        /// </summary>
-        private const string INSTANCENAME_PROPERTY = "System.Devices.Dnssd.InstanceName";
-
-        /// <summary>
-        /// The IP address property.
-        /// </summary>
-        private const string IPADDRESS_PROPERTY = "System.Devices.IpAddress";
-
-        /// <summary>
-        /// The port number property.
-        /// </summary>
-        private const string PORTNUMBER_PROPERTY = "System.Devices.Dnssd.PortNumber";
-
-        /// <summary>
-        /// The network protocol that will be accepting connections for responses.
-        /// </summary>
-        private const string NETWORK_PROTOCOL = "_tcp";
-
-        /// <summary>
-        /// The domain of the DNS-SD registration.
-        /// </summary>
-        private const string DOMAIN = "local";
-
         /// <summary>
         /// All of the properties that will be returned when a DNS-SD instance has been found. 
         /// </summary>
         private string[] _propertyKeys = new String[] {
-            HOSTNAME_PROPERTY,
-            SERVICENAME_PROPERTY,
-            INSTANCENAME_PROPERTY,
-            IPADDRESS_PROPERTY,
-            PORTNUMBER_PROPERTY
+            DnsSdConstants.HostnameProperty,
+            DnsSdConstants.ServiceNameProperty,
+            DnsSdConstants.InstanceNameProperty,
+            DnsSdConstants.IpAddressProperty,
+            DnsSdConstants.PortNumberProperty
         };
 
-        /// <summary>
-        /// The service type of the DNS-SD registration.
-        /// </summary>
-        private const string SERVICE_TYPE = "_factorch";
-
-        private string _aqsQueryString = $"System.Devices.AepService.ProtocolId:={PROTOCOL_GUID} AND System.Devices.Dnssd.Domain:=\"{DOMAIN}\" AND System.Devices.Dnssd.ServiceName:=\"{SERVICE_TYPE}.{NETWORK_PROTOCOL}\"";
-
+        private string _aqsQueryString = $"System.Devices.AepService.ProtocolId:={DnsSdConstants.ProtocolGuid} AND System.Devices.Dnssd.Domain:=\"{DnsSdConstants.Domain}\" AND System.Devices.Dnssd.ServiceName:=\"{DnsSdConstants.Service}.{DnsSdConstants.NetworkProtocol}\"";
         private ObservableCollection<DeviceInformationDisplay> _resultCollection = new ObservableCollection<DeviceInformationDisplay>();
         private DeviceWatcherHelper _deviceWatcherHelper;
         private DeviceWatcher _deviceWatcher;
@@ -362,7 +371,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
-        private DeviceWatcher _watcher;
 
         void Dispose(bool disposing)
         {
@@ -385,170 +393,5 @@ namespace Microsoft.FactoryOrchestrator.UWP
             GC.SuppressFinalize(this);
         }
         #endregion
-    }
-
-    public class DeviceInformationDisplay : INotifyPropertyChanged
-    {
-        public DeviceInformationDisplay(DeviceInformation deviceInfoIn)
-        {
-            DeviceInformation = deviceInfoIn;
-        }
-
-        public string Name => DeviceInformation.Name;
-        public string Id => DeviceInformation.Id;
-        public IReadOnlyDictionary<string, object> Properties => DeviceInformation.Properties;
-        public DeviceInformation DeviceInformation { get; private set; }
-
-        public void Update(DeviceInformationUpdate deviceInfoUpdate)
-        {
-            DeviceInformation.Update(deviceInfoUpdate);
-
-            OnPropertyChanged("Name");
-            OnPropertyChanged("DeviceInformation");
-        }
-
-        public string GetPropertyForDisplay(string key) => Properties[key]?.ToString();
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    /// <summary>
-    /// Updates an ObservableCollection based on events from a DeviceWatcher.
-    /// </summary>
-    /// <remarks>
-    /// Encapsulates the work necessary to register for watcher events,
-    /// start and stop the watcher, handle race conditions, and break cycles.
-    /// </remarks>
-    class DeviceWatcherHelper
-    {
-        public DeviceWatcherHelper(
-            ObservableCollection<DeviceInformationDisplay> resultCollection,
-            CoreDispatcher dispatcher)
-        {
-            this.resultCollection = resultCollection;
-            this.dispatcher = dispatcher;
-        }
-
-        public delegate void DeviceChangedHandler(DeviceWatcher deviceWatcher, string id);
-        public event DeviceChangedHandler DeviceChanged;
-
-        public DeviceWatcher DeviceWatcher => deviceWatcher;
-        public bool UpdateStatus = true;
-
-        public void StartWatcher(DeviceWatcher deviceWatcher)
-        {
-            this.deviceWatcher = deviceWatcher;
-
-            // Connect events to update our collection as the watcher report results.
-            deviceWatcher.Added += Watcher_DeviceAdded;
-            deviceWatcher.Updated += Watcher_DeviceUpdated;
-            deviceWatcher.Removed += Watcher_DeviceRemoved;
-            deviceWatcher.Start();
-        }
-
-        public void StopWatcher()
-        {
-            // Since the device watcher runs in the background, it is possible that
-            // a notification is "in flight" at the time we stop the watcher.
-            // In other words, it is possible for the watcher to become stopped while a
-            // handler is running, or for a handler to run after the watcher has stopped.
-
-            if (IsWatcherStarted(deviceWatcher))
-            {
-                // We do not null out the deviceWatcher yet because we want to receive
-                // the Stopped event.
-                deviceWatcher.Stop();
-            }
-        }
-
-        public void Reset()
-        {
-            if (deviceWatcher != null)
-            {
-                StopWatcher();
-                deviceWatcher = null;
-            }
-        }
-
-        DeviceWatcher deviceWatcher;
-        ObservableCollection<DeviceInformationDisplay> resultCollection;
-        CoreDispatcher dispatcher;
-
-        static bool IsWatcherStarted(DeviceWatcher watcher)
-        {
-            return (watcher.Status == DeviceWatcherStatus.Started) ||
-                (watcher.Status == DeviceWatcherStatus.EnumerationCompleted);
-        }
-
-        public bool IsWatcherRunning()
-        {
-            if (deviceWatcher == null)
-            {
-                return false;
-            }
-
-            DeviceWatcherStatus status = deviceWatcher.Status;
-            return (status == DeviceWatcherStatus.Started) ||
-                (status == DeviceWatcherStatus.EnumerationCompleted) ||
-                (status == DeviceWatcherStatus.Stopping);
-        }
-
-        private async void Watcher_DeviceAdded(DeviceWatcher sender, DeviceInformation deviceInfo)
-        {
-            // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
-            await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-            {
-                // Watcher may have stopped while we were waiting for our chance to run.
-                if (IsWatcherStarted(sender))
-                {
-                    resultCollection.Add(new DeviceInformationDisplay(deviceInfo));
-                }
-            });
-        }
-
-        private async void Watcher_DeviceUpdated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
-        {
-            // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
-            await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-            {
-                // Watcher may have stopped while we were waiting for our chance to run.
-                if (IsWatcherStarted(sender))
-                {
-                    // Find the corresponding updated DeviceInformation in the collection and pass the update object
-                    // to the Update method of the existing DeviceInformation. This automatically updates the object
-                    // for us.
-                    foreach (DeviceInformationDisplay deviceInfoDisp in resultCollection)
-                    {
-                        if (deviceInfoDisp.Id == deviceInfoUpdate.Id)
-                        {
-                            deviceInfoDisp.Update(deviceInfoUpdate);
-                            break;
-                        }
-                    }
-                }
-            });
-        }
-
-        private async void Watcher_DeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
-        {
-            // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
-            await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-            {
-                // Watcher may have stopped while we were waiting for our chance to run.
-                if (IsWatcherStarted(sender))
-                {
-                    // Find the corresponding DeviceInformation in the collection and remove it
-                    foreach (DeviceInformationDisplay deviceInfoDisp in resultCollection)
-                    {
-                        if (deviceInfoDisp.Id == deviceInfoUpdate.Id)
-                        {
-                            resultCollection.Remove(deviceInfoDisp);
-                            break;
-                        }
-                    }
-                }
-            });
-        }
     }
 }

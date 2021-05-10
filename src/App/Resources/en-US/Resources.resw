@@ -776,4 +776,8 @@ On retry</value>
     <value>Server Identity:</value>
     <comment>Distinguished Name of the target machine.</comment>
   </data>
+  <data name="Hostname.Text" xml:space="preserve">
+    <value>System Hostname:</value>
+    <comment>The PC's hostname</comment>
+  </data>
 </root>
