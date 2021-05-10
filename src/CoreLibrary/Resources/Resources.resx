@@ -478,7 +478,7 @@
     <comment>Error shown if the given file cannot be read properly (missing/corrupt)</comment>
   </data>
   <data name="DnsSdUpdated" xml:space="preserve">
-    <value>Network topology changed. DNS-SD registration updated.</value>
-    <comment>Message shown when a network interface is added or removed.</comment>
+    <value>Device IP addresses changed. DNS-SD updated. Advertising on IP Addresses: {0}</value>
+    <comment>Debug message shown when a network IP address is added or removed.</comment>
   </data>
 </root>
