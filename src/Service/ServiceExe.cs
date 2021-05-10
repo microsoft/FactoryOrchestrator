@@ -525,8 +525,6 @@ namespace Microsoft.FactoryOrchestrator.Service
 
                     Task.Run(() =>
                     {
-                        // Wait a few seconds so it is more likely all network have valid IPs
-                        Thread.Sleep(5000);
                         UpdateDnsSd();
                         NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
                     }, cancellationToken);
@@ -570,6 +568,9 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             lock (_dnsLock)
             {
+                // Wait a few seconds so it is more likely all network have valid IPs
+                Thread.Sleep(5000);
+
                 IEnumerable<IPAddress> ips = null;
                 while (ips == null)
                 {
@@ -585,11 +586,11 @@ namespace Microsoft.FactoryOrchestrator.Service
                     }
                 }
 
-                if (_profile != null)
+                if (_profileIps != null)
                 {
                     if (!ips.Except(_profileIps).Any() && !_profileIps.Except(ips).Any())
                     {
-                        // no change
+                        // No IPs actually changed, return
                         return;
                     }
 
