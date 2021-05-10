@@ -522,8 +522,14 @@ namespace Microsoft.FactoryOrchestrator.Service
                 {
                     ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
                     _serviceDiscovery = new ServiceDiscovery();
-                    UpdateDnsSd();
-                    NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
+
+                    Task.Run(() =>
+                    {
+                        // Wait a few seconds so it is more likely all network have valid IPs
+                        Thread.Sleep(5000);
+                        UpdateDnsSd();
+                        NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
+                    }, cancellationToken);
                 }
                 else
                 {
