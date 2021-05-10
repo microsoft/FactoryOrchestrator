@@ -568,7 +568,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         {
             lock (_dnsLock)
             {
-                // Wait a few seconds so it is more likely all network have valid IPs
+                // Wait a few seconds so it is more likely all networks have valid IPs
                 Thread.Sleep(5000);
 
                 IEnumerable<IPAddress> ips = null;
