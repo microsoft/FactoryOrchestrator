@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -10,7 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.FactoryOrchestrator.Core;
 using Windows.ApplicationModel.Resources;
+using Windows.Devices.Enumeration;
 using Windows.Storage;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -39,26 +43,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            var profs = Windows.Networking.Connectivity.NetworkInformation.GetConnectionProfiles();
-            var hosts = Windows.Networking.Connectivity.NetworkInformation.GetHostNames();
-            foreach (var prof in profs)
-            {
-                Debug.WriteLine("ahhhh");
-                Debug.WriteLine(prof.GetNetworkNames());
-                Debug.WriteLine(prof.NetworkAdapter.NetworkAdapterId);
-                Debug.WriteLine(prof.ServiceProviderGuid);
-                Debug.WriteLine(prof.ProfileName);
-            }
-            foreach (var host in hosts)
-            {
-                Debug.WriteLine("ahhhh");
-                Debug.WriteLine(host.RawName);
-                Debug.WriteLine(host.DisplayName);
-                Debug.WriteLine(host.CanonicalName);
-                Debug.WriteLine(host.IPInformation?.NetworkAdapter?.NetworkAdapterId);
-                var prof2 = host.IPInformation?.NetworkAdapter?.GetConnectedProfileAsync()?.AsTask().Result;
-                Debug.WriteLine(prof2?.ToString());
-            }
+            resultsListView.ItemsSource = _resultCollection;
 
             if (e == null)
             {
@@ -125,6 +110,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (!((App)Application.Current).Client.IsConnected)
                     {
+                        if (_firstLocalHostAttempt)
+                        {
+                            _firstLocalHostAttempt = false;
+                            _deviceWatcher = DeviceInformation.CreateWatcher(_aqsQueryString, _propertyKeys, DeviceInformationKind.AssociationEndpointService);
+                            _deviceWatcherHelper = new DeviceWatcherHelper(_resultCollection, Dispatcher);
+                            _deviceWatcherHelper.StartWatcher(_deviceWatcher);
+                        }
                         await Task.Delay(2000);
                     }
                 }
@@ -304,8 +296,73 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private readonly ApplicationDataContainer localSettings;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
+
+        /// <summary>
+        /// The protocol ID that identifies DNS-SD.
+        /// </summary>
+        private const string PROTOCOL_GUID = "{4526e8c1-8aac-4153-9b16-55e86ada0e54}";
+
+        /// <summary>
+        /// The host name property.
+        /// </summary>
+        private const string HOSTNAME_PROPERTY = "System.Devices.Dnssd.HostName";
+
+        /// <summary>
+        /// The service name property.
+        /// </summary>
+        private const string SERVICENAME_PROPERTY = "System.Devices.Dnssd.ServiceName";
+
+        /// <summary>
+        /// The instance name property.
+        /// </summary>
+        private const string INSTANCENAME_PROPERTY = "System.Devices.Dnssd.InstanceName";
+
+        /// <summary>
+        /// The IP address property.
+        /// </summary>
+        private const string IPADDRESS_PROPERTY = "System.Devices.IpAddress";
+
+        /// <summary>
+        /// The port number property.
+        /// </summary>
+        private const string PORTNUMBER_PROPERTY = "System.Devices.Dnssd.PortNumber";
+
+        /// <summary>
+        /// The network protocol that will be accepting connections for responses.
+        /// </summary>
+        private const string NETWORK_PROTOCOL = "_tcp";
+
+        /// <summary>
+        /// The domain of the DNS-SD registration.
+        /// </summary>
+        private const string DOMAIN = "local";
+
+        /// <summary>
+        /// All of the properties that will be returned when a DNS-SD instance has been found. 
+        /// </summary>
+        private string[] _propertyKeys = new String[] {
+            HOSTNAME_PROPERTY,
+            SERVICENAME_PROPERTY,
+            INSTANCENAME_PROPERTY,
+            IPADDRESS_PROPERTY,
+            PORTNUMBER_PROPERTY
+        };
+
+        /// <summary>
+        /// The service type of the DNS-SD registration.
+        /// </summary>
+        private const string SERVICE_TYPE = "_factorch";
+
+        private string _aqsQueryString = $"System.Devices.AepService.ProtocolId:={PROTOCOL_GUID} AND System.Devices.Dnssd.Domain:=\"{DOMAIN}\" AND System.Devices.Dnssd.ServiceName:=\"{SERVICE_TYPE}.{NETWORK_PROTOCOL}\"";
+
+        private ObservableCollection<DeviceInformationDisplay> _resultCollection = new ObservableCollection<DeviceInformationDisplay>();
+        private DeviceWatcherHelper _deviceWatcherHelper;
+        private DeviceWatcher _deviceWatcher;
+        private bool _firstLocalHostAttempt = true;
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
+        private DeviceWatcher _watcher;
 
         void Dispose(bool disposing)
         {
@@ -328,5 +385,170 @@ namespace Microsoft.FactoryOrchestrator.UWP
             GC.SuppressFinalize(this);
         }
         #endregion
+    }
+
+    public class DeviceInformationDisplay : INotifyPropertyChanged
+    {
+        public DeviceInformationDisplay(DeviceInformation deviceInfoIn)
+        {
+            DeviceInformation = deviceInfoIn;
+        }
+
+        public string Name => DeviceInformation.Name;
+        public string Id => DeviceInformation.Id;
+        public IReadOnlyDictionary<string, object> Properties => DeviceInformation.Properties;
+        public DeviceInformation DeviceInformation { get; private set; }
+
+        public void Update(DeviceInformationUpdate deviceInfoUpdate)
+        {
+            DeviceInformation.Update(deviceInfoUpdate);
+
+            OnPropertyChanged("Name");
+            OnPropertyChanged("DeviceInformation");
+        }
+
+        public string GetPropertyForDisplay(string key) => Properties[key]?.ToString();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    /// <summary>
+    /// Updates an ObservableCollection based on events from a DeviceWatcher.
+    /// </summary>
+    /// <remarks>
+    /// Encapsulates the work necessary to register for watcher events,
+    /// start and stop the watcher, handle race conditions, and break cycles.
+    /// </remarks>
+    class DeviceWatcherHelper
+    {
+        public DeviceWatcherHelper(
+            ObservableCollection<DeviceInformationDisplay> resultCollection,
+            CoreDispatcher dispatcher)
+        {
+            this.resultCollection = resultCollection;
+            this.dispatcher = dispatcher;
+        }
+
+        public delegate void DeviceChangedHandler(DeviceWatcher deviceWatcher, string id);
+        public event DeviceChangedHandler DeviceChanged;
+
+        public DeviceWatcher DeviceWatcher => deviceWatcher;
+        public bool UpdateStatus = true;
+
+        public void StartWatcher(DeviceWatcher deviceWatcher)
+        {
+            this.deviceWatcher = deviceWatcher;
+
+            // Connect events to update our collection as the watcher report results.
+            deviceWatcher.Added += Watcher_DeviceAdded;
+            deviceWatcher.Updated += Watcher_DeviceUpdated;
+            deviceWatcher.Removed += Watcher_DeviceRemoved;
+            deviceWatcher.Start();
+        }
+
+        public void StopWatcher()
+        {
+            // Since the device watcher runs in the background, it is possible that
+            // a notification is "in flight" at the time we stop the watcher.
+            // In other words, it is possible for the watcher to become stopped while a
+            // handler is running, or for a handler to run after the watcher has stopped.
+
+            if (IsWatcherStarted(deviceWatcher))
+            {
+                // We do not null out the deviceWatcher yet because we want to receive
+                // the Stopped event.
+                deviceWatcher.Stop();
+            }
+        }
+
+        public void Reset()
+        {
+            if (deviceWatcher != null)
+            {
+                StopWatcher();
+                deviceWatcher = null;
+            }
+        }
+
+        DeviceWatcher deviceWatcher;
+        ObservableCollection<DeviceInformationDisplay> resultCollection;
+        CoreDispatcher dispatcher;
+
+        static bool IsWatcherStarted(DeviceWatcher watcher)
+        {
+            return (watcher.Status == DeviceWatcherStatus.Started) ||
+                (watcher.Status == DeviceWatcherStatus.EnumerationCompleted);
+        }
+
+        public bool IsWatcherRunning()
+        {
+            if (deviceWatcher == null)
+            {
+                return false;
+            }
+
+            DeviceWatcherStatus status = deviceWatcher.Status;
+            return (status == DeviceWatcherStatus.Started) ||
+                (status == DeviceWatcherStatus.EnumerationCompleted) ||
+                (status == DeviceWatcherStatus.Stopping);
+        }
+
+        private async void Watcher_DeviceAdded(DeviceWatcher sender, DeviceInformation deviceInfo)
+        {
+            // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
+            await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                // Watcher may have stopped while we were waiting for our chance to run.
+                if (IsWatcherStarted(sender))
+                {
+                    resultCollection.Add(new DeviceInformationDisplay(deviceInfo));
+                }
+            });
+        }
+
+        private async void Watcher_DeviceUpdated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+        {
+            // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
+            await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                // Watcher may have stopped while we were waiting for our chance to run.
+                if (IsWatcherStarted(sender))
+                {
+                    // Find the corresponding updated DeviceInformation in the collection and pass the update object
+                    // to the Update method of the existing DeviceInformation. This automatically updates the object
+                    // for us.
+                    foreach (DeviceInformationDisplay deviceInfoDisp in resultCollection)
+                    {
+                        if (deviceInfoDisp.Id == deviceInfoUpdate.Id)
+                        {
+                            deviceInfoDisp.Update(deviceInfoUpdate);
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+
+        private async void Watcher_DeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+        {
+            // Since we have the collection databound to a UI element, we need to update the collection on the UI thread.
+            await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                // Watcher may have stopped while we were waiting for our chance to run.
+                if (IsWatcherStarted(sender))
+                {
+                    // Find the corresponding DeviceInformation in the collection and remove it
+                    foreach (DeviceInformationDisplay deviceInfoDisp in resultCollection)
+                    {
+                        if (deviceInfoDisp.Id == deviceInfoUpdate.Id)
+                        {
+                            resultCollection.Remove(deviceInfoDisp);
+                            break;
+                        }
+                    }
+                }
+            });
+        }
     }
 }
