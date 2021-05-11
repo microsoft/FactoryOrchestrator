@@ -1,0 +1,23 @@
+#### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
+### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')
+## FactoryOrchestratorClient.DiscoverFactoryOrchestratorServices(int, string, string) Method
+Uses DNS-SD to find all Factory Orchestrator services on your local network.  
+```csharp
+public static System.Collections.Generic.IEnumerable<Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient> DiscoverFactoryOrchestratorServices(int secondsToWait, string serverIdentity="FactoryServer", string certhash="E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F");
+```
+#### Parameters
+<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-secondsToWait'></a>
+`secondsToWait` [System.Int32](https://docs.microsoft.com/en-us/dotnet/api/System.Int32 'System.Int32')  
+Number of seconds to wait for services to respond  
+  
+<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-serverIdentity'></a>
+`serverIdentity` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The service certificate identity to use  
+  
+<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-certhash'></a>
+`certhash` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The service certificate hash to use  
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable')[FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable')  
+IEnumerable of FactoryOrchestratorClient representing all discovered clients  
