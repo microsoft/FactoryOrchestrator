@@ -61,7 +61,11 @@ namespace Microsoft.FactoryOrchestrator.ClientSample {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} &lt;IP Address of DUT&gt; &lt;Folder on this PC with test content and (Optional) FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;.
+        ///   Looks up a localized string similar to {0} &lt;IP Address of DUT&gt; &lt;Folder on this PC with test content and (Optional) FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
+        ///
+        ///OR
+        ///
+        ///{0} --Discover &lt;seconds to search for devices running Factory Orchestrator&gt;.
         /// </summary>
         public static string ClientSampleUsage {
             get {
@@ -142,6 +146,15 @@ namespace Microsoft.FactoryOrchestrator.ClientSample {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Found the following devices running Factory Orchestrator:.
+        /// </summary>
+        public static string FoundServices {
+            get {
+                return ResourceManager.GetString("FoundServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Installing {0}. This may take a few minutes....
         /// </summary>
         public static string InstallingApp {
@@ -169,6 +182,15 @@ namespace Microsoft.FactoryOrchestrator.ClientSample {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not a valid integer!.
+        /// </summary>
+        public static string InvalidSeconds {
+            get {
+                return ResourceManager.GetString("InvalidSeconds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loading TaskList(s) from FactoryOrchestratorXML file(s)....
         /// </summary>
         public static string LoadingFOXML {
@@ -192,6 +214,24 @@ namespace Microsoft.FactoryOrchestrator.ClientSample {
         public static string LookingForApps {
             get {
                 return ResourceManager.GetString("LookingForApps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looking for devices running Factory Orchestrator on your local network using DNS-SD....
+        /// </summary>
+        public static string LookingForServices {
+            get {
+                return ResourceManager.GetString("LookingForServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No devices running Factory Orchestrator were found on your local network!.
+        /// </summary>
+        public static string NoDevicesFound {
+            get {
+                return ResourceManager.GetString("NoDevicesFound", resourceCulture);
             }
         }
         

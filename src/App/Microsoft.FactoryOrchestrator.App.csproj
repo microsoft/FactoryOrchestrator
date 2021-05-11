@@ -112,7 +112,6 @@
     <Compile Include="AppsPage.xaml.cs">
       <DependentUpon>AppsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DnsSdHelpers.cs" />
     <Compile Include="ResultsViewSelector.cs" />
     <Compile Include="TaskListViewSelector.cs" />
     <Compile Include="ConsolePage.xaml.cs">

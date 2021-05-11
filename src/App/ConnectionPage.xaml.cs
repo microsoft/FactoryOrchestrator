@@ -113,9 +113,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         if (_firstLocalHostAttempt)
                         {
                             _firstLocalHostAttempt = false;
-                            _deviceWatcher = DeviceInformation.CreateWatcher(_aqsQueryString, _propertyKeys, DeviceInformationKind.AssociationEndpointService);
-                            _deviceWatcherHelper = new DeviceWatcherHelper(_resultCollection, Dispatcher);
-                            _deviceWatcherHelper.StartWatcher(_deviceWatcher);
+                            _deviceWatcherHelper = new FactoryOrchestratorDeviceWatcher(_resultCollection, Dispatcher);
+                            _deviceWatcherHelper.StartWatcher();
                         }
                         await Task.Delay(2000);
                     }
@@ -337,7 +336,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 if (!((App)Application.Current).Client.IsConnected)
                 {
-                    ShowConnectFailure(item.Name);
+                    ShowConnectFailure(item.HostName);
                 }
             }
             finally
@@ -352,21 +351,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private readonly ApplicationDataContainer localSettings;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
-        /// <summary>
-        /// All of the properties that will be returned when a DNS-SD instance has been found. 
-        /// </summary>
-        private string[] _propertyKeys = new String[] {
-            DnsSdConstants.HostnameProperty,
-            DnsSdConstants.ServiceNameProperty,
-            DnsSdConstants.InstanceNameProperty,
-            DnsSdConstants.IpAddressProperty,
-            DnsSdConstants.PortNumberProperty
-        };
-
-        private string _aqsQueryString = $"System.Devices.AepService.ProtocolId:={DnsSdConstants.ProtocolGuid} AND System.Devices.Dnssd.Domain:=\"{DnsSdConstants.Domain}\" AND System.Devices.Dnssd.ServiceName:=\"{DnsSdConstants.Service}.{DnsSdConstants.NetworkProtocol}\"";
         private ObservableCollection<DeviceInformationDisplay> _resultCollection = new ObservableCollection<DeviceInformationDisplay>();
-        private DeviceWatcherHelper _deviceWatcherHelper;
-        private DeviceWatcher _deviceWatcher;
+        private FactoryOrchestratorDeviceWatcher _deviceWatcherHelper;
         private bool _firstLocalHostAttempt = true;
 
         #region IDisposable Support

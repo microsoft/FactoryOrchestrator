@@ -12,9 +12,11 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using JKang.IpcServiceFramework;
 using JKang.IpcServiceFramework.Client;
+using Makaretu.Dns;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FactoryOrchestrator.Core;
 
@@ -42,6 +44,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             IsConnected = false;
             IpAddress = host;
             Port = port;
+            HostName = Resources.Unknown;
             ServerIdentity = serverIdentity;
             CertificateHash = certhash;
         }
@@ -58,6 +61,42 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             ServerCertificateValidationCallback = certificateValidationCallback;
         }
+
+        /// <summary>
+        /// Uses DNS-SD to find all Factory Orchestrator services on your local network.
+        /// </summary>
+        /// <param name="secondsToWait">Number of seconds to wait for services to respond</param>
+        /// <param name="serverIdentity">The service certificate identity to use</param>
+        /// <param name="certhash">The service certificate hash to use</param>
+        /// <returns>IEnumerable of FactoryOrchestratorClient representing all discovered clients</returns>
+        public static IEnumerable<FactoryOrchestratorClient> DiscoverFactoryOrchestratorServices(int secondsToWait, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
+        {
+            List<FactoryOrchestratorClient> clients = new List<FactoryOrchestratorClient>();
+            using (var sd = new ServiceDiscovery())
+            {
+                sd.ServiceInstanceDiscovered += ((s, e) =>
+                {
+                    foreach (var srv in e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<SRVRecord>().Where(x => x.CanonicalName.EndsWith("_factorch._tcp.local", StringComparison.InvariantCultureIgnoreCase)).Distinct())
+                    {
+                        var port = srv.Port;
+                        foreach (var ip in e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<ARecord>())
+                        {
+                            var client = new FactoryOrchestratorClient(ip.Address, port, serverIdentity, certhash);
+                            client.HostName = ip.CanonicalName.Replace(".factorch.local", "");
+                            var osVer = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<TXTRecord>().SelectMany(x => x.Strings).Where(x => x.StartsWith("OSVersion=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(string.Empty).FirstOrDefault().Replace("OSVersion=", "");
+                            client.OSVersion = osVer;
+                            clients.Add(client);
+                        }
+                    }
+                });
+
+                sd.QueryServiceInstances("_factorch._tcp");
+
+                Thread.Sleep(secondsToWait * 1000);
+            }
+            return clients;
+        }
+
         /// <summary>
         /// Establishes a connection to the Factory Orchestrator Service.
         /// Throws an exception if it cannot connect.
@@ -106,6 +145,17 @@ namespace Microsoft.FactoryOrchestrator.Client
                 {
                     throw new FactoryOrchestratorVersionMismatchException(IpAddress, serviceVersion);
                 }
+            }
+
+            try
+            {
+                HostName = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetHostName"));
+                OSVersion = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetOSVersionString"));
+            }
+            catch (Exception)
+            {
+                HostName = Resources.Unknown;
+                OSVersion = Resources.Unknown;
             }
 
             IsConnected = true;
@@ -643,6 +693,16 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// The port of the connected device used. Factory Orchestrator Service defaults to 45684.
         /// </summary>
         public int Port { get; private set; }
+
+        /// <summary>
+        /// The hostname of the connected device.
+        /// </summary>
+        public string HostName { get; internal set; }
+
+        /// <summary>
+        /// The OS version information of the connected device.
+        /// </summary>
+        public string OSVersion { get; internal set; }
 
         /// <summary>
         /// Distinguished name for the server.

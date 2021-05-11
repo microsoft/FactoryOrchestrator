@@ -26,6 +26,24 @@
           "commitHash":"aaa43d52ef84955af2af3e8fce1e56d5894964e6"
         }
        }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl":"https://github.com/microsoft/Windows-appsample-networkhelper",
+          "commitHash":"05799af2715e5f545d039bf91e63bc21c9b1afc3"
+        }
+       }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl":"https://github.com/microsoft/Windows-universal-samples",
+          "commitHash":"b1cb20f191d3fd99ce89df50c5b7d1a6e2382c01"
+        }
+       }
     }
   ]
 }
