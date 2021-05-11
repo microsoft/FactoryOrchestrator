@@ -72,7 +72,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (localSettings.Values.ContainsKey("lastIp"))
             {
                 IpTextBox.Text = (string)localSettings.Values["lastIp"];
-                ConnectButton.IsEnabled = true;
             }
 
             Task.Run(async () =>
@@ -230,6 +229,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             PortText.Visibility = visibility;
             CertHashText.Visibility = visibility;
             CertHashTextBox.Visibility = visibility;
+            IpText.Visibility = visibility;
+            IpTextBox.Visibility = visibility;
+            ConnectButton.Visibility = visibility;
         }
 
         private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -324,8 +326,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         {
                             // We were able to connect to an IP!
                             ((App)Application.Current).OnConnectionPage = false;
-                            localSettings.Values["lastIp"] = ipString;
-                            localSettings.Values["lastPort"] = port.ToString(CultureInfo.InvariantCulture);
+
+                            // Only set IP & Port settings on successfull connection with manual values used (ie. ConnectButton_Click)
                             localSettings.Values["lastServer"] = serverName;
                             localSettings.Values["lastHash"] = certHash;
                             this.Frame.Navigate(typeof(MainPage), lastNavTag);

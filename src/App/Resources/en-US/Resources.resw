@@ -252,7 +252,7 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
     <comment>Default distinguished name for target machine.</comment>
   </data>
   <data name="ConnectButton.Content" xml:space="preserve">
-    <value>Connect</value>
+    <value>Connect to custom IP and port</value>
   </data>
   <data name="Console.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Non-interactive cmd.exe prompt</value>
@@ -527,7 +527,7 @@ On retry</value>
     <value>Reboot</value>
   </data>
   <data name="RemoteHost.Text" xml:space="preserve">
-    <value>Or, please enter the IPv4 address of the device you wish to connect to:</value>
+    <value>Or, please select the device you wish to connect to:</value>
   </data>
   <data name="RenameListBlock.Text" xml:space="preserve">
     <value>Rename TaskList</value>
@@ -779,5 +779,9 @@ On retry</value>
   <data name="Hostname.Text" xml:space="preserve">
     <value>System Hostname:</value>
     <comment>The PC's hostname</comment>
+  </data>
+  <data name="HelpButton.Content" xml:space="preserve">
+    <value>View the Factory Orchestrator documentation online</value>
+    <comment>Button to open factory orchestrator documentation website in user's web browser</comment>
   </data>
 </root>

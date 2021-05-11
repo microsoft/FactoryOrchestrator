@@ -20,6 +20,7 @@
             <Button x:Name="BackButton" Grid.Row="0" VerticalAlignment="Top" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" Visibility="Collapsed" AutomationProperties.Name="Go Back"/>
             <StackPanel Orientation="Vertical" Grid.Row="0" Margin="5">
                 <TextBlock Text="Factory Orchestrator" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center"/>
+                <HyperlinkButton x:Uid="HelpButton" NavigateUri="https://microsoft.github.io/FactoryOrchestrator/" Style="{StaticResource NavigationViewTitleHeaderContentControlTextStyle}" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="AppVersionText" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="ServiceVersionText" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
                 <TextBlock Text="" Style="{StaticResource SubheaderTextBlockStyle}" HorizontalAlignment="Center"/>
@@ -36,6 +37,7 @@
                 <TextBlock Text="IpcServiceFramework - Jacques Kang - MIT License - https://github.com/jacqueskang/IpcServiceFramework" HorizontalAlignment="Left"/>
                 <TextBlock Text="WindowsDevicePortalWrapper - Microsoft Corporation and mgurlitz - MIT License - https://github.com/mgurlitz/WindowsDevicePortalWrapper/tree/feat-standard" HorizontalAlignment="Left"/>
                 <TextBlock Text="Pe-Utility - Andres Traks - MIT License - https://github.com/AndresTraks/pe-utility" HorizontalAlignment="Left"/>
+                <TextBlock Text="net-mdns/Makaretu.Dns - Richard Schneider - MIT License - https://github.com/richardschneider/net-mdns" HorizontalAlignment="Left"/>
             </StackPanel>
             <TextBlock Margin="0,20" x:Name="NoticeBlock" Text="" Style="{StaticResource BodyTextBlockStyle}" HorizontalAlignment="Left"  Grid.Row="4" />
          </Grid>

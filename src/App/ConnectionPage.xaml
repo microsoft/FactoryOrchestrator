@@ -30,7 +30,15 @@
         </DataTemplate>
     </Page.Resources>
     <Grid>
-        <Button x:Name="ExitButton" VerticalAlignment="Top" HorizontalAlignment="Right">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="ExitButton" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right">
             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
             <Button.Flyout>
                 <Flyout x:Name="ExitFlyout">
@@ -48,75 +56,76 @@
                 </Flyout>
             </Button.Flyout>
         </Button>
-        <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto"  Margin="50,50,50,50">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+            <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto"  Margin="50,50,50,50">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="Welcome" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}"/>
-            <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="99" >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="20" />
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="AttemptingLocalHost" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{StaticResource SubheaderTextBlockStyle}"/>
-                <ProgressBar x:Name="ConnectingProgress" Grid.Row="3" Grid.Column="1" IsIndeterminate="True" Visibility="Visible"/>
-            </Grid>
-            <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="RemoteHost" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
-            <Grid Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" x:Uid="IpAddress" x:Name="IpText"/>
-                <TextBox Grid.Row="0" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Visible" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed" x:Uid="Port" x:Name="PortText"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="PortTextBox" Text="" Margin="5" Width="150"  x:Uid="PortTextBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=Port}"/>
-                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed" x:Uid="ServerName" x:Name="ServerNameText"/>
-                <TextBox Grid.Row="2" Grid.Column="1" x:Name="ServerNameTextBox" Text="" Margin="5" Width="150" x:Uid="ServerNameTextBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ServerNameText}" />
-                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed" x:Uid="CertHash" x:Name="CertHashText"/>
-                <TextBox Grid.Row="3" Grid.Column="1" x:Name="CertHashTextBox" Text="" Margin="5" Width="150" x:Uid="CertHashTextBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=CertHashText}"/>
-                <Button Grid.Row="4" Grid.Column="1" x:Name="ConnectButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
-                <Button Grid.Row="4" Grid.Column="0" x:Name="OptionsButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="AdvancedOptionsButton" Click="OptionsButton_Click" IsEnabled="True"/>
-            </Grid>
-            <ListView Grid.Row="8" x:Name="ResultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
-                              MinHeight="20" Margin="0,10,0,0"
-                              ItemTemplate="{StaticResource ResultsListViewTemplate}" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="ResultsListView_ItemClick"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="9" HorizontalAlignment="Right">
-                <Button x:Name="ValidateXMLButton" x:Uid="ValidateXMLButton" Margin="5" Click="ValidateXMLButton_Click"/>
-                <Button x:Name="AboutButton" x:Uid="AboutButton" Margin="5" Click="AboutButton_Click"/>
-            </StackPanel>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="Welcome" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}"/>
+                <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="99" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-        </Grid>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="AttemptingLocalHost" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{StaticResource SubheaderTextBlockStyle}"/>
+                    <ProgressBar x:Name="ConnectingProgress" Grid.Row="3" Grid.Column="1" IsIndeterminate="True" Visibility="Visible"/>
+                </Grid>
+                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="RemoteHost" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+                <ListView Grid.Row="6" x:Name="ResultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
+                              MinHeight="200" Margin="0,5,0,5"
+                              ItemTemplate="{StaticResource ResultsListViewTemplate}" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="ResultsListView_ItemClick"/>
+                <Grid Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed" x:Uid="ServerName" x:Name="ServerNameText"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="ServerNameTextBox" Text="" Margin="5" Width="150" x:Uid="ServerNameTextBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ServerNameText}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed" x:Uid="CertHash" x:Name="CertHashText"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="CertHashTextBox" Text="" Margin="5" Width="150" x:Uid="CertHashTextBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=CertHashText}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" x:Uid="IpAddress" x:Name="IpText" Visibility="Collapsed"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="IpTextBox" Text="" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}" Visibility="Collapsed"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed" x:Uid="Port" x:Name="PortText"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="PortTextBox" Text="" Margin="5" Width="150"  x:Uid="PortTextBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=Port}"/>
+                    <Button Grid.Row="4" Grid.Column="1" Visibility="Collapsed" x:Name="ConnectButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
+                    <Button Grid.Row="4" Grid.Column="0" x:Name="OptionsButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="AdvancedOptionsButton" Click="OptionsButton_Click" IsEnabled="True"/>
+                </Grid>
+
+            </Grid>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ValidateXMLButton" x:Uid="ValidateXMLButton" Margin="5" Click="ValidateXMLButton_Click"/>
+            <Button x:Name="AboutButton" x:Uid="AboutButton" Margin="5" Click="AboutButton_Click"/>
+        </StackPanel>
     </Grid>
 </Page>
