@@ -335,6 +335,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../find-factory-orchestrator-devices/" class="md-nav__link">
+        Find Factory Orchestrator devices
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../factory-orchestrator-client-usage-samples/" class="md-nav__link">
         Client API samples
       </a>
@@ -542,7 +557,7 @@
 </code></pre>
 <h1 id="additional-details">Additional details</h1>
 <h2 id="network-access">Network Access</h2>
-<p>By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network.</p>
+<p>By default, the Factory Orchestrator service only allows client connections from the same device the service is running on (i.e. localhost only). However, service can be configured to allow connections from clients anywhere on your local network, by setting EnableNetworkAccess to "true" in your <a href="#factory-orchestrator-service-configuration-using-appsettings.json">appsettings.json file</a>.</p>
 <p><b></p>
 <p align="center">⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠</p>
 <p align="center"><i>WARNING: Please read and understand the following before enabling network access!</i></p>
@@ -563,14 +578,15 @@
 <li>The <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-IsNetworkAccessEnabled%28%29/">IsNetworkAccessEnabled</a> API.</li>
 </ul>
 <h3 id="firewall-configuration">Firewall configuration</h3>
-<p>Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your locl network.</p>
-<p>On Windows, run the following command from an Administrator PowerShell window:</p>
-<pre><code class="language-powershell">$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', '');  netsh advfirewall firewall add rule name=&quot;Factory Orchestrator service&quot; dir=in action=allow program=&quot;$FoPath&quot; enable=yes
+<p>Depending on the configuration of the OS you are using, you may need to configure the firewall to allow the Factory Orchestrator service to communicate over your local network. Factory Orchestrator uses TCP port 54684 for client&lt;-&gt;service communication and UDP port 5353 for <a href="../find-factory-orchestrator-devices/">DNS-SD</a>.</p>
+<p>On Windows, run the following command from an Administrator PowerShell window to allow Factory Orchestrator through the Windows firewall:</p>
+<pre><code class="language-powershell">$FoPath = (Get-CimInstance win32_service | ?{$_.Name -like 'Microsoft.FactoryOrchestrator'}).PathName.replace(' -IsService', ''); netsh advfirewall firewall add rule name=&quot;Factory Orchestrator service in&quot; dir=in action=allow program=&quot;$FoPath&quot; enable=yes; netsh advfirewall firewall add rule name=&quot;Factory Orchestrator service out&quot; dir=out action=allow program=&quot;$FoPath&quot; enable=yes
 </code></pre>
-<p>On Ubuntu and many other Linux distros, run the following Bash command:</p>
+<p>On Ubuntu and many other Linux distros, run the following Bash commands:</p>
 <pre><code class="language-bash">sudo ufw allow 45684
+sudo ufw allow 5353
 </code></pre>
-<p>If you set a custom network port above, use that port number instead of 45684.</p>
+<p>If you set a custom network port via the NetworkPort setting, use that port number instead of 45684.</p>
 <h2 id="initialtasklists-firstboottasks-and-everyboottasks">InitialTaskLists, FirstBootTasks, and EveryBootTasks</h2>
 <p><em>💡 <a href="https://github.com/microsoft/FactoryOrchestrator/issues/109">We are considering reworking InitialTaskLists and *BootTasks, as it is hard to understand the use cases and tradeoffs for each type</a>. 💡</em></p>
 <p>The Factory Orchestrator service looks for certain <a href="../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists">FactoryOrchestratorXML</a> files when it starts, based on file paths set in the InitialTaskLists, FirstBootTasks, and EveryBootTasks settings. You can use these FactoryOrchestratorXML files to pre-load tasks into Factory Orchestrator (without running them), run tasks the first time a device boots, or run tasks every time a device boots.</p>

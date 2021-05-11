@@ -295,6 +295,21 @@
 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../find-factory-orchestrator-devices/" class="md-nav__link">
+        Find Factory Orchestrator devices
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -392,18 +407,36 @@
                 
                 
                 <h1 id="factory-orchestrator-client-api-samples">Factory Orchestrator Client API Samples</h1>
-<p>This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer.</p>
-<p>All C# code snippets assume you have:</p>
-<pre><code class="language-csharp">using Microsoft.FactoryOrchestrator.Core;
-using Microsoft.FactoryOrchestrator.Client;
-</code></pre>
-<p>defined at the top of your .cs file.</p>
+<p>This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer. <strong>It is recommended you read the <a href="../use-the-factory-orchestrator-api/">Run using the client API</a> page before this one.</strong></p>
 <p>Remember:</p>
 <ul>
 <li>All C# client APIs are asynchronous, but all PowerShell APIs are synchronous.</li>
 <li>To use the C# client APIs in a UWP app, use an instance of FactoryOrchestratorUWPClient instead of <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a>.</li>
 <li>'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could be the same PC as the client.</li>
 </ul>
+<p><strong>All C# code snippets assume you have:</strong></p>
+<ul>
+<li>Installed <a href="https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Client/">Microsoft.FactoryOrchestrator.Client NuGet package</a>:</li>
+</ul>
+<pre><code class="language-powershell">PM&gt; Install-Package Microsoft.FactoryOrchestrator.Client
+</code></pre>
+<ul>
+<li>Have the following defined at the top of your .cs files:</li>
+</ul>
+<pre><code class="language-csharp">using Microsoft.FactoryOrchestrator.Core;
+using Microsoft.FactoryOrchestrator.Client;
+</code></pre>
+<p><strong>All PowerShell code snippets assume you have:</strong></p>
+<ul>
+<li>
+<p><a href="https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell">Installed and are running PowerShell 7+</a></p>
+</li>
+<li>
+<p>Installed the <a href="https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/">Microsoft.FactoryOrchestrator.Client module from PowerShell Gallery</a>:</p>
+</li>
+</ul>
+<pre><code class="language-powershell">Install-Module Microsoft.FactoryOrchestrator.Client
+</code></pre>
 <h1 id="factory-orchestrator-net-client-sample">Factory Orchestrator .NET client sample</h1>
 <p>A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: <a href="https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample">https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample</a>. You can build it with Visual Studio 2019 or the .NET Core 3.1+ SDK.</p>
 <p>The sample shows you how to connect to a remote (or local) device running Factory Orchestrator service, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device.</p>
@@ -412,6 +445,22 @@ using Microsoft.FactoryOrchestrator.Client;
 <pre><code class="language-cmd">dotnet ClientSample.dll &lt;IP Address of DUT&gt; &lt;Folder on technician PC with test content AND FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
 </code></pre>
 <p>The sample will then connect to the test device, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device. You will be able to monitor the progress of the sample in the console, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on your PC (if it is connected to the test device).</p>
+<h1 id="find-devices-running-factory-orchestrator">Find devices running Factory Orchestrator</h1>
+<p>Get a list of devices running the Factory Orchestrator service with <a href="../service-configuration/#network-access">network access enabled</a>. See <a href="../find-factory-orchestrator-devices/">Find Factory Orchestrator devices</a> for other ways to detect devices.</p>
+<pre><code class="language-csharp">// This call is synchronous!
+var discovered = FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(10);
+foreach (var client in discovered)
+{
+    Console.WriteLine($&quot;{client.HostName} - {client.OSVersion} - {client.IpAddress}:{client.Port}&quot;);
+}
+
+</code></pre>
+<pre><code class="language-powershell">$discovered = Get-FactoryOrchestratorClient -SecondsToWait 10
+foreach ($client in $discovered)
+{
+    Write-Host &quot;$($client.HostName) - $($client.OSVersion) - $($client.IpAddress):$($client.Port)&quot;
+}
+</code></pre>
 <h1 id="establishing-a-connection-to-the-service">Establishing a connection to the service</h1>
 <p>Before executing any other commands, the <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/">Connect</a>() API must be called. <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/">Connect</a>() verifies the target service is running and has a compatible version with your client. <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/">Connect</a>() throws an exeption if the connection fails. Alternately, you can use <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-TryConnect%28bool%29/">TryConnect</a>() which returns false if the connection fails instead.</p>
 <h2 id="connect-to-the-service-running-on-the-local-device-loopback">Connect to the service running on the local device (loopback)</h2>
@@ -763,7 +812,7 @@ await client.DeleteFileOrFolder(@&quot;C:\folder_on_device&quot;);
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
-        <a href="../use-the-factory-orchestrator-api/" class="md-footer__link md-footer__link--prev" rel="prev">
+        <a href="../find-factory-orchestrator-devices/" class="md-footer__link md-footer__link--prev" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -772,7 +821,7 @@ await client.DeleteFileOrFolder(@&quot;C:\folder_on_device&quot;);
               <span class="md-footer__direction">
                 Previous
               </span>
-              Run using the client API
+              Find Factory Orchestrator devices
             </div>
           </div>
         </a>

@@ -356,6 +356,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../find-factory-orchestrator-devices/" class="md-nav__link">
+        Find Factory Orchestrator devices
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../factory-orchestrator-client-usage-samples/" class="md-nav__link">
         Client API samples
       </a>
@@ -496,7 +511,7 @@ await client.RunExecutable(@&quot;%windir%\system32\ping.exe&quot;);
 </code></pre>
 <h2 id="using-factoryorchestratorclient-in-powershell">Using <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> in PowerShell</h2>
 <p>The <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> PowerShell module is available on <a href="https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/">PowerShell Gallery as Microsoft.FactoryOrchestrator.Client</a>. Currently, the module is only supported on PowerShell 6+.</p>
-<p>To use the PowerShell module, install Microsoft.FactoryOrchestrator.Client and then use the New-FactoryOrchestratorClient cmdlet to create a <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient/">FactoryOrchestratorClient</a> instance. The PowerShell <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> instance returned by New-FactoryOrchestratorClient has the exact same methods as the C# <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> class. <strong>However, unlike <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.</strong></p>
+<p>To use the PowerShell module, install Microsoft.FactoryOrchestrator.Client and then use the New-FactoryOrchestratorClient cmdlet to create a <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient/">FactoryOrchestratorClient</a> instance. The PowerShell <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> instance returned by New-FactoryOrchestratorClient has the exact same methods as the C# <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> class. <strong>However, unlike <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/">FactoryOrchestratorClient</a> and FactoryOrchestratorUWPClient C# classes, all calls are synchronous.</strong> You can also discover devices running Factory Orchestrator with the <a href="../factory-orchestrator-client-usage-samples/#find-devices-running-factory-orchestrator">Get-FactoryOrchestratorClient cmdlet</a>.</p>
 <p>Other supported cmdlets are: New-FactoryOrchestratorTask, New-FactoryOrchestratorTaskList, and New-FactoryOrchestratorServerPoller. They return new <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase">Task</a>, <a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList">TaskList</a>, and <a href="../ClientLibrary/Microsoft-FactoryOrchestrator-Client-ServerPoller">ServerPoller</a> objects respectively.</p>
 <p>Below is a sample PowerShell script showing how you can use these cmdlets:</p>
 <pre><code class="language-powershell">
@@ -562,13 +577,13 @@ $client.RunExecutable(&quot;$env:windir\system32\ping.exe&quot;);
         </a>
       
       
-        <a href="../factory-orchestrator-client-usage-samples/" class="md-footer__link md-footer__link--next" rel="next">
+        <a href="../find-factory-orchestrator-devices/" class="md-footer__link md-footer__link--next" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Client API samples
+              Find Factory Orchestrator devices
             </div>
           </div>
           <div class="md-footer__button md-icon">

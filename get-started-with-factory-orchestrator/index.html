@@ -338,6 +338,19 @@
     Run the app
   </a>
   
+    <nav class="md-nav" aria-label="Run the app">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-the-app-via-windows-device-portal" class="md-nav__link">
+    Run the app via Windows Device Portal
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -403,6 +416,21 @@
     <li class="md-nav__item">
       <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
         Run using the client API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../find-factory-orchestrator-devices/" class="md-nav__link">
+        Find Factory Orchestrator devices
       </a>
     </li>
   
@@ -578,6 +606,19 @@
     Run the app
   </a>
   
+    <nav class="md-nav" aria-label="Run the app">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-the-app-via-windows-device-portal" class="md-nav__link">
+    Run the app via Windows Device Portal
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -639,19 +680,21 @@ For more information, see about_Execution_Policies at https://go.microsoft.com/f
 <pre><code class="language-Bash">    sudo systemctl start Microsoft.FactoryOrchestrator.service
 </code></pre>
 <h3 id="service-configuration">Service configuration</h3>
-<p>See <a href="../service-configuration">Service configuration</a> for details on how you can configure the Factory Orchestraor service's default behavior.</p>
+<p>See <a href="../service-configuration">Service configuration</a> for details on how you can configure the Factory Orchestraor service's default behavior, including enabling network access so you can communicate with the service over your local network.</p>
 <h2 id="install-the-app">Install the app</h2>
 <p>You can install the Factory Orchestrator app on your DUT or on a technician PC running Windows. The app can be downloaded from the <a href="https://github.com/microsoft/FactoryOrchestrator/releases">GitHub releases page</a>.</p>
 <p>To install the app, run the .msixbundle to install the app. Alternately, use <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> to install the app on your DUT. The app on the GitHub releases page is signed by Microsoft and does not require a certificate file to install.</p>
 <h2 id="run-the-app">Run the app</h2>
-<p>To run the Factory Orchestrator app, use the Start menu to launch "Factory Orchestrator". Alternately, use <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> to run the app:</p>
+<p>To run the Factory Orchestrator app, use the Start menu to launch "Factory Orchestrator". The Factory Orchestrator app will start on the PC. If the PC has the Factory Orchestrator service running, it will automatically connect to the service. If not, you will be prompted to select the remote PC running Factory Orchestrator service you wish to connect to.</p>
+<p><img alt="Connect page of app" src="../images/connectpage.png" /></p>
+<p>See <a href="../use-the-factory-orchestrator-app/">Run using the application</a> for details on how to use the app.</p>
+<h3 id="run-the-app-via-windows-device-portal">Run the app via Windows Device Portal</h3>
+<p>Alternately, use <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> to run the app:</p>
 <ol>
 <li>Connect to the device where the app is installed with Device Portal</li>
 <li>From Device Portal's Apps manager tab, choose <code>Factory Orchestrator (App)</code> from the Installed Apps list.</li>
 <li>Click Start</li>
 </ol>
-<p>The Factory Orchestrator app will start on the PC. If the PC has the Factory Orchestrator service running, it will automatically connect to the service. If not, you will be prompted to enter the IPv4 address of the service you wish to connect to.</p>
-<p>See <a href="../use-the-factory-orchestrator-app/">Run using the application</a> for details on how to use the app.</p>
                 
               
               
