@@ -20,6 +20,7 @@ public interface IFactoryOrchestratorService
 - [GetBootTaskListSummaries()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetBootTaskListSummaries().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetBootTaskListSummaries()')
 - [GetContainerIpAddresses()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetContainerIpAddresses().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetContainerIpAddresses()')
 - [GetDisabledPages()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetDisabledPages().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetDisabledPages()')
+- [GetDnsHostName()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetDnsHostName().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetDnsHostName()')
 - [GetFile(string, long, int, bool)](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetFile(string_long_int_bool).md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetFile(string, long, int, bool)')
 - [GetInstalledApps()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetInstalledApps().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetInstalledApps()')
 - [GetInstalledAppsDetailed()](./Microsoft-FactoryOrchestrator-Core-IFactoryOrchestratorService-GetInstalledAppsDetailed().md 'Microsoft.FactoryOrchestrator.Core.IFactoryOrchestratorService.GetInstalledAppsDetailed()')

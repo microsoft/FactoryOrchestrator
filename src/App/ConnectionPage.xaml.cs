@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
@@ -10,7 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.FactoryOrchestrator.Core;
 using Windows.ApplicationModel.Resources;
+using Windows.Devices.Enumeration;
 using Windows.Storage;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -39,26 +43,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            var profs = Windows.Networking.Connectivity.NetworkInformation.GetConnectionProfiles();
-            var hosts = Windows.Networking.Connectivity.NetworkInformation.GetHostNames();
-            foreach (var prof in profs)
-            {
-                Debug.WriteLine("ahhhh");
-                Debug.WriteLine(prof.GetNetworkNames());
-                Debug.WriteLine(prof.NetworkAdapter.NetworkAdapterId);
-                Debug.WriteLine(prof.ServiceProviderGuid);
-                Debug.WriteLine(prof.ProfileName);
-            }
-            foreach (var host in hosts)
-            {
-                Debug.WriteLine("ahhhh");
-                Debug.WriteLine(host.RawName);
-                Debug.WriteLine(host.DisplayName);
-                Debug.WriteLine(host.CanonicalName);
-                Debug.WriteLine(host.IPInformation?.NetworkAdapter?.NetworkAdapterId);
-                var prof2 = host.IPInformation?.NetworkAdapter?.GetConnectedProfileAsync()?.AsTask().Result;
-                Debug.WriteLine(prof2?.ToString());
-            }
+            ResultsListView.ItemsSource = _resultCollection;
 
             if (e == null)
             {
@@ -87,7 +72,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (localSettings.Values.ContainsKey("lastIp"))
             {
                 IpTextBox.Text = (string)localSettings.Values["lastIp"];
-                ConnectButton.IsEnabled = true;
             }
 
             Task.Run(async () =>
@@ -125,6 +109,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                     if (!((App)Application.Current).Client.IsConnected)
                     {
+                        if (_firstLocalHostAttempt)
+                        {
+                            _firstLocalHostAttempt = false;
+                            _deviceWatcherHelper = new FactoryOrchestratorDeviceWatcher(_resultCollection, Dispatcher);
+                            _deviceWatcherHelper.StartWatcher();
+                        }
                         await Task.Delay(2000);
                     }
                 }
@@ -154,8 +144,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);
                         localSettings.Values["lastIp"] = IpTextBox.Text;
                         localSettings.Values["lastPort"] = PortTextBox.Text;
-                        localSettings.Values["lastServer"] = ServerNameTextBox.Text;
-                        localSettings.Values["lastHash"] = CertHashTextBox.Text;
+                        localSettings.Values["lastServer"] = serverName;
+                        localSettings.Values["lastHash"] = certHash;
                     }
                     else
                     {
@@ -239,6 +229,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             PortText.Visibility = visibility;
             CertHashText.Visibility = visibility;
             CertHashTextBox.Visibility = visibility;
+            IpText.Visibility = visibility;
+            IpTextBox.Visibility = visibility;
+            ConnectButton.Visibility = visibility;
         }
 
         private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -299,10 +292,70 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private async void ResultsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            // Use certificate info from advanced options
+            string serverName = ServerNameTextBox.Text;
+            string certHash = CertHashTextBox.Text;
+
+            // Get IP and port from DNS-SD information
+            var item = e.ClickedItem as DeviceInformationDisplay;
+            var ipStrings = item.Properties[DnsSdConstants.IpAddressProperty] as string[];
+            var port = (UInt16)item.Properties[DnsSdConstants.PortNumberProperty];
+
+            if ((ipStrings == null) || string.IsNullOrWhiteSpace(serverName) || string.IsNullOrWhiteSpace(certHash))
+            {
+                return;
+            }
+
+            try
+            {
+                await connectionSem.WaitAsync().ConfigureAwait(true);
+                ConnectButton.IsEnabled = false;
+
+                // Try to connect to every IP address listed
+                for (int i = 0; i < ipStrings.Length; i++)
+                {
+                    string ipString = ipStrings[i];
+                    IPAddress ip;
+                    if (IPAddress.TryParse(ipString, out ip))
+                    {
+                        ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverName, certHash);
+                        ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
+                        if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch).ConfigureAwait(true))
+                        {
+                            // We were able to connect to an IP!
+                            ((App)Application.Current).OnConnectionPage = false;
+
+                            // Only set IP & Port settings on successfull connection with manual values used (ie. ConnectButton_Click)
+                            localSettings.Values["lastServer"] = serverName;
+                            localSettings.Values["lastHash"] = certHash;
+                            this.Frame.Navigate(typeof(MainPage), lastNavTag);
+                            break;
+                        }
+                    }
+                }
+
+                if (!((App)Application.Current).Client.IsConnected)
+                {
+                    ShowConnectFailure(item.HostName);
+                }
+            }
+            finally
+            {
+                connectionSem.Release();
+                ConnectButton.IsEnabled = true;
+            }
+        }
+
         private string lastNavTag;
         private readonly SemaphoreSlim connectionSem;
         private readonly ApplicationDataContainer localSettings;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+
+        private ObservableCollection<DeviceInformationDisplay> _resultCollection = new ObservableCollection<DeviceInformationDisplay>();
+        private FactoryOrchestratorDeviceWatcher _deviceWatcherHelper;
+        private bool _firstLocalHostAttempt = true;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

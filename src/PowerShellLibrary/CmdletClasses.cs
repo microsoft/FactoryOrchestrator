@@ -43,11 +43,25 @@ namespace Microsoft.FactoryOrchestrator.Client
         public int Port { get; set; }
 
         /// <summary>
+        /// SSL server identity to use for connection.
+        /// </summary>
+        [Parameter(Mandatory = false)]
+        public string ServerIdentity { get; set; }
+
+        /// <summary>
+        /// Certificate hash to use for connection.
+        /// </summary>
+        [Parameter(Mandatory = false)]
+        public string CerificateHash { get; set; }
+
+        /// <summary>
         /// CTOR.
         /// </summary>
         public FactoryOrchestratorClientCmdlet()
         {
             Port = 45684;
+            ServerIdentity = "FactoryServer";
+            CerificateHash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F";
         }
 
         /// <summary>
@@ -55,7 +69,45 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.WriteObject(new FactoryOrchestratorClientSync(IpAddress, Port));
+            this.WriteObject(new FactoryOrchestratorClientSync(IpAddress, Port, ServerIdentity, CerificateHash));
+        }
+    }
+
+    /// <summary>
+    /// Cmdlet class. Intended for PowerShell use only.
+    /// </summary>
+    [Cmdlet(VerbsCommon.Get, "FactoryOrchestratorClient")]
+    [OutputType(typeof(FactoryOrchestratorClient))]
+    public class FactoryOrchestratorClientGetCmdlet : Cmdlet
+    {
+        /// <summary>
+        /// Number of seconds to wait for services to respond
+        /// </summary>
+        [Parameter(Mandatory = false, Position = 0)]
+        public int SecondsToWait { get; set; }
+
+        /// <summary>
+        /// CTOR.
+        /// </summary>
+        public FactoryOrchestratorClientGetCmdlet()
+        {
+            SecondsToWait = 5;
+        }
+
+        /// <summary>
+        /// Creates a PowerShell object.
+        /// </summary>
+        protected override void ProcessRecord()
+        {
+            var asyncClients = FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(SecondsToWait);
+            FactoryOrchestratorClientSync[] syncClients = new FactoryOrchestratorClientSync[asyncClients.Count];
+            int i = 0;
+            foreach (var ac in asyncClients)
+            {
+                syncClients[i++] = new FactoryOrchestratorClientSync(ac);
+            }
+
+            this.WriteObject(syncClients);
         }
     }
 

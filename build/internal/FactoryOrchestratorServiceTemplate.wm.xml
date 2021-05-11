@@ -42,22 +42,22 @@
     action="Allow"
     active="True"
     binary="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe"
-    desc="Allow outbound TCP traffic from FactoryOrchestratorService"
-    dir="Out"
-    group="FactoryOrchestratorService"
-    internalName="FactoryOrchestratorService-Out-TCP"
-    name="FactoryOrchestratorService_Allow_Out_TCP"
-    />
-  <firewallRule
-    Protocol="TCP"
-    action="Allow"
-    active="True"
-    binary="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe"
-    desc="Allow inbound TCP traffic from FactoryOrchestratorService"
+    desc="Allow inbound TCP traffic to FactoryOrchestratorService"
     dir="In"
     group="FactoryOrchestratorService"
     internalName="FactoryOrchestratorService-In-TCP"
     name="FactoryOrchestratorService_Allow_In_TCP"
+    />
+<firewallRule
+    Protocol="UDP"
+    action="Allow"
+    active="True"
+    binary="%systemroot%\system32\manufacturing\FactoryOrchestrator\Microsoft.FactoryOrchestrator.Service.exe"
+    desc="Allow inbound UDP traffic to FactoryOrchestratorService"
+    dir="In"
+    group="FactoryOrchestratorService"
+    internalName="FactoryOrchestratorService-In-UDP"
+    name="FactoryOrchestratorService_Allow_In_UDP"
     />
 	<regKeys>
 		<regKey keyName="$(hklm.control)\FactoryOrchestrator">

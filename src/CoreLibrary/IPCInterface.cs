@@ -292,6 +292,11 @@ namespace Microsoft.FactoryOrchestrator.Core
         /// </summary>
         /// <returns>The HTTP port.</returns>
         int GetWdpHttpPort();
+        /// <summary>
+        /// Gets the DNS host name of the connected device.
+        /// </summary>
+        /// <returns>The DNS host name.</returns>
+        string GetDnsHostName();
 
         // TaskList APIs
         /// <summary>

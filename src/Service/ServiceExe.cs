@@ -23,6 +23,8 @@ using Microsoft.FactoryOrchestrator.Core;
 using Microsoft.FactoryOrchestrator.Server;
 using Microsoft.Win32;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
+using Makaretu.Dns;
+using System.Net.NetworkInformation;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -96,14 +98,16 @@ namespace Microsoft.FactoryOrchestrator.Service
                           });
                       }
                   })
-                  .ConfigureLogging(builder =>
+                  .ConfigureLogging(loggingBuilder =>
                   {
 #if DEBUG
                       var _logLevel = LogLevel.Information;
 #else
                       var _logLevel = LogLevel.Critical;
 #endif
-                      builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
+                      // Only log to console, debug, and the service log file
+                      loggingBuilder.ClearProviders()
+                                    .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
                   }).Build();
 
         public static void Main(string[] args)
@@ -113,12 +117,16 @@ namespace Microsoft.FactoryOrchestrator.Service
 #else
             var _logLevel = LogLevel.Information;
 #endif
-            var hostBuilder = Host.CreateDefaultBuilder(null).UseSystemd().ConfigureServices((hostContext, services) =>
+            var hostBuilder = Host.CreateDefaultBuilder(null)
+            .ConfigureLogging(loggingBuilder =>
+            {
+                // Only log to console, debug, and the service log file
+                loggingBuilder.ClearProviders()
+                              .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
+            })
+            .UseSystemd().ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<Worker>();
-            }).ConfigureLogging(builder =>
-            {
-                builder.SetMinimumLevel(_logLevel).AddConsole().AddProvider(new LogFileProvider());
             });
 
             // Workaround for issue #140.
@@ -204,6 +212,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         private static readonly bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         private static readonly object _constructorLock = new object();
         private static readonly object _openedFilesLock = new object();
+        private static readonly object _dnsLock = new object();
+
         private static readonly SemaphoreSlim _containerConnectionSem = new SemaphoreSlim(1, 1);
         private IHost _ipcHost = null;
         private System.Threading.CancellationTokenSource _ipcCancellationToken;
@@ -267,6 +277,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         private FactoryOrchestratorClient _containerClient;
         private ulong _lastContainerEventIndex;
         private HashSet<Guid> _containerGUITaskRuns;
+
+        private ServiceDiscovery _serviceDiscovery;
+        private ServiceProfile _profile;
+        private IEnumerable<IPAddress> _profileIps;
 
         // TaskManager_Server instances
         private TaskManager _taskExecutionManager;
@@ -503,15 +517,22 @@ namespace Microsoft.FactoryOrchestrator.Service
                 _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
                 _ipcCancellationToken = new System.Threading.CancellationTokenSource();
                 _ipcHost.RunAsync(_ipcCancellationToken.Token);
-            }
 
-            if (IsNetworkAccessEnabled)
-            {
-                ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
-            }
-            else 
-            {
-                LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
+                if (IsNetworkAccessEnabled)
+                {
+                    ServiceLogger.LogInformation($"{Resources.NetworkAccessEnabled}\n");
+                    _serviceDiscovery = new ServiceDiscovery();
+
+                    Task.Run(() =>
+                    {
+                        UpdateDnsSd();
+                        NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
+                    }, cancellationToken);
+                }
+                else
+                {
+                    LogServiceEvent(new ServiceEvent(ServiceEventType.NetworkAccessDisabled, null, Resources.NetworkAccessDisabled));
+                }
             }
 
             ServiceLogger.LogInformation($"{Resources.ReadyToCommunicate}\n");
@@ -522,16 +543,71 @@ namespace Microsoft.FactoryOrchestrator.Service
                 return;
             }
 
-            // Execute user defined tasks.
-            ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
-
-            IsExecutingBootTasks = false;
-            LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
-
-            if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+            // Use a new thread so service Start isn't blocked by these TaskLists executing.
+            Task.Run(() =>
             {
-                // Use a new thread so service Start isn't blocked by these TaskLists executing.
-                Task.Run(() => _taskExecutionManager.RunAllTaskLists());
+                // Execute user defined tasks.
+                ExecuteUserBootTasks(forceUserTaskRerun, cancellationToken);
+
+                IsExecutingBootTasks = false;
+                LogServiceEvent(new ServiceEvent(ServiceEventType.BootTasksComplete, null, Resources.BootTasksFinished));
+
+                if (RunInitialTaskListsOnFirstBoot && firstBootFileLoaded)
+                {
+                    _taskExecutionManager.RunAllTaskLists();
+                }
+            }, cancellationToken);
+        }
+
+        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
+        {
+            UpdateDnsSd();
+        }
+
+        private void UpdateDnsSd()
+        {
+            lock (_dnsLock)
+            {
+                // Wait a few seconds so it is more likely all networks have valid/final IPs
+                Thread.Sleep(5000);
+
+                IEnumerable<IPAddress> ips = null;
+                while (ips == null)
+                {
+                    // Retry in case we query when an interface isn't ready
+                    try
+                    {
+                        // Only IPv4 is allowed
+                        ips = MulticastService.GetIPAddresses().Where(x => !IPAddress.IsLoopback(x) && x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                    }
+                    catch (NetworkInformationException)
+                    {
+                        Thread.Sleep(500);
+                        ips = null;
+                    }
+                }
+
+                if (_profileIps != null)
+                {
+                    if (!ips.Except(_profileIps).Any() && !_profileIps.Except(ips).Any())
+                    {
+                        // No IPs actually changed, return
+                        return;
+                    }
+
+                    // Clear existing profile
+                    _serviceDiscovery.NameServer.Catalog.Clear();
+                    Thread.Sleep(5000);
+                }
+
+                // "Advertise" _factorch._tcp service on DNS-SD
+                _profileIps = ips;
+                _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort, _profileIps);
+                _profile.AddProperty("ServiceVersion", GetServiceVersionString());
+                _profile.AddProperty("OSVersion", GetOSVersionString());
+                _serviceDiscovery.Advertise(_profile);
+                var ipString = string.Join(", ", _profileIps.Select(x => x.ToString()).ToArray());
+                ServiceLogger.LogDebug(string.Format(CultureInfo.CurrentCulture, Resources.DnsSdUpdated, ipString));
             }
         }
 
@@ -546,7 +622,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     string firstBootStateTaskListPath = _initialTasksDefaultPath;
 
                     // Find the TaskLists XML path. Check app settings/registry, fallback to testcontent directory with well known name
-                    firstBootStateTaskListPath = (string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath);
+                    firstBootStateTaskListPath = Environment.ExpandEnvironmentVariables((string)(GetAppSetting(_initialTasksPathValue) ?? _initialTasksDefaultPath));
                     ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootStateTaskListPath));
 
                     if (File.Exists(firstBootStateTaskListPath))
@@ -1323,6 +1399,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             ContainerGuid = Guid.Empty;
             ContainerIpAddress = null;
             _containerHeartbeatToken = null;
+            _serviceDiscovery = null;
             _containerClient = null;
             _lastContainerEventIndex = 0;
             _containerGUITaskRuns = new HashSet<Guid>();
@@ -1409,7 +1486,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 BootTaskExecutionManager = new TaskManager(Path.Combine(_taskExecutionManager.LogFolder, "FirstBootTaskLists"), _firstBootTasksDefaultPath);
 
                 // Find the TaskLists XML path.
-                var firstBootTaskListPath = (string)(GetAppSetting(_firstBootTasksPathValue) ?? _firstBootTasksDefaultPath);
+                var firstBootTaskListPath = Environment.ExpandEnvironmentVariables((string)(GetAppSetting(_firstBootTasksPathValue) ?? _firstBootTasksDefaultPath));
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, firstBootTaskListPath));
 
                 // Load first boot XML, even if we don't end up executing it, so it can be queried via FO APIs
@@ -1485,7 +1562,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             try
             {
                 // Find the TaskLists XML path.
-                var everyBootTaskListPath = (string)(GetAppSetting(_everyBootTasksPathValue) ?? _everyBootTasksDefaultPath);
+                var everyBootTaskListPath = Environment.ExpandEnvironmentVariables((string)(GetAppSetting(_everyBootTasksPathValue) ?? _everyBootTasksDefaultPath));
                 ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.CheckingForFile, everyBootTaskListPath));
 
                 // Load every boot XML, even if we don't end up executing it, so it can be queried via FO APIs
@@ -2021,6 +2098,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                     _volatileKey?.Dispose();
                     _taskExecutionManager?.Dispose();
                     BootTaskExecutionManager?.Dispose();
+                    _serviceDiscovery?.Dispose();
                 }
 
                 disposedValue = true;

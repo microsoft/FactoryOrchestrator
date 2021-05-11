@@ -118,7 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ClientSampleUsage" xml:space="preserve">
-    <value>{0} &lt;IP Address of DUT&gt; &lt;Folder on this PC with test content and (Optional) FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;</value>
+    <value>{0} &lt;IP Address of DUT&gt; &lt;Folder on this PC with test content and (Optional) FactoryOrchestratorXML files&gt; &lt;Destination folder on DUT&gt; &lt;Destination folder on this PC to save logs&gt;
+
+OR
+
+{0} --Discover &lt;seconds to search for devices running Factory Orchestrator&gt;</value>
   </data>
   <data name="Completed" xml:space="preserve">
     <value>Copied test files, ran tests, and gathered logs in {0}</value>
@@ -144,6 +148,9 @@
   <data name="Failed" xml:space="preserve">
     <value>Failed!</value>
   </data>
+  <data name="FoundServices" xml:space="preserve">
+    <value>Found the following devices running Factory Orchestrator:</value>
+  </data>
   <data name="InstallingApp" xml:space="preserve">
     <value>Installing {0}. This may take a few minutes...</value>
   </data>
@@ -153,6 +160,9 @@
   <data name="InvalidIp" xml:space="preserve">
     <value>{0} is not a valid IP address!</value>
   </data>
+  <data name="InvalidSeconds" xml:space="preserve">
+    <value>{0} is not a valid integer!</value>
+  </data>
   <data name="LoadingFOXML" xml:space="preserve">
     <value>Loading TaskList(s) from FactoryOrchestratorXML file(s)...</value>
   </data>
@@ -161,6 +171,13 @@
   </data>
   <data name="LookingForApps" xml:space="preserve">
     <value>Looking for apps in subfolders of {0}...</value>
+  </data>
+  <data name="LookingForServices" xml:space="preserve">
+    <value>Looking for devices running Factory Orchestrator on your local network using DNS-SD...</value>
+    <comment>Message shown when searching for services</comment>
+  </data>
+  <data name="NoDevicesFound" xml:space="preserve">
+    <value>No devices running Factory Orchestrator were found on your local network!</value>
   </data>
   <data name="NotEnoughArgs" xml:space="preserve">
     <value>Specify IP, test content, dest dir, and log output folder!</value>

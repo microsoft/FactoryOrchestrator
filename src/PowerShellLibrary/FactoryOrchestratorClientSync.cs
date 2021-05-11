@@ -42,6 +42,12 @@ namespace Microsoft.FactoryOrchestrator.Client
             AsyncClient = new FactoryOrchestratorClient(host, certificateValidationCallback, port, serverIdentity);
         }
 
+        internal FactoryOrchestratorClientSync(FactoryOrchestratorClient asyncClient)
+        {
+            OnConnected = null;
+            AsyncClient = asyncClient;
+        }
+
         /// <summary>
         /// Establishes a connection to the Factory Orchestrator Service.
         /// Throws an exception if it cannot connect.
@@ -266,6 +272,16 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Hash value for server certificate.
         /// </summary>
         public string CertificateHash { get => AsyncClient.CertificateHash; }
+
+        /// <summary>
+        /// The hostname of the connected device.
+        /// </summary>
+        public string HostName { get => AsyncClient.HostName; }
+
+        /// <summary>
+        /// The OS version information of the connected device.
+        /// </summary>
+        public string OSVersion { get => AsyncClient.OSVersion; }
 
         /// <summary>
         /// System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.

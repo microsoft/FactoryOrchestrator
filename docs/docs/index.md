@@ -8,6 +8,7 @@ ms.date: 09/30/2019
 
 # Factory Orchestrator
 <table><tr>
+    <td><a href="images/connectpage.png"><img src="images/connectpage.png" alt="Image of connect page" width="800"></a></td>
     <td><a href="images/fo-follow-tasks.png"><img src="images/fo-follow-tasks.png" alt="Image of Task status" width="800"></a></td>
     <td><a href="images/test-results.png"><img src="images/test-results.png" alt="Image of Task run logging" width="800"></a></td>
 </tr></table>

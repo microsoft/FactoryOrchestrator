@@ -23,7 +23,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7"/>
+    <PackageReference Include="Makaretu.Dns.Multicast" Version="0.27.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
     <!-- Needed for IPC binaries included in Microsoft.FactoryOrchestrator.Client NuGet package, not actually directly needed for this project. -->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
@@ -37,13 +38,13 @@
     <ProjectReference Include="../CoreLibrary/Microsoft.FactoryOrchestrator.Core.csproj" />
     <!-- IncludeAssets = none or else dotnet pack thinks these can be satisfied by NuGet.org package dependencies. -->
     <!-- However, NuGet.org IPC packages use dynamic code generation, which we don't support, hence the source code fork. -->
-    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Client.Tcp/JKang.IpcServiceFramework.Client.Tcp.csproj" >
+    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Client.Tcp/JKang.IpcServiceFramework.Client.Tcp.csproj">
       <IncludeAssets>none</IncludeAssets>
     </ProjectReference>
-    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Client/JKang.IpcServiceFramework.Client.csproj" >
+    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Client/JKang.IpcServiceFramework.Client.csproj">
       <IncludeAssets>none</IncludeAssets>
     </ProjectReference>
-    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Core/JKang.IpcServiceFramework.Core.csproj" >
+    <ProjectReference Include="../../oss/IpcFramework/JKang.IpcServiceFramework.Core/JKang.IpcServiceFramework.Core.csproj">
       <IncludeAssets>none</IncludeAssets>
     </ProjectReference>
 
@@ -56,11 +57,11 @@
   <!-- Add IPC OSS binaries to package -->
   <Target Name="CopyProjectReferencesToPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.dll"/>
+      <BuildOutputInPackage Include="$(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.dll" />
     </ItemGroup>
 
     <!-- Print for debug purposes -->
-    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.dll found: @(BuildOutputInPackage)" Importance="High"/>
+    <Message Text="CopyProjectReferencesToPackage - $(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.dll found: @(BuildOutputInPackage)" Importance="High" />
   </Target>
 
   <!-- Add IPC OSS symbols to symbol package -->
@@ -72,12 +73,12 @@
       </ItemGroup>
 
     <!-- Print for debug purposes -->
-    <Message Text="UpdateSymTfm - $(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High"/>
+    <Message Text="UpdateSymTfm - $(OutputRootPath)/$(Configuration)/$(Platform)/JKang.IpcServiceFramework.Client.Tcp/**/*.pdb found: @(_TargetPathsToSymbolsWithTfm)" Importance="High" />
   </Target>
 
   <Target Name="FixAndCopyMd" AfterTargets="Build">
     <ItemGroup>
-      <FilesToMove Include="$(DefaultDocumentationFolder)/*.md"/>
+      <FilesToMove Include="$(DefaultDocumentationFolder)/*.md" />
     </ItemGroup>
     <Exec Command="$(PowerShellExeName) $(ProjectDir)../../build/FixupAPIMarkdown.ps1 -DefaultDocumentationFolder $(DefaultDocumentationFolder)" />
     <Move SourceFiles="@(FilesToMove)" DestinationFolder="../../docs/docs/ClientLibrary" />

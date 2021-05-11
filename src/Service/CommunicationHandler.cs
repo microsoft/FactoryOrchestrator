@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -1246,6 +1247,22 @@ namespace Microsoft.FactoryOrchestrator.Service
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetWdpHttpPort");
                 int ret = FOService.GetWdpHttpPort();
                 FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetWdpHttpPort");
+                return ret;
+            }
+            catch (Exception e)
+            {
+                FOService.Instance.LogServiceEvent(new ServiceEvent(ServiceEventType.ServiceError, null, e.AllExceptionsToString()));
+                throw;
+            }
+        }
+
+        public string GetDnsHostName()
+        {
+            try
+            {
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: GetHostName");
+                string ret = Dns.GetHostName();
+                FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: GetHostName");
                 return ret;
             }
             catch (Exception e)
