@@ -68,7 +68,7 @@ PowerShellVersion = '6.0'
 FunctionsToExport = @()
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @("New-FactoryOrchestratorClient", "New-FactoryOrchestratorServerPoller", "New-FactoryOrchestratorTaskList", "New-FactoryOrchestratorTask")
+CmdletsToExport = @("New-FactoryOrchestratorClient", "New-FactoryOrchestratorServerPoller", "New-FactoryOrchestratorTaskList", "New-FactoryOrchestratorTask", "Get-FactoryOrchestratorClient")
 
 # Variables to export from this module
 VariablesToExport = '*'

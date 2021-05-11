@@ -75,12 +75,15 @@ To install the app, run the .msixbundle to install the app. Alternately, use [Wi
 
 ## Run the app
 
-To run the Factory Orchestrator app, use the Start menu to launch "Factory Orchestrator". Alternately, use [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) to run the app:
+To run the Factory Orchestrator app, use the Start menu to launch "Factory Orchestrator". The Factory Orchestrator app will start on the PC. If the PC has the Factory Orchestrator service running, it will automatically connect to the service. If not, you will be prompted to select the remote PC running Factory Orchestrator service you wish to connect to.
+
+![Connect page of app](./images/connectpage.png)
+
+See [Run using the application](use-the-factory-orchestrator-app.md) for details on how to use the app.
+
+### Run the app via Windows Device Portal
+Alternately, use [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) to run the app:
 
 1. Connect to the device where the app is installed with Device Portal
 2. From Device Portal's Apps manager tab, choose `Factory Orchestrator (App)` from the Installed Apps list.
 3. Click Start
-
-The Factory Orchestrator app will start on the PC. If the PC has the Factory Orchestrator service running, it will automatically connect to the service. If not, you will be prompted to enter the IPv4 address of the service you wish to connect to.
-
-See [Run using the application](use-the-factory-orchestrator-app.md) for details on how to use the app.

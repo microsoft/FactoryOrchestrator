@@ -1,18 +1,34 @@
 # Factory Orchestrator Client API Samples
-This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer.
-
-All C# code snippets assume you have:
-```csharp
-using Microsoft.FactoryOrchestrator.Core;
-using Microsoft.FactoryOrchestrator.Client;
-```
-defined at the top of your .cs file.
+This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer. **It is recommended you read the [Run using the client API](use-the-factory-orchestrator-api.md) page before this one.**
 
 Remember:
 
 - All C# client APIs are asynchronous, but all PowerShell APIs are synchronous.
 - To use the C# client APIs in a UWP app, use an instance of FactoryOrchestratorUWPClient instead of [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).
 - 'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could be the same PC as the client.
+
+**All C# code snippets assume you have:**
+
+- Installed [Microsoft.FactoryOrchestrator.Client NuGet package](https://www.nuget.org/packages/Microsoft.FactoryOrchestrator.Client/):
+```powershell
+PM> Install-Package Microsoft.FactoryOrchestrator.Client
+```
+
+- Have the following defined at the top of your .cs files:
+
+```csharp
+using Microsoft.FactoryOrchestrator.Core;
+using Microsoft.FactoryOrchestrator.Client;
+```
+
+**All PowerShell code snippets assume you have:**
+
+- [Installed and are running PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
+
+- Installed the [Microsoft.FactoryOrchestrator.Client module from PowerShell Gallery](https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/):
+```powershell
+Install-Module Microsoft.FactoryOrchestrator.Client
+```
 
 # Factory Orchestrator .NET client sample
 A sample .NET Core program that communicates with the Factory Orchestrator service is available in the Factory Orchestrator GitHub repo at: [https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample](https://github.com/microsoft/FactoryOrchestrator/tree/main/src/ClientSample). You can build it with Visual Studio 2019 or the .NET Core 3.1+ SDK.
@@ -27,6 +43,27 @@ dotnet ClientSample.dll <IP Address of DUT> <Folder on technician PC with test c
 ```
 
 The sample will then connect to the test device, copy test files to that device, sideload UWP apps, execute test content, and retrieve the test results from the device. You will be able to monitor the progress of the sample in the console, on the DUT (if it is running the Factory Orchestrator app), and on the Factory Orchestrator app on your PC (if it is connected to the test device).
+
+# Find devices running Factory Orchestrator
+Get a list of devices running the Factory Orchestrator service with [network access enabled](service-configuration.md#network-access). See [Find Factory Orchestrator devices](find-factory-orchestrator-devices.md) for other ways to detect devices.
+
+```csharp
+// This call is synchronous!
+var discovered = FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(10);
+foreach (var client in discovered)
+{
+    Console.WriteLine($"{client.HostName} - {client.OSVersion} - {client.IpAddress}:{client.Port}");
+}
+
+```
+
+```powershell
+$discovered = Get-FactoryOrchestratorClient -SecondsToWait 10
+foreach ($client in $discovered)
+{
+    Write-Host "$($client.HostName) - $($client.OSVersion) - $($client.IpAddress):$($client.Port)"
+}
+```
 
 # Establishing a connection to the service
 Before executing any other commands, the [Connect](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/)() API must be called. [Connect](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/)() verifies the target service is running and has a compatible version with your client. [Connect](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-Connect%28bool%29/)() throws an exeption if the connection fails. Alternately, you can use [TryConnect](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-TryConnect%28bool%29/)() which returns false if the connection fails instead.

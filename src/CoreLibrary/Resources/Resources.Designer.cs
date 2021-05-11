@@ -269,6 +269,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Device IP addresses changed. DNS-SD updated. Advertising on IP Addresses: {0}.
+        /// </summary>
+        public static string DnsSdUpdated {
+            get {
+                return ResourceManager.GetString("DnsSdUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to External TaskRun {0} received a {1} result and is finished..
         /// </summary>
         public static string DoneWaitingForExternalTaskRun {
@@ -557,6 +566,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FactoryOrchestratorClient could not validate remote certificate! This is most likely due to a distinguished server name mismatch or remote certificate hash value mismatch..
+        /// </summary>
+        public static string IpcAuthenticationError {
+            get {
+                return ResourceManager.GetString("IpcAuthenticationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Factory Orchestrator Service did not recognize the command! This is most likely due to a version mismatch between the Client and Service..
         /// </summary>
         public static string IpcInvalidOperationError {
@@ -564,17 +582,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
                 return ResourceManager.GetString("IpcInvalidOperationError", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   FactoryOrchestratorClient could not validate remote certificate! This is most likely due to a distinguished server name mismatch or remote certificate hash value mismatch.
-        /// </summary>
-        public static string IpcAuthenticationError
-        {
-            get {
-                return ResourceManager.GetString("IpcAuthenticationError", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to WARNING: Log File {0} could not be created.
         /// </summary>
@@ -1035,7 +1043,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: Device Portal is required for app launch and may not be running on the system..
+        ///   Looks up a localized string similar to Error: Device Portal is required for app launch and may not be running on the system or may not support HTTP with no authentication..
         /// </summary>
         public static string WDPAppLaunchFailed2 {
             get {
@@ -1080,7 +1088,7 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Windows Device Portal must be running to call GetInstalledApps!.
+        ///   Looks up a localized string similar to Windows Device Portal may not be running or may not support HTTP with no authentication!.
         /// </summary>
         public static string WDPNotRunningError {
             get {
@@ -1095,6 +1103,6 @@ namespace Microsoft.FactoryOrchestrator.Core {
             get {
                 return ResourceManager.GetString("WindowsOnlyError", resourceCulture);
             }
-        }        
+        }
     }
 }

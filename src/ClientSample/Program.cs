@@ -50,21 +50,27 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
             bool passed = false;
             try
             {
-                ValidateArgs(args);
-                await ConnectToFactoryOrchestrator(Ip);
-                // Set system time to accurate value
-                await Client.RunExecutable("cmd.exe", $"/C \"time {DateTime.Now.ToLongTimeString()}\"");
-                var FOXMLs = await CopyFilesToDUT(TestDir, DestDir);
-                // Install UWP apps found in DestDir\apps folder
-                await InstallAppsOnDUT(Path.Combine(DestDir, "apps"));
-                var taskListSummaries = await LoadFactoryOrchestratorXMLs(DestDir, FOXMLs);
-                await ExecuteTaskLists(taskListSummaries);
-                passed = await PrintFinalResult();
-                await CopyLogsFromDUT(LogFolder);
-                var TimeFinished = DateTime.Now;
+                if (ValidateArgs(args))
+                {
+                    await ConnectToFactoryOrchestrator(Ip);
+                    // Set system time to accurate value
+                    await Client.RunExecutable("cmd.exe", $"/C \"time {DateTime.Now.ToLongTimeString()}\"");
+                    var FOXMLs = await CopyFilesToDUT(TestDir, DestDir);
+                    // Install UWP apps found in DestDir\apps folder
+                    await InstallAppsOnDUT(Path.Combine(DestDir, "apps"));
+                    var taskListSummaries = await LoadFactoryOrchestratorXMLs(DestDir, FOXMLs);
+                    await ExecuteTaskLists(taskListSummaries);
+                    passed = await PrintFinalResult();
+                    await CopyLogsFromDUT(LogFolder);
+                    var TimeFinished = DateTime.Now;
 
-                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.Completed, TimeFinished - TimeStarted));
-                return passed ? 0 : 1;
+                    Console.WriteLine(string.Format(CultureInfo.CurrentCulture, Resources.Completed, TimeFinished - TimeStarted));
+                    return passed ? 0 : 1;
+                }
+                else
+                {
+                    return 0;
+                }
             }
             catch (Exception e)
             {
@@ -76,10 +82,30 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
         /// <summary>
         /// Verifies arguments to program are valid.
         /// </summary>
-        private static void ValidateArgs(string[] args)
+        /// <returns><c>true</c> if NOT a Discover query.</returns>
+        private static bool ValidateArgs(string[] args)
         {
             try
             {
+                if (args.Length == 2)
+                {
+                    if ("--Discover".Equals(args[0], StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        uint seconds;
+                        if (!UInt32.TryParse(args[1], out seconds))
+                        {
+                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidSeconds, args[1]));
+                        }
+
+                        DiscoverServices((int)seconds);
+                        return false;
+                    }
+                    else
+                    {
+                        throw new ArgumentException(Resources.NotEnoughArgs);
+                    }
+                }
+
                 if (args.Length != 4)
                 {
                     throw new ArgumentException(Resources.NotEnoughArgs);
@@ -104,6 +130,26 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
             catch (ArgumentException e)
             {
                 PrintUsage(e);
+            }
+
+            return true;
+        }
+
+        private static void DiscoverServices(int seconds)
+        {
+            Console.WriteLine(Resources.LookingForServices);
+            var discovered = FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(seconds);
+            if (discovered.Any())
+            {
+                Console.WriteLine(Resources.FoundServices);
+                foreach (var client in discovered)
+                {
+                    Console.WriteLine($"{client.HostName} - {client.OSVersion} - {client.IpAddress}:{client.Port}");
+                }
+            }
+            else
+            {
+                Console.WriteLine(Resources.NoDevicesFound);
             }
         }
 
