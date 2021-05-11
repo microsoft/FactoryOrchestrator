@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Runs mkdocs to check if docs need updating on gh-pages.
 # Core and Client projects must be built for it to detect API changes.
 steps:

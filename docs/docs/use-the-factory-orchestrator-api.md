@@ -1,3 +1,6 @@
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
 # Factory Orchestrator Client API Overview
 The Factory Orchestrator service, Microsoft.FactoryOrchestrator.Service.exe, provides a [robust API surface](../ClientLibrary/Microsoft-FactoryOrchestrator-Client) for clients to interact with test devices via C# .NET, C# UWP, or PowerShell code. You can use these APIs to author advanced task orchestration code to programmatically interact with the service outside of what the app provides. Like the app, you can connect to a service running either on the same device or a service running on a remote device available over the network.
 

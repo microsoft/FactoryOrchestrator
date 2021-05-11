@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Signs all Windows binaries. Requires unsigned binaries published to UnsignedBin_Windows_$(BuildConfiguration)_$(BuildPlatform).
 parameters:
   - name: "UnsignedInput"

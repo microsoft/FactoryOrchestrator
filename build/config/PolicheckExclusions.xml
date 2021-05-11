@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
 <PoliCheckExclusions>
     <!-- Each of these exclusions is a folder name - if any folder or file starts with "\[name]", it will be skipped -->
     <Exclusion Type="FolderPathStart">.GIT|.VS|OBJ|.INFRA</Exclusion>

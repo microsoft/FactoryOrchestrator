@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 steps:
 - pwsh: |
     if ($env:SKIPSIGN -eq 'false' -or (($null -ne $env:FORCESIGN) -and ($env:FORCESIGN -eq $true)))

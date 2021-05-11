@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 site_name: Factory Orchestrator
 site_author: themar-msft;hajya
 repo_url: https://github.com/microsoft/FactoryOrchestrator

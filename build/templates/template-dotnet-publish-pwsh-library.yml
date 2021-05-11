@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # publishes the PowerShell library
 steps:
 # While this is cross-OS, publish to win subdirectory so it gets signed with the Windows signature

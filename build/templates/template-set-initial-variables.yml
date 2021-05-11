@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Sets initial variables, should be run at the start of every job for the release pipeline.
 steps:
 - template: template-set-FORepoRoot.yml

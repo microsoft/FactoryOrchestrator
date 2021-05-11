@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 steps:
 - task: UseDotNet@2
   displayName: 'Use .NET Core 3.1 sdk'

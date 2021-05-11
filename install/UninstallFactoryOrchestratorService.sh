@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 if [ ! "$EUID" = 0 ]
 then
     echo "sudo elevation required. Please re-run with sudo."

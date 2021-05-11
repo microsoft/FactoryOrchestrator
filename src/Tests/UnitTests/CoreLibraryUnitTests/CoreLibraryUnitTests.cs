@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.FactoryOrchestrator.Core;
 using System;
 using System.Xml.Schema;
@@ -11,7 +14,6 @@ namespace Microsoft.FactoryOrchestrator.Test
     public class CoreLibraryUnitTests
     {
         [TestMethod]
-        [DeploymentItem("DuplicateGuids.xml")]
         public void TestDuplicateGuidInXml()
         {
             string[] expectedGuids = { "ba3fa48b-b555-490d-9082-3d93dca22e70", "7bac1a15-0e62-4d49-8a54-27077409d229", "ba3fa48b-b555-490d-9082-3d93dca22e72" };

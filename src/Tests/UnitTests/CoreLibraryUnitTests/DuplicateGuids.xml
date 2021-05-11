@@ -1,4 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
 <FactoryOrchestratorXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <TaskLists>
     <!-- ba3fa48b-b555-490d-9082-3d93dca22e70, 7bac1a15-0e62-4d49-8a54-27077409d229, ba3fa48b-b555-490d-9082-3d93dca22e72-->

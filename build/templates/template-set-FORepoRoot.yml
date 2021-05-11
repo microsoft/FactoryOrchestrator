@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # If multiple repos are checked out, this script detects if source is from GitHub or ADO to set the path properly.
 steps:
 - pwsh: |

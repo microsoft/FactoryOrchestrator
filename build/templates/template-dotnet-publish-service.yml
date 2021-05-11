@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # publishes a variant of the Service
 parameters:
   BuildConfiguration: 'Release'

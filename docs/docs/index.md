@@ -1,3 +1,6 @@
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
 ---
 author: themar-msft;hajya
 ms.date: 09/30/2019
