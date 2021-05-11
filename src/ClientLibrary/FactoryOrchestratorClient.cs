@@ -69,7 +69,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <param name="serverIdentity">The service certificate identity to use</param>
         /// <param name="certhash">The service certificate hash to use</param>
         /// <returns>List of FactoryOrchestratorClient representing all discovered clients</returns>
-        public static List<FactoryOrchestratorClient> DiscoverFactoryOrchestratorServices(int secondsToWait, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
+        public static List<FactoryOrchestratorClient> DiscoverFactoryOrchestratorDevices(int secondsToWait = 5, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
         {
             List<FactoryOrchestratorClient> clients = new List<FactoryOrchestratorClient>();
             using (var sd = new ServiceDiscovery())

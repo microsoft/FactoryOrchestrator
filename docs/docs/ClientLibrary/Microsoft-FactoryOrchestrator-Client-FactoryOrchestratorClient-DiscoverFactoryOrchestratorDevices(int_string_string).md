@@ -1,20 +1,20 @@
 #### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client')
 ### [Microsoft.FactoryOrchestrator.Client](./Microsoft-FactoryOrchestrator-Client.md 'Microsoft.FactoryOrchestrator.Client').[FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')
-## FactoryOrchestratorClient.DiscoverFactoryOrchestratorServices(int, string, string) Method
+## FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(int, string, string) Method
 Uses DNS-SD to find all Factory Orchestrator services on your local network.  
 ```csharp
-public static System.Collections.Generic.List<Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient> DiscoverFactoryOrchestratorServices(int secondsToWait, string serverIdentity="FactoryServer", string certhash="E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F");
+public static System.Collections.Generic.List<Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient> DiscoverFactoryOrchestratorDevices(int secondsToWait=5, string serverIdentity="FactoryServer", string certhash="E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F");
 ```
 #### Parameters
-<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-secondsToWait'></a>
+<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorDevices(int_string_string)-secondsToWait'></a>
 `secondsToWait` [System.Int32](https://docs.microsoft.com/en-us/dotnet/api/System.Int32 'System.Int32')  
 Number of seconds to wait for services to respond  
   
-<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-serverIdentity'></a>
+<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorDevices(int_string_string)-serverIdentity'></a>
 `serverIdentity` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The service certificate identity to use  
   
-<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-certhash'></a>
+<a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorDevices(int_string_string)-certhash'></a>
 `certhash` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The service certificate hash to use  
   
