@@ -527,7 +527,7 @@ On retry</value>
     <value>Reboot</value>
   </data>
   <data name="RemoteHost.Text" xml:space="preserve">
-    <value>Or, please select the device you wish to connect to:</value>
+    <value>or please select the device you wish to connect to:</value>
   </data>
   <data name="RenameListBlock.Text" xml:space="preserve">
     <value>Rename TaskList</value>
