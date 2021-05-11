@@ -79,7 +79,7 @@ To run the Factory Orchestrator app, use the Start menu to launch "Factory Orche
 
 ![Connect page of app](./images/connectpage.png)
 
-See [Run using the application](use-the-factory-orchestrator-app.md) for details on how to use the app.
+See [Using the application](use-the-factory-orchestrator-app.md) for details on how to use the app.
 
 ### Run the app via Windows Device Portal
 Alternately, use [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal) to run the app:
@@ -87,3 +87,12 @@ Alternately, use [Windows Device Portal](https://docs.microsoft.com/en-us/window
 1. Connect to the device where the app is installed with Device Portal
 2. From Device Portal's Apps manager tab, choose `Factory Orchestrator (App)` from the Installed Apps list.
 3. Click Start
+
+## Install the PowerShell module
+The PowerShell module is [available on PowerShell Gallery](https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/) and can be installed by running the following command:
+
+```powershell
+Install-Module Microsoft.FactoryOrchestrator.Client
+```
+
+[PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell) is required. See [Using PowerShell or C# code](use-the-factory-orchestrator-api.md) for usage details.

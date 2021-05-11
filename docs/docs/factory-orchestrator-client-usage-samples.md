@@ -1,5 +1,5 @@
 # Factory Orchestrator Client API Samples
-This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer. **It is recommended you read the [Run using the client API](use-the-factory-orchestrator-api.md) page before this one.**
+This page describes how to perform a variety of tasks with the Factory Orchestrator client APIs, using C# code snippets. There is also a complete C# client sample you can use as a starting point if you prefer. **It is recommended you read the [Using PowerShell or C# code](use-the-factory-orchestrator-api.md) page before this one.**
 
 Remember:
 
