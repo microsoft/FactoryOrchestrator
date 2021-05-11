@@ -353,6 +353,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#install-the-powershell-module" class="md-nav__link">
+    Install the PowerShell module
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -400,7 +407,7 @@
   
     <li class="md-nav__item">
       <a href="../use-the-factory-orchestrator-app/" class="md-nav__link">
-        Run using the application
+        Using the application
       </a>
     </li>
   
@@ -415,7 +422,7 @@
   
     <li class="md-nav__item">
       <a href="../use-the-factory-orchestrator-api/" class="md-nav__link">
-        Run using the client API
+        Using PowerShell or C# code
       </a>
     </li>
   
@@ -621,6 +628,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#install-the-powershell-module" class="md-nav__link">
+    Install the PowerShell module
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -687,7 +701,7 @@ For more information, see about_Execution_Policies at https://go.microsoft.com/f
 <h2 id="run-the-app">Run the app</h2>
 <p>To run the Factory Orchestrator app, use the Start menu to launch "Factory Orchestrator". The Factory Orchestrator app will start on the PC. If the PC has the Factory Orchestrator service running, it will automatically connect to the service. If not, you will be prompted to select the remote PC running Factory Orchestrator service you wish to connect to.</p>
 <p><img alt="Connect page of app" src="../images/connectpage.png" /></p>
-<p>See <a href="../use-the-factory-orchestrator-app/">Run using the application</a> for details on how to use the app.</p>
+<p>See <a href="../use-the-factory-orchestrator-app/">Using the application</a> for details on how to use the app.</p>
 <h3 id="run-the-app-via-windows-device-portal">Run the app via Windows Device Portal</h3>
 <p>Alternately, use <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a> to run the app:</p>
 <ol>
@@ -695,6 +709,11 @@ For more information, see about_Execution_Policies at https://go.microsoft.com/f
 <li>From Device Portal's Apps manager tab, choose <code>Factory Orchestrator (App)</code> from the Installed Apps list.</li>
 <li>Click Start</li>
 </ol>
+<h2 id="install-the-powershell-module">Install the PowerShell module</h2>
+<p>The PowerShell module is <a href="https://www.powershellgallery.com/packages/Microsoft.FactoryOrchestrator.Client/">available on PowerShell Gallery</a> and can be installed by running the following command:</p>
+<pre><code class="language-powershell">Install-Module Microsoft.FactoryOrchestrator.Client
+</code></pre>
+<p><a href="https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell">PowerShell 7+</a> is required. See <a href="../use-the-factory-orchestrator-api/">Using PowerShell or C# code</a> for usage details.</p>
                 
               
               
