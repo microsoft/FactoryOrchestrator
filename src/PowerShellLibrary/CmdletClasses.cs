@@ -96,7 +96,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         protected override void ProcessRecord()
         {
-            var asyncClients = FactoryOrchestratorClient.DiscoverFactoryOrchestratorServices(SecondsToWait);
+            var asyncClients = FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(SecondsToWait);
             FactoryOrchestratorClientSync[] syncClients = new FactoryOrchestratorClientSync[asyncClients.Count];
             int i = 0;
             foreach (var ac in asyncClients)

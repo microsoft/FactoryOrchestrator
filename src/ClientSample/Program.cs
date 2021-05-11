@@ -138,7 +138,7 @@ namespace Microsoft.FactoryOrchestrator.ClientSample
         private static void DiscoverServices(int seconds)
         {
             Console.WriteLine(Resources.LookingForServices);
-            var discovered = FactoryOrchestratorClient.DiscoverFactoryOrchestratorServices(seconds);
+            var discovered = FactoryOrchestratorClient.DiscoverFactoryOrchestratorDevices(seconds);
             if (discovered.Any())
             {
                 Console.WriteLine(Resources.FoundServices);
