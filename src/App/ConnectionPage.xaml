@@ -16,11 +16,9 @@
                 <Border Grid.Column="0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Uid="Hostname" Margin="0,0,5,0"/>
                             <TextBlock Text="{x:Bind HostName, Mode=OneWay}" FontWeight="Bold" TextWrapping="WrapWholeWords"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Uid="IpAddress"  Margin="0,0,5,0"/>
                             <TextBlock Text="{x:Bind IpAddressList, Mode=OneWay}"
                                        TextWrapping="WrapWholeWords" />
                         </StackPanel>

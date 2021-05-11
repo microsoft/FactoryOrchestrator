@@ -3,7 +3,7 @@
 ## FactoryOrchestratorClient.DiscoverFactoryOrchestratorServices(int, string, string) Method
 Uses DNS-SD to find all Factory Orchestrator services on your local network.  
 ```csharp
-public static System.Collections.Generic.IEnumerable<Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient> DiscoverFactoryOrchestratorServices(int secondsToWait, string serverIdentity="FactoryServer", string certhash="E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F");
+public static System.Collections.Generic.List<Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient> DiscoverFactoryOrchestratorServices(int secondsToWait, string serverIdentity="FactoryServer", string certhash="E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F");
 ```
 #### Parameters
 <a name='Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-DiscoverFactoryOrchestratorServices(int_string_string)-secondsToWait'></a>
@@ -19,5 +19,5 @@ The service certificate identity to use
 The service certificate hash to use  
   
 #### Returns
-[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable')[FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable')  
-IEnumerable of FactoryOrchestratorClient representing all discovered clients  
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')[FactoryOrchestratorClient](./Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List')  
+List of FactoryOrchestratorClient representing all discovered clients  
