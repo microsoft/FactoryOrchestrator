@@ -356,7 +356,7 @@ stages:
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
             # binskim
-            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*JKang.*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*PE-Utility.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*PeterKottas.*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*DasMulli.*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*FactoryOrchestraor*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*FactoryOrchestrator*.exe'
+            AnalyzeTarget: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*JKang.*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*PE-Utility.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*FactoryOrchestraor*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/*FactoryOrchestrator*.exe;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/Common.Logging*.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/System.Net.IPNetwork.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/SimpleBase.dll;$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms/Makaretu.*.dll'
             AnalyzeSymPath: 'SRV*'
             # component-governance
             sourceScanPath: '$(FORepoRoot)/src'
