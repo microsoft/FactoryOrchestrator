@@ -16,6 +16,7 @@
     <!-- <RepositoryUrl>https://github.com/AndresTraks/pe-utility</RepositoryUrl> -->
     <PackageProjectUrl>https://github.com/AndresTraks/pe-utility</PackageProjectUrl>
     <Version>3.0.0</Version>
+    <Copyright>© Andres Traks</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>
