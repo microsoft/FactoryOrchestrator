@@ -1,8 +1,12 @@
 # Use the Factory Orchestrator app
 The app is a Windows-only app and it depends on the service to run. However, it can connect to a service running on any DUT on your local network, not just to the same device the app is running on. This includes connecting to a DUT running Linux!
 
+ If the PC you run the app on has the Factory Orchestrator service running, it will automatically connect to the service as soon as the app loads. If not, you will be prompted to select the remote PC running Factory Orchestrator service you wish to connect to.
+
+![Connect page of app](./images/connectpage.png)
+
 ## Run a TaskList
-When you first run the Factory Orchestrator app, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app likely won't show any TaskLists. Once you create a TaskList, it will show up on this screen.
+When you first connect to a device with the Factory Orchestrator app, you're presented with the 'Run TaskLists' tab. If you're opening the app for the first time, the app likely won't show any TaskLists. Once you create a TaskList, it will show up on this screen.
 
 Once you've [created or imported a TaskList into Factory Orchestrator, you can run it](#managing-tasklists). This topic covers the process of running a TaskList.
 

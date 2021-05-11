@@ -4,7 +4,7 @@
 
 Built to allow device manufacturers and developers to focus more on their validation and calibration software, and less on how to run, audit, and manage the lifecycle of their programs, Factory Orchestrator is a .NET Core cross-platform system service for organizing, executing, and logging a set of executable scripts, binaries, or ["Tasks"](https://microsoft.github.io/FactoryOrchestrator/tasks-and-tasklists/) on a system. Factory Orchestrator tracks task information, including run unique per-run results and logging; even persisting task state to allow the service to be resilient to data loss due to system failure. Factory Orchestrator also provides an optional [client app](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app/) for Windows and a [robust client API surface](https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-api/) for clients to monitor & interact with the service via the App or C# .NET, C# UWP, or PowerShell code. The app and and any other client can communicate with any Factory Orchestrator service running on the same system and/or over a network to a remote [device under test (DUT)](https://en.wikipedia.org/wiki/Device_under_test)!
 
-Learn more about this tool and how to use it by reading the [documentation here](https://microsoft.github.io/FactoryOrchestrator/).
+**Learn much more about this tool and how to use it by reading the [documentation on github.io](https://microsoft.github.io/FactoryOrchestrator/).**
 
 ## **Factory Orchestrator consists of the following projects and binary releases:**
 
