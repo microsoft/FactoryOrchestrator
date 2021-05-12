@@ -466,7 +466,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContainerGuiWarning.Visibility = (bool)ContainerCheckBox.IsChecked ? Visibility.Visible : Visibility.Collapsed;
             ContainerGuiWarningExample.Visibility = ContainerGuiWarning.Visibility;
-            LaunchRD.Visibility = ContainerGuiWarning.Visibility;
+
+            if (Client.IsLocalHost)
+            {
+                // RD button only works on LocalHost
+                LaunchRD.Visibility = ContainerGuiWarning.Visibility;
+            }
         }
 
         private async void LaunchRD_Click(object sender, RoutedEventArgs e)
