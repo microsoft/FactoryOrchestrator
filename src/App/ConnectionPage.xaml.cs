@@ -74,6 +74,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 IpTextBox.Text = (string)localSettings.Values["lastIp"];
             }
 
+            CheckIfEnableConnectButton();
+
             Task.Run(async () =>
             {
                 // Attempt to connect to localhost every 2 seconds in a background task
@@ -191,6 +193,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CheckIfEnableConnectButton();
+        }
+
+        private void CheckIfEnableConnectButton()
         {
             var allTextBoxes = GetAllTextBoxes(this);
             bool validData = true;

@@ -115,6 +115,21 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 throw new ArgumentNullException(nameof(path));
             }
 
+            bool alreadyExists = false;
+            try
+            {
+                var _ = StorageFolder.GetFolderFromPathAsync(path).AsTask().Result;
+                alreadyExists = true;
+            }
+            catch (FileNotFoundException)
+            {}
+
+            if (alreadyExists)
+            {
+                return;
+            }
+
+            // Try to create parent folder
             StorageFolder parent;
             var parentPath = Path.GetDirectoryName(path);
 

@@ -64,17 +64,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     PathText.Visibility = Visibility.Visible;
                     PathTextLabel.Visibility = Visibility.Visible;
                 }
-
-                string mediaPath = taskRun.TaskPath;
-                MediaType mediaType = GetInstructionalMediaType(mediaPath);
-                if (mediaType == MediaType.Image)
-                {
-                    AddSourceToImage(mediaPath, InstructionalImage, MediaProblems);
-                }
-                else if (mediaType == MediaType.Video)
-                {
-                    AddSourceToVideoAndDisplay(mediaPath, InstructionalVideo, MediaProblems);
-                }
             }
 
             string argsString = taskRun.Arguments;
@@ -92,6 +81,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 TaskRunText.Visibility = Visibility.Visible;
                 TaskRunTextLabel.Visibility = Visibility.Visible;
             }
+
+            string mediaPath = taskRun.TaskPath;
+            MediaType mediaType = GetInstructionalMediaType(mediaPath);
+            if (mediaType == MediaType.Image)
+            {
+                AddSourceToImage(mediaPath, InstructionalImage, MediaProblems);
+            }
+            else if (mediaType == MediaType.Video)
+            {
+                AddSourceToVideoAndDisplay(mediaPath, InstructionalVideo, MediaProblems);
+            }
+
             base.OnNavigatedTo(e);
         }
 
@@ -358,9 +359,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             Video,
             None
         }
-        private readonly StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+        private readonly StorageFolder localFolder = ApplicationData.Current.TemporaryFolder;
         // List of all supported image extensions
-        private readonly List<string> SupportedImageExtensions = new List<string> { ".JPG", ".JPE", ".BMP", ".GIF", ".PNG" };
+        private readonly List<string> SupportedImageExtensions = new List<string> { ".JPG", ".JPEG", ".JPE", ".BMP", ".GIF", ".PNG" };
         // List of all supported video extensions
         private readonly List<string> SupportedVideoExtensions = new List<string> { ".MP4", ".AVI", ".WMV" };
         private bool testReportReady;

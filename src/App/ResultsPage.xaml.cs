@@ -106,8 +106,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
                 {
-                    // Set task status to not run
-                    OverallTaskResult.Text = "❔ Not Run";
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    {
+                        // Set task status to not run
+                        OverallTaskResult.Text = "❔ Not Run";
+                    });
                 }
             }
             else if (_test.TaskRunGuids.Count == 0)
