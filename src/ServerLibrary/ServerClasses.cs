@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using PEUtility;
 using System.Globalization;
 using System.Xml;
+using Microsoft.Win32;
 
 namespace Microsoft.FactoryOrchestrator.Server
 {
@@ -913,7 +914,7 @@ namespace Microsoft.FactoryOrchestrator.Server
                             try
                             {
                                 var s = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(taskRun.TaskPath));
-                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://127.0.0.1/api/taskmanager/app?appid=" + s);
+                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://127.0.0.1:" + GetWdpHttpPort() + @"/api/taskmanager/app?appid=" + s);
                                 request.Method = "POST";
                                 response = (HttpWebResponse)request.GetResponse();
                             }
@@ -1112,7 +1113,7 @@ namespace Microsoft.FactoryOrchestrator.Server
             string appFullName = "";
             try
             {
-                var response = WDPHelpers.WdpHttpClient.GetAsync(new Uri("http://localhost/api/app/packagemanager/packages")).Result;
+                var response = WDPHelpers.WdpHttpClient.GetAsync(new Uri("http://localhost:" + GetWdpHttpPort() + "/api/app/packagemanager/packages")).Result;
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -2605,6 +2606,41 @@ namespace Microsoft.FactoryOrchestrator.Server
 
             // file is a full path, return it
             return Path.GetFullPath(file);
+        }
+
+        /// <summary>
+        /// Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.
+        /// This is called before every WDP operation as the Factory Orchestrator service usually starts before WDP on boot and WDP can use a dynamic port on Desktop.
+        /// </summary>
+        /// <returns>The HTTP port.</returns>
+        public static int GetWdpHttpPort()
+        {
+            int ret = 80;
+            using (var osdata = Registry.LocalMachine.OpenSubKey(@"OSDATA\SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
+            {
+                if (osdata != null)
+                {
+                    var osdataPort = osdata.GetValue("HttpPort");
+                    if (osdataPort != null)
+                    {
+                        ret = (int)osdataPort;
+                    }
+                }
+            }
+
+            using (var sft = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
+            {
+                if (sft != null)
+                {
+                    var port = sft.GetValue("HttpPort");
+                    if (port != null)
+                    {
+                        ret = (int)port;
+                    }
+                }
+            }
+
+            return ret;
         }
     }
 }

@@ -1,4 +1,4 @@
-<!-- Copyright (c) Microsoft Corporation. -->
+﻿<!-- Copyright (c) Microsoft Corporation. -->
 <!-- Licensed under the MIT license. -->
 
 <Project Sdk="Microsoft.NET.Sdk">
@@ -14,7 +14,8 @@
     <OutputPath>$(OutputRootPath)$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CoreLibrary/Microsoft.FactoryOrchestrator.Core.csproj" />
