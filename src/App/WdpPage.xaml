@@ -9,6 +9,20 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-     <WebView x:Name="wdp"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <WebView x:Name="wdp" Grid.Row="0"/>
+        <StackPanel Orientation="Vertical" Margin="5" Grid.Row="1">
+            <TextBlock x:Name="WdpNotice" x:Uid="WdpNotice" />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="WdpNotice2" x:Uid="WdpNotice2"/>
+                <TextBlock  Margin="5,0,5,0">
+                <Hyperlink x:Name="WdpNoticeUri" NavigateUri="http://127.0.0.1"> here</Hyperlink>
+                </TextBlock>
+                <TextBlock x:Name="WdpNotice3" x:Uid="WdpNotice3" />
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Page>
