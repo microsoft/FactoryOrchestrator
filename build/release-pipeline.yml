@@ -625,7 +625,21 @@ stages:
               - pwsh: |
                   $userModulePath = $env:PSModulePath.Split(';')[0]
                   . robocopy /S "$(Pipeline.Workspace)\SignedBin_Windows_Release_AllPlatforms\Publish\win\Microsoft.FactoryOrchestrator.PowerShell" "$userModulePath\Microsoft.FactoryOrchestrator.Client"
+                  $ErrorActionPreference = "silentlyContinue"
                   publish-module -Name "Microsoft.FactoryOrchestrator.Client" -NuGetApiKey $(OCSYM.PSGalleryApiKey) -AllowPrerelease
+                  $err = Get-Error
+                  if (($err.Exception.HResult -eq -2146233088) -and ($($err.CategoryInfo.TargetName) -eq "Microsoft.PowerShell.PackageManagement.Cmdlets.FindPackage"))
+                  {
+                    # Handle weird bug where publish succeeds but this error is seen
+                    Write-Host "Package successfully published"
+                  }
+                  else
+                  {
+                    #write out error
+                    $ErrorActionPreference = "stop"
+                    write-error $err
+                    exit 1
+                  }
                 condition: and(ne(variables['SKIPPWSHPUBLISH'], 'true'), succeeded())
                 displayName: 'Publish PowerShell module to PSGallery'
 
