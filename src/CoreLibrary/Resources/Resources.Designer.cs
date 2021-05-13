@@ -161,6 +161,15 @@ namespace Microsoft.FactoryOrchestrator.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A client named {0} connected. {1}.
+        /// </summary>
+        public static string ClientConnected {
+            get {
+                return ResourceManager.GetString("ClientConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start connection first!.
         /// </summary>
         public static string ClientNotConnected {

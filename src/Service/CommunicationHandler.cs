@@ -1271,5 +1271,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                 throw;
             }
         }
+
+        public void Connect(string clientIdentifer, string message = "")
+        {
+            FOService.Instance.ServiceLogger.LogDebug($"{Resources.Start}: Connect");
+            FOService.Instance.ServiceLogger.LogInformation(string.Format(CultureInfo.CurrentCulture, Resources.ClientConnected, clientIdentifer, message));
+            FOService.Instance.ServiceLogger.LogDebug($"{Resources.Finish}: Connnect");
+        }
     }
 }

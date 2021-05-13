@@ -481,4 +481,8 @@
     <value>Device IP addresses changed. DNS-SD updated. Advertising on IP Addresses: {0}</value>
     <comment>Debug message shown when a network IP address is added or removed.</comment>
   </data>
+  <data name="ClientConnected" xml:space="preserve">
+    <value>A client named {0} connected. {1}</value>
+    <comment>Message shown when a new client program/app connects to the service</comment>
+  </data>
 </root>

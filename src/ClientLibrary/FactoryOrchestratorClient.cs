@@ -151,6 +151,7 @@ namespace Microsoft.FactoryOrchestrator.Client
             {
                 HostName = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetDnsHostName"));
                 OSVersion = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetOSVersionString"));
+                await _IpcClient.InvokeAsync(CreateIpcRequest("Connect", new object[] { Dns.GetHostName(), $"OS: {Environment.OSVersion.VersionString}. Client version: {FactoryOrchestratorClient.GetClientVersionString()}." }));
             }
             catch (Exception)
             {

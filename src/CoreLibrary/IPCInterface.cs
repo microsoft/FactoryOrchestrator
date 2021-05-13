@@ -190,6 +190,12 @@ namespace Microsoft.FactoryOrchestrator.Core
 
         // Service APIs
         /// <summary>
+        /// Connects the specified client to the service.
+        /// </summary>
+        /// <param name="clientIdentifer">Friendly identifier for the client.</param>
+        /// <param name="message">An optional message.</param>
+        void Connect(string clientIdentifer, string message = "");
+        /// <summary>
         /// Stops all running Tasks and deletes all TaskLists.
         /// </summary>
         /// <param name="preserveLogs">If true, are logs not deleted.</param>
