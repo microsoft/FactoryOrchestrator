@@ -18,6 +18,9 @@ namespace JKang.IpcServiceFramework.Hosting
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
         private readonly SemaphoreSlim _semaphore;
+        private readonly Dictionary<string, bool> _knownConections = new Dictionary<string, bool>();
+
+        protected ILogger Logger => _logger;
 
         protected IpcEndpoint(
             IpcEndpointOptions options,
@@ -50,9 +53,9 @@ namespace JKang.IpcServiceFramework.Hosting
             }
         }
 
-        protected abstract Task WaitAndProcessAsync(Func<Stream, CancellationToken, Task> process, CancellationToken stoppingToken);
+        protected abstract Task WaitAndProcessAsync(Func<Stream, string, CancellationToken, Task> process, CancellationToken stoppingToken);
 
-        private async Task ProcessAsync(Stream server, CancellationToken stoppingToken)
+        private async Task ProcessAsync(Stream server, string clientIdentifier, CancellationToken stoppingToken)
         {
             if (stoppingToken.IsCancellationRequested)
             {
@@ -76,7 +79,19 @@ namespace JKang.IpcServiceFramework.Hosting
                     IpcRequest request;
                     try
                     {
-                        _logger.LogDebug($"Client connected, reading request...");
+                        // Log first connection if loglevel >= information.
+                        // Log every connection if loglevel <= debug.
+                        string message = $"Client connected from {clientIdentifier}.";
+                        if (Logger.IsEnabled(LogLevel.Debug))
+                        {
+                            Logger.LogDebug(message);
+                        }
+                        else if (!_knownConections.ContainsKey(clientIdentifier))
+                        {
+                            Logger.LogInformation(message);
+                            _knownConections[clientIdentifier] = true;
+                        }
+
                         request = await reader.ReadIpcRequestAsync(stoppingToken).ConfigureAwait(false);
                     }
                     catch (IpcSerializationException ex)
@@ -90,6 +105,7 @@ namespace JKang.IpcServiceFramework.Hosting
                     try
                     {
                         _logger.LogDebug($"Request received, invoking '{request.MethodName}'...");
+
                         using (IServiceScope scope = _serviceProvider.CreateScope())
                         {
                             response = await GetReponseAsync(request, scope).ConfigureAwait(false);
@@ -131,7 +147,11 @@ namespace JKang.IpcServiceFramework.Hosting
                 }
                 catch (IpcFaultException ex)
                 {
-                    _logger.LogError(ex, "Failed to process IPC request.");
+                    if (ex.Status != IpcStatus.InternalServerError || _options.LogInternalServerErrors)
+                    {
+                        _logger.LogError(ex, "Failed to process IPC request.");
+                    }
+
                     IpcResponse response;
                     switch (ex.Status)
                     {

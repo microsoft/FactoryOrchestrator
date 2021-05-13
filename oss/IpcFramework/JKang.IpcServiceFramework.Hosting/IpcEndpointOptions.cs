@@ -9,6 +9,7 @@ namespace JKang.IpcServiceFramework.Hosting
         public int MaxConcurrentCalls { get; set; } = 4;
 
         public bool IncludeFailureDetailsInResponse { get; set; }
+        public bool LogInternalServerErrors { get; set; } = true;
 
         public Func<Stream, Stream> StreamTranslator { get; set; }
 

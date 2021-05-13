@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.FactoryOrchestrat
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IpcFramework", "IpcFramework", "{BB6182E5-4177-44D4-A7E8-2590D00941AE}"
 	ProjectSection(SolutionItems) = preProject
-		..\oss\IpcFramework\Directory.Build.props = ..\oss\IpcFramework\Directory.Build.props
+		..\oss\IpcFramework\common.props = ..\oss\IpcFramework\common.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JKang.IpcServiceFramework.Client", "..\oss\IpcFramework\JKang.IpcServiceFramework.Client\JKang.IpcServiceFramework.Client.csproj", "{B4F6BB5B-552D-487E-8CA7-1919A357FFCB}"

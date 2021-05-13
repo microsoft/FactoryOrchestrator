@@ -25,6 +25,7 @@ using Microsoft.Win32;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Makaretu.Dns;
 using System.Net.NetworkInformation;
+using JKang.IpcServiceFramework.Hosting.Tcp;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -80,6 +81,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.IpEndpoint = IPAddress.Any;
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
+                              options.LogInternalServerErrors = false;
                               options.MaxConcurrentCalls = 5;
                               options.SslCertificate = sslCertificate;
                               options.EnableSsl = true;
@@ -92,6 +94,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.IpEndpoint = IPAddress.Loopback;
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
+                              options.LogInternalServerErrors = false;
                               options.MaxConcurrentCalls = 5;
                               options.SslCertificate = sslCertificate;
                               options.EnableSsl = true;
@@ -101,9 +104,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                   .ConfigureLogging(loggingBuilder =>
                   {
 #if DEBUG
-                      var _logLevel = LogLevel.Information;
+                      var _logLevel = LogLevel.Debug;
 #else
-                      var _logLevel = LogLevel.Critical;
+                      var _logLevel = LogLevel.Information;
 #endif
                       // Only log to console, debug, and the service log file
                       loggingBuilder.ClearProviders()
