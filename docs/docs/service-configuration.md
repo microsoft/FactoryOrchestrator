@@ -29,6 +29,7 @@ The following table describes each setting and its usage:
 | DisableManageTasklistsPage | bool | If set to "true", the Factory Orchestrator app will not show the "Manage TaskLists" page. |
 | DisableFileTransferPage | bool | If set to "true", the Factory Orchestrator app will not show the "File Transfer" page. |
 | SSLCertificateFile | string | Path to X509Certificate2 file. If provided the Factory Orchestrator Service will use the provided certificate for ssl encryption to communicate with client. |
+| IpcLogLevel | [LogLevel enum](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel) | Sets the logging level for the IPC binaries. If set to "Debug", or lower information about every client API call will be saved to the [service log](#factory-orchestrator-service-log-file). |
 | DisableContainerSupport | bool | **Windows only.** If set to "true", the service will not check for a container running Factory Orchestrator on your PC. |
 
 ## Sample appsettings.json

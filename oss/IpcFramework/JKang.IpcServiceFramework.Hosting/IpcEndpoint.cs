@@ -104,7 +104,9 @@ namespace JKang.IpcServiceFramework.Hosting
                     IpcResponse response;
                     try
                     {
-                        _logger.LogDebug($"Request received, invoking '{request.MethodName}'...");
+                        string parameters = (request.Parameters == null) ? "None" : string.Join(",", request.Parameters);
+                        var paramTypes = (request.ParameterTypesByName == null) ? ((request.ParameterTypes == null) ? "None" : string.Join(", ", request.ParameterTypes)) : string.Join(", ", request.ParameterTypesByName.Select(x => x.ParameterType));
+                        _logger.LogDebug($"Request received, invoking '{request.MethodName}' Params '{parameters}' Types '{paramTypes}'...");
 
                         using (IServiceScope scope = _serviceProvider.CreateScope())
                         {
@@ -121,7 +123,7 @@ namespace JKang.IpcServiceFramework.Hosting
 
                     try
                     {
-                        _logger.LogDebug($"Sending response...");
+                        _logger.LogTrace($"Sending response for '{request.MethodName}'...");
                         await writer.WriteAsync(response, stoppingToken).ConfigureAwait(false);
                     }
                     catch (IpcSerializationException ex)
@@ -130,7 +132,7 @@ namespace JKang.IpcServiceFramework.Hosting
                             "Failed to serialize response.", ex);
                     }
 
-                    _logger.LogDebug($"Process finished.");
+                    _logger.LogTrace($"Process finished for '{request.MethodName}'.");
                 }
                 catch (IpcCommunicationException ex)
                 {

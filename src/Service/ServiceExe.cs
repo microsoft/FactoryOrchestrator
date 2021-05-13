@@ -65,7 +65,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate) =>
+        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate, LogLevel logLevel) =>
               Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
@@ -103,14 +103,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                   })
                   .ConfigureLogging(loggingBuilder =>
                   {
-#if DEBUG
-                      var _logLevel = LogLevel.Debug;
-#else
-                      var _logLevel = LogLevel.Information;
-#endif
                       // Only log to console, debug, and the service log file
                       loggingBuilder.ClearProviders()
-                                    .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
+                                    .SetMinimumLevel(logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
                   }).Build();
 
         public static void Main(string[] args)
@@ -249,6 +244,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
         internal readonly string _logFolderValue = @"TaskRunLogFolder";
         private readonly string _servicePortValue = "NetworkPort";
+        private readonly string _ipcLogLevelValue = "IpcLogLevel";
 
         /// <summary>
         /// Default TaskRun log folder path
@@ -356,6 +352,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         private System.Threading.CancellationTokenSource _containerHeartbeatToken;
         private bool _networkAccessEnabled;
         private bool _networkAccessDisabled;
+        /// <summary>
+        /// The desired log level for the IPC classes
+        /// </summary>
+        private LogLevel _ipcLogLevel;
 
         /// <summary>
         /// List of apps to enable local loopback on.
@@ -475,7 +475,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server on desired port. Only start if not a reset operation.
             if (_ipcHost == null)
             {
-                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
+                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate, _ipcLogLevel);
                 _ipcCancellationToken = new System.Threading.CancellationTokenSource();
                 _ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -1972,6 +1972,21 @@ namespace Microsoft.FactoryOrchestrator.Service
                 SSLCertificate = new X509Certificate2(sslCertificateFile);
             }
 
+            try
+            {
+                string enumStr = (string)(GetAppSetting(_ipcLogLevelValue) ?? new ArgumentNullException());
+                _ipcLogLevel = Enum.Parse<LogLevel>(enumStr);
+            }
+            catch (Exception)
+            {
+#if DEBUG
+                _ipcLogLevel = LogLevel.Debug;
+#else
+                _ipcLogLevel = LogLevel.Information;
+#endif
+            }
+
+
             return true;
         }
 
@@ -2042,7 +2057,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             return run;
         }
 
-        #region IDisposable Support
+#region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -2072,6 +2087,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+#endregion
     }
 }
