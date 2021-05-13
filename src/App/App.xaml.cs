@@ -501,9 +501,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         OnServiceDoneExecutingBootTasks?.Invoke();
                         break;
                     case ServiceEventType.WaitingForExternalTaskRun:
-                        // Check if we are localhost, if so we are the DUT and will show UI for the External task.
-                        // If not, do nothing, as we are not the DUT.
-                        if (Client.IsLocalHost)
                         {
                             // TODO: Performance: this should be in its own thread, so other service events can be handled
                             // Only allow one external run at a time
@@ -529,8 +526,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                     }
                                 }
                             }
-                            if (!run.TaskRunComplete)
+                            if (!run.TaskRunComplete && Settings.ShowExternalTasks)
                             {
+                                // Show external task page
                                 await HandleExternalTaskRunAsync(run);
                             }
                         }
@@ -586,6 +584,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
         }
+
 
         private async Task HandleContainerTaskRunRedirectedToRunAsRDUserAsync()
         {

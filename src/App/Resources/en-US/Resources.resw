@@ -239,18 +239,6 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
     <value>Port:</value>
     <comment>Port number on which Microsoft.FactoryOrchestrator.Service is running.</comment>
   </data>
-  <data name="PortTextBox.Text" xml:space="preserve">
-    <value>45684</value>
-    <comment>Default port number for Microsoft.FactoryOrchestrator.Service.</comment>
-  </data>
-  <data name="CertHashTextBox.Text" xml:space="preserve">
-    <value>E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F</value>
-    <comment>Default certificate hash for target machine.</comment>
-  </data>
-  <data name="ServerNameTextBox.Text" xml:space="preserve">
-    <value>FactoryServer</value>
-    <comment>Default distinguished name for target machine.</comment>
-  </data>
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>Connect to custom IP and port</value>
   </data>
@@ -697,11 +685,9 @@ On retry</value>
     <value>total runs</value>
     <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
   </data>
-  <data name="TrackExecutionCheck.Content" xml:space="preserve">
-    <value>Track Execution</value>
-  </data>
-  <data name="TrackExecutionCheck.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Automatically update UI to follow the running Task(s)</value>
+  <data name="SettingsTrackExecution.Content" xml:space="preserve">
+    <value>Follow TaskList Execution</value>
+    <comment>Checkbox to automatically update the UI  to follow the running Task(s)</comment>
   </data>
   <data name="Unknown" xml:space="preserve">
     <value>❔ Unknown</value>
@@ -783,5 +769,17 @@ On retry</value>
   <data name="HelpButton.Content" xml:space="preserve">
     <value>View the Factory Orchestrator documentation online</value>
     <comment>Button to open factory orchestrator documentation website in user's web browser</comment>
+  </data>
+  <data name="SettingsHeader.Text" xml:space="preserve">
+    <value>App settings</value>
+    <comment>Header for settings related to this app</comment>
+  </data>
+  <data name="SettingsShowExternalTasks.Content" xml:space="preserve">
+    <value>Show External Task UI</value>
+    <comment>checkbox setting to enable or disable the page shown when an external task is run</comment>
+  </data>
+  <data name="SettingsSubheader.Content" xml:space="preserve">
+    <value>See documentation for more details</value>
+    <comment>Hyperlink to website with more details about app settings</comment>
   </data>
 </root>

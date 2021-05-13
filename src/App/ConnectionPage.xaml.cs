@@ -54,25 +54,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 lastNavTag = e.Parameter as string;
             }
 
-            if (localSettings.Values.ContainsKey("lastPort"))
-            {
-                PortTextBox.Text = (string)localSettings.Values["lastPort"];
-            }
-
-            if (localSettings.Values.ContainsKey("lastServer"))
-            {
-                ServerNameTextBox.Text = (string)localSettings.Values["lastServer"];
-            }
-
-            if (localSettings.Values.ContainsKey("lastHash"))
-            {
-                CertHashTextBox.Text = (string)localSettings.Values["lastHash"];
-            }
-
-            if (localSettings.Values.ContainsKey("lastIp"))
-            {
-                IpTextBox.Text = (string)localSettings.Values["lastIp"];
-            }
+            // Initialize UI
+            PortTextBox.Text = Settings.LastPort;
+            ServerNameTextBox.Text = Settings.LastServer;
+            CertHashTextBox.Text = Settings.LastHash;
+            IpTextBox.Text = Settings.LastIp;
+            this.Loaded += ConnectionPage_Loaded;
 
             Task.Run(async () =>
             {
@@ -119,6 +106,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 }
             });
+        }
+
+        private void ConnectionPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            CheckIfEnableConnectButton();
         }
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -192,6 +184,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            CheckIfEnableConnectButton();
+        }
+
+        private void CheckIfEnableConnectButton()
+        {
+            // Quick check to ensure every text box has something in it
             var allTextBoxes = GetAllTextBoxes(this);
             bool validData = true;
             foreach (TextBox textbox in allTextBoxes)
@@ -201,10 +199,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     validData = false;
                 }
             }
-            if (validData)
-            {
-                ConnectButton.IsEnabled = true;
-            }
+
+            ConnectButton.IsEnabled = validData;
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)

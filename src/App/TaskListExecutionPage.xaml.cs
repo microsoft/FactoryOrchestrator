@@ -35,7 +35,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _selectedTaskList = -1;
             _selectedTaskListGuid = Guid.Empty;
             _selectedTaskGuid = Guid.Empty;
-            _trackExecution = true;
             _headerUpdateLock = new object();
             mainPage = null;
             TaskListCollection = new ObservableCollection<TaskListSummary>();
@@ -43,6 +42,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ResultsPageEmbedded.IsEmbedded = true;
             ((App)Application.Current).OnServiceDoneExecutingBootTasks += TaskListExecutionPage_OnServiceDoneExecutingBootTasks;
             ((App)Application.Current).OnServiceStart += TaskListExecutionPage_OnServiceStart;
+            Settings.PropertyChanged += Settings_PropertyChanged;
         }
 
         private void TaskListsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -61,7 +61,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     // Show loading ring
                     LoadingTasksRing.IsActive = true;
 
-                    if (_trackExecution)
+                    if (Settings.TrackExecution)
                     {
                         EnsureSelectedIndexVisible(TaskListsView, TaskListsScrollView);
                     }
@@ -164,7 +164,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             }
                         }
 
-                        if (_trackExecution)
+                        if (Settings.TrackExecution)
                         {
                             // Show mini window with latest output
                             var latestTask = taskArray.Where(x => x.LatestTaskRunStatus == TaskStatus.Running).DefaultIfEmpty(null).LastOrDefault();
@@ -176,25 +176,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             if (latestTask != null)
                             {
                                 // Select the running task
-                                var item = ActiveListCollection.Where(x => x.Task.Guid == latestTask.Guid).First();
-                                ActiveTestsResultsView.SelectedItem = item;
-                                ActiveTestsView.SelectedItem = item;
-                                FollowOutput = true;
-
-                                // Ensure the running task has changed before updating UI
-                                if (_selectedTaskGuid != latestTask.Guid)
-                                {
-                                    // Prepare result preview
-                                    _selectedTaskGuid = latestTask.Guid;
-                                    await ResultsPageEmbedded.SetupForTask(latestTask);
-                                    // Make result preview visible
-                                    ResultsPreviewScrollView.Visibility = Visibility.Visible;
-                                    ResultsPreviewTaskName.Visibility = Visibility.Visible;
-                                    ResultsPreviewTaskName.Text = latestTask.Name;
-                                    LayoutRoot.RowDefinitions.Last().Height = new GridLength(1, GridUnitType.Star);
-                                    LayoutRoot.RowDefinitions[2].Height = GridLength.Auto;
-                                    EnsureSelectedIndexVisible(ActiveTestsView, TestsScrollView);
-                                }
+                                await TrackTaskExecution(latestTask);
                             }
                             else if (!TaskListCollection.Any(x => (x.Guid != _selectedTaskListGuid) && (x.IsRunningOrPending)))
                             {
@@ -225,6 +207,29 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     LoadingTasksRing.IsActive = false;
                     ActiveListCollection.Clear();
                 });
+            }
+        }
+
+        private async Task TrackTaskExecution(TaskBase latestTask, bool settingChanged = false)
+        {
+            var item = ActiveListCollection.Where(x => x.Task.Guid == latestTask.Guid).First();
+            ActiveTestsResultsView.SelectedItem = item;
+            ActiveTestsView.SelectedItem = item;
+            FollowOutput = true;
+
+            // Ensure the running task has changed before updating UI
+            if (settingChanged || (_selectedTaskGuid != latestTask.Guid))
+            {
+                // Prepare result preview
+                _selectedTaskGuid = latestTask.Guid;
+                await ResultsPageEmbedded.SetupForTask(latestTask).ConfigureAwait(true);
+                // Make result preview visible
+                ResultsPreviewScrollView.Visibility = Visibility.Visible;
+                ResultsPreviewTaskName.Visibility = Visibility.Visible;
+                ResultsPreviewTaskName.Text = latestTask.Name;
+                LayoutRoot.RowDefinitions.Last().Height = new GridLength(1, GridUnitType.Star);
+                LayoutRoot.RowDefinitions[2].Height = GridLength.Auto;
+                EnsureSelectedIndexVisible(ActiveTestsView, TestsScrollView);
             }
         }
 
@@ -264,7 +269,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             return;
                         }
 
-                        if (_trackExecution)
+                        if (Settings.TrackExecution)
                         {
                             // Find the latest running list. If none are running find the first run pending list.
                             var latestList = newSummaries.Where(x => x.Status == TaskStatus.Running).DefaultIfEmpty(new TaskListSummary()).LastOrDefault();
@@ -379,7 +384,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (_selectedTaskList != -1)
             {
                 TaskListsView.SelectedIndex = _selectedTaskList;
-                if (_trackExecution)
+                if (Settings.TrackExecution)
                 {
                     EnsureSelectedIndexVisible(TaskListsView, TaskListsScrollView);
                 }
@@ -478,12 +483,31 @@ namespace Microsoft.FactoryOrchestrator.UWP
             RunListButton_Click(sender, e);
         }
 
-        private void TrackExecutionCheck_Checked(object sender, RoutedEventArgs e)
+        private async void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            _trackExecution = (bool)TrackExecutionCheck.IsChecked;
-            if (!_trackExecution)
+            if (e.PropertyName == Settings.TrackExecutionKey)
             {
-                EndTrackExecution();
+                if (!Settings.TrackExecution)
+                {
+                    EndTrackExecution();
+                }
+                else
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        // Show mini window with latest output
+                        var latestTask = ActiveListCollection.Select(x => x.Task).Where(t => t.LatestTaskRunStatus == TaskStatus.Running).DefaultIfEmpty(null).LastOrDefault();
+                        if (latestTask == null)
+                        {
+                            latestTask = ActiveListCollection.Select(x => x.Task).Where(t => t.LatestTaskRunStatus == TaskStatus.RunPending).DefaultIfEmpty(null).FirstOrDefault();
+                        }
+
+                        if (latestTask != null)
+                        {
+                            await TrackTaskExecution(latestTask, true).ConfigureAwait(true);
+                        }
+                    });
+                }
             }
         }
 
@@ -626,7 +650,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private int _selectedTaskList;
         private Guid _selectedTaskListGuid;
         private Guid _selectedTaskGuid;
-        private bool _trackExecution;
         private readonly object _headerUpdateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
         public ObservableCollection<TaskListSummary> TaskListCollection { get; private set; }

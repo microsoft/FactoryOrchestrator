@@ -42,7 +42,7 @@ if (Test-Path -Path "$SrcPath/Properties/AssemblyInfo.cs")
     Write-Host "Creating assembly info file for:" $file.FullName " version:" $assemblyVersion
 
     #now load all content of the original file and rewrite modified to the same file
-     if ($tfs -eq $true)
+    if ($null -ne $env:AGENT_MACHINENAME)
     {
         $assemblyContents = Get-Content $file.FullName |
                             ForEach-Object{$_ -replace 'AssemblyDescription.+', "AssemblyDescription("""")]" }

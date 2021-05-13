@@ -460,6 +460,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void SettingsFlyout_Opening(object sender, object e)
+        {
+            SettingsShowExternalTasks.IsChecked = Settings.ShowExternalTasks;
+            SettingsTrackExecution.IsChecked = Settings.TrackExecution;
+        }
+
+        private void SettingsShowExternalTasks_Checked(object sender, RoutedEventArgs e)
+        {
+            Settings.ShowExternalTasks = (bool)SettingsShowExternalTasks.IsChecked;
+        }
+
+        private void SettingsTrackExecution_Checked(object sender, RoutedEventArgs e)
+        {
+            Settings.TrackExecution = (bool)SettingsTrackExecution.IsChecked;
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 

@@ -1,11 +1,5 @@
 <!-- Copyright (c) Microsoft Corporation. -->
 <!-- Licensed under the MIT license. -->
-
----
-author: themar-msft;hajya
-ms.date: 09/30/2019
----
-
 # Factory Orchestrator
 <table><tr>
     <td><a href="images/connectpage.png"><img src="images/connectpage.png" alt="Image of connect page" width="800"></a></td>
