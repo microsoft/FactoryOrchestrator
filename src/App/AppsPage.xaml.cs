@@ -62,7 +62,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             string item = (string)e.ClickedItem;
             int start = item.LastIndexOf('(');
-            string aumid = item.Substring(start + 1, item.Length - start - 1);
+            string aumid = item.Substring(start + 1, item.Length - start - 2);
             await Client.RunApp(aumid);
         }
 

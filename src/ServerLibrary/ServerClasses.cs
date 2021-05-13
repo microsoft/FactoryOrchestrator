@@ -914,7 +914,9 @@ namespace Microsoft.FactoryOrchestrator.Server
                             try
                             {
                                 var s = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(taskRun.TaskPath));
-                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://127.0.0.1:" + GetWdpHttpPort() + @"/api/taskmanager/app?appid=" + s);
+                                var builder = new UriBuilder(@"http://localhost/api/taskmanager/app?appid=" + s);
+                                builder.Port = GetWdpHttpPort();
+                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(builder.Uri);
                                 request.Method = "POST";
                                 response = (HttpWebResponse)request.GetResponse();
                             }
@@ -1113,7 +1115,9 @@ namespace Microsoft.FactoryOrchestrator.Server
             string appFullName = "";
             try
             {
-                var response = WDPHelpers.WdpHttpClient.GetAsync(new Uri("http://localhost:" + GetWdpHttpPort() + "/api/app/packagemanager/packages")).Result;
+                var builder = new UriBuilder(@"http://localhost/api/app/packagemanager/packages");
+                builder.Port = GetWdpHttpPort();
+                var response = WDPHelpers.WdpHttpClient.GetAsync(builder.Uri).Result;
 
                 if (!response.IsSuccessStatusCode)
                 {
