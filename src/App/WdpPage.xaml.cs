@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
 using System;
@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Microsoft.FactoryOrchestrator.Core;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -49,11 +50,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             
-            if (await IsWindowsDevicePortalRunning())
+            if (await IsWindowsDevicePortalRunning().ConfigureAwait(true))
             {
                 string ipAddress = Client.IsLocalHost ? "localhost" : $"{Client.IpAddress.ToString()}";
-                string url = "http://" + ipAddress + ":" + await Client.GetWdpHttpPort();
+                string url;
+                try
+                {
+                    url = "http://" + ipAddress + ":" + await Client.GetWdpHttpPort().ConfigureAwait(true);
+                }
+                catch (FactoryOrchestratorException)
+                {
+                    url = "http://" + ipAddress;
+                }
                 Uri myUri = new Uri(url);
+                WdpNotice2.NavigateUri = myUri;
                 wdp.Navigate(myUri);
             }
             else

@@ -9,6 +9,16 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-     <WebView x:Name="wdp"/>
+        <StackPanel Orientation="Vertical">
+            <WebView x:Name="wdp"/>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock x:Name="WdpNotice" Text="Due to limitations in UWP WebView, you cannot perform certain actions, like close an app. However, if you have a web browser installed, click" Margin="0,0,5,0"/>
+                <TextBlock>
+                    <Hyperlink x:Name="WdpNotice2" NavigateUri="http://127.0.0.1"> here</Hyperlink>
+                </TextBlock>
+                <TextBlock x:Name="WdpNotice3" Text=" to launch WDP in it."/>
+            </StackPanel>
+            
+        </StackPanel>
     </Grid>
 </Page>
