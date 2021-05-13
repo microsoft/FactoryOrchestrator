@@ -1,7 +1,9 @@
 using JKang.IpcServiceFramework.Services;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading;
@@ -27,7 +29,7 @@ namespace JKang.IpcServiceFramework.Hosting.Tcp
         }
 
         protected override async Task WaitAndProcessAsync(
-            Func<Stream, CancellationToken, Task> process,
+            Func<Stream, string, CancellationToken, Task> process,
             CancellationToken cancellationToken)
         {
             if (process is null)
@@ -38,6 +40,8 @@ namespace JKang.IpcServiceFramework.Hosting.Tcp
             using (TcpClient client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false))
             {
                 Stream server = client.GetStream();
+
+                string ipString = ((IPEndPoint)client.Client?.RemoteEndPoint)?.Address?.ToString() == null ? "UNKNOWN" : ((IPEndPoint)client.Client.RemoteEndPoint)?.Address?.ToString();
 
                 if (_options.StreamTranslator != null)
                 {
@@ -51,12 +55,12 @@ namespace JKang.IpcServiceFramework.Hosting.Tcp
                     {
                         ssl.AuthenticateAsServer(_options.SslCertificate
                             ?? throw new IpcHostingConfigurationException("Invalid TCP IPC endpoint configured: SSL enabled without providing certificate."));
-                        await process(ssl, cancellationToken).ConfigureAwait(false);
+                        await process(ssl, ipString, cancellationToken).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    await process(server, cancellationToken).ConfigureAwait(false);
+                    await process(server, ipString, cancellationToken).ConfigureAwait(false);
                 }
 
                 client.Close();

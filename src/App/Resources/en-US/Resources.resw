@@ -787,7 +787,7 @@ On retry</value>
     <comment>Part 1 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
   </data>
   <data name="WdpNotice2.Text" xml:space="preserve">
-    <value>However, if you have a web browser installed, click</value>
+    <value>If you have a web browser installed, click</value>
     <comment>Part 2 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
   </data>
   <data name="WdpNotice3.Text" xml:space="preserve">

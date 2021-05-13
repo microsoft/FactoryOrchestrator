@@ -25,7 +25,7 @@ namespace JKang.IpcServiceFramework.Hosting.NamedPipe
         }
 
         protected override async Task WaitAndProcessAsync(
-            Func<Stream, CancellationToken, Task> process,
+            Func<Stream, string, CancellationToken, Task> process,
             CancellationToken cancellationToken)
         {
             if (process is null)
@@ -45,7 +45,7 @@ namespace JKang.IpcServiceFramework.Hosting.NamedPipe
                 using (var server = NamedPipeNative.CreateNamedPipe(_options.PipeName, (uint) _options.MaxConcurrentCalls, pipeSecurity))
                 {
                     await server.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
-                    await process(server, cancellationToken).ConfigureAwait(false);
+                    await process(server, _options.PipeName, cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -56,7 +56,7 @@ namespace JKang.IpcServiceFramework.Hosting.NamedPipe
                     PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
                 {
                     await server.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
-                    await process(server, cancellationToken).ConfigureAwait(false);
+                    await process(server, _options.PipeName, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

@@ -13,6 +13,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
+        <ProgressRing Grid.Row="0" x:Name="LoadingRing" IsActive="True" Visibility="Visible" Height="100" Width="100"/>
+
         <WebView x:Name="wdp" Grid.Row="0"/>
         <StackPanel Orientation="Vertical" Margin="5" Grid.Row="1">
             <TextBlock x:Name="WdpNotice" x:Uid="WdpNotice" />

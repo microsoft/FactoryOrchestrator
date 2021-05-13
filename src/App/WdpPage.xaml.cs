@@ -49,7 +49,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            
             if (await IsWindowsDevicePortalRunning().ConfigureAwait(true))
             {
                 string ipAddress = Client.IsLocalHost ? "localhost" : $"{Client.IpAddress.ToString()}";
@@ -65,9 +64,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 Uri myUri = new Uri(url);
                 WdpNoticeUri.NavigateUri = myUri;
                 wdp.Navigate(myUri);
+                LoadingRing.IsActive = false;
             }
             else
             {
+                LoadingRing.IsActive = false;
                 ContentDialog failedAppsDialog = new ContentDialog
                 {
                     Title = resourceLoader.GetString("WDPFailedTitle"),

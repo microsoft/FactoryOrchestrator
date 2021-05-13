@@ -25,6 +25,7 @@ using Microsoft.Win32;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Makaretu.Dns;
 using System.Net.NetworkInformation;
+using JKang.IpcServiceFramework.Hosting.Tcp;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -64,7 +65,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate) =>
+        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate, LogLevel logLevel) =>
               Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
@@ -80,6 +81,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.IpEndpoint = IPAddress.Any;
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
+                              options.LogInternalServerErrors = false;
                               options.MaxConcurrentCalls = 5;
                               options.SslCertificate = sslCertificate;
                               options.EnableSsl = true;
@@ -92,6 +94,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                               options.IpEndpoint = IPAddress.Loopback;
                               options.Port = port;
                               options.IncludeFailureDetailsInResponse = true;
+                              options.LogInternalServerErrors = false;
                               options.MaxConcurrentCalls = 5;
                               options.SslCertificate = sslCertificate;
                               options.EnableSsl = true;
@@ -100,14 +103,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                   })
                   .ConfigureLogging(loggingBuilder =>
                   {
-#if DEBUG
-                      var _logLevel = LogLevel.Information;
-#else
-                      var _logLevel = LogLevel.Critical;
-#endif
                       // Only log to console, debug, and the service log file
                       loggingBuilder.ClearProviders()
-                                    .SetMinimumLevel(_logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
+                                    .SetMinimumLevel(logLevel).AddConsole().AddDebug().AddProvider(new LogFileProvider());
                   }).Build();
 
         public static void Main(string[] args)
@@ -246,6 +244,7 @@ namespace Microsoft.FactoryOrchestrator.Service
         private readonly string _runOnFirstBootValue = @"RunInitialTaskListsOnFirstBoot";
         internal readonly string _logFolderValue = @"TaskRunLogFolder";
         private readonly string _servicePortValue = "NetworkPort";
+        private readonly string _ipcLogLevelValue = "IpcLogLevel";
 
         /// <summary>
         /// Default TaskRun log folder path
@@ -353,6 +352,10 @@ namespace Microsoft.FactoryOrchestrator.Service
         private System.Threading.CancellationTokenSource _containerHeartbeatToken;
         private bool _networkAccessEnabled;
         private bool _networkAccessDisabled;
+        /// <summary>
+        /// The desired log level for the IPC classes
+        /// </summary>
+        private LogLevel _ipcLogLevel;
 
         /// <summary>
         /// List of apps to enable local loopback on.
@@ -411,40 +414,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             using var reg = Registry.LocalMachine.OpenSubKey(@"OSDATA\CurrentControlSet\Control\FactoryOrchestrator", false);
             var version = (string)reg?.GetValue("OEMVersion", null);
             return version;
-        }
-
-        /// <summary>
-        /// Gets the Windows Device Portal HTTP port. Does not ensure WDP is running or supports HTTP.
-        /// This is called before every WDP operation as the Factory Orchestrator service usually starts before WDP on boot and WDP can use a dynamic port on Desktop.
-        /// </summary>
-        /// <returns>The HTTP port.</returns>
-        internal static int GetWdpHttpPort()
-        {
-            using (var osdata = Registry.LocalMachine.OpenSubKey(@"OSDATA\SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
-            {
-                if (osdata != null)
-                {
-                    var osdataPort = osdata.GetValue("HttpPort");
-                    if (osdataPort != null)
-                    {
-                        return (int)osdataPort;
-                    }
-                }
-            }
-
-            using (var sft = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\WebManagement\Service", false))
-            {
-                if (sft != null)
-                {
-                    var port = sft.GetValue("HttpPort");
-                    if (port != null)
-                    {
-                        return (int)port;
-                    }
-                }
-            }
-
-            return 80;
         }
 
         public FOService(ILogger<Worker> logger)
@@ -506,7 +475,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server on desired port. Only start if not a reset operation.
             if (_ipcHost == null)
             {
-                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate);
+                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate, _ipcLogLevel);
                 _ipcCancellationToken = new System.Threading.CancellationTokenSource();
                 _ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -837,13 +806,13 @@ namespace Microsoft.FactoryOrchestrator.Service
                             {
                                 // Exit URDC if we launched it.
                                 // There may be a preview app & official app installed, close them all
-                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync("localhost", GetWdpHttpPort())).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
+                                var rdApps = (await WDPHelpers.GetInstalledAppPackagesAsync("localhost", HelperMethods.GetWdpHttpPort())).Packages.Where(x => (x.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)) && (x.FullName.Contains("RemoteDesktop", StringComparison.OrdinalIgnoreCase)));
 
                                 foreach (var app in rdApps)
                                 {
                                     try
                                     {
-                                        await WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", GetWdpHttpPort());
+                                        await WDPHelpers.CloseAppWithWDP(app.FullName, "localhost", HelperMethods.GetWdpHttpPort());
                                     }
                                     catch (Exception)
                                     {
@@ -2003,6 +1972,21 @@ namespace Microsoft.FactoryOrchestrator.Service
                 SSLCertificate = new X509Certificate2(sslCertificateFile);
             }
 
+            try
+            {
+                string enumStr = (string)(GetAppSetting(_ipcLogLevelValue) ?? new ArgumentNullException());
+                _ipcLogLevel = Enum.Parse<LogLevel>(enumStr);
+            }
+            catch (Exception)
+            {
+#if DEBUG
+                _ipcLogLevel = LogLevel.Debug;
+#else
+                _ipcLogLevel = LogLevel.Information;
+#endif
+            }
+
+
             return true;
         }
 
@@ -2073,7 +2057,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             return run;
         }
 
-        #region IDisposable Support
+#region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -2103,6 +2087,6 @@ namespace Microsoft.FactoryOrchestrator.Service
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+#endregion
     }
 }

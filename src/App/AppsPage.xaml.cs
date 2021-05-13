@@ -32,11 +32,19 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // Get installed UWPs
             try
             {
-                PackageStrings = await Client.GetInstalledApps();
+                var packageInfos = (await Client.GetInstalledAppsDetailed()).OrderBy(x => x.Name);
+                PackageStrings = new List<string>();
+                foreach (var pkg in packageInfos)
+                {
+                    PackageStrings.Add($"{pkg.Name} ({pkg.AppId})");
+                }
+
+                LoadingRing.IsActive = false;
                 PackageList.ItemsSource = PackageStrings;
             }
             catch (Exception ex)
             {
+                LoadingRing.IsActive = false;
                 ContentDialog failedAppsDialog = new ContentDialog
                 {
                     Title = resourceLoader.GetString("FailedAppsQuery"),
@@ -52,7 +60,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void PackageList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            await Client.RunApp((string)e.ClickedItem);
+            string item = (string)e.ClickedItem;
+            int start = item.LastIndexOf('(');
+            string aumid = item.Substring(start + 1, item.Length - start - 2);
+            await Client.RunApp(aumid);
         }
 
         public List<string> PackageStrings { get; private set; }

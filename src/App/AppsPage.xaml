@@ -14,6 +14,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" x:Uid="LaunchApp" Style="{StaticResource SubtitleTextBlockStyle}"/>
+        <ProgressRing Grid.Row="1" x:Name="LoadingRing" IsActive="True" Visibility="Visible" Height="100" Width="100"/>
         <ListView x:Name="PackageList" Grid.Row="1" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="PackageList_ItemClick"/>
     </Grid>
 </Page>

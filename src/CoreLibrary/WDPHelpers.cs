@@ -296,7 +296,7 @@ namespace Microsoft.FactoryOrchestrator.Core
                 new Uri($"http://{ipAddress}:{port}"),
                 "api/app/packagemanager/packages");
 
-            var resp =  await WdpHttpClient.GetAsync(uri).ConfigureAwait(false);
+            var resp = await WdpHttpClient.GetAsync(uri).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode)
             {
                 throw new InvalidOperationException(Resources.WDPNotRunningError);
@@ -304,6 +304,28 @@ namespace Microsoft.FactoryOrchestrator.Core
 
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AppPackages));
             return (AppPackages)serializer.ReadObject(await resp.Content.ReadAsStreamAsync());
+        }
+
+        /// <summary>
+        /// Gets the collection of running processes on the device.
+        /// </summary>
+        /// <param name="ipAddress">The ip address of the device to query.</param>
+        /// <param name="port">The port for WDP on the target device.</param>
+        /// <returns>RunningProcesses object containing the list of running processses.</returns>
+        public static async Task<RunningProcesses> GetRunningProcessesAsync(string ipAddress = "localhost", int port = 80)
+        {
+            Uri uri = BuildEndpoint(
+                new Uri($"http://{ipAddress}:{port}"),
+                "api/resourcemanager/processes");
+
+            var resp = await WdpHttpClient.GetAsync(uri).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException(Resources.WDPNotRunningError);
+            }
+
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RunningProcesses));
+            return (RunningProcesses)serializer.ReadObject(await resp.Content.ReadAsStreamAsync());
         }
     }
 
@@ -468,153 +490,360 @@ namespace Microsoft.FactoryOrchestrator.Core
         public bool Success { get; private set; }
     }
 
+    /// <summary>
+    /// Object representing a list of Application Packages
+    /// </summary>
+    [DataContract]
+    public class AppPackages
+    {
         /// <summary>
-        /// Object representing a list of Application Packages
+        /// Gets a list of the packages
         /// </summary>
-        [DataContract]
-        public class AppPackages
-        {
-            /// <summary>
-            /// Gets a list of the packages
-            /// </summary>
-            [DataMember(Name = "InstalledPackages")]
-            public List<PackageInfo> Packages { get; private set; }
-
-            /// <summary>
-            /// Presents a user readable representation of a list of AppPackages
-            /// </summary>
-            /// <returns>User readable list of AppPackages.</returns>
-            public override string ToString()
-            {
-                string output = "Packages:\n";
-                foreach (PackageInfo package in this.Packages)
-                {
-                    output += package;
-                }
-
-                return output;
-            }
-        }
+        [DataMember(Name = "InstalledPackages")]
+        public List<PackageInfo> Packages { get; private set; }
 
         /// <summary>
-        /// object representing the package information
+        /// Presents a user readable representation of a list of AppPackages
         /// </summary>
-        [DataContract]
-        public class PackageInfo
+        /// <returns>User readable list of AppPackages.</returns>
+        public override string ToString()
         {
-            /// <summary>
-            /// Gets package name
-            /// </summary>
-            [DataMember(Name = "Name")]
-            public string Name { get; private set; }
-
-            /// <summary>
-            /// Gets package family name
-            /// </summary>
-            [DataMember(Name = "PackageFamilyName")]
-            public string FamilyName { get; private set; }
-
-            /// <summary>
-            /// Gets package full name
-            /// </summary>
-            [DataMember(Name = "PackageFullName")]
-            public string FullName { get; private set; }
-
-            /// <summary>
-            /// Gets package relative Id
-            /// </summary>
-            [DataMember(Name = "PackageRelativeId")]
-            public string AppId { get; private set; }
-
-            /// <summary>
-            /// Gets package publisher
-            /// </summary>
-            [DataMember(Name = "Publisher")]
-            public string Publisher { get; private set; }
-
-            /// <summary>
-            /// Gets package version
-            /// </summary>
-            [DataMember(Name = "Version")]
-            public PackageVersion Version { get; private set; }
-
-            /// <summary>
-            /// Gets package origin, a measure of how the app was installed. 
-            /// PackageOrigin_Unknown            = 0,
-            /// PackageOrigin_Unsigned           = 1,
-            /// PackageOrigin_Inbox              = 2,
-            /// PackageOrigin_Store              = 3,
-            /// PackageOrigin_DeveloperUnsigned  = 4,
-            /// PackageOrigin_DeveloperSigned    = 5,
-            /// PackageOrigin_LineOfBusiness     = 6
-            /// </summary>
-            [DataMember(Name = "PackageOrigin")]
-            public int PackageOrigin { get; private set; }
-
-            /// <summary>
-            /// Helper method to determine if the app was sideloaded and therefore can be used with e.g. GetFolderContentsAsync
-            /// </summary>
-            /// <returns> True if the package is sideloaded. </returns>
-            public bool IsSideloaded()
+            string output = "Packages:\n";
+            foreach (PackageInfo package in this.Packages)
             {
-                return this.PackageOrigin == 4 || this.PackageOrigin == 5;
+                output += package;
             }
 
-            /// <summary>
-            /// Get a string representation of the package
-            /// </summary>
-            /// <returns>String representation</returns>
-            public override string ToString()
-            {
-                return string.Format(CultureInfo.CurrentCulture, "\t{0}\n\t\t{1}\n", this.FullName, this.AppId);
-            }
-        }
-
-        /// <summary>
-        /// Object representing a package version
-        /// </summary>
-        [DataContract]
-        public class PackageVersion
-        {
-            /// <summary>
-            ///  Gets version build
-            /// </summary>
-            [DataMember(Name = "Build")]
-            public int Build { get; private set; }
-
-            /// <summary>
-            /// Gets package Major number
-            /// </summary>
-            [DataMember(Name = "Major")]
-            public int Major { get; private set; }
-
-            /// <summary>
-            /// Gets package minor number
-            /// </summary>
-            [DataMember(Name = "Minor")]
-            public int Minor { get; private set; }
-
-            /// <summary>
-            /// Gets package revision
-            /// </summary>
-            [DataMember(Name = "Revision")]
-            public int Revision { get; private set; }
-
-            /// <summary>
-            /// Gets package version
-            /// </summary>
-            public Version Version
-            {
-                get { return new Version(this.Major, this.Minor, this.Build, this.Revision); }
-            }
-
-            /// <summary>
-            /// Get a string representation of a version
-            /// </summary>
-            /// <returns>String representation</returns>
-            public override string ToString()
-            {
-                return Version.ToString();
-            }
+            return output;
         }
     }
+
+    /// <summary>
+    /// object representing the package information
+    /// </summary>
+    [DataContract]
+    public class PackageInfo
+    {
+        /// <summary>
+        /// Gets package name
+        /// </summary>
+        [DataMember(Name = "Name")]
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets package family name
+        /// </summary>
+        [DataMember(Name = "PackageFamilyName")]
+        public string FamilyName { get; private set; }
+
+        /// <summary>
+        /// Gets package full name
+        /// </summary>
+        [DataMember(Name = "PackageFullName")]
+        public string FullName { get; private set; }
+
+        /// <summary>
+        /// Gets package relative Id
+        /// </summary>
+        [DataMember(Name = "PackageRelativeId")]
+        public string AppId { get; private set; }
+
+        /// <summary>
+        /// Gets package publisher
+        /// </summary>
+        [DataMember(Name = "Publisher")]
+        public string Publisher { get; private set; }
+
+        /// <summary>
+        /// Gets package version
+        /// </summary>
+        [DataMember(Name = "Version")]
+        public PackageVersion Version { get; private set; }
+
+        /// <summary>
+        /// Gets package origin, a measure of how the app was installed. 
+        /// PackageOrigin_Unknown            = 0,
+        /// PackageOrigin_Unsigned           = 1,
+        /// PackageOrigin_Inbox              = 2,
+        /// PackageOrigin_Store              = 3,
+        /// PackageOrigin_DeveloperUnsigned  = 4,
+        /// PackageOrigin_DeveloperSigned    = 5,
+        /// PackageOrigin_LineOfBusiness     = 6
+        /// </summary>
+        [DataMember(Name = "PackageOrigin")]
+        public int PackageOrigin { get; private set; }
+
+        /// <summary>
+        /// Helper method to determine if the app was sideloaded and therefore can be used with e.g. GetFolderContentsAsync
+        /// </summary>
+        /// <returns> True if the package is sideloaded. </returns>
+        public bool IsSideloaded()
+        {
+            return this.PackageOrigin == 4 || this.PackageOrigin == 5;
+        }
+
+        /// <summary>
+        /// Get a string representation of the package
+        /// </summary>
+        /// <returns>String representation</returns>
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.CurrentCulture, "\t{0}\n\t\t{1}\n", this.FullName, this.AppId);
+        }
+    }
+
+    /// <summary>
+    /// Object representing a package version
+    /// </summary>
+    [DataContract]
+    public class PackageVersion
+    {
+        /// <summary>
+        ///  Gets version build
+        /// </summary>
+        [DataMember(Name = "Build")]
+        public int Build { get; private set; }
+
+        /// <summary>
+        /// Gets package Major number
+        /// </summary>
+        [DataMember(Name = "Major")]
+        public int Major { get; private set; }
+
+        /// <summary>
+        /// Gets package minor number
+        /// </summary>
+        [DataMember(Name = "Minor")]
+        public int Minor { get; private set; }
+
+        /// <summary>
+        /// Gets package revision
+        /// </summary>
+        [DataMember(Name = "Revision")]
+        public int Revision { get; private set; }
+
+        /// <summary>
+        /// Gets package version
+        /// </summary>
+        public Version Version
+        {
+            get { return new Version(this.Major, this.Minor, this.Build, this.Revision); }
+        }
+
+        /// <summary>
+        /// Get a string representation of a version
+        /// </summary>
+        /// <returns>String representation</returns>
+        public override string ToString()
+        {
+            return Version.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Process Info.  Contains app information if the process is an app. 
+    /// </summary>
+    /// <exclude/>
+    [DataContract]
+    public class DeviceProcessInfo
+    {
+        /// <summary>
+        /// Gets the app name. Only present if the process is an app. 
+        /// </summary>
+        [DataMember(Name = "AppName")]
+        public string AppName { get; private set; }
+
+        /// <summary>
+        /// Gets CPU Usage as a percentage of available CPU resources (0-100)
+        /// </summary>
+        [DataMember(Name = "CPUUsage")]
+        public float CpuUsage { get; private set; }
+
+        /// <summary>
+        /// Gets the image name
+        /// </summary>
+        [DataMember(Name = "ImageName")]
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets the process id (pid)
+        /// </summary>
+        [DataMember(Name = "ProcessId")]
+        public uint ProcessId { get; private set; }
+
+        /// <summary>
+        /// Gets the user the process is running as. 
+        /// </summary>
+        [DataMember(Name = "UserName")]
+        public string UserName { get; private set; }
+
+        /// <summary>
+        /// Gets the package full name.  Only present if the process is an app. 
+        /// </summary>
+        [DataMember(Name = "PackageFullName")]
+        public string PackageFullName { get; private set; }
+
+        /// <summary>
+        /// Gets the Page file usage info, in bytes
+        /// </summary>
+        [DataMember(Name = "PageFileUsage")]
+        public ulong PageFile { get; private set; }
+
+        /// <summary>
+        /// Gets the working set size, in bytes
+        /// </summary>
+        [DataMember(Name = "WorkingSetSize")]
+        public ulong WorkingSet { get; private set; }
+
+        /// <summary>
+        /// Gets package working set, in bytes
+        /// </summary>
+        [DataMember(Name = "PrivateWorkingSet")]
+        public ulong PrivateWorkingSet { get; private set; }
+
+        /// <summary>
+        /// Gets session id
+        /// </summary>
+        [DataMember(Name = "SessionId")]
+        public uint SessionId { get; private set; }
+
+        /// <summary>
+        /// Gets total commit, in bytes
+        /// </summary>
+        [DataMember(Name = "TotalCommit")]
+        public ulong TotalCommit { get; private set; }
+
+        /// <summary>
+        /// Gets virtual size, in bytes
+        /// </summary>
+        [DataMember(Name = "VirtualSize")]
+        public ulong VirtualSize { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the app is running 
+        /// (versus suspended). Only present if the process is an app.
+        /// </summary>
+        [DataMember(Name = "IsRunning")]
+        public bool IsRunning { get; private set; }
+
+        /// <summary>
+        /// Gets publisher. Only present if the process is an app.
+        /// </summary>
+        [DataMember(Name = "Publisher")]
+        public string Publisher { get; private set; }
+
+        /// <summary>
+        /// Gets version. Only present if the process is an app.
+        /// </summary>
+        [DataMember(Name = "Version")]
+        public AppVersion Version { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the package is a XAP 
+        /// package. Only present if the process is an app.
+        /// </summary>
+        [DataMember(Name = "IsXAP")]
+        public bool IsXAP { get; private set; }
+
+        /// <summary>
+        /// String representation of a process
+        /// </summary>
+        /// <returns>String representation</returns>
+        public override string ToString()
+        {
+            return string.Format("{0} ({1})", this.AppName, this.Name);
+        }
+    }
+
+    /// <summary>
+    /// Object representing the app version.  Only present if the process is an app. 
+    /// </summary>
+    /// <exclude/>
+    [DataContract]
+    public class AppVersion
+    {
+        /// <summary>
+        /// Gets the major version number
+        /// </summary>
+        [DataMember(Name = "Major")]
+        public uint Major { get; private set; }
+
+        /// <summary>
+        /// Gets the minor version number
+        /// </summary>
+        [DataMember(Name = "Minor")]
+        public uint Minor { get; private set; }
+
+        /// <summary>
+        /// Gets the build number
+        /// </summary>
+        [DataMember(Name = "Build")]
+        public uint Build { get; private set; }
+
+        /// <summary>
+        /// Gets the revision number
+        /// </summary>
+        [DataMember(Name = "Revision")]
+        public uint Revision { get; private set; }
+    }
+
+    /// <summary>
+    /// Running processes
+    /// </summary>
+    /// <exclude/>
+    [DataContract]
+    public class RunningProcesses
+    {
+        /// <summary>
+        /// Gets list of running processes.
+        /// </summary>
+        [DataMember(Name = "Processes")]
+        public List<DeviceProcessInfo> Processes { get; private set; }
+
+        /// <summary>
+        /// Checks to see if this process Id is in the list of processes
+        /// </summary>
+        /// <param name="processId">Process to look for</param>
+        /// <returns>whether the process id was found</returns>
+        public bool Contains(int processId)
+        {
+            bool found = false;
+
+            foreach (DeviceProcessInfo pi in this.Processes)
+            {
+                if (pi.ProcessId == processId)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            return found;
+        }
+
+        /// <summary>
+        /// Checks for a given package name
+        /// </summary>
+        /// <param name="packageName">Name of the package to look for</param>
+        /// <param name="caseSensitive">Whether we should be case sensitive in our search</param>
+        /// <returns>Whether the package was found</returns>
+        public bool Contains(string packageName, bool caseSensitive = true)
+        {
+            bool found = false;
+
+            foreach (DeviceProcessInfo pi in this.Processes)
+            {
+                if (string.Compare(
+                        pi.PackageFullName,
+                        packageName,
+                        caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            return found;
+        }
+    }
+}
