@@ -782,4 +782,16 @@ On retry</value>
     <value>See documentation for more details</value>
     <comment>Hyperlink to website with more details about app settings</comment>
   </data>
+  <data name="WdpNotice.Text" xml:space="preserve">
+    <value>Due to limitations in UWPs, you cannot perform certain actions, like close an app.</value>
+    <comment>Part 1 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
+  </data>
+  <data name="WdpNotice2.Text" xml:space="preserve">
+    <value>However, if you have a web browser installed, click</value>
+    <comment>Part 2 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
+  </data>
+  <data name="WdpNotice3.Text" xml:space="preserve">
+    <value>to launch WDP in it.</value>
+    <comment>Part 3 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
+  </data>
 </root>

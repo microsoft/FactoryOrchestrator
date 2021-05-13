@@ -63,7 +63,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     url = "http://" + ipAddress;
                 }
                 Uri myUri = new Uri(url);
-                WdpNotice2.NavigateUri = myUri;
+                WdpNoticeUri.NavigateUri = myUri;
                 wdp.Navigate(myUri);
             }
             else
