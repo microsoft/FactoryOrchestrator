@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +15,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             AppInstance current = null;
 
             var familystring = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily.ToString();
-            if (familystring.ToLowerInvariant().Contains("desktop"))
+            if (familystring.Contains("desktop", StringComparison.InvariantCultureIgnoreCase))
             {
                 // Always start a new instance when invoked on desktop
                 startNew = true;
@@ -37,7 +37,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if (startNew)
             {
                 AppInstance.FindOrRegisterInstanceForKey("true");
+#pragma warning disable CA1806 // Do not ignore method results
                 global::Windows.UI.Xaml.Application.Start((p) => new App());
+#pragma warning restore CA1806 // Do not ignore method results
             }
             else if (current != null)
             {

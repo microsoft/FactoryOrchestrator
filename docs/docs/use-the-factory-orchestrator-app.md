@@ -21,7 +21,7 @@ Hit the 'Play' button to run a TaskList. As tasks complete, the tasks' output wi
 
 While a TaskList is running, the Factory Orchestrator service will continue to run the tasks, even if you close the Factory Orchestrator app.
 
-If you're running a task or a tasklist, the Factory Orchestrator UI allows you to easily monitor the status of any running task by displaying task status. You can disable this task status display by going to the **Run TaskLists** page and unchecking **Track Execution**.
+If you're running a task or a tasklist, the Factory Orchestrator UI allows you to easily monitor the status of any running task by displaying task status.
 
 ![Image of task status](./images/fo-follow-tasks.png)
 
@@ -127,23 +127,23 @@ From this page, you can:
 
 After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.
 
-# Factory Orchestrator utilities
+## Factory Orchestrator utilities
 
 The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.
 
-## UWP Apps (Windows only)
+### UWP Apps (Windows only)
 
 This launches a UWP app that's installed on a device under test (DUT). This allows you to launch a UWP directly from the Factory Orchestrator app by clicking on its name in the list of installed UWP apps.
 
 See [here](get-started-with-factory-orchestrator.md#windows-uwp-app-support) for setup requirments.
 
-## Windows Device Portal (Windows only)
+### Windows Device Portal (Windows only)
 
 This launches [Windows Device Portal](https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal).
 
 See [here](get-started-with-factory-orchestrator.md#windows-uwp-app-support) for setup requirments.
 
-## Command Prompt
+### Command Prompt
 
 A basic and non-interactive command prompt that allows you to troubleshoot without having to use other methods like SSH or Windows Device Portal to connect to your DUT.
 
@@ -151,18 +151,18 @@ While you can run commands and see output when using the built-in command prompt
 
 ![The Command Prompt screen](./images/fo-cmd.png)
 
-## File Transfer
+### File Transfer
 ![The Transfer Files screen](./images/fo-transfer-files.png)
 
 A very basic file transfer function that enables you to transfer files & folders to and from your device when you're connected from a Windows PC. This feature is not visible in the Factory Orchestrator app when running the app and service on the same device (the "Transfer Files" tab will be hidden).
 
-### One-time setup for file transfer
+#### One-time setup for file transfer
 
 First, [install the Factory Orchestrator app](get-started-with-factory-orchestrator.md#install-the-app) on a Windows system that is __not running the Factory Orchestrator service__.
 
 Next, you need to give the Factory Orchestrator app full file system access for file transfer to work. Follow the directions on the [Windows 10 file system access and privacy](https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy) page to give the Factory Orchestrator app access to your local file system. You may need to launch the app at least once before it appears on the Settings app.
 
-### Send a file or folder to a DUT
+#### Send a file or folder to a DUT
 
 - From your local Windows PC, launch the Factory Orchestrator app and connect to the IP address of the remote DUT.
 - Navigate to "Transfer Files". This tab is only visible if you are connected to a remote DUT.
@@ -170,10 +170,18 @@ Next, you need to give the Factory Orchestrator app full file system access for 
 - In the "Remote File/Fikder" textbox, enter the full path of where you wish the file or folder to be saved on the DUT. Make sure the location you're saving to is writeable.
 - Click "Send Local File/Folder" to transfer the file or folder from the Windows PC to the DUT.
 
-### Receive a file or folder from your DUT
+#### Receive a file or folder from your DUT
 
 - From your local Windows PC, launch the Factory Orchestrator app and connect to the IP address of the remote DUT.
 - Navigate to "Transfer Files". This tab is only visible if you are connected to a remote DUT.
 - In the "Remote File/Folder" textbox, enter the full path of to a file or folder you wish to copy from the DUT.
 - In the "Local File/Folder" textbox, enter the full path of where you wish the file or folder to be saved on your local Windows PC. Make sure the location you're saving to is writeable.
 - Click "Get Remote File/Folder" to transfer the file or folder from the DUT to your local Windows 10 PC.
+
+## App settings
+While most settings are [configured by the service](service-configuration.md), including some that impact the app UI, there are a couple settings you set in the app directly.
+
+| Setting | Details |
+| -----   | -----   |
+| Show External Task UI | If checked, the External Task UI is shown in the app whenever the service executes an [External Task](tasks-and-tasklists.md#factory-orchestrator-tasks). This allows you to pass or fail the Task from the app.<p>If unchecked, the External Task UI is not shown. The External Task will not complete until another Factory Orchestrator app or client completes the Task.<p>![External Task UI](./images/externalTaskNoMedia.png) |
+| Follow TaskList Execution | If checked, the "Run TaskLists" page will automatically show details at the bottom of the page about the running Task.<p>If unchecked, you have to click on the Task name in the "Tasks" column of the page to see details about the running Task.<p>![Image of task status](./images/fo-follow-tasks.png) |

@@ -526,8 +526,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                     }
                                 }
                             }
-                            if (!run.TaskRunComplete)
+                            if (!run.TaskRunComplete && Settings.ShowExternalTasks)
                             {
+                                // Show external task page
                                 await HandleExternalTaskRunAsync(run);
                             }
                         }
@@ -583,6 +584,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
             }
         }
+
 
         private async Task HandleContainerTaskRunRedirectedToRunAsRDUserAsync()
         {

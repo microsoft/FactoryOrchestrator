@@ -106,7 +106,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 if (!TryCreateTaskRunPoller(_test.LatestTaskRunGuid))
                 {
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
                         // Set task status to not run
                         OverallTaskResult.Text = "❔ Not Run";

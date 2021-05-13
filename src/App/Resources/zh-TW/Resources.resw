@@ -239,18 +239,6 @@
     <value>連接埠：</value>
     <comment>Port number on which Microsoft.FactoryOrchestrator.Service is running.</comment>
   </data>
-  <data name="PortTextBox.Text" xml:space="preserve">
-    <value>45684</value>
-    <comment>Default port number for Microsoft.FactoryOrchestrator.Service.</comment>
-  </data>
-  <data name="CertHashTextBox.Text" xml:space="preserve">
-    <value>E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F</value>
-    <comment>Default certificate hash for target machine.</comment>
-  </data>
-  <data name="ServerNameTextBox.Text" xml:space="preserve">
-    <value>FactoryServer</value>
-    <comment>Default distinguished name for target machine.</comment>
-  </data>
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>連線</value>
   </data>
@@ -690,11 +678,8 @@
     <value>執行總數</value>
     <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
   </data>
-  <data name="TrackExecutionCheck.Content" xml:space="preserve">
+  <data name="SettingsTrackExecution.Content" xml:space="preserve">
     <value>追蹤執行</value>
-  </data>
-  <data name="TrackExecutionCheck.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>自動更新 UI 以追蹤正在執行的工作</value>
   </data>
   <data name="Unknown" xml:space="preserve">
     <value>❔ 未知</value>
