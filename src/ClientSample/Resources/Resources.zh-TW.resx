@@ -118,7 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ClientSampleUsage" xml:space="preserve">
-    <value>{0} &lt;DUT IP 位址&gt; &lt;此電腦上包含測試內容和 (選用) FactoryOrchestratorXML 檔案的資料夾&gt; &lt;DUT 上的目的地資料夾&gt; &lt;此電腦上用於儲存記錄的目的地資料夾&gt;</value>
+    <value>{0} &lt;DUT 的 IP 位址&gt; &lt;此電腦上包含測試內容和 (選用) FactoryOrchestratorXML 檔案的資料夾&gt; &lt;DUT 上的目的地資料夾&gt; &lt;此電腦上用於儲存記錄的目的地資料夾&gt;
+
+或
+
+{0} --探索 &lt;執行 Factory Orchestrator 之裝置的搜尋秒數&gt;</value>
   </data>
   <data name="Completed" xml:space="preserve">
     <value>在 {0} 中已複製的測試檔案、已執行的測試，以及收集的記錄</value>
@@ -144,6 +148,9 @@
   <data name="Failed" xml:space="preserve">
     <value>失敗!</value>
   </data>
+  <data name="FoundServices" xml:space="preserve">
+    <value>找到下列執行 Factory Orchestrator 的裝置:</value>
+  </data>
   <data name="InstallingApp" xml:space="preserve">
     <value>正在安裝 {0}。這可能需要幾分鐘的時間...</value>
   </data>
@@ -153,6 +160,9 @@
   <data name="InvalidIp" xml:space="preserve">
     <value>「{0}」不是正確的 IP 位址!</value>
   </data>
+  <data name="InvalidSeconds" xml:space="preserve">
+    <value>{0} 不是有效的整數!</value>
+  </data>
   <data name="LoadingFOXML" xml:space="preserve">
     <value>正在從 FactoryOrchestratorXML 檔案載入 TaskList...</value>
   </data>
@@ -161,6 +171,13 @@
   </data>
   <data name="LookingForApps" xml:space="preserve">
     <value>在 {0} 的子資料夾中尋找應用程式...</value>
+  </data>
+  <data name="LookingForServices" xml:space="preserve">
+    <value>正在使用 DNS-SD 在您的區域網路上尋找執行 Factory Orchestrator 的裝置...</value>
+    <comment>Message shown when searching for services</comment>
+  </data>
+  <data name="NoDevicesFound" xml:space="preserve">
+    <value>在您的區域網路上找不到任何執行 Factory Orchestrator 的裝置!</value>
   </data>
   <data name="NotEnoughArgs" xml:space="preserve">
     <value>請指定 IP、測試內容、目的地目錄及記錄輸出資料夾!</value>

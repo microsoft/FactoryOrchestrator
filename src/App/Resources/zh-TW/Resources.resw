@@ -240,7 +240,7 @@
     <comment>Port number on which Microsoft.FactoryOrchestrator.Service is running.</comment>
   </data>
   <data name="ConnectButton.Content" xml:space="preserve">
-    <value>連線</value>
+    <value>連線到自訂 IP 和連接埠</value>
   </data>
   <data name="Console.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>非互動式 cmd.exe 提示</value>
@@ -265,6 +265,13 @@
   </data>
   <data name="DeleteAll.Text" xml:space="preserve">
     <value>刪除全部 TaskList</value>
+  </data>
+  <data name="DeleteAllContent" xml:space="preserve">
+    <value>所有執行中的 TaskList 將會停止。所有 TaskList 將會永久從伺服器移除。
+
+手動匯出的 FactoryOrchestratorXML 檔案將不會被刪除，但需要透過「載入 FactoryOrchestratorXML 檔案」手動匯入。
+
+如果選擇「重設成出廠預設值」，服務就會重新啟動，就像是第一次開機一樣。第一次開機及每次開機的工作將會重新執行。初始 TaskList 將會被載入。注意：網路通訊未停用，已連接的用戶端可能會遇到問題，且將會忽略 'EnableNetworkAccess' 設定！</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>刪除</value>
@@ -508,7 +515,7 @@
     <value>重新開機</value>
   </data>
   <data name="RemoteHost.Text" xml:space="preserve">
-    <value>或者，請輸入您想要連線的裝置的 IPv4 位址：</value>
+    <value>或者，請選取您要連線的裝置：</value>
   </data>
   <data name="RenameListBlock.Text" xml:space="preserve">
     <value>重新命名 TaskList</value>
@@ -678,9 +685,6 @@
     <value>執行總數</value>
     <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
   </data>
-  <data name="SettingsTrackExecution.Content" xml:space="preserve">
-    <value>追蹤執行</value>
-  </data>
   <data name="Unknown" xml:space="preserve">
     <value>❔ 未知</value>
   </data>
@@ -696,6 +700,9 @@
   </data>
   <data name="WDP.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>啟動 Windows 裝置入口網站</value>
+  </data>
+  <data name="WDPFailedContent" xml:space="preserve">
+    <value>請確定 Windows 裝置入口網站執行中，且支援 HTTP 無須驗證，然後再試一次。</value>
   </data>
   <data name="WDPFailedTitle" xml:space="preserve">
     <value>無法啟動 Windows 裝置入口網站</value>
@@ -750,5 +757,13 @@
   <data name="ServerName.Text" xml:space="preserve">
     <value>伺服器身分識別:</value>
     <comment>Distinguished Name of the target machine.</comment>
+  </data>
+  <data name="Hostname.Text" xml:space="preserve">
+    <value>系統主機名稱:</value>
+    <comment>The PC's hostname</comment>
+  </data>
+  <data name="HelpButton.Content" xml:space="preserve">
+    <value>線上檢視 Factory Orchestrator 文件</value>
+    <comment>Button to open factory orchestrator documentation website in user's web browser</comment>
   </data>
 </root>

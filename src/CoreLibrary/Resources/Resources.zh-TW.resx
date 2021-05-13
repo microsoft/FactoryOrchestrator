@@ -357,6 +357,9 @@
   <data name="WDPAppLaunchFailed" xml:space="preserve">
     <value>錯誤: 無法啟動 AUMID: {0}</value>
   </data>
+  <data name="WDPAppLaunchFailed2" xml:space="preserve">
+    <value>錯誤：需要裝置入口網站才能啟動應用程式，且其可能未在系統上執行，或可能不支援無驗證的 HTTP。</value>
+  </data>
   <data name="WDPAppLaunchFailed3" xml:space="preserve">
     <value>錯誤: 如果它正在執行，AUMID 可能不正確。</value>
   </data>
@@ -368,6 +371,9 @@
   </data>
   <data name="WDPHttpError" xml:space="preserve">
     <value>Windows 裝置入口網站因 HTTP 錯誤而失敗</value>
+  </data>
+  <data name="WDPNotRunningError" xml:space="preserve">
+    <value>Windows 裝置入口網站可能未執行，或可能不支援無驗證的 HTTP！</value>
   </data>
   <data name="WindowsOnlyError" xml:space="preserve">
     <value>只有在 Windows 上才支援 {0}!</value>
@@ -470,5 +476,9 @@
   <data name="UnableToParseError" xml:space="preserve">
     <value>無法剖析 {0}！</value>
     <comment>Error shown if the given file cannot be read properly (missing/corrupt)</comment>
+  </data>
+  <data name="DnsSdUpdated" xml:space="preserve">
+    <value>裝置 IP 位址已變更。已更新 DNS-SD。在 IP 位址上公告: {0}</value>
+    <comment>Debug message shown when a network IP address is added or removed.</comment>
   </data>
 </root>

@@ -357,6 +357,9 @@
   <data name="WDPAppLaunchFailed" xml:space="preserve">
     <value>错误: 未能启动 AUMID: {0}</value>
   </data>
+  <data name="WDPAppLaunchFailed2" xml:space="preserve">
+    <value>错误: 应用启动需要设备门户。设备门户可能未在系统上运行，或者可能不支持没有身份验证的 HTTP。</value>
+  </data>
   <data name="WDPAppLaunchFailed3" xml:space="preserve">
     <value>错误：如果它正在运行，AUMID 可能不正确。</value>
   </data>
@@ -368,6 +371,9 @@
   </data>
   <data name="WDPHttpError" xml:space="preserve">
     <value>Windows 设备门户失败，出现 HTTP 错误</value>
+  </data>
+  <data name="WDPNotRunningError" xml:space="preserve">
+    <value>Windows 设备门户可能没有运行，或者可能不支持没有身份验证的 HTTP!</value>
   </data>
   <data name="WindowsOnlyError" xml:space="preserve">
     <value>{0} 仅在 Windows 上受支持!</value>
@@ -470,5 +476,9 @@
   <data name="UnableToParseError" xml:space="preserve">
     <value>无法分析{0}！</value>
     <comment>Error shown if the given file cannot be read properly (missing/corrupt)</comment>
+  </data>
+  <data name="DnsSdUpdated" xml:space="preserve">
+    <value>设备 IP 地址已更改。DNS-SD 已更新。在 IP 地址上公布: {0}</value>
+    <comment>Debug message shown when a network IP address is added or removed.</comment>
   </data>
 </root>
