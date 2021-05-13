@@ -36,18 +36,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             object[] attributes = assembly.GetCustomAttributes(true);
             resourceLoader = ResourceLoader.GetForCurrentView();
             string description = "";
-
-            var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
-            if (descrAttr != null)
-            {
-                description = descrAttr.Description;
-            }
-
 #if DEBUG
-            description = resourceLoader.GetString("Debug") + description;
+            description = " (Debug)";
 #endif
-
-            AppVersionText.Text = $"{resourceLoader.GetString("AppVersion")}: {assemblyVersion} ({description})";
+            AppVersionText.Text = $"{resourceLoader.GetString("AppVersion")}: {assemblyVersion}{description}";
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

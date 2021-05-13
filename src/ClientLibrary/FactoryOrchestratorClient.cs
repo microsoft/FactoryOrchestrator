@@ -149,7 +149,7 @@ namespace Microsoft.FactoryOrchestrator.Client
 
             try
             {
-                HostName = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetHostName"));
+                HostName = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetDnsHostName"));
                 OSVersion = await _IpcClient.InvokeAsync<string>(CreateIpcRequest("GetOSVersionString"));
             }
             catch (Exception)
@@ -477,18 +477,10 @@ namespace Microsoft.FactoryOrchestrator.Client
             object[] attributes = assembly.GetCustomAttributes(true);
 
             string description = "";
-
-            var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
-            if (descrAttr != null)
-            {
-                description = descrAttr.Description;
-            }
-
 #if DEBUG
-            description = "Debug" + description;
+            description = " (Debug)";
 #endif
-
-            return $"{assemblyVersion} ({description})";
+            return $"{assemblyVersion}{description}";
         }
 
         /// <summary>

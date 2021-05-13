@@ -382,18 +382,10 @@ namespace Microsoft.FactoryOrchestrator.Service
             object[] attributes = assembly.GetCustomAttributes(true);
 
             string description = "";
-
-            var descrAttr = attributes.OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
-            if (descrAttr != null)
-            {
-                description = descrAttr.Description;
-            }
-
 #if DEBUG
-            description = "Debug" + description;
+            description = " (Debug)";
 #endif
-
-            return $"{assemblyVersion} ({description})";
+            return $"{assemblyVersion}{description}";
         }
 
         /// <summary>
