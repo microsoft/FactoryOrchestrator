@@ -53,7 +53,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
             try
             {
-                AppComboBox.ItemsSource = await Client.GetInstalledApps();
+                var items = await Client.GetInstalledApps();
+                items.Sort();
+                AppComboBox.ItemsSource = items;
             }
             catch (Exception)
             {
@@ -414,6 +416,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                                 itemlist.Add(uwpTask.Path);
                             }
 
+                            itemlist.Sort();
                             AppComboBox.ItemsSource = itemlist;
                             AppComboBox.SelectedItem = uwpTask.Path;
                         }

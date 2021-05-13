@@ -32,7 +32,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             // Get installed UWPs
             try
             {
-                var packageInfos = (await Client.GetInstalledAppsDetailed()).OrderByDescending(x => x.Name);
+                var packageInfos = (await Client.GetInstalledAppsDetailed()).OrderBy(x => x.Name);
                 PackageStrings = new List<string>();
                 foreach (var pkg in packageInfos)
                 {
