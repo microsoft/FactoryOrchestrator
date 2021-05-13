@@ -1144,23 +1144,19 @@ namespace Microsoft.FactoryOrchestrator.Server
                 return false;
             }
 
-            // If the name is found, look for it in the path of all running processes
-            var processes = Process.GetProcesses();
-            foreach (var process in processes)
+            // WDP makes it easy to map processes to UWP apps, so we use it instead of the Process class.
+            try
             {
-                try
+                var processes = WDPHelpers.GetRunningProcessesAsync("localhost", GetWdpHttpPort()).Result;
+                var appProcesses = processes.Processes.Where(x => x.PackageFullName == appFullName);
+                if (appProcesses.Any())
                 {
-                    if (process.MainModule.FileName.ToUpperInvariant().Contains(appFullName.ToUpperInvariant()))
-                    {
-                        // app package full name is in the process path, kill the process and return
-                        process.Kill();
-                        return true;
-                    }
+                    appProcesses.AsParallel().ForAll(x => Process.GetProcessById((int)x.ProcessId).Kill());
+                    return true;
                 }
-                // We might not have permissions for every process
-                catch (Exception)
-                { }
             }
+            catch (Exception)
+            { } // Ignore WDP errors
 
             return false;
         }
