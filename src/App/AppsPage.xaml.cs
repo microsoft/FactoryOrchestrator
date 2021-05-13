@@ -38,10 +38,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     PackageStrings.Add($"{pkg.Name} ({pkg.AppId})");
                 }
+
+                LoadingRing.IsActive = false;
                 PackageList.ItemsSource = PackageStrings;
             }
             catch (Exception ex)
             {
+                LoadingRing.IsActive = false;
                 ContentDialog failedAppsDialog = new ContentDialog
                 {
                     Title = resourceLoader.GetString("FailedAppsQuery"),
