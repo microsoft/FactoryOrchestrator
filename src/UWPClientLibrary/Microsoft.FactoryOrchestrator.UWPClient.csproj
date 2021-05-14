@@ -7,7 +7,7 @@
   <Import Project="..\common.props" />
   <PropertyGroup>
     <PackageId>Microsoft.FactoryOrchestrator.UWPClient</PackageId>
-    <Description>A UWP class library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service from a UWP app. See https://microsoft.github.io/FactoryOrchestrator/ for more information.</Description>
+    <Description>A UWP class library containing the client-side FactoryOrchestrator classes, required to interact with Factory Orchestrator Service from a UWP app. See https://microsoft.github.io/FactoryOrchestrator/ for more information. Requires privateNetworkClientServer capability (and local loopback if connecting to localhost).</Description>
     <!-- We use the generated nuspec in the release build, but not the package -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageVersion>$(VersionPrefix)$(VERSIONSUFFIXVPACK)</PackageVersion>
