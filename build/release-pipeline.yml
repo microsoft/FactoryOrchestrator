@@ -680,6 +680,8 @@ stages:
                   BuildConfiguration: 'Release'
                   BuildPlatform: 'arm64'
               - template: ./templates/template-push-vpack-other.yml
+              - publish: '$(Build.ARTIFACTSTAGINGDIRECTORY)/VPackManifests'
+                artifact: VPackManifests
               - pwsh: |
                   $vstsCommandString = "vso[build.addbuildtag]OfficialRelease"
                   Write-Host "sending " + $vstsCommandString
