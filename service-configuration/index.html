@@ -450,7 +450,10 @@
                   </a>
                 
                 
-                <h1 id="factory-orchestrator-service-configuration-using-appsettingsjson">Factory Orchestrator service configuration using appsettings.json</h1>
+                <!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
+<h1 id="factory-orchestrator-service-configuration-using-appsettingsjson">Factory Orchestrator service configuration using appsettings.json</h1>
 <p>The Factory Orchestrator service has many configurable settings that impact its startup behavior, enabled features, and more. This configuration is easily modified using an <a href="https://docs.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#json-configuration-provider">appsettings.json file</a>.</p>
 <p>The appsettings.json file is checked for in the following locations in order, with the last appsettings.json file found 'winning' if there are conflicts:</p>
 <ol>
@@ -538,6 +541,11 @@
 <td>SSLCertificateFile</td>
 <td>string</td>
 <td>Path to X509Certificate2 file. If provided the Factory Orchestrator Service will use the provided certificate for ssl encryption to communicate with client.</td>
+</tr>
+<tr>
+<td>IpcLogLevel</td>
+<td><a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel">LogLevel enum</a></td>
+<td>Sets the logging level for the IPC binaries. If set to "Debug", or lower information about every client API call will be saved to the <a href="#factory-orchestrator-service-log-file">service log</a>.</td>
 </tr>
 <tr>
 <td>DisableContainerSupport</td>

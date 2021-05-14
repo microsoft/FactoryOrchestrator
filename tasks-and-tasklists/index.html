@@ -490,7 +490,10 @@
                   </a>
                 
                 
-                <h1 id="tasks-and-taskslists">Tasks and TasksLists</h1>
+                <!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
+<h1 id="tasks-and-taskslists">Tasks and TasksLists</h1>
 <p>Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks.</p>
 <p>You can define a collection of tasks in a <strong><a href="../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/">TaskList</a></strong>. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running. Tasks in a TaskList can be configured to run in series, parallel, or in the background.</p>
 <p>Factory Orchestrator supports using environment variables (ex: %ProgramData%, $TMPDIR) in all Tasks.</p>

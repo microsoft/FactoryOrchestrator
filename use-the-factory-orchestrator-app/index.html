@@ -351,6 +351,81 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-utilities" class="md-nav__link">
+    Factory Orchestrator utilities
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uwp-apps-windows-only" class="md-nav__link">
+    UWP Apps (Windows only)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windows-device-portal-windows-only" class="md-nav__link">
+    Windows Device Portal (Windows only)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-prompt" class="md-nav__link">
+    Command Prompt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-transfer" class="md-nav__link">
+    File Transfer
+  </a>
+  
+    <nav class="md-nav" aria-label="File Transfer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-time-setup-for-file-transfer" class="md-nav__link">
+    One-time setup for file transfer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send-a-file-or-folder-to-a-dut" class="md-nav__link">
+    Send a file or folder to a DUT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#receive-a-file-or-folder-from-your-dut" class="md-nav__link">
+    Receive a file or folder from your DUT
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-settings" class="md-nav__link">
+    App settings
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -527,6 +602,81 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#factory-orchestrator-utilities" class="md-nav__link">
+    Factory Orchestrator utilities
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Orchestrator utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uwp-apps-windows-only" class="md-nav__link">
+    UWP Apps (Windows only)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windows-device-portal-windows-only" class="md-nav__link">
+    Windows Device Portal (Windows only)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-prompt" class="md-nav__link">
+    Command Prompt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-transfer" class="md-nav__link">
+    File Transfer
+  </a>
+  
+    <nav class="md-nav" aria-label="File Transfer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-time-setup-for-file-transfer" class="md-nav__link">
+    One-time setup for file transfer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send-a-file-or-folder-to-a-dut" class="md-nav__link">
+    Send a file or folder to a DUT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#receive-a-file-or-folder-from-your-dut" class="md-nav__link">
+    Receive a file or folder from your DUT
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-settings" class="md-nav__link">
+    App settings
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -544,7 +694,10 @@
                   </a>
                 
                 
-                <h1 id="use-the-factory-orchestrator-app">Use the Factory Orchestrator app</h1>
+                <!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT license. -->
+
+<h1 id="use-the-factory-orchestrator-app">Use the Factory Orchestrator app</h1>
 <p>The app is a Windows-only app and it depends on the service to run. However, it can connect to a service running on any DUT on your local network, not just to the same device the app is running on. This includes connecting to a DUT running Linux!</p>
 <p>If the PC you run the app on has the Factory Orchestrator service running, it will automatically connect to the service as soon as the app loads. If not, you will be prompted to select the remote PC running Factory Orchestrator service you wish to connect to.</p>
 <p><img alt="Connect page of app" src="../images/connectpage.png" /></p>
@@ -555,7 +708,7 @@
 <p>Hit the 'Play' button to run a TaskList. As tasks complete, the tasks' output will show next to the task.</p>
 <p><img alt="TaskList with the Play button" src="../images/run-a-tasklist.png" /></p>
 <p>While a TaskList is running, the Factory Orchestrator service will continue to run the tasks, even if you close the Factory Orchestrator app.</p>
-<p>If you're running a task or a tasklist, the Factory Orchestrator UI allows you to easily monitor the status of any running task by displaying task status. You can disable this task status display by going to the <strong>Run TaskLists</strong> page and unchecking <strong>Track Execution</strong>.</p>
+<p>If you're running a task or a tasklist, the Factory Orchestrator UI allows you to easily monitor the status of any running task by displaying task status.</p>
 <p><img alt="Image of task status" src="../images/fo-follow-tasks.png" /></p>
 <p>As tasks complete, the Tasks' output will show next to the Task. While a TaskList is running, the Factory Orchestrator service will continue to run the tasks, even if you close the Factory Orchestrator app. A running TaskList can be "Aborted" by clicking the 'Pause' button.</p>
 <p><img alt="Running TaskList" src="../images/running-tasklist.png" /></p>
@@ -642,25 +795,25 @@
 <li>Export all TaskLists by clicking on the <strong>Save All TaskLists to File</strong> button.</li>
 </ul>
 <p>After you click one of these buttons, enter the full path of the file to save and click the (✓) to confirm.</p>
-<h1 id="factory-orchestrator-utilities">Factory Orchestrator utilities</h1>
+<h2 id="factory-orchestrator-utilities">Factory Orchestrator utilities</h2>
 <p>The Factory Orchestrator app also includes some basic utilities intended as a starting point for integration into a manufacturing line, fault analysis workflow or developer inner loop.</p>
-<h2 id="uwp-apps-windows-only">UWP Apps (Windows only)</h2>
+<h3 id="uwp-apps-windows-only">UWP Apps (Windows only)</h3>
 <p>This launches a UWP app that's installed on a device under test (DUT). This allows you to launch a UWP directly from the Factory Orchestrator app by clicking on its name in the list of installed UWP apps.</p>
 <p>See <a href="../get-started-with-factory-orchestrator/#windows-uwp-app-support">here</a> for setup requirments.</p>
-<h2 id="windows-device-portal-windows-only">Windows Device Portal (Windows only)</h2>
+<h3 id="windows-device-portal-windows-only">Windows Device Portal (Windows only)</h3>
 <p>This launches <a href="https://docs.microsoft.com/en-us/windows/uwp/debug-test-perf/device-portal">Windows Device Portal</a>.</p>
 <p>See <a href="../get-started-with-factory-orchestrator/#windows-uwp-app-support">here</a> for setup requirments.</p>
-<h2 id="command-prompt">Command Prompt</h2>
+<h3 id="command-prompt">Command Prompt</h3>
 <p>A basic and non-interactive command prompt that allows you to troubleshoot without having to use other methods like SSH or Windows Device Portal to connect to your DUT.</p>
 <p>While you can run commands and see output when using the built-in command prompt in Factory Orchestrator, it's not an interactive shell. If you run a command that requires additional input, you won't be able to enter the additional input.</p>
 <p><img alt="The Command Prompt screen" src="../images/fo-cmd.png" /></p>
-<h2 id="file-transfer">File Transfer</h2>
+<h3 id="file-transfer">File Transfer</h3>
 <p><img alt="The Transfer Files screen" src="../images/fo-transfer-files.png" /></p>
 <p>A very basic file transfer function that enables you to transfer files &amp; folders to and from your device when you're connected from a Windows PC. This feature is not visible in the Factory Orchestrator app when running the app and service on the same device (the "Transfer Files" tab will be hidden).</p>
-<h3 id="one-time-setup-for-file-transfer">One-time setup for file transfer</h3>
+<h4 id="one-time-setup-for-file-transfer">One-time setup for file transfer</h4>
 <p>First, <a href="../get-started-with-factory-orchestrator/#install-the-app">install the Factory Orchestrator app</a> on a Windows system that is <strong>not running the Factory Orchestrator service</strong>.</p>
 <p>Next, you need to give the Factory Orchestrator app full file system access for file transfer to work. Follow the directions on the <a href="https://support.microsoft.com/en-us/help/4468237/windows-10-file-system-access-and-privacy-microsoft-privacy">Windows 10 file system access and privacy</a> page to give the Factory Orchestrator app access to your local file system. You may need to launch the app at least once before it appears on the Settings app.</p>
-<h3 id="send-a-file-or-folder-to-a-dut">Send a file or folder to a DUT</h3>
+<h4 id="send-a-file-or-folder-to-a-dut">Send a file or folder to a DUT</h4>
 <ul>
 <li>From your local Windows PC, launch the Factory Orchestrator app and connect to the IP address of the remote DUT.</li>
 <li>Navigate to "Transfer Files". This tab is only visible if you are connected to a remote DUT.</li>
@@ -668,7 +821,7 @@
 <li>In the "Remote File/Fikder" textbox, enter the full path of where you wish the file or folder to be saved on the DUT. Make sure the location you're saving to is writeable.</li>
 <li>Click "Send Local File/Folder" to transfer the file or folder from the Windows PC to the DUT.</li>
 </ul>
-<h3 id="receive-a-file-or-folder-from-your-dut">Receive a file or folder from your DUT</h3>
+<h4 id="receive-a-file-or-folder-from-your-dut">Receive a file or folder from your DUT</h4>
 <ul>
 <li>From your local Windows PC, launch the Factory Orchestrator app and connect to the IP address of the remote DUT.</li>
 <li>Navigate to "Transfer Files". This tab is only visible if you are connected to a remote DUT.</li>
@@ -676,6 +829,26 @@
 <li>In the "Local File/Folder" textbox, enter the full path of where you wish the file or folder to be saved on your local Windows PC. Make sure the location you're saving to is writeable.</li>
 <li>Click "Get Remote File/Folder" to transfer the file or folder from the DUT to your local Windows 10 PC.</li>
 </ul>
+<h2 id="app-settings">App settings</h2>
+<p>While most settings are <a href="../service-configuration/">configured by the service</a>, including some that impact the app UI, there are a couple settings you set in the app directly.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Show External Task UI</td>
+<td>If checked, the External Task UI is shown in the app whenever the service executes an <a href="../tasks-and-tasklists/#factory-orchestrator-tasks">External Task</a>. This allows you to pass or fail the Task from the app.<p>If unchecked, the External Task UI is not shown. The External Task will not complete until another Factory Orchestrator app or client completes the Task.<p><img alt="External Task UI" src="../images/externalTaskNoMedia.png" /></td>
+</tr>
+<tr>
+<td>Follow TaskList Execution</td>
+<td>If checked, the "Run TaskLists" page will automatically show details at the bottom of the page about the running Task.<p>If unchecked, you have to click on the Task name in the "Tasks" column of the page to see details about the running Task.<p><img alt="Image of task status" src="../images/fo-follow-tasks.png" /></td>
+</tr>
+</tbody>
+</table>
                 
               
               
