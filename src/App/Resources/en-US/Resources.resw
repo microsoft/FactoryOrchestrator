@@ -274,10 +274,10 @@ Manually exported FactoryOrchestratorXML files will not be deleted, but will nee
 If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Delete</value>
+    <value>Delete Task</value>
   </data>
   <data name="EditButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Edit</value>
+    <value>Edit Task</value>
   </data>
   <data name="EditFlyoutImagePath" xml:space="preserve">
     <value>(Optional) Image or Video Path:</value>
