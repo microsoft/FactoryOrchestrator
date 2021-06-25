@@ -275,9 +275,11 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Delete Task</value>
+    <comment>Delete a task</comment>
   </data>
   <data name="EditButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Edit Task</value>
+    <comment>Edit a task</comment>
   </data>
   <data name="EditFlyoutImagePath" xml:space="preserve">
     <value>(Optional) Image or Video Path:</value>
