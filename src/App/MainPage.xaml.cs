@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,6 +16,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using MUXC = Microsoft.UI.Xaml.Controls;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -194,11 +196,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 // NavView doesn't load any page by default, so load home page.
                 NavView.SelectedItem = NavView.MenuItems[0];
-                ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
+                ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((MUXC.NavigationViewItem)NavView.SelectedItem).Tag.ToString();
             }
             else 
             {
-                NavView.SelectedItem = NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == lastNavTag).First();
+                NavView.SelectedItem = NavView.MenuItems.Where(x => ((MUXC.NavigationViewItem)x).Tag.ToString() == lastNavTag).First();
             }
 
             if (!disabledPages.Any(str => str.Equals(lastNavTag, StringComparison.OrdinalIgnoreCase)))
@@ -216,7 +218,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 };
 
                 NavView.SelectedItem = NavView.MenuItems[0];
-                ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((NavigationViewItem)NavView.SelectedItem).Tag.ToString();
+                ((App)Application.Current).MainPageLastNavTag = lastNavTag = ((MUXC.NavigationViewItem)NavView.SelectedItem).Tag.ToString();
                 NavView_Navigate(lastNavTag, null, e);
 
 
@@ -260,7 +262,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void HidePage((string Tag, Type Page, bool Enabled, bool AllowedDuringBoot) pageMap)
         {
-            NavigationViewItem item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+            var item = (MUXC.NavigationViewItem)NavView.MenuItems.First(x => ((MUXC.NavigationViewItem)x).Tag.ToString() == pageMap.Tag);
             item.Visibility = Visibility.Collapsed;
             item.IsEnabled = false;
             navViewPages.Remove(pageMap);
@@ -287,7 +289,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 return;
             }
 
-            NavigationViewItem item = (NavigationViewItem)NavView.MenuItems.Where(x => ((NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
+            MUXC.NavigationViewItem item = (MUXC.NavigationViewItem)NavView.MenuItems.Where(x => ((MUXC.NavigationViewItem)x).Tag.ToString() == pageMap.Tag).First();
             item.Visibility = Visibility.Visible;
             item.IsEnabled = true;
             navViewPages.Remove(pageMap);
@@ -301,7 +303,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 var item = navViewPages.FirstOrDefault(p => (p.Page == e.SourcePageType));
 
-                NavView.SelectedItem = NavView.MenuItems.OfType<NavigationViewItem>().
+                NavView.SelectedItem = NavView.MenuItems.OfType<MUXC.NavigationViewItem>().
                                                          First(n => n.Tag.Equals(item.Tag));
 
                 NavView.Header = GetHeader();
@@ -310,17 +312,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private string GetHeader()
         {
-            if ("console".Equals((string)((NavigationViewItem)NavView.SelectedItem).Tag, StringComparison.OrdinalIgnoreCase))
+            if ("console".Equals((string)((MUXC.NavigationViewItem)NavView.SelectedItem).Tag, StringComparison.OrdinalIgnoreCase))
             {
                 return resourceLoader.GetString("CommandPromptText/Text");
             }
             else
             {
-               return ((NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
+               return ((MUXC.NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
             }
         }
 
-        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        private void NavView_ItemInvoked(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
         {
             if (args.InvokedItemContainer != null)
             {
@@ -523,6 +525,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private List<Tuple<string, string>> ipAddresses;
         private readonly SemaphoreSlim ipAddressSem;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
+
+        private void NavView_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void NavView_ItemInvoked_1(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
+        {
+
+        }
     }
 
 }
