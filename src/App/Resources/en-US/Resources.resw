@@ -659,6 +659,14 @@ On retry</value>
   <data name="TaskName.Text" xml:space="preserve">
     <value>Task Name:</value>
   </data>
+  <data name="ExitButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit menu</value>
+    <comment>Accessibility info for exit menu on connection page</comment>
+  </data>
+  <data name="ConfirmExit.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit</value>
+    <comment>Accessibility info for exit button in exit menu</comment>
+  </data>
   <data name="TaskPath.Text" xml:space="preserve">
     <value>Task Path:</value>
   </data>
@@ -771,6 +779,10 @@ On retry</value>
   <data name="HelpButton.Content" xml:space="preserve">
     <value>View the Factory Orchestrator documentation online</value>
     <comment>Button to open factory orchestrator documentation website in user's web browser</comment>
+  </data>
+  <data name="ConnectionProgress.AutomationProperties.Name" xml:space="preserve">
+    <value>>Connection action in progress</value>
+    <comment>Accessibility info for connection progress bar to notify user requested action is ongoing</comment>
   </data>
   <data name="SettingsHeader.Text" xml:space="preserve">
     <value>App settings</value>
