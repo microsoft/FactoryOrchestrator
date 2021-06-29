@@ -695,6 +695,10 @@ On retry</value>
     <value>total runs</value>
     <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
   </data>
+  <data name="SettingsButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Factory OS Settings</comment>
+  </data>
   <data name="SettingsTrackExecution.Content" xml:space="preserve">
     <value>Follow TaskList Execution</value>
     <comment>Checkbox to automatically update the UI  to follow the running Task(s)</comment>
@@ -779,10 +783,6 @@ On retry</value>
   <data name="HelpButton.Content" xml:space="preserve">
     <value>View the Factory Orchestrator documentation online</value>
     <comment>Button to open factory orchestrator documentation website in user's web browser</comment>
-  </data>
-  <data name="ConnectionProgress.AutomationProperties.Name" xml:space="preserve">
-    <value>>Connection action in progress</value>
-    <comment>Accessibility info for connection progress bar to notify user requested action is ongoing</comment>
   </data>
   <data name="SettingsHeader.Text" xml:space="preserve">
     <value>App settings</value>

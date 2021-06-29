@@ -26,7 +26,7 @@
                 </StackPanel>
                 <Button x:Name="NetworkButton" x:Uid="NetworkButton" Visibility="Visible" Padding="5" Margin="10">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />
+                        <TextBlock FontFamily="Segoe MDL2 Assets" x:Uid="NetworkButton" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button.Flyout>
                         <Flyout x:Name="NetworkFlyout" Opening="NetworkFlyout_Opening">
@@ -40,7 +40,7 @@
                 </Button>
                 <Button x:Name="SettingsButton" x:Uid="SettingsButton" Visibility="Visible" Padding="5" Margin="10">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" FontSize="30" VerticalAlignment="Center" />
+                        <TextBlock FontFamily="Segoe MDL2 Assets" x:Uid="SettingsButton" Text="&#xE713;" FontSize="30" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button.Flyout>
                         <Flyout x:Name="SettingsFlyout" Opening="SettingsFlyout_Opening">
@@ -55,9 +55,9 @@
                         </Flyout>
                     </Button.Flyout>
                 </Button>
-                <Button x:Name="ExitButton" AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="10">
+                <Button x:Name="ExitButton" x:Uid="ExitButton" AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="10">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
+                        <TextBlock FontFamily="Segoe MDL2 Assets" x:Uid="ExitButton" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button.Flyout>
                         <Flyout x:Name="ExitFlyout" Closed="ExitFlyout_Closed">
