@@ -808,4 +808,8 @@ On retry</value>
     <value>to launch WDP in it.</value>
     <comment>Part 3 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
   </data>
+  <data name="ConnectingProgress.AutomationProperties.Name" xml:space="preserve">
+    <value>Progress Bar</value>
+    <comment>Progress bar showing connection to factory orchestrator service progress.</comment>
+  </data>
 </root>
