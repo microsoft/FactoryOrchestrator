@@ -659,6 +659,14 @@ On retry</value>
   <data name="TaskName.Text" xml:space="preserve">
     <value>Task Name:</value>
   </data>
+  <data name="ExitButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit menu</value>
+    <comment>Accessibility info for exit menu on connection page</comment>
+  </data>
+  <data name="ConfirmExit.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit</value>
+    <comment>Accessibility info for exit button in exit menu</comment>
+  </data>
   <data name="TaskPath.Text" xml:space="preserve">
     <value>Task Path:</value>
   </data>
@@ -686,6 +694,10 @@ On retry</value>
   <data name="TotalRuns" xml:space="preserve">
     <value>total runs</value>
     <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
+  </data>
+  <data name="SettingsButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Factory Orchestrator App Settings</comment>
   </data>
   <data name="SettingsTrackExecution.Content" xml:space="preserve">
     <value>Follow TaskList Execution</value>
