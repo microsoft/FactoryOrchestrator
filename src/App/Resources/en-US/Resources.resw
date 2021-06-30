@@ -697,7 +697,7 @@ On retry</value>
   </data>
   <data name="SettingsButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Settings</value>
-    <comment>Factory OS Settings</comment>
+    <comment>Factory Orchestrator App Settings</comment>
   </data>
   <data name="SettingsTrackExecution.Content" xml:space="preserve">
     <value>Follow TaskList Execution</value>
