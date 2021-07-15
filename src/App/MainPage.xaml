@@ -18,8 +18,6 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
-
-
             </StackPanel>
         </Grid>
 

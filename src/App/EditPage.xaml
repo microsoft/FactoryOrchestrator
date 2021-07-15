@@ -30,18 +30,18 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.ColumnSpan="2" x:Name="EditFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" x:Uid="TaskName" Padding="5"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="TestNameBox" Text="" MinWidth="400"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="TaskName" x:Uid="TaskName" Padding="5"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="TestNameBox" Text="Enter Task Name" MinWidth="400" AutomationProperties.LabeledBy="{Binding ElementName=TaskName}" />
                 <TextBlock Grid.Row="2" Grid.Column="0"  x:Name="PathBlock" x:Uid="TaskPath" Padding="5"/>
-                <TextBox Grid.Row="2" Grid.Column="1" x:Name="TaskPathBox" Text="" MinWidth="400"/>
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="TaskPathBox" Text="" MinWidth="400" AutomationProperties.LabeledBy="{Binding ElementName=PathBlock}"/>
                 <TextBlock Grid.Row="2" Grid.Column="0" x:Name="AppBlock" x:Uid="AppBlock" Visibility="Collapsed" Padding="5"/>
                 <ComboBox Grid.Row="2" Grid.Column="1" x:Name="AppComboBox" Visibility="Collapsed" MinWidth="400" IsEditable="True"/>
                 <TextBlock Grid.Row="3" Grid.Column="0"  x:Name="ArgumentsBlock" x:Uid="ArgumentsBlock" Padding="5"/>
-                <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="400"/>
+                <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArgumentsBox" Text="" MinWidth="400" AutomationProperties.LabeledBy="{Binding ElementName=ArgumentsBlock}"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TimeoutBlock" x:Uid="TimeoutBlock" Padding="5"/>
-                <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged"/>
+                <TextBox Grid.Row="4" Grid.Column="1" x:Name="TimeoutBox" Text="" InputScope="Digits" MinWidth="200" TextChanged="TimeoutBox_TextChanged" AutomationProperties.LabeledBy="{Binding ElementName=TimeoutBlock}" />
                 <TextBlock Grid.Row="5" Grid.Column="0" x:Name="RetryBlock" x:Uid="RetryBlock" Padding="5"/>
-                <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="400" TextChanged="RetryBox_TextChanged"/>
+                <TextBox Grid.Row="5" Grid.Column="1" x:Name="RetryBox" Text="" InputScope="Digits" MinWidth="400" TextChanged="RetryBox_TextChanged" AutomationProperties.LabeledBy="{Binding ElementName=RetryBlock}"/>
                 <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AutoPassCheck" x:Uid="AutoPassCheck" IsChecked="False" Visibility="Collapsed" IsThreeState="False" Padding="5" Click="AutoPassCheck_Click"/>
                 <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TerminateOnCompleteCheck" x:Uid="TerminateOnCompleteCheck" IsChecked="True" Visibility="Collapsed" IsThreeState="False" Padding="5"/>
                 <CheckBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" x:Name="AbortOnFailBox" x:Uid="AbortOnFailBox" IsChecked="False" IsThreeState="False" Padding="5"/>
