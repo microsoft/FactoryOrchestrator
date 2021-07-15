@@ -274,10 +274,12 @@ Manually exported FactoryOrchestratorXML files will not be deleted, but will nee
 If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Delete</value>
+    <value>Delete Task</value>
+    <comment>Delete a task</comment>
   </data>
   <data name="EditButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Edit</value>
+    <value>Edit Task</value>
+    <comment>Edit a task</comment>
   </data>
   <data name="EditFlyoutImagePath" xml:space="preserve">
     <value>(Optional) Image or Video Path:</value>
@@ -657,6 +659,14 @@ On retry</value>
   <data name="TaskName.Text" xml:space="preserve">
     <value>Task Name:</value>
   </data>
+  <data name="ExitButton.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit menu</value>
+    <comment>Accessibility info for exit menu on connection page</comment>
+  </data>
+  <data name="ConfirmExit.AutomationProperties.Name" xml:space="preserve">
+    <value>Exit</value>
+    <comment>Accessibility info for exit button in exit menu</comment>
+  </data>
   <data name="TaskPath.Text" xml:space="preserve">
     <value>Task Path:</value>
   </data>
@@ -684,6 +694,10 @@ On retry</value>
   <data name="TotalRuns" xml:space="preserve">
     <value>total runs</value>
     <comment>The total number of times a "run" (of a test) has happened, ie "5 total runs".</comment>
+  </data>
+  <data name="SettingsButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Factory Orchestrator App Settings</comment>
   </data>
   <data name="SettingsTrackExecution.Content" xml:space="preserve">
     <value>Follow TaskList Execution</value>
@@ -793,5 +807,9 @@ On retry</value>
   <data name="WdpNotice3.Text" xml:space="preserve">
     <value>to launch WDP in it.</value>
     <comment>Part 3 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
+  </data>
+  <data name="ConnectingProgress.AutomationProperties.Name" xml:space="preserve">
+    <value>Progress Bar</value>
+    <comment>Progress bar showing connection to factory orchestrator service progress.</comment>
   </data>
 </root>
