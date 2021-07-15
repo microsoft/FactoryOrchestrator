@@ -39,13 +39,13 @@
                 <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Grid.Column="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
                 <Frame HorizontalAlignment="Right" Grid.Column="1">
                     <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left">
-                            <TextBlock x:Name="NetworkName" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" IsTextSelectionEnabled="True"/>
-                            <TextBlock x:Name="NetworkIp" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" IsTextSelectionEnabled="True"/>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                            <TextBlock x:Name="NetworkName" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                            <TextBlock x:Name="NetworkIp" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
                         </StackPanel>
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left">
-                            <TextBlock x:Name="OSVersionHeader" Text=""  VerticalAlignment="Center" HorizontalAlignment="Left" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
-                            <TextBlock x:Name="OEMVersionHeader" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                            <TextBlock x:Name="OSVersionHeader" Text=""  VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
+                            <TextBlock x:Name="OEMVersionHeader" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
                         </StackPanel>
                     </StackPanel>
                 </Frame>
@@ -83,7 +83,7 @@
                             <Button.Flyout>
                                 <Flyout x:Name="NetworkFlyout" Opening="NetworkFlyout_Opening">
                                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                        <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="IpHeader" Text="beepson5" HorizontalAlignment="Center"/>
+                                        <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="IpHeader" Text="" HorizontalAlignment="Center"/>
                                         <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center">
                                         </StackPanel>
                                     </StackPanel>

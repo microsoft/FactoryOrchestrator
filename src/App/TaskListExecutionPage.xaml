@@ -7,7 +7,7 @@
     xmlns:core="using:Microsoft.FactoryOrchestrator.Core"
     xmlns:local="using:Microsoft.FactoryOrchestrator.UWP"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    >
     <Page.Resources>
         <local:TaskStatusDataBindingConverter x:Key="TaskStatusDataBindingConverter"/>
         <DataTemplate x:DataType="core:TaskListSummary" x:Key="TaskListItemTemplate_NotRun">
