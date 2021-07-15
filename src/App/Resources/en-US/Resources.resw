@@ -194,6 +194,10 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
   <data name="BootTaskWarning.Text" xml:space="preserve">
     <value>⚠ Service is executing Boot tasks, many funtions are disabled until finished or aborted ⚠</value>
   </data>
+  <data name="BgTaskListView.AutomationProperties.Name" xml:space="preserve">
+    <value>Background Tasks:</value>
+    <comment>This shows background tasklist</comment>
+  </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -809,7 +813,7 @@ On retry</value>
     <comment>Part 3 of 3 part textblock telling user the app cannot fully interact with windows device portal due to webview limitations</comment>
   </data>
   <data name="ConnectingProgress.AutomationProperties.Name" xml:space="preserve">
-    <value>Progress Bar</value>
+    <value>Connection in progress</value>
     <comment>Progress bar showing connection to factory orchestrator service progress.</comment>
   </data>
 </root>

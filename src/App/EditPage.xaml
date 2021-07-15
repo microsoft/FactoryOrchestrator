@@ -117,7 +117,7 @@
         </StackPanel>
 
         <TextBlock x:Name="BgTasksHeader" x:Uid="BgTasksHeader" Grid.Row="3" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Visibility="Collapsed"/>
-        <ListView x:Name="BgTaskListView" Grid.Row="4"  Grid.Column="1" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" DragItemsCompleted="TaskListView_DragCompleted">
+        <ListView x:Name="BgTaskListView" Grid.Row="4"  Grid.Column="1" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" DragItemsCompleted="TaskListView_DragCompleted" MinHeight="1" MinWidth="1">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
