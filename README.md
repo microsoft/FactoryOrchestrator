@@ -64,9 +64,9 @@ FactoryOrchestrator
 ## Prerequisites to build source code
 
 ### Install dependencies
-Building Factory Orchestrator source requires the [NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0), the [NET Core 3.1 runtime.](https://dotnet.microsoft.com/download/dotnet/3.1/runtime/), and [PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell) (or Windows PowerShell). If you wish to build the app as well, you also need the Universal Windows Platform Development (10.0.17763.0) SDK.
+Building Factory Orchestrator source requires the [NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0), the [NET Core 3.1 runtime.](https://dotnet.microsoft.com/download/dotnet/3.1/runtime/), and [PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell) (or Windows PowerShell). If you wish to build the app as well, you also need the Universal Windows Platform Development (10.0.19041.0) SDK.
 
-The easiest way to prepare to build the solutions is using any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/). In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.17763.0).
+The easiest way to prepare to build the solutions is using any variation of [Visual Studio 2019+ (Enterprise, Community)](https://visualstudio.microsoft.com/vs/). In the installer, make sure you click the checkboxes for .NET Core cross-platform Development, and Universal Windows Platform Development (10.0.19041.0).
 
 You can also use [Visual Studio Code](https://code.visualstudio.com/), or any whatever editor you prefer. Visual Studio provides a sleek [command-line installer](https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio) that can be used to just deploy the necessary dependencies using their [workload component id](https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community).
 
