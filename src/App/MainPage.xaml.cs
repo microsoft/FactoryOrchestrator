@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -526,15 +525,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private readonly SemaphoreSlim ipAddressSem;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
-        private void NavView_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void NavView_ItemInvoked_1(MUXC.NavigationView sender, MUXC.NavigationViewItemInvokedEventArgs args)
-        {
-
-        }
     }
 
 }
