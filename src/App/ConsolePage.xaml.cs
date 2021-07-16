@@ -443,7 +443,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (isError)
                 {
                     textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
-                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
                 }
 
                 if (OutputStack.Children.Count >= MaxBlocks)
