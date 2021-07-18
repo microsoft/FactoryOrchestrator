@@ -42,7 +42,7 @@
                         <Setter Target="ContentFrame.Padding" Value="1"></Setter>
                         <Setter Target="HeaderPanel.Orientation" Value="Vertical"></Setter>
                         <Setter Target="ButtonPanel.HorizontalAlignment" Value="Left"></Setter>
-                        <Setter Target="Flipper.Orientation" Value="Vertical"></Setter>
+                        <Setter Target="IndicatorPanel.Orientation" Value="Vertical"></Setter>
                         <Setter Target="NavView.PaneDisplayMode" Value="LeftMinimal"></Setter>
 
                     </VisualState.Setters>
@@ -71,7 +71,7 @@
             <StackPanel x:Name="HeaderPanel" Orientation="Horizontal">
                 <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Grid.Column="0" Text="" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
                 <StackPanel x:Name = "MainControlPanel" Orientation="Horizontal" HorizontalAlignment="Center" Padding="40,0,0,0" Grid.Column="1" Grid.Row="0">
-                        <StackPanel x:Name="Flipper" Orientation="Horizontal">
+                        <StackPanel x:Name="IndicatorPanel" Orientation="Horizontal">
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
                                 <TextBlock x:Name="NetworkName" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
                                 <TextBlock x:Name="NetworkIp" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
