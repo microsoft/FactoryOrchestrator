@@ -492,6 +492,10 @@ On retry</value>
   <data name="OutputConst.Text" xml:space="preserve">
     <value>Console Output:</value>
   </data>
+  <data name="OutputStack.Text" xml:space="preserve">
+	<value>Console Output</value>
+	<comment>Console to dispaly command output.</comment>
+  </data>
   <data name="OverallTaskResultConst.Text" xml:space="preserve">
     <value>Status:</value>
   </data>

@@ -179,10 +179,7 @@
                     <muxc:NavigationViewItem Tag="wdp" TabIndex="0" x:Uid="WDP" Icon="SwitchApps"/>
                     <muxc:NavigationViewItem Tag="about" TabIndex="0" x:Uid="About" Icon="Help"/>
                 </muxc:NavigationView.MenuItems>
-                <muxc:NavigationView.FooterMenuItems>
-
-                </muxc:NavigationView.FooterMenuItems>
-                <Frame x:Name="ContentFrame" IsTabStop="True" Padding="12"/>
+                <Frame x:Name="ContentFrame" Padding="12" />
             </muxc:NavigationView>
         </Grid>
     </Grid>

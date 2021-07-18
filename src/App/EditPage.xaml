@@ -191,7 +191,6 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
         <TextBlock x:Name="TasksHeader" x:Uid="TasksHeader" Grid.Row="5" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Visibility="Collapsed" TextWrapping="Wrap"/>
         <ListView 
             x:Name="TaskListView" 

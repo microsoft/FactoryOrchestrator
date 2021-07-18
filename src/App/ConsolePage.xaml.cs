@@ -221,7 +221,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     FontWeight = Windows.UI.Text.FontWeights.Bold,
                     IsTextSelectionEnabled = true
                 };
-                OutputStack.Children.Add(textBlock);
+                OutputStack.Text = textBlock.Text;
             });
 
             // Execute command
@@ -331,7 +331,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             _outSem.Wait();
             try
             {
-                OutputStack.Children.Clear();
+                OutputStack.Text = String.Empty; 
             }
             finally
             {
@@ -357,7 +357,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
 
 
-                var endCount = Math.Min(_activeCmdTaskRun.TaskOutput.Count, _lastOutput + MaxLinesPerBlock);
+                var endCount = _activeCmdTaskRun.TaskOutput.Count;
                 string text = "";
                 bool errorBlock = false;
 
@@ -443,23 +443,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (isError)
                 {
                     textBlock.FontWeight = Windows.UI.Text.FontWeights.Bold;
-                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Colors.Red);
                 }
-
-                if (OutputStack.Children.Count >= MaxBlocks)
-                {
-                    OutputStack.Children.RemoveAt(0);
-                }
-                OutputStack.Children.Add(textBlock);
+                OutputStack.Text =  textBlock.Text;
             }
-        }
-
-        private void OutputStack_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            // Scroll down when new output is received
-            StackPanel stack = (StackPanel)sender;
-            ScrollViewer scrollView = (ScrollViewer)stack.Parent;
-            scrollView.ChangeView(null, scrollView.ScrollableHeight, null, true);
         }
 
         private void ContainerCheckBox_StateChanged(object sender, RoutedEventArgs e)
@@ -520,7 +506,5 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private int _cmdHistoryIndex;
         private string _containerIp;
         private const int MaxCmdHistory = 100;
-        private const int MaxBlocks = 10; // @500 lines per block this is 5000 lines or 10 commands maximum
-        private const int MaxLinesPerBlock = 500;
     }
 }
