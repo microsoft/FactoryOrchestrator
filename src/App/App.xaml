@@ -4,6 +4,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Microsoft.FactoryOrchestrator.UWP">
     <Application.Resources>
-        <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- Other merged dictionaries here -->
+            </ResourceDictionary.MergedDictionaries>
+            <!-- Other app resources here -->
+          
+            <!--  Window width adaptive breakpoints.  -->
+            <x:Double x:Key="MinWindowBreakpoint">0</x:Double>
+            <x:Double x:Key="MediumWindowBreakpoint">800</x:Double>
+            <x:Double x:Key="LargeWindowBreakpoint">1008</x:Double>
+        </ResourceDictionary>
+        
     </Application.Resources>
+    
+    
 </Application>

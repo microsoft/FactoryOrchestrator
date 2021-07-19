@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    
     <Page.Resources>
         <Flyout x:Name="EditFlyout" x:Key="EditFlyout" LightDismissOverlayMode="On">
             <Grid x:Name="FlyoutGrid">
@@ -60,6 +61,29 @@
     </Page.Resources>
     
     <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
+        <VisualStateManager.VisualStateGroups>
+            <!--  Visual states reflect the application's window size  -->
+            <VisualStateGroup x:Name="LayoutVisualStates">
+                <VisualState x:Name="WideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource MediumWindowBreakpoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters />
+                </VisualState>
+                <VisualState x:Name="NarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRoot.Margin" Value="20" />
+                        <Setter Target="TaskListHeaderContainer.Orientation" Value="Vertical" />
+                        <Setter Target="TaskListOptions.Orientation" Value="Vertical" />
+                        <Setter Target="TaskTypeOptionsGroup1.Orientation" Value="Vertical" />
+                        <Setter Target="TaskTypeOptionsGroup2.Orientation" Value="Vertical"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -74,8 +98,8 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="BackButton" x:Uid="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" />
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Spacing="10">
-            <TextBlock x:Name="TaskListHeader" Style="{StaticResource SubheaderTextBlockStyle}" VerticalAlignment="Center"/>
+        <StackPanel x:Name="TaskListHeaderContainer" Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Spacing="10">
+            <TextBlock x:Name="TaskListHeader" Style="{StaticResource SubheaderTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap"/>
             <Button x:Name="EditListNameButton" x:Uid="EditListNameButton" VerticalAlignment="Center">
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8AC;"/>
                 <Button.Flyout>
@@ -97,19 +121,19 @@
             </Button>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
+        <StackPanel x:Name="TaskListOptions" Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Padding="10">
             <TextBlock x:Name="TaskListOpt" x:Uid="TaskListOpt" Style="{StaticResource SubtitleTextBlockStyle}"/>
             <CheckBox x:Name="ParallelCheck" x:Uid="ParallelCheck" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
             <CheckBox x:Name="BlockingCheck" x:Uid="BlockingCheck" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
             <CheckBox x:Name="TerminateBgTasksCheck" x:Uid="TerminateBgTasksCheck" IsChecked="False" Click="ListCheck_Checked" IsThreeState="False"/>
         </StackPanel>
-        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
-            <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
+        <StackPanel  Orientation="Vertical" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+            <StackPanel x:Name="TaskTypeOptionsGroup1" Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
                 <Button x:Name="NewExecutableButton" x:Uid="NewExecutableButton" Click="NewExecutableButton_Click"/>
                 <Button x:Name="NewPSButton" x:Uid="NewPSButton" Click="NewPSButton_Click"/>
                 <Button x:Name="NewCMDButton" x:Uid="NewCMDButton" Click="NewCMDButton_Click"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
+            <StackPanel x:Name="TaskTypeOptionsGroup2" Orientation="Horizontal" Spacing="10" Padding="10,10,0,0">
                 <Button x:Name="NewTAEFButton" x:Uid="NewTAEFButton" Click="NewTAEFButton_Click"/>
                 <Button x:Name="NewUWPButton" x:Uid="NewUWPButton" Click="NewUWPButton_Click"/>
                 <Button x:Name="NewExternalButton" x:Uid="NewExternalButton" Click="NewExternalButton_Click"/>
@@ -167,13 +191,12 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
-        <TextBlock x:Name="TasksHeader" x:Uid="TasksHeader" Grid.Row="5" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Visibility="Collapsed"/>
+        <TextBlock x:Name="TasksHeader" x:Uid="TasksHeader" Grid.Row="5" Grid.Column="1" Style="{StaticResource TitleTextBlockStyle}" HorizontalAlignment="Left" Visibility="Collapsed" TextWrapping="Wrap"/>
         <ListView 
             x:Name="TaskListView" 
             Grid.Row="6"  
             Grid.Column="1" 
-            SelectionMode="Single" 
+            SelectionMode="None" 
             AllowDrop="True" 
             IsItemClickEnabled="False" 
             CanDragItems="True" 
