@@ -37,12 +37,13 @@
             <TextBlock x:Name="ContainerGuiWarningExample" x:Uid="ContainerGuiWarningExample" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"  Visibility="Collapsed" TextWrapping="WrapWholeWords"/>
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Row="4" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" x:Uid="OutputConst"/>
-
-        <ScrollViewer x:Name="ScrollView" HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" Grid.Row="6">
-            <TextBox  x:Name="OutputStack" AutomationProperties.LabeledBy="{Binding ElementName=OutputConst}" TextWrapping="NoWrap" IsReadOnly="True" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <ScrollViewer x:Name="ScrollView" HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" IsTabStop="True" Grid.Row="6" >
+            <TextBox  x:Name="OutputStack" AutomationProperties.LabeledBy="{Binding ElementName=OutputConst}" IsTabStop="False" TextWrapping="NoWrap" IsReadOnly="True" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         </ScrollViewer>
-        <Button x:Name="LaunchRD" x:Uid="LaunchRD" Click="LaunchRD_Click" Grid.Row="7" HorizontalAlignment="Center" Visibility="Collapsed" />
-        <Button x:Name="ClearButton" x:Uid="ClearButton" Click="ClearButton_Click" Grid.Row="7" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Right" Padding="0,5,0,0">
+            <Button x:Name="LaunchRD" x:Uid="LaunchRD" Click="LaunchRD_Click" HorizontalAlignment="Left" Visibility="Collapsed" />
+            <Button x:Name="ClearButton" x:Uid="ClearButton" Click="ClearButton_Click" HorizontalAlignment="Left" Margin="5,0,0,0"/>
+        </StackPanel>
     </Grid>
     
 </Page>
