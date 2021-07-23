@@ -242,6 +242,9 @@
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>连接到自定义 IP 和端口</value>
   </data>
+  <data name="ConnectedTo" xml:space="preserve">
+    <value>Connected to</value>
+  </data>
   <data name="Console.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>非交互式 cmd.exe 提示</value>
   </data>
@@ -426,6 +429,9 @@
   <data name="MaybeDeleted" xml:space="preserve">
     <value>可能已被删除。</value>
   </data>
+  <data name="NetConnectAnnounce.Text" xml:space="preserve">
+    <value>Network Connection Successful!</value>
+  </data>
   <data name="NetworkButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>网络信息</value>
   </data>
@@ -534,6 +540,9 @@
   </data>
   <data name="RestartListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>重启</value>
+  </data>
+  <data name="ResultsListView.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Remote Devices:</value>
   </data>
   <data name="ResumeListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>恢复 TaskList</value>

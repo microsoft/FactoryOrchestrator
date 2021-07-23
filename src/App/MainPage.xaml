@@ -90,6 +90,14 @@
                                     </StackPanel>
                                     <Button.Flyout>
                                         <Flyout x:Name="NetworkFlyout" Opening="NetworkFlyout_Opening">
+                                            <Flyout.FlyoutPresenterStyle>
+                                              <Style TargetType="FlyoutPresenter">
+                                                <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
+                                                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                                                <Setter Property="IsTabStop" Value="True" />
+                                                <Setter Property="TabNavigation" Value="Cycle" />
+                                              </Style>
+                                            </Flyout.FlyoutPresenterStyle>
                                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                                                 <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="IpHeader" Text="" HorizontalAlignment="Center"/>
                                                 <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center">
@@ -122,7 +130,9 @@
                                     <Button.Flyout>
                                         <Flyout x:Name="ExitFlyout" Closed="ExitFlyout_Closed">
                                             <StackPanel>
-                                                <TextBlock x:Name="ExitText" x:Uid="ExitText" TextWrapping="Wrap" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <TextBlock x:Name="ExitText" x:Uid="ExitText" TextWrapping="Wrap" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
+                                                </StackPanel>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                     <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
