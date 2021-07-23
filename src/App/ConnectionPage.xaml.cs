@@ -357,7 +357,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 }
                 else
                 {
-                    ShowConnectFailure(item.HostName);
+                    AnnounceConnectionSuccess();
                 }
             }
             finally
