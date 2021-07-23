@@ -178,6 +178,9 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
   <data name="BadIpTitle" xml:space="preserve">
     <value>Unable to connect to target IP</value>
   </data>
+  <data name="NetConnectAnnounce.Text" xml:space="preserve">
+    <value>Network Connection Successful!</value>
+  </data>
   <data name="BgTaskBox.Content" xml:space="preserve">
     <value>Add as Background Task?</value>
   </data>
@@ -245,6 +248,9 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
   </data>
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>Connect to custom IP and port</value>
+  </data>
+  <data name="ConnectedTo" xml:space="preserve">
+    <value>Connected to</value>
   </data>
   <data name="Console.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Non-interactive cmd.exe prompt</value>
@@ -426,6 +432,9 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="LocalDevice" xml:space="preserve">
     <value>Local Device</value>
   </data>
+  <data name="ResultsListView.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Remote Devices:</value>
+  </data>
   <data name="LogPathConst.Text" xml:space="preserve">
     <value>Log:</value>
   </data>
@@ -493,8 +502,8 @@ On retry</value>
     <value>Console Output:</value>
   </data>
   <data name="OutputStack.Text" xml:space="preserve">
-	<value>Console Output</value>
-	<comment>Console to dispaly command output.</comment>
+    <value>Console Output</value>
+    <comment>Console to dispaly command output.</comment>
   </data>
   <data name="OverallTaskResultConst.Text" xml:space="preserve">
     <value>Status:</value>

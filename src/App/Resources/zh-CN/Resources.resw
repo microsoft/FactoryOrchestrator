@@ -766,4 +766,10 @@
     <value>联机查看 Factory Orchestrator 文档</value>
     <comment>Button to open factory orchestrator documentation website in user's web browser</comment>
   </data>
+  <data name="NetConnectAnnounce.Text" xml:space="preserve">
+    <value>Network Connection Successful!</value>
+  </data>
+  <data name="ResultsListView.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Remote Devices:</value>
+  </data>
 </root>
