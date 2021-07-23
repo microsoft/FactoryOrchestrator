@@ -10,9 +10,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-
     <Grid>
-
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState x:Name="WideLayout">
@@ -71,12 +69,12 @@
             </Grid.RowDefinitions>
 
             <StackPanel x:Name="HeaderPanel" Orientation="Horizontal">
-                <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Grid.Column="0" Text="" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Grid.Column="0" Text="" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
                 <StackPanel x:Name = "MainControlPanel" Orientation="Horizontal" HorizontalAlignment="Center" Padding="40,0,0,0" Grid.Column="1" Grid.Row="0">
                         <StackPanel x:Name="IndicatorPanel" Orientation="Horizontal">
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
-                                <TextBlock x:Name="NetworkName" Text="NetName" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
-                                <TextBlock x:Name="NetworkIp" Text="NetIP" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                <TextBlock x:Name="NetworkName" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                                <TextBlock x:Name="NetworkIp" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
                             </StackPanel>
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
                                 <TextBlock x:Name="OSVersionHeader" Text=""  VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
@@ -92,14 +90,6 @@
                                     </StackPanel>
                                     <Button.Flyout>
                                         <Flyout x:Name="NetworkFlyout" Opening="NetworkFlyout_Opening">
-                                            <Flyout.FlyoutPresenterStyle>
-                                                <Style TargetType="FlyoutPresenter">
-                                                    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
-                                                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-                                                    <Setter Property="IsTabStop" Value="True"/>
-                                                    <Setter Property="TabNavigation" Value="Cycle"/>
-                                                </Style>
-                                            </Flyout.FlyoutPresenterStyle>
                                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                                                 <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="IpHeader" Text="" HorizontalAlignment="Center"/>
                                                 <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center">
@@ -134,7 +124,7 @@
                                             <StackPanel>
                                                 <TextBlock x:Name="ExitText" x:Uid="ExitText" TextWrapping="Wrap" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
+                                                    <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
                                                             <TextBlock x:Name="ExitButtonText" x:Uid="Exit" Padding="5,0" TextWrapping="Wrap"/>

@@ -20,9 +20,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Xaml.Automation;
-using Windows.UI.Xaml.Automation.Peers;
-
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -141,7 +138,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                         localSettings.Values["lastPort"] = PortTextBox.Text;
                         localSettings.Values["lastServer"] = serverName;
                         localSettings.Values["lastHash"] = certHash;
-                        AnnounceConnectionSuccess();
                     }
                     else
                     {
@@ -153,24 +149,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     connectionSem.Release();
                     ConnectButton.IsEnabled = true;
                 }
-            }
-        }
-
-        private void AnnounceConnectionSuccess()
-        {
-            // var peer = FrameworkElementAutomationPeer.FromElement(NetConnectAnnounce);
-            // peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
-
-            if (AutomationPeer.ListenerExists(AutomationEvents.PropertyChanged))
-            {
-                NetConnectAnnounce.Visibility = Visibility.Visible;
-                var peer = FrameworkElementAutomationPeer.CreatePeerForElement(NetConnectAnnounce);
-
-                if (peer != null)
-                {
-                    peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
-                }
-                NetConnectAnnounce.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -357,10 +335,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (!((App)Application.Current).Client.IsConnected)
                 {
                     ShowConnectFailure(item.HostName);
-                }
-                else
-                {
-                    AnnounceConnectionSuccess();
                 }
             }
             finally
