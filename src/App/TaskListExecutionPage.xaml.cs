@@ -110,6 +110,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if ((ActiveTestsView.SelectedIndex != -1) && (_selectedTask != ActiveTestsView.SelectedIndex))
             {
                 // Select the tasklist to trigger ActiveTestsResultsView_SelectionChanged
+                _selectedTask = ActiveTestsView.SelectedIndex;
                 ActiveTestsResultsView.SelectedIndex = ActiveTestsView.SelectedIndex;
             }
         }
@@ -119,6 +120,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             if ((ActiveTestsResultsView.SelectedIndex != -1) && (_selectedTask != ActiveTestsResultsView.SelectedIndex))
             {
                 // Select the tasklist to trigger ACtiveTestView_SelectionChanged
+                _selectedTask = ActiveTestsResultsView.SelectedIndex;
                 ActiveTestsView.SelectedIndex = ActiveTestsResultsView.SelectedIndex;
             }
         }
