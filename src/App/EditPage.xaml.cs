@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Windows.ApplicationModel.Resources;
 using System.Globalization;
+using Windows.UI.Xaml.Automation;
 
 namespace Microsoft.FactoryOrchestrator.UWP
 {
@@ -736,7 +737,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     CloseButtonText = resourceLoader.GetString("Ok")
                 };
                 RenameBox.Text = activeList.Name;
-
+                RenameBox.SetValue(AutomationProperties.NameProperty, activeList.Name);
                 _ = await failedEdit.ShowAsync();
             }
             else if (!activeList.Name.Equals(RenameBox.Text, StringComparison.InvariantCulture))
@@ -750,6 +751,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void EditListNameFlyout_Opening(object sender, object e)
         {
             RenameBox.Text = activeList.Name;
+            RenameBox.SetValue(AutomationProperties.NameProperty, activeList.Name);
         }
 
         private ObservableCollection<TaskBase> TasksCollection;
