@@ -149,14 +149,14 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <ProgressRing x:Name="LoadingTasksRing" Grid.ColumnSpan="2" IsActive="False" Width="100" Height="100"/>
-                <ListView x:Name="ActiveTestsView" Grid.Column="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ActiveTestsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListView x:Name="ActiveTestsView" Grid.Column="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ActiveTestsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="1" MinWidth="1">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:TaskBaseWithTemplate">
                             <TextBlock x:Name="TaskName" Text="{x:Bind Task.Name}" ToolTipService.ToolTip="{x:Bind Task.Name}" VerticalAlignment="Center" Margin="10,0" />
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <ListView x:Name="ActiveTestsResultsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource ResultsViewSelector}"  SelectionMode="Single" SelectionChanged="ActiveTestsResultsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Right"/>
+                <ListView x:Name="ActiveTestsResultsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource ResultsViewSelector}"  SelectionMode="Single" SelectionChanged="ActiveTestsResultsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Right"  MinHeight="1" MinWidth="1" />
             </Grid>
         </ScrollViewer>
 
