@@ -105,7 +105,7 @@
                 <Button.Flyout>
                     <Flyout x:Name="EditListNameFlyout" Opening="EditListNameFlyout_Opening">
                         <StackPanel Orientation="Vertical">
-                            <TextBlock TextWrapping="Wrap" x:Uid="RenammeListBlock" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
+                            <TextBlock TextWrapping="Wrap" x:Uid="RenameListBlock" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
                             <TextBox TextWrapping="Wrap" x:Name="RenameBox"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button x:Name="CancelNameEdit" x:Uid="CancelEdit" Padding="5" Margin="5" Click="CancelNameEdit_Click">

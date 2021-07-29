@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
         <Button x:Name="BackButton" x:Uid="BackButton" Grid.Row="0" Grid.Column="0" Click="Back_Click" Style="{StaticResource NavigationBackButtonNormalStyle}" />
         <StackPanel x:Name="HeaderStack" Grid.Row="0" Grid.Column="1" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" >
-            <Button x:Name="PreviousRunButton" Click="PreviousRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=PrevText}"> 
+            <Button x:Name="PreviousRunButton" Click="PreviousRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=PrevText}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Back" />
                     <TextBlock x:Name="PrevText" x:Uid="PrevText" Padding="5,0" TextWrapping="Wrap" />
@@ -51,12 +51,18 @@
             <TextBlock x:Name="ArgsConst" x:Uid="ArgumentsBlock" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" />
             <TextBlock x:Name="Args" Text="" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5" TextWrapping="NoWrap" IsTextSelectionEnabled="True"/>
         </Grid>
-        <StackPanel x:Name="TaskRunStack" Grid.Row="3" Grid.Column="1" Margin="0" Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock x:Name="TaskGuidConst" x:Uid="TaskGuidConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="TaskGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
-            <TextBlock x:Name="TaskRunGuidConst" x:Uid="TaskRunGuidConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed"/>
-            <TextBlock x:Name="TaskRunGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True" Visibility="Collapsed"/>
-        </StackPanel>
+        <Grid x:Name="TaskRunStack" Grid.Row="3" Grid.Column="1" Margin="0" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="TaskGuidConst" x:Uid="TaskGuidConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Grid.Column="0"/>
+            <TextBlock x:Name="TaskGuid" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True" Grid.Column="1"/>
+            <TextBlock x:Name="TaskRunGuidConst" x:Uid="TaskRunGuidConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed" Grid.Column="2"/>
+            <TextBlock x:Name="TaskRunGuid" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True" Visibility="Collapsed" TextWrapping="Wrap" Grid.Column="3"/>
+        </Grid>
         <StackPanel x:Name="TestResultSummaryStack" Grid.Row="4" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
             <TextBlock x:Name="OverallTaskResultConst" x:Uid="OverallTaskResultConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
             <TextBlock x:Name="OverallTaskResult" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
@@ -74,10 +80,14 @@
             <TextBlock x:Name="RunTimeConst" x:Uid="RunTimeConst" FontWeight="Bold" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Left"  Visibility="Collapsed"/>
             <TextBlock x:Name="RunTime" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Visibility="Collapsed" IsTextSelectionEnabled="True"/>
         </StackPanel>
-        <StackPanel x:Name="TestResultSummaryStack2" Grid.Row="5" Grid.Column="1" Margin="0" VerticalAlignment="Center" Orientation="Horizontal" >
-            <TextBlock x:Name="LogPathConst" x:Uid="LogPathConst" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5"/>
-            <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" IsTextSelectionEnabled="True"/>
-        </StackPanel>
+        <Grid x:Name="TestResultSummaryStack2" Grid.Row="5" Grid.Column="1" Margin="0" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="LogPathConst" x:Uid="LogPathConst"  FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0"  Margin="5"/>
+            <TextBlock x:Name="LogPath" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" IsTextSelectionEnabled="True" TextWrapping="Wrap" Grid.Column="1"  Margin="5"/>
+        </Grid>
         <TextBlock x:Name="OutputConst" Grid.Column="1" Grid.Row="6" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" Text="Task Output:"/>
         <ScrollViewer x:Name="ScrollView" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="7" Margin="5" ViewChanged="ScrollView_ViewChanged">
             <StackPanel x:Name="OutputStack" VerticalAlignment="Top" Orientation="Vertical" />
