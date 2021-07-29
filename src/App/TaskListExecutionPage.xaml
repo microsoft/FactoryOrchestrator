@@ -131,14 +131,14 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ListView x:Name="TaskListsView" Grid.Column="0" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListView x:Name="TaskListsView" Grid.Column="0" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="1" MinWidth="1">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="core:TaskListSummary">
                             <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind Name}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="10,0" />
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <ListView x:Name="TaskListsResultsAndButtonsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode="Single" HorizontalAlignment="Right" SelectionChanged="TaskListsResultsAndButtonsView_SelectionChanged"/>
+                <ListView x:Name="TaskListsResultsAndButtonsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode="Single" HorizontalAlignment="Right" SelectionChanged="TaskListsResultsAndButtonsView_SelectionChanged" MinHeight="1" MinWidth="1"/>
             </Grid>
         </ScrollViewer>
 

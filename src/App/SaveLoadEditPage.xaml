@@ -13,12 +13,12 @@
         <Flyout x:Name="SaveFlyout" x:Key="SaveFlyout" Closing="SaveFlyout_Closing">
             <StackPanel>
                 <TextBlock x:Name="SaveFlyoutTextHeader" x:Uid="SaveFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
-                <TextBox x:Name="SaveFlyoutUserPath" Text="" KeyDown="ConfirmSave_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=SaveFlyoutTextHeader}"/>
+                <TextBox x:Name="SaveFlyoutUserPath" Text="" KeyDown="ConfirmSave_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=SaveFlyoutTextHeader}" TextChanged="SaveFlyout_TextChanged"/>
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="CancelSave" Padding="5" Margin="5" Click="CancelSave_Click" AutomationProperties.Name="Cancel Save">
+                    <Button x:Name="CancelSave" Padding="5" Margin="5" Click="CancelSave_Click" AutomationProperties.Name="Cancel Save" IsEnabled="False">
                         <SymbolIcon Symbol="Cancel"/>
                     </Button>
-                    <Button x:Name="ConfirmSave" Padding="5" Margin="5" Click="ConfirmSave_Click" AutomationProperties.Name="Confirm Save">
+                    <Button x:Name="ConfirmSave" Padding="5" Margin="5" Click="ConfirmSave_Click" AutomationProperties.Name="Confirm Save" IsEnabled="False">
                         <SymbolIcon Symbol="Save"/>
                     </Button>
                     <ProgressBar x:Name="SaveProgressBar" Margin="5" IsIndeterminate="True" Visibility="Collapsed" />
@@ -28,16 +28,26 @@
         <Flyout x:Name="LoadFlyout" x:Key="LoadFlyout" Closing="LoadFlyout_Closing">
             <StackPanel>
                 <TextBlock x:Name="LoadFlyoutTextHeader" Text="" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
-                <TextBox x:Name="LoadFlyoutUserPath" Text="" KeyDown="ConfirmLoad_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=LoadFlyoutTextHeader}"/>
+                <TextBox x:Name="LoadFlyoutUserPath" Text="" KeyDown="ConfirmLoad_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=LoadFlyoutTextHeader}" TextChanged="LoadFlyout_TextChanged"/>
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="CancelLoad" Padding="5" Margin="5" Click="CancelLoad_Click" AutomationProperties.Name="Cancel load">
+                    <Button x:Name="CancelLoad" Padding="5" Margin="5" Click="CancelLoad_Click" AutomationProperties.Name="Cancel load" IsEnabled="False">
                         <SymbolIcon Symbol="Cancel"/>
                     </Button>
-                    <Button x:Name="ConfirmLoad" Padding="5" Margin="5" Click="ConfirmLoad_Click" AutomationProperties.Name="Confirm load">
+                    <Button x:Name="ConfirmLoad" Padding="5" Margin="5" Click="ConfirmLoad_Click" AutomationProperties.Name="Confirm load" IsEnabled="False">
                         <SymbolIcon Symbol="Accept"/>
                     </Button>
                     <ProgressBar x:Name="LoadProgressBar" Margin="5" IsIndeterminate="True" Visibility="Collapsed" />
                 </StackPanel>
+            </StackPanel>
+        </Flyout>
+        <Flyout x:Name="DeleteFlyout" x:Key="DeleteFlyout" >
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="CancelDelete" Padding="5" Margin="5" Click="CancelDelete_Click" AutomationProperties.Name="Cancel Delete">
+                    <SymbolIcon Symbol="Cancel"/>
+                </Button>
+                <Button x:Name="ConfirmDelete" Padding="5" Margin="5" Click="ConfirmDelete_Click" AutomationProperties.Name="Confirm Delete">
+                    <SymbolIcon Symbol="Accept"/>
+                </Button>
             </StackPanel>
         </Flyout>
     </Page.Resources>
@@ -102,7 +112,7 @@
                                         <Button x:Name="SaveListButton" Click="SaveListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource SaveFlyout}" AutomationProperties.Name="Export Task List" ToolTipService.ToolTip="Export TaskList">
                                             <SymbolIcon Symbol="Save"/>
                                         </Button>
-                                        <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteListButton_Click" AutomationProperties.Name="Delete task list">
+                                        <Button x:Name="DeleteListButton" Margin="5,0,5,0" Click="DeleteListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource DeleteFlyout}" AutomationProperties.Name="Delete task list">
                                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                         </Button>
                                     </StackPanel>
