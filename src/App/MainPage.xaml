@@ -87,15 +87,10 @@
                             <TextBlock x:Name="OEMVersionHeader" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
                             <TextBlock x:Name="AppVersionHeader" Text=""  VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
                         </StackPanel>
-
-
                         <StackPanel x:Name="ButtonPanel" Orientation="Horizontal" HorizontalAlignment="Right">
-
                             <Button x:Name="ConfigButton" Background="{ThemeResource ControlFillColorSecondary}" x:Uid="ConfigButton" Visibility="Visible" Padding="5" Margin="0">
                                 <StackPanel Orientation="Horizontal">
-                                    <!--<TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />-->
-
-                                    <SymbolIcon Symbol="More" Foreground="{ThemeResource TextFillColorSecondary}" Width="30" Height="30"/>
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Foreground="{ThemeResource TextFillColorSecondary}" Text="&#xE770;" FontSize="30" VerticalAlignment="Center" />
                                 </StackPanel>
                                 <Button.Flyout>
                                     <Flyout x:Name="ConfigFlyout" Opening="ConfigFlyout_Opening">
