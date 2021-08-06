@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -164,9 +165,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 navUpdateSem.Release();
             }
 
-            // Put OS & OEM versions in the footer
+            // Put OS & OEM versions in the header
             OEMVersionHeader.Text = $"{resourceLoader.GetString("OEMVersion")}: ";
             OSVersionHeader.Text = $"{resourceLoader.GetString("OSVersion")}: ";
+            ServiceVersionHeader.Text = $"{resourceLoader.GetString("ServiceVersion")}: ";
+            AppVersionHeader.Text = $"{resourceLoader.GetString("AppVersion")}: ";
+
+            var assembly = Assembly.GetExecutingAssembly();
+            string assemblyVersion = assembly.GetName().Version.ToString();
+
+            AppVersionHeader.Text += assemblyVersion;
+
             try
             {
                 OSVersionHeader.Text += await Client.GetOSVersionString();
@@ -182,6 +191,14 @@ namespace Microsoft.FactoryOrchestrator.UWP
             catch (Exception)
             {
                 OEMVersionHeader.Text += $"{resourceLoader.GetString("CouldNotQuery")} {resourceLoader.GetString("OEMVersion")}!";
+            }
+            try
+            {
+                ServiceVersionHeader.Text += await Client.GetServiceVersionString();
+            }
+            catch (Exception)
+            {
+                ServiceVersionHeader.Text += $"{resourceLoader.GetString("CouldNotQuery")} {resourceLoader.GetString("ServiceVersion")}!";
             }
 
             // Configure network information update timer
@@ -374,8 +391,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ConfirmShutdown.IsEnabled = false;
             ConfirmExit.IsEnabled = false;
         }
-        private async void NetworkFlyout_Opening(object sender, object e)
+        private async void ConfigFlyout_Opening(object sender, object e)
         {
+            // Network info:
             await UpdateIpAddresses();
             await ipAddressSem.WaitAsync();
             try
