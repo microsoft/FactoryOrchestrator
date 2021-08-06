@@ -426,7 +426,7 @@
   <data name="MaybeDeleted" xml:space="preserve">
     <value>它可能已被刪除。</value>
   </data>
-  <data name="ConfigButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+  <data name="NetworkButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>網路資訊</value>
   </data>
   <data name="NewCMDButton.Content" xml:space="preserve">
