@@ -26,9 +26,17 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="MainControlPanel.Padding" Value="0"></Setter>
-                        <Setter Target="MainControlPanel.HorizontalAlignment" Value="Center"></Setter>
+                        <Setter Target="MainControlPanel.HorizontalAlignment" Value="Stretch"></Setter>
+                        <Setter Target="MainControlPanel.Background" Value="Red"></Setter>
+                        <Setter Target="IndicatorPanel.(Grid.Column)" Value="0"></Setter>
+                        <Setter Target="IndicatorPanel.(Grid.ColumnSpan)" Value="2"></Setter>
+                        <Setter Target="IndicatorPanel.HorizontalAlignment" Value="Stretch"></Setter>
+                        <Setter Target="ButtonPanel.(Grid.Column)" Value="1"></Setter>
                         <Setter Target="ContentFrame.Padding" Value="1"></Setter>
-                        <Setter Target="HeaderPanel.Orientation" Value="Vertical"></Setter>
+                        <Setter Target="MainControlPanel.(Grid.Column)" Value="0"></Setter>
+                        <Setter Target="MainControlPanel.(Grid.ColumnSpan)" Value="2"></Setter>
+                        <Setter Target="MainControlPanel.(Grid.Row)" Value="1"></Setter>
+                        <Setter Target="HeaderGrid.ColumnDefinitions[1].Width" Value="0*"></Setter>
                         <Setter Target="NavView.PaneDisplayMode" Value="LeftCompact"></Setter>
                     </VisualState.Setters>
                 </VisualState>
@@ -37,123 +45,129 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="MainControlPanel.(Grid.Column)" Value="0"></Setter>
+                        <Setter Target="MainControlPanel.(Grid.ColumnSpan)" Value="2"></Setter>
+                        <Setter Target="MainControlPanel.(Grid.Row)" Value="1"></Setter>
+                        <Setter Target="HeaderGrid.ColumnDefinitions[1].Width" Value="0*"></Setter>
                         <Setter Target="MainControlPanel.Padding" Value="0"></Setter>
                         <Setter Target="MainControlPanel.HorizontalAlignment" Value="Left"></Setter>
                         <Setter Target="ContentFrame.Padding" Value="1"></Setter>
-                        <Setter Target="HeaderPanel.Orientation" Value="Vertical"></Setter>
                         <Setter Target="ButtonPanel.HorizontalAlignment" Value="Left"></Setter>
                         <Setter Target="IndicatorPanel.Orientation" Value="Vertical"></Setter>
                         <Setter Target="NavView.PaneDisplayMode" Value="LeftMinimal"></Setter>
-
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        <Grid Grid.Row="0"  VerticalAlignment="Top">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
-            </StackPanel>
-        </Grid>
 
         <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="30,40,30,0" VerticalAlignment="Stretch">
-            
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-
-            <StackPanel x:Name="HeaderPanel" Orientation="Horizontal">
-                <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Grid.Column="0" Text="" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
-                <StackPanel x:Name = "MainControlPanel" Orientation="Horizontal" HorizontalAlignment="Center" Padding="40,0,0,0" Grid.Column="1" Grid.Row="0">
-                        <StackPanel x:Name="IndicatorPanel" Orientation="Horizontal">
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
-                                <TextBlock x:Name="NetworkName" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
-                                <TextBlock x:Name="NetworkIp" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
-                                <TextBlock x:Name="OSVersionHeader" Text=""  VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
-                                <TextBlock x:Name="OEMVersionHeader" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
-                            </StackPanel>
-                            <StackPanel x:Name="ButtonPanel" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <StackPanel.BorderBrush>
-                                    <SolidColorBrush Color="{ThemeResource SystemAltLowColor}"/>
-                                </StackPanel.BorderBrush>
-                                <Button x:Name="NetworkButton" x:Uid="NetworkButton" Visibility="Visible" Padding="5" Margin="0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <Button.Flyout>
-                                        <Flyout x:Name="NetworkFlyout" Opening="NetworkFlyout_Opening">
-                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                                <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="IpHeader" Text="" HorizontalAlignment="Center"/>
-                                                <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center">
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
-                                <Button x:Name="SettingsButton" x:Uid="SettingsButton" Visibility="Visible" Padding="5" Margin="5,0,0,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" FontSize="30" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <Button.Flyout>
-                                        <Flyout x:Name="SettingsFlyout" Opening="SettingsFlyout_Opening">
-                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                                <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="SettingsHeader" HorizontalAlignment="Center"/>
-                                                <HyperlinkButton x:Uid="SettingsSubHeader" NavigateUri="https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app#app-settings" HorizontalAlignment="Center"/>
-                                                <StackPanel x:Name="SettingsStackPanel" Orientation="Vertical" HorizontalAlignment="Left">
-                                                    <CheckBox x:Name="SettingsTrackExecution" x:Uid="SettingsTrackExecution" IsThreeState="False" IsChecked="True" Checked="SettingsTrackExecution_Checked" Unchecked="SettingsTrackExecution_Checked" />
-                                                    <CheckBox x:Name="SettingsShowExternalTasks" x:Uid="SettingsShowExternalTasks" IsThreeState="False" IsChecked="True" Checked="SettingsShowExternalTasks_Checked" Unchecked="SettingsShowExternalTasks_Checked" />
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
-                                <Button x:Name="ExitButton" AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="5,0,0,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <Button.Flyout>
-                                        <Flyout x:Name="ExitFlyout" Closed="ExitFlyout_Closed">
-                                            <StackPanel>
-                                                <TextBlock x:Name="ExitText" x:Uid="ExitText" TextWrapping="Wrap" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
-                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                    <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
-                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
-                                                            <TextBlock x:Name="ExitButtonText" x:Uid="Exit" Padding="5,0" TextWrapping="Wrap"/>
-                                                        </StackPanel>
-                                                    </Button>
-                                                    <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click" AutomationProperties.LabeledBy="{Binding ElementName=RebootButtonText}">
-                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE777;"/>
-                                                            <TextBlock x:Name="RebootButtonText" x:Uid="RebootButtonText" Padding="5,0" TextWrapping="Wrap"/>
-                                                        </StackPanel>
-                                                    </Button>
-                                                    <Button x:Name="ConfirmShutdown" Padding="8" Margin="10,5" Click="ConfirmShutdown_Click" AutomationProperties.LabeledBy="{Binding ElementName=ShutdownButtonText}">
-                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7E8;"/>
-                                                            <TextBlock x:Name="ShutdownButtonText" x:Uid="ShutdownButtonText" Padding="5,0" TextWrapping="Wrap"/>
-                                                        </StackPanel>
-                                                    </Button>
-                                                </StackPanel>
-                                                <ProgressBar x:Name="ShutdownProgessBar" IsIndeterminate="True" Visibility="Collapsed" Margin="10"/>
-                                            </StackPanel>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
-                            </StackPanel>
+            
+            <Grid x:Name="HeaderGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Text="" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
+                <StackPanel x:Name = "MainControlPanel" Orientation="Horizontal" HorizontalAlignment="Right" Padding="40,0,0,0" Grid.Row="0" Grid.Column="1">
+                    <StackPanel x:Name="IndicatorPanel" Orientation="Horizontal" Background="{ThemeResource ControlAltFillColorTransparent}" HorizontalAlignment="Left" CornerRadius="5" Padding="1">
+                        <StackPanel Orientation="Vertical" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                            <TextBlock x:Name="NetworkName" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                            <TextBlock x:Name="NetworkIp" Text="" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                            <TextBlock x:Name="OEMVersionHeader" Text="" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
+                            <TextBlock x:Name="AppVersionHeader" Text=""  VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
                         </StackPanel>
 
+
+                        <StackPanel x:Name="ButtonPanel" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <StackPanel.BorderBrush>
+                                <SolidColorBrush Color="{ThemeResource SystemAccentColor}"/>
+                            </StackPanel.BorderBrush>
+                            <Button x:Name="ConfigButton" x:Uid="ConfigButton" Visibility="Visible" Padding="5" Margin="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />-->
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;" FontSize="30"/>
+                                </StackPanel>
+                                <Button.Flyout>
+                                    <Flyout x:Name="ConfigFlyout" Opening="ConfigFlyout_Opening">
+                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                            <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="ConfigHeader" Text="" HorizontalAlignment="Center"/>
+                                            <TextBlock x:Uid="IpHeader" Text="" HorizontalAlignment="Left" Visibility="Collapsed"/>
+                                            <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center"></StackPanel>
+                                            <TextBlock x:Name="OSVersionHeader" Text=""  VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
+                                            <TextBlock x:Name="ServiceVersionHeader" Text=""  VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" IsTextSelectionEnabled="True"/>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button x:Name="SettingsButton" x:Uid="SettingsButton" Visibility="Visible" Padding="5" Margin="5,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" FontSize="30" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Button.Flyout>
+                                    <Flyout x:Name="SettingsFlyout" Opening="SettingsFlyout_Opening">
+                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                            <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="SettingsHeader" HorizontalAlignment="Center"/>
+                                            <HyperlinkButton x:Uid="SettingsSubHeader" NavigateUri="https://microsoft.github.io/FactoryOrchestrator/use-the-factory-orchestrator-app#app-settings" HorizontalAlignment="Center"/>
+                                            <StackPanel x:Name="SettingsStackPanel" Orientation="Vertical" HorizontalAlignment="Left">
+                                                <CheckBox x:Name="SettingsTrackExecution" x:Uid="SettingsTrackExecution" IsThreeState="False" IsChecked="True" Checked="SettingsTrackExecution_Checked" Unchecked="SettingsTrackExecution_Checked" />
+                                                <CheckBox x:Name="SettingsShowExternalTasks" x:Uid="SettingsShowExternalTasks" IsThreeState="False" IsChecked="True" Checked="SettingsShowExternalTasks_Checked" Unchecked="SettingsShowExternalTasks_Checked" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button x:Name="ExitButton" AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="5,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Button.Flyout>
+                                    <Flyout x:Name="ExitFlyout" Closed="ExitFlyout_Closed">
+                                        <StackPanel>
+                                            <TextBlock x:Name="ExitText" x:Uid="ExitText" TextWrapping="Wrap" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" HorizontalAlignment="Center" Margin="5"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
+                                                        <TextBlock x:Name="ExitButtonText" x:Uid="Exit" Padding="5,0" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click" AutomationProperties.LabeledBy="{Binding ElementName=RebootButtonText}">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE777;"/>
+                                                        <TextBlock x:Name="RebootButtonText" x:Uid="RebootButtonText" Padding="5,0" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button x:Name="ConfirmShutdown" Padding="8" Margin="10,5" Click="ConfirmShutdown_Click" AutomationProperties.LabeledBy="{Binding ElementName=ShutdownButtonText}">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7E8;"/>
+                                                        <TextBlock x:Name="ShutdownButtonText" x:Uid="ShutdownButtonText" Padding="5,0" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                            <ProgressBar x:Name="ShutdownProgessBar" IsIndeterminate="True" Visibility="Collapsed" Margin="10"/>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
+
                 </StackPanel>
-            
+            </Grid>
+
+
 
             <TextBlock x:Name="BootTaskWarning" x:Uid="BootTaskWarning" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontStyle="Italic" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="Collapsed" Margin="5"/>
             <muxc:NavigationView 
