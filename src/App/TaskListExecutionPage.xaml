@@ -138,7 +138,7 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <ListView x:Name="TaskListsResultsAndButtonsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode="Single" HorizontalAlignment="Right" SelectionChanged="TaskListsResultsAndButtonsView_SelectionChanged" MinHeight="1" MinWidth="1"/>
+                <ListView x:Name="TaskListsResultsAndButtonsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode="Single" HorizontalAlignment="Right" Loaded="TaskListResultButtonView_Loaded" SelectionChanged="TaskListsResultsAndButtonsView_SelectionChanged" MinHeight="1" MinWidth="1"/>
             </Grid>
         </ScrollViewer>
 
