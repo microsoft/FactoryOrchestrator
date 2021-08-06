@@ -27,7 +27,6 @@
                     <VisualState.Setters>
                         <Setter Target="MainControlPanel.Padding" Value="0"></Setter>
                         <Setter Target="MainControlPanel.HorizontalAlignment" Value="Stretch"></Setter>
-                        <Setter Target="MainControlPanel.Background" Value="Red"></Setter>
                         <Setter Target="IndicatorPanel.(Grid.Column)" Value="0"></Setter>
                         <Setter Target="IndicatorPanel.(Grid.ColumnSpan)" Value="2"></Setter>
                         <Setter Target="IndicatorPanel.HorizontalAlignment" Value="Stretch"></Setter>
@@ -91,13 +90,12 @@
 
 
                         <StackPanel x:Name="ButtonPanel" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <StackPanel.BorderBrush>
-                                <SolidColorBrush Color="{ThemeResource SystemAccentColor}"/>
-                            </StackPanel.BorderBrush>
-                            <Button x:Name="ConfigButton" x:Uid="ConfigButton" Visibility="Visible" Padding="5" Margin="0">
+
+                            <Button x:Name="ConfigButton" Background="{ThemeResource ControlFillColorSecondary}" x:Uid="ConfigButton" Visibility="Visible" Padding="5" Margin="0">
                                 <StackPanel Orientation="Horizontal">
                                     <!--<TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDA3;" FontSize="30" VerticalAlignment="Center" />-->
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;" FontSize="30"/>
+
+                                    <SymbolIcon Symbol="More" Foreground="{ThemeResource TextFillColorSecondary}" Width="30" Height="30"/>
                                 </StackPanel>
                                 <Button.Flyout>
                                     <Flyout x:Name="ConfigFlyout" Opening="ConfigFlyout_Opening">
@@ -111,9 +109,9 @@
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-                            <Button x:Name="SettingsButton" x:Uid="SettingsButton" Visibility="Visible" Padding="5" Margin="5,0,0,0">
+                            <Button x:Name="SettingsButton" Background="{ThemeResource ControlFillColorSecondary}" x:Uid="SettingsButton" Visibility="Visible" Padding="5" Margin="5,0,0,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" FontSize="30" VerticalAlignment="Center" />
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Foreground="{ThemeResource TextFillColorSecondary}" Text="&#xE713;" FontSize="30" VerticalAlignment="Center" />
                                 </StackPanel>
                                 <Button.Flyout>
                                     <Flyout x:Name="SettingsFlyout" Opening="SettingsFlyout_Opening">
@@ -128,9 +126,9 @@
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-                            <Button x:Name="ExitButton" AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="5,0,0,0">
+                            <Button x:Name="ExitButton" Background="{ThemeResource SystemFillColorCautionBackground}"  AutomationProperties.LabeledBy="{Binding ElementName=ExitText}" Padding="5" Margin="5,0,0,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Foreground="{ThemeResource SystemFillColorCaution}" Text="&#xE711;" FontSize="30" VerticalAlignment="Center" />
                                 </StackPanel>
                                 <Button.Flyout>
                                     <Flyout x:Name="ExitFlyout" Closed="ExitFlyout_Closed">
