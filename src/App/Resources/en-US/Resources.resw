@@ -432,8 +432,8 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="MaybeDeleted" xml:space="preserve">
     <value>It may have been deleted.</value>
   </data>
-  <data name="ConfigButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Configuration information</value>
+  <data name="SystemButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>System information</value>
   </data>
   <data name="NewCMDButton.Content" xml:space="preserve">
     <value>New Command Line File Task</value>
@@ -820,7 +820,7 @@ On retry</value>
     <value>Connection in progress</value>
     <comment>Progress bar showing connection to factory orchestrator service progress.</comment>
   </data>
-  <data name="ConfigHeader.Text" xml:space="preserve">
-    <value>Configuration Information</value>
+  <data name="SystemHeader.Text" xml:space="preserve">
+    <value>System Information</value>
   </data>
 </root>
