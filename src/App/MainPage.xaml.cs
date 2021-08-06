@@ -391,7 +391,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ConfirmShutdown.IsEnabled = false;
             ConfirmExit.IsEnabled = false;
         }
-        private async void ConfigFlyout_Opening(object sender, object e)
+        private async void SystemFlyout_Opening(object sender, object e)
         {
             // Network info:
             await UpdateIpAddresses();
