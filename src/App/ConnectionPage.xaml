@@ -71,7 +71,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="Welcome" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlockStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="Welcome" HorizontalAlignment="Center" VerticalAlignment="Center" AutomationProperties.HeadingLevel="Level1" Style="{StaticResource HeaderTextBlockStyle}"/>
                 <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="99" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -84,11 +84,11 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="AttemptingLocalHost" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{StaticResource SubheaderTextBlockStyle}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="AttemptingLocalHost" HorizontalAlignment="Center" VerticalAlignment="Top" AutomationProperties.HeadingLevel="Level2" Style="{StaticResource SubheaderTextBlockStyle}"/>
                     <ProgressBar x:Name="ConnectingProgress" x:Uid="ConnectingProgress" Grid.Row="3" Grid.Column="1" IsIndeterminate="True" Visibility="Visible" AllowFocusOnInteraction="False"/>
 
                 </Grid>
-                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="RemoteHost" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="RemoteHost" HorizontalAlignment="Center" VerticalAlignment="Center" AutomationProperties.HeadingLevel="Level2" Style="{StaticResource TitleTextBlockStyle}"/>
                 <ListView Grid.Row="6" x:Name="ResultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
                               MinHeight="200" Margin="0,5,0,5"
                               ItemTemplate="{StaticResource ResultsListViewTemplate}" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="ResultsListView_ItemClick"/>

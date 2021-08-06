@@ -34,6 +34,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
             _selectedTaskList = -1;
             _selectedTaskListGuid = Guid.Empty;
+            _selectedTask = -1;
             _selectedTaskGuid = Guid.Empty;
             _headerUpdateLock = new object();
             mainPage = null;
@@ -104,6 +105,25 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void ActiveTestsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((ActiveTestsView.SelectedIndex != -1) && (_selectedTask != ActiveTestsView.SelectedIndex))
+            {
+                // Select the tasklist to trigger ActiveTestsResultsView_SelectionChanged
+                _selectedTask = ActiveTestsView.SelectedIndex;
+                ActiveTestsResultsView.SelectedIndex = ActiveTestsView.SelectedIndex;
+            }
+        }
+
+        private void ActiveTestsResultsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((ActiveTestsResultsView.SelectedIndex != -1) && (_selectedTask != ActiveTestsResultsView.SelectedIndex))
+            {
+                // Select the tasklist to trigger ACtiveTestView_SelectionChanged
+                _selectedTask = ActiveTestsResultsView.SelectedIndex;
+                ActiveTestsView.SelectedIndex = ActiveTestsResultsView.SelectedIndex;
+            }
+        }
 
         private void ActiveTestsResultsView_ItemClick(object sender, ItemClickEventArgs e)
         {
@@ -649,6 +669,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private ServerPoller _taskListGuidPoller;
         private int _selectedTaskList;
         private Guid _selectedTaskListGuid;
+        private int _selectedTask;
         private Guid _selectedTaskGuid;
         private readonly object _headerUpdateLock;
         private FactoryOrchestratorUWPClient Client = ((App)Application.Current).Client;
