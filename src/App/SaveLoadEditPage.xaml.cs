@@ -170,7 +170,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         //Function monitors text box changes to enable/disable the cancel and save buttons for save feature.
         private void SaveFlyout_TextChanged(Object sender, TextChangedEventArgs e)
         {
-            if ((!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text)) && (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text)))
+            if (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text))
             {
                 ConfirmSave.IsEnabled = true;
                 CancelSave.IsEnabled = true;
@@ -185,7 +185,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         //Function monitors text box changes to enable/disable the cancel and save buttons for load feature.
         private void LoadFlyout_TextChanged(Object sender, TextChangedEventArgs e)
         {
-            if ((!string.IsNullOrWhiteSpace(LoadFlyoutUserPath.Text)) && (!string.IsNullOrWhiteSpace(LoadFlyoutUserPath.Text)))
+            if (!string.IsNullOrWhiteSpace(LoadFlyoutUserPath.Text))
             {
                 ConfirmLoad.IsEnabled = true;
                 CancelLoad.IsEnabled = true;
