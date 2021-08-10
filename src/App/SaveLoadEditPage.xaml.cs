@@ -135,6 +135,68 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        // cancel delete flyout action
+        private void CancelDelete_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteFlyout.Hide();
+        }
+
+        /// <summary>
+        /// Confirm delete flyout
+        /// </summary>
+        private async void ConfirmDelete_Click(object sender, RoutedEventArgs e)
+        {
+                try
+                {
+                    await Client.DeleteTaskList(_activeGuid);
+                }
+                catch (Exception ex)
+                {
+                    if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
+                    {
+                        ContentDialog failedDeleteDialog = new ContentDialog
+                        {
+                            Title = resourceLoader.GetString("FOXMLSaveFailed"),
+                            Content = $"{ex.Message}",
+                            CloseButtonText = resourceLoader.GetString("Ok")
+                        };
+
+                        _ = await failedDeleteDialog.ShowAsync();
+                    }
+                }
+                DeleteFlyout.Hide();
+        }
+
+        //Function monitors text box changes to enable/disable the cancel and save buttons for save feature.
+        private void SaveFlyout_TextChanged(Object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(SaveFlyoutUserPath.Text))
+            {
+                ConfirmSave.IsEnabled = true;
+                CancelSave.IsEnabled = true;
+            }
+            else
+            {
+                ConfirmSave.IsEnabled = false;
+                CancelSave.IsEnabled = false;
+            }
+        }
+
+        //Function monitors text box changes to enable/disable the cancel and save buttons for load feature.
+        private void LoadFlyout_TextChanged(Object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(LoadFlyoutUserPath.Text))
+            {
+                ConfirmLoad.IsEnabled = true;
+                CancelLoad.IsEnabled = true;
+            }
+            else
+            {
+                ConfirmLoad.IsEnabled = false;
+                CancelLoad.IsEnabled = false;
+            }
+        }
+
         private async void ShowLoadFailure(bool isFileLoad, string path, string error)
         {
             var type = isFileLoad ? resourceLoader.GetString("FOXML") : resourceLoader.GetString("Folder");
@@ -160,10 +222,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// <summary>
         /// Delete the selected tasklist
         /// </summary>
-        private async void DeleteListButton_Click(object sender, RoutedEventArgs e)
+        private void DeleteListButton_Click(object sender, RoutedEventArgs e)
         {
-            var guid = GetTaskListGuidFromButton(sender as Button);
-            await Client.DeleteTaskList(guid);
+            var button = sender as Button;
+            _activeGuid = GetTaskListGuidFromButton(button);
+            SaveFlyoutUserPath.Text = _activeGuid.ToString();
+            Flyout.ShowAttachedFlyout(button);
         }
 
         /// <summary>
