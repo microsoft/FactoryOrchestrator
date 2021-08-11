@@ -71,6 +71,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Keep indicies in sync
                 TaskListsResultsAndButtonsView.SelectedIndex = _selectedTaskList;
 
+                var item = TaskListsResultsAndButtonsView.ContainerFromIndex(TaskListsResultsAndButtonsView.SelectedIndex) as FrameworkElement;
+                string status = ((TaskListSummary)TaskListsResultsAndButtonsView.SelectedItem).Status.ToString();
+                AutomationProperties.SetName(item, status);
+
                 // Create new poller
                 if (_activeListPoller != null)
                 {
@@ -96,12 +100,25 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        //Setting default Tasklist item on startup to trigger accessiblity name update
+        private void TaskListResultButtonView_Loaded(object sender, RoutedEventArgs e)
+        {
+            if(_selectedTaskList == -1)
+            {
+                _selectedTaskList = 0;
+                TaskListsResultsAndButtonsView.SelectedIndex = _selectedTaskList;
+            }
+        }
+
         private void TaskListsResultsAndButtonsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if ((TaskListsResultsAndButtonsView.SelectedIndex != -1) && (_selectedTaskList != TaskListsResultsAndButtonsView.SelectedIndex))
             {
                 // Select the tasklist to trigger TaskListsView_SelectionChanged
                 TaskListsView.SelectedIndex = TaskListsResultsAndButtonsView.SelectedIndex;
+                var item = TaskListsResultsAndButtonsView.ContainerFromIndex(TaskListsResultsAndButtonsView.SelectedIndex) as FrameworkElement;
+                string status = ((TaskListSummary)TaskListsResultsAndButtonsView.SelectedItem).Status.ToString();
+                AutomationProperties.SetName(item, status);
             }
         }
 
