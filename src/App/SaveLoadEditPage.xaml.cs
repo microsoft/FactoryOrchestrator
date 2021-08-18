@@ -226,7 +226,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             var button = sender as Button;
             _activeGuid = GetTaskListGuidFromButton(button);
-            SaveFlyoutUserPath.Text = _activeGuid.ToString();
             Flyout.ShowAttachedFlyout(button);
         }
 
