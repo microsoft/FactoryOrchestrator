@@ -218,7 +218,8 @@
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch" 
             ScrollViewer.VerticalScrollMode="Enabled" 
-            DragItemsCompleted="TaskListView_DragCompleted">
+            DragItemsCompleted="TaskListView_DragCompleted"
+            TabFocusNavigation="Cycle">
         <ListView.Resources>
             <Style TargetType="ListViewItem">
                 <Setter Property="Template">
