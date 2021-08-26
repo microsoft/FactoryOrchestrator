@@ -41,13 +41,16 @@
             </StackPanel>
         </Flyout>
         <Flyout x:Name="DeleteFlyout" x:Key="DeleteFlyout" >
-            <StackPanel Orientation="Horizontal">
-                <Button x:Name="CancelDelete" Padding="5" Margin="5" Click="CancelDelete_Click" AutomationProperties.Name="Cancel Delete">
-                    <SymbolIcon Symbol="Cancel"/>
-                </Button>
-                <Button x:Name="ConfirmDelete" Padding="5" Margin="5" Click="ConfirmDelete_Click" AutomationProperties.Name="Confirm Delete">
-                    <SymbolIcon Symbol="Accept"/>
-                </Button>
+            <StackPanel>
+                <TextBlock x:Name="DeleteFlyoutTextHeader" x:Uid="DeleteFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="CancelDelete" Padding="5" Margin="5" Click="CancelDelete_Click" AutomationProperties.Name="Cancel Delete">
+                        <SymbolIcon Symbol="Cancel"/>
+                    </Button>
+                    <Button x:Name="ConfirmDelete" Padding="5" Margin="5" Click="ConfirmDelete_Click" AutomationProperties.Name="Confirm Delete">
+                        <SymbolIcon Symbol="Accept"/>
+                    </Button>
+                </StackPanel>
             </StackPanel>
         </Flyout>
     </Page.Resources>

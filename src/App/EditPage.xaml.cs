@@ -155,15 +155,58 @@ namespace Microsoft.FactoryOrchestrator.UWP
             return false;
         }
 
+        private void CancelDelete_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteFlyout.Hide();
+        }
+
+        /// <summary>
+        /// Confirm delete flyout
+        /// </summary>
+        private async void ConfirmDelete_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (activeTaskIsNowBg)
+                {
+                    BackgroundTasksCollection.Remove(activeTask);
+                    activeTaskIsNowBg = false;
+                }
+                else
+                {
+                    TasksCollection.Remove(activeTask);
+                }
+
+                listEdited = true;
+                if (TasksCollection.Count == 0)
+                {
+                    TasksHeader.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType() != typeof(FactoryOrchestratorConnectionException))
+                {
+                    ContentDialog failedDeleteDialog = new ContentDialog
+                    {
+                        Title = resourceLoader.GetString("FOXMLSaveFailed"),
+                        Content = $"{ex.Message}",
+                        CloseButtonText = resourceLoader.GetString("Ok")
+                    };
+
+                    _ = await failedDeleteDialog.ShowAsync();
+                }
+            }
+            DeleteFlyout.Hide();
+        }
+
         private void BgDeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            BackgroundTasksCollection.Remove(GetTaskFromButton(sender as Button));
-            listEdited = true;
-
-            if (BackgroundTasksCollection.Count == 0)
-            {
-                BgTasksHeader.Visibility = Visibility.Collapsed;
-            }
+            var button = sender as Button;
+            activeTask = GetTaskFromButton(button);
+            activeTaskIndex = TasksCollection.IndexOf(activeTask);
+            activeTaskIsNowBg = true;
+            Flyout.ShowAttachedFlyout(button);
         }
 
         private void BgEditButton_Click(object sender, RoutedEventArgs e)
@@ -180,13 +223,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            TasksCollection.Remove(GetTaskFromButton(sender as Button));
-            listEdited = true;
-
-            if (TasksCollection.Count == 0)
-            {
-                TasksHeader.Visibility = Visibility.Collapsed;
-            }
+            var button = sender as Button;
+            activeTask = GetTaskFromButton(button);
+            activeTaskIndex = TasksCollection.IndexOf(activeTask);
+            Flyout.ShowAttachedFlyout(button);    
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
