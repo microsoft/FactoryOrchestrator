@@ -228,6 +228,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             SendClientFileButton.IsEnabled = true;
             GetServerFileButton.IsEnabled = true;
             TranferRing.IsActive = false;
+            _ = sending ? SendClientFileButton.Focus(FocusState.Programmatic) : GetServerFileButton.Focus(FocusState.Programmatic);
         }
 
         private void ContainerCheckBox_Click(object sender, RoutedEventArgs e)
