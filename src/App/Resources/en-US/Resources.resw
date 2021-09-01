@@ -503,8 +503,8 @@ On retry</value>
     <value>Console Output:</value>
   </data>
   <data name="OutputStack.Text" xml:space="preserve">
-	<value>Console Output</value>
-	<comment>Console to dispaly command output.</comment>
+    <value>Console Output</value>
+    <comment>Console to display command output.</comment>
   </data>
   <data name="OverallTaskResultConst.Text" xml:space="preserve">
     <value>Status:</value>
@@ -832,5 +832,8 @@ On retry</value>
   <data name="ConnectingProgress.AutomationProperties.Name" xml:space="preserve">
     <value>Connection in progress</value>
     <comment>Progress bar showing connection to factory orchestrator service progress.</comment>
+  </data>
+  <data name="SystemHeader.Text" xml:space="preserve">
+    <value>System Information</value>
   </data>
 </root>
