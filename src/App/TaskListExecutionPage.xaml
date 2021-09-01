@@ -131,14 +131,14 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ListView x:Name="TaskListsView" Grid.Column="0" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListView x:Name="TaskListsView" Grid.Column="0" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="TaskListsView_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="1" MinWidth="1">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="core:TaskListSummary">
                             <TextBlock x:Name="TaskListName" Text="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind Name}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="10,0" />
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <ListView x:Name="TaskListsResultsAndButtonsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode="Single" HorizontalAlignment="Right" SelectionChanged="TaskListsResultsAndButtonsView_SelectionChanged"/>
+                <ListView x:Name="TaskListsResultsAndButtonsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind TaskListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource TaskListViewSelector}" SelectionMode="Single" HorizontalAlignment="Right" Loaded="TaskListResultButtonView_Loaded" SelectionChanged="TaskListsResultsAndButtonsView_SelectionChanged" MinHeight="1" MinWidth="1"/>
             </Grid>
         </ScrollViewer>
 
@@ -149,14 +149,14 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <ProgressRing x:Name="LoadingTasksRing" Grid.ColumnSpan="2" IsActive="False" Width="100" Height="100"/>
-                <ListView x:Name="ActiveTestsView" Grid.Column="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ActiveTestsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListView x:Name="ActiveTestsView" Grid.Column="0" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ActiveTestsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="1" MinWidth="1">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:TaskBaseWithTemplate">
                             <TextBlock x:Name="TaskName" Text="{x:Bind Task.Name}" ToolTipService.ToolTip="{x:Bind Task.Name}" VerticalAlignment="Center" Margin="10,0" />
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <ListView x:Name="ActiveTestsResultsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource ResultsViewSelector}"  SelectionMode="Single" SelectionChanged="ActiveTestsResultsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Right"/>
+                <ListView x:Name="ActiveTestsResultsView" Grid.Column="1" ScrollViewer.VerticalScrollMode="Disabled" ItemsSource="{x:Bind ActiveListCollection, Mode=OneWay}" ItemTemplateSelector="{StaticResource ResultsViewSelector}"  SelectionMode="Single" SelectionChanged="ActiveTestsResultsView_SelectionChanged" ItemClick="ActiveTestsResultsView_ItemClick" IsItemClickEnabled="True" HorizontalAlignment="Right"  MinHeight="1" MinWidth="1" />
             </Grid>
         </ScrollViewer>
 
