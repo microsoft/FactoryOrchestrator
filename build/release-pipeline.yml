@@ -642,7 +642,6 @@ stages:
                     exit 1
                   }
                 condition: and(ne(variables['SKIPPWSHPUBLISH'], 'true'), succeeded())
-                ignoreLastExitCode: true
                 displayName: 'Publish PowerShell module to PSGallery'
 
               # Publish NuGet binary & symbol packages to NuGet.org with API key in secret variable OCSYM.NuGetApiKey

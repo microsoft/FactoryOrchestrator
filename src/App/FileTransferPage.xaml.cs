@@ -87,6 +87,20 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void ClientServerFile_TextChanged(Object sender, TextChangedEventArgs e)
+        {
+            if ((!string.IsNullOrWhiteSpace(ServerFileTextBox.Text)) && (!string.IsNullOrWhiteSpace(ClientFileTextBox.Text)))
+            {
+                GetServerFileButton.IsEnabled = true;
+                SendClientFileButton.IsEnabled = true;
+            }
+            else
+            {
+                GetServerFileButton.IsEnabled = false;
+                SendClientFileButton.IsEnabled = false;
+            }
+        }
+
         private void GetServerFileButton_Click(object sender, RoutedEventArgs e)
         {
             if ((!string.IsNullOrWhiteSpace(ServerFileTextBox.Text)) && (!string.IsNullOrWhiteSpace(ClientFileTextBox.Text)))
@@ -214,6 +228,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             SendClientFileButton.IsEnabled = true;
             GetServerFileButton.IsEnabled = true;
             TranferRing.IsActive = false;
+            _ = sending ? SendClientFileButton.Focus(FocusState.Programmatic) : GetServerFileButton.Focus(FocusState.Programmatic);
         }
 
         private void ContainerCheckBox_Click(object sender, RoutedEventArgs e)

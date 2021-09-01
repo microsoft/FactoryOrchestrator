@@ -89,7 +89,7 @@
 
                 </Grid>
                 <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="99" x:Uid="RemoteHost" HorizontalAlignment="Center" VerticalAlignment="Center" AutomationProperties.HeadingLevel="Level2" Style="{StaticResource TitleTextBlockStyle}"/>
-                <ListView Grid.Row="6" x:Name="ResultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
+                <ListView Grid.Row="6" x:Uid="ResultsListView" x:Name="ResultsListView" BorderBrush="AntiqueWhite" BorderThickness="1"
                               MinHeight="200" Margin="0,5,0,5"
                               ItemTemplate="{StaticResource ResultsListViewTemplate}" ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemClickEnabled="True" SelectionMode="Single" ItemClick="ResultsListView_ItemClick"/>
                 <Grid Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" >
@@ -125,6 +125,9 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="ValidateXMLButton" x:Uid="ValidateXMLButton" Margin="5" Click="ValidateXMLButton_Click"/>
             <Button x:Name="AboutButton" x:Uid="AboutButton" Margin="5" Click="AboutButton_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <TextBlock x:Name="NetConnectAnnounce" x:Uid="NetConnectAnnounce" AutomationProperties.LiveSetting="Assertive" Visibility="Collapsed" FontSize="4" />
         </StackPanel>
     </Grid>
 </Page>

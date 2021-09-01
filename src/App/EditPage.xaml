@@ -58,6 +58,19 @@
                 </StackPanel>
             </Grid>
         </Flyout>
+        <Flyout x:Name="DeleteFlyout" x:Key="DeleteFlyout" >
+            <StackPanel>
+                <TextBlock x:Name="DeleteFlyoutTextHeader" x:Uid="DeleteFlyoutTextHeader" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}" Padding="5"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="CancelDelete" Padding="5" Margin="5" Click="CancelDelete_Click" AutomationProperties.Name="Cancel Delete">
+                        <SymbolIcon Symbol="Cancel"/>
+                    </Button>
+                    <Button x:Name="ConfirmDelete" Padding="5" Margin="5" Click="ConfirmDelete_Click" AutomationProperties.Name="Confirm Delete">
+                        <SymbolIcon Symbol="Accept"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Flyout>
     </Page.Resources>
     
     <Grid x:Name="LayoutRoot" Width="Auto" Height="Auto" HorizontalAlignment="Stretch" Margin="50,50,50,50" VerticalAlignment="Stretch">
@@ -105,8 +118,8 @@
                 <Button.Flyout>
                     <Flyout x:Name="EditListNameFlyout" Opening="EditListNameFlyout_Opening">
                         <StackPanel Orientation="Vertical">
-                            <TextBlock TextWrapping="Wrap" x:Uid="RenammeListBlock" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
-                            <TextBox TextWrapping="Wrap" x:Name="RenameBox"/>
+                            <TextBlock TextWrapping="Wrap" x:Uid="RenameListBlock" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
+                            <TextBox TextWrapping="Wrap" x:Name="RenameBox" AutomationProperties.Name="Rename Tasklist"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button x:Name="CancelNameEdit" x:Uid="CancelEdit" Padding="5" Margin="5" Click="CancelNameEdit_Click">
                                     <SymbolIcon Symbol="Cancel"/>
@@ -175,7 +188,7 @@
                                         <Button x:Name="EditBackgroundListButton" x:Uid="EditButton" Margin="10,0,5,0" Click="BgEditButton_Click">
                                             <SymbolIcon Symbol="Edit"/>
                                         </Button>
-                                        <Button x:Name="DeleteBackgroundListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="BgDeleteButton_Click">
+                                        <Button x:Name="DeleteBackgroundListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="BgDeleteButton_Click" FlyoutBase.AttachedFlyout="{StaticResource DeleteFlyout}">
                                             <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                         </Button>
                                     </StackPanel>
@@ -205,7 +218,8 @@
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch" 
             ScrollViewer.VerticalScrollMode="Enabled" 
-            DragItemsCompleted="TaskListView_DragCompleted">
+            DragItemsCompleted="TaskListView_DragCompleted"
+            TabFocusNavigation="Cycle">
         <ListView.Resources>
             <Style TargetType="ListViewItem">
                 <Setter Property="Template">
@@ -224,7 +238,7 @@
                                     <Button x:Name="EditListButton" x:Uid="EditButton" Margin="10,0,5,0" Click="EditButton_Click">
                                         <SymbolIcon Symbol="Edit"/>
                                     </Button>
-                                    <Button x:Name="DeleteListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="DeleteButton_Click">
+                                        <Button x:Name="DeleteListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="DeleteButton_Click" FlyoutBase.AttachedFlyout="{StaticResource DeleteFlyout}" AutomationProperties.Name="Delete task">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                     </Button>
                                 </StackPanel>
