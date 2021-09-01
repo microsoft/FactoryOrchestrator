@@ -73,10 +73,18 @@
                             </StackPanel>
                             <Button.Flyout>
                                 <Flyout x:Name="SystemFlyout" Opening="SystemFlyout_Opening">
-                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                                        <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="SystemHeader" Text="" HorizontalAlignment="Center"/>
-                                        <TextBlock x:Uid="IpHeader" Text="" HorizontalAlignment="Left" Visibility="Collapsed"/>
-                                        <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center"></StackPanel>
+                                    <Flyout.FlyoutPresenterStyle>
+                                        <Style TargetType="FlyoutPresenter">
+                                            <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
+                                            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                                            <Setter Property="IsTabStop" Value="True" />
+                                            <Setter Property="TabNavigation" Value="Cycle" />
+                                        </Style>
+                                    </Flyout.FlyoutPresenterStyle>
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                        <TextBlock Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" x:Uid="IpHeader" Text="" HorizontalAlignment="Center"/>
+                                        <StackPanel x:Name="NetworkStackPanel" Orientation="Vertical" HorizontalAlignment="Center">
+                                        </StackPanel>
                                     </StackPanel>
                                 </Flyout>
                             </Button.Flyout>
