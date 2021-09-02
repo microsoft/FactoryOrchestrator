@@ -135,13 +135,13 @@
             <Button x:Name="SaveAllButton" Margin="5,0" Flyout="{StaticResource SaveFlyout}" AutomationProperties.LabeledBy="{Binding ElementName=SaveAll}">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA35;"/>
-                    <TextBlock x:Name="SaveAll" x:Uid="SaveAll" Margin="5,0"/>
+                    <TextBlock x:Name="SaveAll" x:Uid="SaveAll" TextWrapping="Wrap" Margin="5,0"/>
                 </StackPanel>
             </Button>
             <Button x:Name="DeleteAllButton" Click="DeleteAllButton_Click" AutomationProperties.LabeledBy="{Binding ElementName=DeleteAll}">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
-                    <TextBlock x:Name="DeleteAll" x:Uid="DeleteAll" Margin="5,0"/>
+                    <TextBlock x:Name="DeleteAll" x:Uid="DeleteAll" TextWrapping="Wrap" Margin="5,0"/>
                 </StackPanel>
             </Button>
 

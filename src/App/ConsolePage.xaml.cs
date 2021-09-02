@@ -323,7 +323,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             CommandBox.IsEnabled = true;
             CommandBox.Text = "";
             RunButtonIcon.Symbol = Symbol.Play;
-            CommandBox.Focus(FocusState.Programmatic);
+            OutputStack.Focus(FocusState.Programmatic);
         }
 
         private void ClearButton_Click(object sender, RoutedEventArgs e)
