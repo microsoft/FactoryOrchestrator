@@ -38,7 +38,7 @@
         </StackPanel>
         <TextBlock x:Name="OutputConst" Grid.Row="4" FontWeight="Bold" VerticalAlignment="Bottom" Padding="5,5,0,5" HorizontalAlignment="Left" x:Uid="OutputConst"/>
         <ScrollViewer x:Name="ScrollView" HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" IsTabStop="True" Grid.Row="6" >
-            <TextBox  x:Name="OutputStack" AutomationProperties.LabeledBy="{Binding ElementName=OutputConst}" IsTabStop="False" TextWrapping="NoWrap" IsReadOnly="True" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <TextBox  x:Name="OutputStack" AutomationProperties.LabeledBy="{Binding ElementName=OutputConst}" IsTabStop="True" TextWrapping="NoWrap" IsReadOnly="True" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         </ScrollViewer>
         <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Right" Padding="0,5,0,0">
             <Button x:Name="LaunchRD" x:Uid="LaunchRD" Click="LaunchRD_Click" HorizontalAlignment="Left" Visibility="Collapsed" />
