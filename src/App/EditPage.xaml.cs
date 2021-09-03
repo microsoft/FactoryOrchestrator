@@ -104,6 +104,24 @@ namespace Microsoft.FactoryOrchestrator.UWP
             EditFlyout.SetValue(Flyout.FlyoutPresenterStyleProperty, style);
         }
 
+        private void TaskListView_LayoutUpdated(object sender, object e)
+        {
+            for (int i = 0; i < activeList.Tasks.Count; i++)
+            {
+                var item = TaskListView.ContainerFromIndex(i) as FrameworkElement;
+                if(item!= null)
+                {
+                    var grid = VisualTreeHelper.GetChild(item, 0) as FrameworkElement;
+                    var buttonStack = VisualTreeHelper.GetChild(grid, 2) as FrameworkElement;
+                    var editButton = VisualTreeHelper.GetChild(buttonStack, 0) as FrameworkElement;
+                    var deleteButton = VisualTreeHelper.GetChild(buttonStack, 1) as FrameworkElement;
+                    AutomationProperties.SetName(editButton, TasksCollection.ElementAt(i).Name +" Edit Button");
+                    AutomationProperties.SetName(deleteButton, TasksCollection.ElementAt(i).Name + " Delete Button");
+                }
+
+            }
+        }
+
         private void UpdateHeader()
         {
             TaskListHeader.Text = resourceLoader.GetString("EditingTaskList") + $": {activeList.Name}";
