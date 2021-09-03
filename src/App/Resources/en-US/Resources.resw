@@ -246,6 +246,9 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
   <data name="ConnectButton.Content" xml:space="preserve">
     <value>Connect to custom IP and port</value>
   </data>
+  <data name="ConnectedTo" xml:space="preserve">
+    <value>Connected to</value>
+  </data>
   <data name="Console.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Non-interactive cmd.exe prompt</value>
   </data>
@@ -436,6 +439,9 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="MaybeDeleted" xml:space="preserve">
     <value>It may have been deleted.</value>
   </data>
+  <data name="NetConnectAnnounce.Text" xml:space="preserve">
+    <value>Network Connection Successful!</value>
+  </data>
   <data name="NetworkButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Network information</value>
   </data>
@@ -497,8 +503,8 @@ On retry</value>
     <value>Console Output:</value>
   </data>
   <data name="OutputStack.Text" xml:space="preserve">
-	<value>Console Output</value>
-	<comment>Console to dispaly command output.</comment>
+    <value>Console Output</value>
+    <comment>Console to display command output.</comment>
   </data>
   <data name="OverallTaskResultConst.Text" xml:space="preserve">
     <value>Status:</value>
@@ -548,6 +554,9 @@ On retry</value>
   </data>
   <data name="RestartListButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Restart</value>
+  </data>
+  <data name="ResultsListView.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Remote Devices:</value>
   </data>
   <data name="ResumeListButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Resume TaskList</value>
@@ -823,5 +832,8 @@ On retry</value>
   <data name="ConnectingProgress.AutomationProperties.Name" xml:space="preserve">
     <value>Connection in progress</value>
     <comment>Progress bar showing connection to factory orchestrator service progress.</comment>
+  </data>
+  <data name="SystemHeader.Text" xml:space="preserve">
+    <value>System Information</value>
   </data>
 </root>
