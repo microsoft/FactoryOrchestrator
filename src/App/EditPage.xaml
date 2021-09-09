@@ -219,7 +219,8 @@
             VerticalAlignment="Stretch" 
             ScrollViewer.VerticalScrollMode="Enabled" 
             DragItemsCompleted="TaskListView_DragCompleted"
-            TabFocusNavigation="Cycle">
+            TabFocusNavigation="Cycle"
+            LayoutUpdated="TaskListView_LayoutUpdated">
         <ListView.Resources>
             <Style TargetType="ListViewItem">
                 <Setter Property="Template">
@@ -235,10 +236,10 @@
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
                                 <ContentPresenter Grid.Column="1" />
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                                    <Button x:Name="EditListButton" x:Uid="EditButton" Margin="10,0,5,0" Click="EditButton_Click">
+                                    <Button x:Name="EditListButton" x:Uid="EditListButton" Margin="10,0,5,0" Click="EditButton_Click">
                                         <SymbolIcon Symbol="Edit"/>
                                     </Button>
-                                        <Button x:Name="DeleteListButton" x:Uid="DeleteButton" Margin="5,0,5,0" Click="DeleteButton_Click" FlyoutBase.AttachedFlyout="{StaticResource DeleteFlyout}" AutomationProperties.Name="Delete task">
+                                    <Button x:Name="DeleteListButton" x:Uid="DeleteListButton" Margin="5,0,5,0" Click="DeleteButton_Click" FlyoutBase.AttachedFlyout="{StaticResource DeleteFlyout}">
                                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74D;"/>
                                     </Button>
                                 </StackPanel>
