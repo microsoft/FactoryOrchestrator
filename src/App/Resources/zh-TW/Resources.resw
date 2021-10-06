@@ -326,9 +326,6 @@
   <data name="Exit.Text" xml:space="preserve">
     <value>離開</value>
   </data>
-  <data name="ExitButtonText.Text" xml:space="preserve">
-    <value>離開</value>
-  </data>
   <data name="ExitCodeConst.Text" xml:space="preserve">
     <value>結束代碼:</value>
   </data>
