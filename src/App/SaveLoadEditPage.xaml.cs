@@ -16,6 +16,7 @@ using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
@@ -368,6 +369,28 @@ namespace Microsoft.FactoryOrchestrator.UWP
         private void LoadFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
             LoadFlyoutUserPath.Text = "";
+        }
+
+        // This is called when the layout is updated to update the accessible name of the edit, delete and save buttons.
+        private void TaskListsView_LayoutUpdated(object sender, object e)
+        {
+            
+            for (int i = 0; i < TaskListCollection.Count; i++)
+            {
+                var item = TaskListsView.ContainerFromIndex(i) as FrameworkElement;
+                if (item != null)
+                {
+                    var grid = VisualTreeHelper.GetChild(item, 0) as FrameworkElement;
+                    var buttonStack = VisualTreeHelper.GetChild(grid, 2) as FrameworkElement;
+                    var editButton = VisualTreeHelper.GetChild(buttonStack, 0) as FrameworkElement;
+                    var saveButton = VisualTreeHelper.GetChild(buttonStack, 1) as FrameworkElement;
+                    var deleteButton = VisualTreeHelper.GetChild(buttonStack, 2) as FrameworkElement;
+                    AutomationProperties.SetName(editButton, TaskListCollection.ElementAt(i).Name + " Edit Button");
+                    AutomationProperties.SetName(saveButton, TaskListCollection.ElementAt(i).Name + " Save Button ");
+                    AutomationProperties.SetName(deleteButton, TaskListCollection.ElementAt(i).Name + " Delete Button");
+                }
+
+            }
         }
 
         /// <summary>

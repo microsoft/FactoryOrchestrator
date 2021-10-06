@@ -94,7 +94,7 @@
             <TextBlock x:Uid="ExistingText" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock x:Uid="ExistingText2" Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
-        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=TwoWay}" DragItemsCompleted="TaskListsView_DragItemsCompleted">
+        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=TwoWay}" DragItemsCompleted="TaskListsView_DragItemsCompleted" LayoutUpdated="TaskListsView_LayoutUpdated">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
@@ -109,7 +109,7 @@
                                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
                                     <ContentPresenter Grid.Column="1" />
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
-                                        <Button x:Name="EditListButton" Margin="10,0,5,0" Click="EditListButton_Click" AutomationProperties.Name="Edit Task List">
+                                        <Button x:Name="EditListButton" Margin="10,0,5,0" x:Uid="EditTaskListButton" Click="EditListButton_Click" AutomationProperties.Name="Edit Task List">
                                             <SymbolIcon Symbol="Edit"/>
                                         </Button>
                                         <Button x:Name="SaveListButton" Click="SaveListButton_Click" FlyoutBase.AttachedFlyout="{StaticResource SaveFlyout}" AutomationProperties.Name="Export Task List" ToolTipService.ToolTip="Export TaskList">
