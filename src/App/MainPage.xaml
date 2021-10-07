@@ -67,7 +67,7 @@
                 <TextBlock x:Name="Header" x:Uid="FactoryOrchestrator" Text="" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}"/>
                 <StackPanel x:Name="IndicatorPanel" Orientation="Horizontal" Background="{ThemeResource ControlAltFillColorTransparent}" HorizontalAlignment="Right" CornerRadius="5" Padding="1" Grid.Row="0" Grid.Column="1">
                     <StackPanel x:Name="ButtonPanel" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="NetworkButton" Background="{ThemeResource ControlFillColorSecondary}" x:Uid="NetworkButton" Visibility="Visible" Padding="5" Margin="0">
+                        <Button x:Name="SystemButton" Background="{ThemeResource ControlFillColorSecondary}" x:Uid="SystemButton" Visibility="Visible" Padding="5" Margin="0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock FontFamily="Segoe MDL2 Assets" Foreground="{ThemeResource TextFillColorSecondary}" Text="&#xE770;" FontSize="30" VerticalAlignment="Center" />
                             </StackPanel>

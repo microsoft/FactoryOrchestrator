@@ -724,6 +724,10 @@ On retry</value>
     <value>Follow TaskList Execution</value>
     <comment>Checkbox to automatically update the UI  to follow the running Task(s)</comment>
   </data>
+  <data name="SystemButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>System Information</value>
+    <comment>Factory Orchestrator App System Information</comment>
+  </data>
   <data name="Unknown" xml:space="preserve">
     <value>❔ Unknown</value>
   </data>
