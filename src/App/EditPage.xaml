@@ -232,8 +232,14 @@
                                     <ColumnDefinition Width="250" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE76F;" Grid.Column="0"/>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="moveButtons">
+                                    <Button x:Name="Up" Margin="5,0,5,0" Click="MoveUpButton_Click"  AutomationProperties.Name="Move up the task list">
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE110;"/>
+                                    </Button>
+                                    <Button x:Name="Down" Margin="5,0,5,0" Click="MoveDownButton_Click" AutomationProperties.Name="Move down task list" >
+                                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE74B;"/>
+                                    </Button>
+                                </StackPanel>
                                 <ContentPresenter Grid.Column="1" />
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="buttonGroup">
                                     <Button x:Name="EditListButton" x:Uid="EditListButton" Margin="10,0,5,0" Click="EditButton_Click">
