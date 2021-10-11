@@ -94,7 +94,7 @@
             <TextBlock x:Uid="ExistingText" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock x:Uid="ExistingText2" Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
-        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=TwoWay}" DragItemsCompleted="TaskListsView_DragItemsCompleted" LayoutUpdated="TaskListsView_LayoutUpdated">
+        <ListView x:Name="TaskListsView" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" SelectionMode="None" AllowDrop="True" IsItemClickEnabled="False" CanDragItems="True" CanReorderItems="True" IsSwipeEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollMode="Enabled" ItemsSource="{x:Bind TaskListCollection, Mode=TwoWay}" DragItemsCompleted="TaskListsView_DragItemsCompleted" LayoutUpdated="TaskListsView_LayoutUpdated" XYFocusKeyboardNavigation="Enabled">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">

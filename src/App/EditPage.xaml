@@ -220,6 +220,7 @@
             ScrollViewer.VerticalScrollMode="Enabled" 
             DragItemsCompleted="TaskListView_DragCompleted"
             TabFocusNavigation="Cycle"
+            XYFocusKeyboardNavigation="Enabled"
             LayoutUpdated="TaskListView_LayoutUpdated">
         <ListView.Resources>
             <Style TargetType="ListViewItem">
