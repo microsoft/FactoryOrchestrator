@@ -122,6 +122,32 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private void MoveUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var selectedIndex = TasksCollection.IndexOf(GetTaskFromButton(button));
+            if (selectedIndex > 0)
+            {
+                var itemToMoveUp = TasksCollection[selectedIndex];
+                TasksCollection.RemoveAt(selectedIndex);
+                TasksCollection.Insert(selectedIndex - 1, itemToMoveUp);
+                TaskListView.SelectedIndex = selectedIndex - 1;
+            }
+        }
+
+        private void MoveDownButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var selectedIndex = TasksCollection.IndexOf(GetTaskFromButton(button));
+            if (selectedIndex + 1 < TasksCollection.Count)
+            {
+                var itemToMoveDown = TasksCollection[selectedIndex];
+                TasksCollection.RemoveAt(selectedIndex);
+                TasksCollection.Insert(selectedIndex + 1, itemToMoveDown);
+                TaskListView.SelectedIndex = selectedIndex + 1;
+            }
+        }
+
         private void UpdateHeader()
         {
             TaskListHeader.Text = resourceLoader.GetString("EditingTaskList") + $": {activeList.Name}";

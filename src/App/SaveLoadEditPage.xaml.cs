@@ -374,7 +374,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         // This is called when the layout is updated to update the accessible name of the edit, delete and save buttons.
         private void TaskListsView_LayoutUpdated(object sender, object e)
         {
-            
+
             for (int i = 0; i < TaskListCollection.Count; i++)
             {
                 var item = TaskListsView.ContainerFromIndex(i) as FrameworkElement;
@@ -419,6 +419,36 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private async void MoveUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var selectedIndex = TaskListCollection.IndexOf(GetTaskListFromButton(button));
+            if (selectedIndex > 0)
+            {
+                var itemToMoveUp = TaskListCollection[selectedIndex];
+                TaskListCollection.RemoveAt(selectedIndex);
+                TaskListCollection.Insert(selectedIndex - 1, itemToMoveUp);
+                var newOrder = new List<Guid>();
+                newOrder.AddRange(TaskListCollection.Select(x => x.Guid));
+                await Client.ReorderTaskLists(newOrder);
+            }
+        }
+
+        private async void MoveDownButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var selectedIndex = TaskListCollection.IndexOf(GetTaskListFromButton(button));
+            if (selectedIndex + 1 < TaskListCollection.Count)
+            {
+                var itemToMoveDown = TaskListCollection[selectedIndex];
+                TaskListCollection.RemoveAt(selectedIndex);
+                TaskListCollection.Insert(selectedIndex + 1, itemToMoveDown);
+                var newOrder = new List<Guid>();
+                newOrder.AddRange(TaskListCollection.Select(x => x.Guid));
+                await Client.ReorderTaskLists(newOrder);
+            }
+        }
+
         /// <summary>
         /// Keeps the Known TaskLists in sync with the server.
         /// </summary>
@@ -456,6 +486,16 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     }
                 });
             }
+        }
+
+        /// <summary>
+        /// Given a button associated with a tasklist, returns the tasklist summary.
+        /// </summary>
+        private static TaskListSummary GetTaskListFromButton(Button button)
+        {
+            var stack = button.Parent as StackPanel;
+            var grid = stack.Parent as Grid;
+            return ((TaskListSummary)((ContentPresenter)(grid.Children.Where(x => x.GetType() == typeof(ContentPresenter)).First())).Content);
         }
 
         /// <summary>
