@@ -339,6 +339,9 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
   <data name="Exit.Text" xml:space="preserve">
     <value>Exit</value>
   </data>
+  <data name="ExitButtonText.Text" xml:space="preserve">
+    <value>Exit</value>
+  </data>
   <data name="ExitCodeConst.Text" xml:space="preserve">
     <value>Exit Code:</value>
   </data>

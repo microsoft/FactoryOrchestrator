@@ -118,7 +118,7 @@
                                             <Button x:Name="ConfirmExit" Padding="8" Margin="10,5" Click="ConfirmExit_Click" AutomationProperties.LabeledBy="{Binding ElementName=ExitButtonText}">
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
-                                                    <TextBlock x:Name="ExitButtonText" x:Uid="Exit" Padding="5,0" TextWrapping="Wrap"/>
+                                                    <TextBlock x:Name="ExitButtonText" x:Uid="ExitButtonText" Padding="5,0" TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </Button>
                                             <Button x:Name="ConfirmReboot" Padding="8" Margin="10,5" Click="ConfirmReboot_Click" AutomationProperties.LabeledBy="{Binding ElementName=RebootButtonText}">
