@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -461,6 +462,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     PreviousRunButton.IsEnabled = true;
                 }
             }
+            AnnounceTaskHeader();
+        }
+
+        private void AnnounceTaskHeader()
+        {
+            var peer = FrameworkElementAutomationPeer.FromElement(TaskHeader);
+            if (peer == null)
+            {
+                peer = FrameworkElementAutomationPeer.CreatePeerForElement(TaskHeader);
+            }
+            peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
         }
 
         private void PreviousRunButton_Click(object sender, RoutedEventArgs e)
