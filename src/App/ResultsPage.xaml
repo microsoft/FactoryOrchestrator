@@ -31,7 +31,7 @@
                     <TextBlock x:Name="PrevText" x:Uid="PrevText" Padding="5,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Button>
-            <TextBlock x:Name="TaskHeader" Text="" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}" IsTextSelectionEnabled="True" />
+            <TextBlock x:Name="TaskHeader" Text="" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Style="{StaticResource TitleTextBlockStyle}" IsTextSelectionEnabled="True" AutomationProperties.LiveSetting="Assertive"/>
             <Button x:Name="NextRunButton" Click="NextRunButton_Click" Visibility="Visible" IsEnabled="False" AutomationProperties.LabeledBy="{Binding ElementName=NextText}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Forward" />
