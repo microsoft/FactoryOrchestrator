@@ -305,7 +305,7 @@ stages:
     jobs:
       - job: Compliance_Job
         pool:
-          name: Package ES Standard Build
+          name: FactoryOrchestrator_1ES
         steps:
         - checkout: self
           clean: true
@@ -527,7 +527,7 @@ stages:
       - 'Sign_Publish_NuGet_ServiceZip_Artifacts'
       - 'compliance'
     pool:
-      name: Package ES Standard Build
+      name: FactoryOrchestrator_1ES
     jobs:
       - deployment: Job_Publish_vPack_PSGallery_NuGet_Symbols_PUBLIC
         environment: FO-Publish-Release
