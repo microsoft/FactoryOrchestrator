@@ -23,7 +23,7 @@ steps:
     pwsh: true
   timeoutInMinutes: 5
   condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
-- task: PkgESVPack@10
+- task: PkgESVPack@12
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack ${{ parameters.BuildPlatform }}'

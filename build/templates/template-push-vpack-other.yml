@@ -3,7 +3,7 @@
 
 # Creates vPacks for everything but the Service.
 steps:
-- task: PkgESVPack@10
+- task: PkgESVPack@12
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack msixbundle'
@@ -22,7 +22,7 @@ steps:
     TargetFolder: '$(Build.ARTIFACTSTAGINGDIRECTORY)\VPackManifests'
   condition: and(ne(variables['SKIPVPACKPUBLISH'], 'true'), succeeded())
 
-- task: PkgESVPack@10
+- task: PkgESVPack@12
   env:
    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
   displayName: 'PkgES Create VPack NET Core Tests'
