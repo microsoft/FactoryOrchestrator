@@ -58,6 +58,7 @@ stages:
         BuildConfiguration: 'Release'
         FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
+      - script: echo $(APIScanClient)
       - checkout: self
       - template: ./templates/template-set-initial-variables.yml
       - pwsh: |
@@ -358,6 +359,8 @@ stages:
                 **/*.msixbundle
                 **/*.msix
             displayName: "Download from BUILDIDFORARTIFACTS build"
+
+        - script: echo $(APIScanClient)
 
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
