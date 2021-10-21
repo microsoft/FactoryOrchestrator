@@ -26,6 +26,9 @@ resources:
     ref: master
 
 variables:
+
+  -group: APIScan
+
   SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
   BuildConfiguration: 'Release'
   VPACKVERSIONBUILDIDSUFFIX: ''
@@ -312,9 +315,7 @@ stages:
         
         - checkout: ComplianceRepo
           clean: true
-        
-        - group: APIScan
-
+                
         - template: ./templates/template-set-initial-variables.yml
 
         - pwsh: |
