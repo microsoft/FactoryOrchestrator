@@ -58,17 +58,6 @@ stages:
         BuildConfiguration: 'Release'
         FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
-      - script: |
-          echo $(APIScanClient)
-          echo $(APIScanTenant)
-          echo $(APISCANSECRET)
-          echo $(MY_MAPPED_ENV_VAR)
-        env:
-          MY_MAPPED_ENV_VAR: $(APISCANSECRET)
-      - powershell: |
-          Write-Host "Using the env var directly does not work: $APIScanSecret"
-          Write-Host "Using a global non-secret var mapped in the pipeline works: $APIScanTenant" 
-          Write-Host "Using the mapped env var for this task works and is recommended: $env:MY_MAPPED_ENV_VAR"
       - checkout: self
       - template: ./templates/template-set-initial-variables.yml
       - pwsh: |
@@ -369,8 +358,6 @@ stages:
                 **/*.msixbundle
                 **/*.msix
             displayName: "Download from BUILDIDFORARTIFACTS build"
-
-        - script: echo $(APIScanClient)
 
         - template: assembly-module-compliance.yml@ComplianceRepo
           parameters:
