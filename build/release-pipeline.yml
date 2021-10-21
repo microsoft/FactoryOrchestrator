@@ -313,6 +313,8 @@ stages:
         - checkout: ComplianceRepo
           clean: true
         
+        - group: APIScan
+
         - template: ./templates/template-set-initial-variables.yml
 
         - pwsh: |
@@ -374,6 +376,7 @@ stages:
             softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
             softwareName: 'FactoryOrchestrator'
             softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
+            connectionString: 'RunAs=App;AppId=$(APIScanClient);TenantId=$(APIScanTenant);AppKey=$(APIScanSecret)'
             APIScan: 'true'
 
   # This stage only publishes Azure DevOps pipeline artifacts. It does not release anything publicly.
