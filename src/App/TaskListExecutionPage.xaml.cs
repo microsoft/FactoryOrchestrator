@@ -140,6 +140,9 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 _selectedTask = ActiveTestsResultsView.SelectedIndex;
                 ActiveTestsView.SelectedIndex = ActiveTestsResultsView.SelectedIndex;
             }
+            var item = ActiveTestsResultsView.ContainerFromIndex(ActiveTestsResultsView.SelectedIndex) as FrameworkElement;
+            string status = ((TaskBaseWithTemplate)ActiveTestsResultsView.SelectedItem).ToString();
+            AutomationProperties.SetName(item, status);
         }
 
         private void ActiveTestsResultsView_ItemClick(object sender, ItemClickEventArgs e)

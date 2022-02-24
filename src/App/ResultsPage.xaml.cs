@@ -472,7 +472,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 peer = FrameworkElementAutomationPeer.CreatePeerForElement(TaskHeader);
             }
-            peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+            if (peer != null)
+            {
+                peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+            }
         }
 
         private void PreviousRunButton_Click(object sender, RoutedEventArgs e)
