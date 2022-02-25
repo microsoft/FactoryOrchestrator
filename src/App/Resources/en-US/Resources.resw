@@ -331,9 +331,15 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <comment>End of user comments</comment>
   </data>
   <data name="ExistingText.Text" xml:space="preserve">
-    <value>Existing TaskLists:</value>
+    <value>Existing TaskLists</value>
+  </data>
+  <data name="ExistingText.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file.</value>
   </data>
   <data name="ExistingText2.Text" xml:space="preserve">
+    <value>Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file.</value>
+  </data>
+  <data name="ExistingTooltip.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Existing TaskLists are loaded every boot unless deleted. They can also be manually exported to a FactoryOrchestratorXML file.</value>
   </data>
   <data name="Exit.Text" xml:space="preserve">
@@ -407,7 +413,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <value>Copy from container to local device?</value>
   </data>
   <data name="ImportText.Text" xml:space="preserve">
-    <value>Import FactoryOrchestratorXML File:</value>
+    <value>Import FactoryOrchestratorXML File</value>
   </data>
   <data name="IpAddress.Text" xml:space="preserve">
     <value>IP Address:</value>
@@ -425,10 +431,10 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <value>Failed to load</value>
   </data>
   <data name="LoadFolderFlyoutText" xml:space="preserve">
-    <value>Folder to load as TaskList:</value>
+    <value>Folder to load as TaskList</value>
   </data>
   <data name="LoadFolderText.Text" xml:space="preserve">
-    <value>Load Folder as TaskList (exe, cmd, ps1, TAEF):</value>
+    <value>Load Folder as TaskList (exe, cmd, ps1, TAEF)</value>
   </data>
   <data name="LoadXMLFlyoutText" xml:space="preserve">
     <value>FactoryOrchestratorXML file to load from:</value>
@@ -465,7 +471,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <value>New TAEF Task</value>
   </data>
   <data name="NewText.Text" xml:space="preserve">
-    <value>Create new TaskList:</value>
+    <value>Create new TaskList</value>
   </data>
   <data name="NewUWPButton.Content" xml:space="preserve">
     <value>New UWP App Task</value>
