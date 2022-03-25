@@ -78,18 +78,8 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:DataType="local:TaskBaseWithTemplate" x:Key="RetryTaskBaseTemplate">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock x:Name="TaskStatus" Text="{x:Bind Task, Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=TaskBase}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
-                <Button x:Name="RetryTaskButton" x:Uid="RetryTaskButton" Grid.Column="1">
-                    <SymbolIcon Symbol="Refresh" x:Uid="RetryTaskButton"/>
-                </Button>
-            </Grid>
+        <DataTemplate x:DataType="local:TaskBaseWithTemplate" x:Key="RetryTaskBaseTemplate" x:Name="TaskItem">
+            <TextBlock x:Name="TaskStatus" Text="{x:Bind Task, Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=TaskBase}" VerticalAlignment="Center" Margin="10,0" Grid.Column="0" />
         </DataTemplate>
         <DataTemplate x:DataType="local:TaskBaseWithTemplate" x:Key="NormalTaskBaseTemplate">
             <TextBlock x:Name="TaskStatus" Text="{x:Bind Task, Converter={StaticResource TaskStatusDataBindingConverter}, ConverterParameter=TaskBase}" VerticalAlignment="Center" Margin="10,0" />

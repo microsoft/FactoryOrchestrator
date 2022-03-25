@@ -262,6 +262,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ((App)Application.Current).Exit();
         }
 
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            AutomationProperties.SetName(ConfirmExit, "ConfirmExit");
+        }
+
         private async void ValidateXMLButton_Click(object sender, RoutedEventArgs e)
         {
             var picker = new Windows.Storage.Pickers.FileOpenPicker
