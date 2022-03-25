@@ -73,7 +73,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
                 var item = TaskListsResultsAndButtonsView.ContainerFromIndex(TaskListsResultsAndButtonsView.SelectedIndex) as FrameworkElement;
                 string status = ((TaskListSummary)TaskListsResultsAndButtonsView.SelectedItem).Status.ToString();
-                AutomationProperties.SetName(item, status);
+                if (item != null) AutomationProperties.SetName(item, status);
 
                 // Create new poller
                 if (_activeListPoller != null)
@@ -139,10 +139,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Select the tasklist to trigger ACtiveTestView_SelectionChanged
                 _selectedTask = ActiveTestsResultsView.SelectedIndex;
                 ActiveTestsView.SelectedIndex = ActiveTestsResultsView.SelectedIndex;
+                var item = ActiveTestsResultsView.ContainerFromIndex(ActiveTestsResultsView.SelectedIndex) as FrameworkElement;
+                string status = ((TaskBaseWithTemplate)ActiveTestsResultsView.SelectedItem).ToString();
+                AutomationProperties.SetName(item, status);
             }
-            var item = ActiveTestsResultsView.ContainerFromIndex(ActiveTestsResultsView.SelectedIndex) as FrameworkElement;
-            string status = ((TaskBaseWithTemplate)ActiveTestsResultsView.SelectedItem).ToString();
-            AutomationProperties.SetName(item, status);
         }
 
         private void ActiveTestsResultsView_ItemClick(object sender, ItemClickEventArgs e)
@@ -188,14 +188,15 @@ namespace Microsoft.FactoryOrchestrator.UWP
                             // Update the ActiveListCollection
                             try
                             {
+                                var updatedTask = new TaskBaseWithTemplate(newTask, newTemplate);
                                 if (i == ActiveListCollection.Count)
                                 {
-                                    ActiveListCollection.Insert(i, new TaskBaseWithTemplate(newTask, newTemplate));
+                                    ActiveListCollection.Insert(i, updatedTask);
                                 }
                                 else if (!ActiveListCollection[i].Task.Equals(newTask))
                                 {
                                     // force template reselection
-                                    ActiveListCollection[i] = new TaskBaseWithTemplate(newTask, newTemplate);
+                                    ActiveListCollection[i] = updatedTask;
                                 }
                             }
                             catch (ArgumentOutOfRangeException ex)
