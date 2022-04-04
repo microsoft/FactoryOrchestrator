@@ -266,6 +266,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             AutomationProperties.SetName(ConfirmExit, "ConfirmExit");
         }
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            ExitFlyout.Hide();
+        }
 
         private async void ValidateXMLButton_Click(object sender, RoutedEventArgs e)
         {

@@ -43,6 +43,12 @@
                     <StackPanel>
                         <TextBlock TextWrapping="Wrap" x:Uid="ExitText" Style="{ThemeResource FlyoutPickerTitleTextBlockStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="Close" Padding="5" Margin="5" Click="Close_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <SymbolIcon Symbol="Back"/>
+                                    <TextBlock  Padding="5,0" TextWrapping="Wrap" x:Uid="Close"/>
+                                </StackPanel>
+                            </Button>
                             <Button x:Name="ConfirmExit" Padding="5" Margin="5" Click="ConfirmExit_Click">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE711;"/>
