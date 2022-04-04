@@ -849,4 +849,7 @@ On retry</value>
   <data name="SystemHeader.Text" xml:space="preserve">
     <value>System Information</value>
   </data>
+  <data name="Close.Text" xml:space="preserve">
+    <value>Close</value>
+  </data>
 </root>
