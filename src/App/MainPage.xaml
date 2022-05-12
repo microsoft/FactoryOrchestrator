@@ -167,18 +167,18 @@
                     ItemInvoked="NavView_ItemInvoked"
                     >
                     <muxc:NavigationView.MenuItems>
-                        <muxc:NavigationViewItem Tag="run" TabIndex="0" x:Uid="Run" Icon="Play"/>
-                        <muxc:NavigationViewItem Tag="console" TabIndex="0" x:Uid="Console" AutomationProperties.LabeledBy="{Binding ElementName=CommandPromptText}">
+                        <muxc:NavigationViewItem Tag="run" TabIndex="0" x:Uid="Run" Icon="Play" AutomationProperties.HeadingLevel="Level2"/>
+                        <muxc:NavigationViewItem Tag="console" TabIndex="0" x:Uid="Console" AutomationProperties.LabeledBy="{Binding ElementName=CommandPromptText}" AutomationProperties.HeadingLevel="Level2">
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE756;"/>
                                 <TextBlock x:Name="CommandPromptText" x:Uid="CommandPromptText" Margin="10, 9"/>
                             </StackPanel>
                         </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Tag="apps" TabIndex="0" x:Uid="Apps" Icon="AllApps" />
-                        <muxc:NavigationViewItem Tag="save" TabIndex="0" x:Uid="Save" Icon="Edit"/>
-                        <muxc:NavigationViewItem Tag="files" TabIndex="0" x:Uid="Files" Icon="SyncFolder"/>
-                        <muxc:NavigationViewItem Tag="wdp" TabIndex="0" x:Uid="WDP" Icon="SwitchApps"/>
-                        <muxc:NavigationViewItem Tag="about" TabIndex="0" x:Uid="About" Icon="Help"/>
+                        <muxc:NavigationViewItem Tag="apps" TabIndex="0" x:Uid="Apps" Icon="AllApps" AutomationProperties.HeadingLevel="Level2"/>
+                        <muxc:NavigationViewItem Tag="save" TabIndex="0" x:Uid="Save" Icon="Edit" AutomationProperties.HeadingLevel="Level2"/>
+                        <muxc:NavigationViewItem Tag="files" TabIndex="0" x:Uid="Files" Icon="SyncFolder" AutomationProperties.HeadingLevel="Level2"/>
+                        <muxc:NavigationViewItem Tag="wdp" TabIndex="0" x:Uid="WDP" Icon="SwitchApps" AutomationProperties.HeadingLevel="Level2"/>
+                        <muxc:NavigationViewItem Tag="about" TabIndex="0" x:Uid="About" Icon="Help" AutomationProperties.HeadingLevel="Level2"/>
                     </muxc:NavigationView.MenuItems>
                     <Frame x:Name="ContentFrame" Padding="12" />
                 </muxc:NavigationView>

@@ -323,7 +323,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 Title = $"{resourceLoader.GetString("DeleteAll/Text")}?",
                 Content = resourceLoader.GetString("DeleteAllContent"),
                 CloseButtonText = resourceLoader.GetString("Cancel"),
-                PrimaryButtonText = resourceLoader.GetString("DeleteAll/Text"),
+                PrimaryButtonText = resourceLoader.GetString("DeleteAllShort/Text"),
                 SecondaryButtonText = resourceLoader.GetString("FactoryReset")
             };
 
