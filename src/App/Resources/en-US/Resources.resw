@@ -273,12 +273,15 @@ Check that the IP address, Server Name and Certificate Hash  is correct and that
   <data name="DeleteAll.Text" xml:space="preserve">
     <value>Delete All TaskLists</value>
   </data>
+  <data name="DeleteAllShort.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="DeleteAllContent" xml:space="preserve">
     <value>All running TaskLists will be stopped. All TaskLists will be removed from the server permanently.
 
 Manually exported FactoryOrchestratorXML files will not be deleted, but will need to be manually imported via "Load FactoryOrchestratorXML file".
 
-If "Factory Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!</value>
+If "Reset" is chosen, the service is restarted as if it is first boot. First boot and every boot tasks will re-run. Initial TaskLists will be loaded. NOTE: Network communication is not disabled, connected clients may encounter issues and the 'EnableNetworkAccess' setting will be ignored!</value>
   </data>
   <data name="DeleteButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Delete </value>
@@ -362,7 +365,7 @@ If "Factory Reset" is chosen, the service is restarted as if it is first boot. F
     <comment>Do not localize</comment>
   </data>
   <data name="FactoryReset" xml:space="preserve">
-    <value>Factory Reset</value>
+    <value>Reset</value>
   </data>
   <data name="FailButton.Content" xml:space="preserve">
     <value>Fail ❌</value>
