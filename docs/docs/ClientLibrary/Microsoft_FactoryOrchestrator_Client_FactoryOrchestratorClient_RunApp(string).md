@@ -1,0 +1,13 @@
+### [Microsoft.FactoryOrchestrator.Client](Microsoft_FactoryOrchestrator_Client.md 'Microsoft.FactoryOrchestrator.Client').[FactoryOrchestratorClient](Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorClient')
+## FactoryOrchestratorClient.RunApp(string) Method
+Asynchronously Runs a UWP app outside of a Task/TaskList. Requires Windows Device Portal.  
+```csharp
+public System.Threading.Tasks.Task<Microsoft.FactoryOrchestrator.Core.TaskRun> RunApp(string aumid);
+```
+#### Parameters
+<a name='Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_RunApp(string)_aumid'></a>
+`aumid` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The Application User Model ID (AUMID) of the app to run.
+  
+#### Returns
+[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task')[TaskRun](./../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun.md 'Microsoft.FactoryOrchestrator.Core.TaskRun')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task')  
