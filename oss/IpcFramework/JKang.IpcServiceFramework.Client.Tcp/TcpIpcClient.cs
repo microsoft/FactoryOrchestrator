@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace JKang.IpcServiceFramework.Client.Tcp
         where TInterface : class
     {
         private readonly TcpIpcClientOptions _options;
+        private readonly X509CertificateCollection _clientCertificateCollection = new X509CertificateCollection();
 
         public TcpIpcClient(string name, TcpIpcClientOptions options)
             : base(name, options)
@@ -51,7 +53,13 @@ namespace JKang.IpcServiceFramework.Client.Tcp
                 // set client mode and specify the common name(CN) of the server
                 if (_options.SslServerIdentity != null)
                 {
-                    ssl.AuthenticateAsClient(_options.SslServerIdentity);
+                    if (_options.ClientCertificate != null && _clientCertificateCollection.Count != 1)
+                    {
+                        _clientCertificateCollection.Clear();
+                        _clientCertificateCollection.Add(_options.ClientCertificate);
+                    }
+
+                    ssl.AuthenticateAsClient(_options.SslServerIdentity, _clientCertificateCollection, System.Security.Authentication.SslProtocols.None, _options.CheckSslCertificateRevocation);
                 }
                 stream = ssl;
             }

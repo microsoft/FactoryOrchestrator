@@ -117,7 +117,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 {
                     if (rootFrame.Content == null)
                     {
-                        Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+                        Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, Constants.DefaultServerPort);
                         Client.OnConnected += OnIpcConnected;
 
                         if (await Client.TryConnect(IgnoreVersionMismatch))
@@ -355,7 +355,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
             {
                 if (rootFrame.Content == null)
                 {
-                    Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, 45684);
+                    Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback, Constants.DefaultServerPort);
                     Client.OnConnected += OnIpcConnected;
 
                     if (await Client.TryConnect(IgnoreVersionMismatch))

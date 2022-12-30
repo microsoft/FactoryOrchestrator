@@ -23,10 +23,11 @@ nav:
   - Tasks & TaskLists : 'tasks-and-tasklists.md'
   - Service configuration : 'service-configuration.md'
   - Using the application: 'use-the-factory-orchestrator-app.md'
-  - Using PowerShell or C# code: 'use-the-factory-orchestrator-api.md'
+  - Writing PowerShell or C# code:
+      - Factory Orchestrator API overview: 'use-the-factory-orchestrator-api.md'
+      - PowerShell and C# code samples: 'factory-orchestrator-client-usage-samples.md'
+      - Client Library Class Reference: 'ClientLibrary\Microsoft_FactoryOrchestrator_Client.md'
+      - Core Library Class Reference: 'CoreLibrary\Microsoft_FactoryOrchestrator_Core.md'
   - Find Factory Orchestrator devices: 'find-factory-orchestrator-devices.md'
-  - Client API samples: 'factory-orchestrator-client-usage-samples.md'
-  - Client Library Class Reference: 'ClientLibrary\Microsoft-FactoryOrchestrator-Client.md'
-  - Core Library Class Reference: 'CoreLibrary\Microsoft-FactoryOrchestrator-Core.md'
   - Uninstall Factory Orchestrator: 'uninstall-factory-orchestrator.md'
   

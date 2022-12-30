@@ -41,7 +41,10 @@ namespace JKang.IpcServiceFramework.Hosting.Tcp
             {
                 Stream server = client.GetStream();
 
-                string ipString = ((IPEndPoint)client.Client?.RemoteEndPoint)?.Address?.ToString() == null ? "UNKNOWN" : ((IPEndPoint)client.Client.RemoteEndPoint)?.Address?.ToString();
+                IPAddress remoteIp = ((IPEndPoint)client.Client?.RemoteEndPoint)?.Address;
+                string remoteIpString = remoteIp == null ? "UNKNOWN" : remoteIp.ToString();
+
+                bool isLocalLoopback = IPAddress.IsLoopback(remoteIp);
 
                 if (_options.StreamTranslator != null)
                 {
@@ -51,20 +54,33 @@ namespace JKang.IpcServiceFramework.Hosting.Tcp
                 // if SSL is enabled, wrap the stream in an SslStream in client mode
                 if (_options.EnableSsl)
                 {
-                    using (var ssl = new SslStream(server, false))
+                    using (var ssl = new SslStream(server, false, _options.AlwaysAllowLocalhostSslClients && isLocalLoopback ? null :  _options.RemoteSslCertificateValidationCallback))
                     {
+                        bool requireClientCert;
+                        if (isLocalLoopback)
+                        {
+                            requireClientCert = (!_options.AlwaysAllowLocalhostSslClients) && (_options.RemoteSslCertificateValidationCallback != null);
+                        }
+                        else
+                        {
+                            requireClientCert = _options.RemoteSslCertificateValidationCallback != null;
+                        }
+
                         ssl.AuthenticateAsServer(_options.SslCertificate
-                            ?? throw new IpcHostingConfigurationException("Invalid TCP IPC endpoint configured: SSL enabled without providing certificate."));
-                        await process(ssl, ipString, cancellationToken).ConfigureAwait(false);
+                            ?? throw new IpcHostingConfigurationException("Invalid TCP IPC endpoint configured: SSL enabled without providing certificate."), requireClientCert, System.Security.Authentication.SslProtocols.None, _options.CheckSslCertificateRevocation);
+
+                        await process(ssl, remoteIpString, cancellationToken).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    await process(server, ipString, cancellationToken).ConfigureAwait(false);
+                    await process(server, remoteIpString, cancellationToken).ConfigureAwait(false);
                 }
 
                 client.Close();
             }
         }
     }
+
+
 }

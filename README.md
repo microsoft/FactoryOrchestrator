@@ -38,7 +38,7 @@ Factory Orchestrator :green_heart: OSS.
 
 * **IpcServiceFramework**
 
-    FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). The fork is equivalent the latest IpcServiceFramework source as of December 2020, with only a project file change to set DisableDynamicCodeGeneration to true so it can be used in .NET Native applications.
+    FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). The fork is equivalent the latest IpcServiceFramework source as of December 2020, with additions to support client authentication and logging.
 
 * **Pe-Utility**
 
@@ -62,6 +62,14 @@ FactoryOrchestrator
 ```
 
 ## Prerequisites to build source code
+
+### Git configuration
+
+You may need to enable long path support to successfully clone this repo. To enable this system-wide, run:
+
+```powershell
+git config --system core.longpaths true
+```
 
 ### Install dependencies
 Building Factory Orchestrator source requires the [NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0), the [NET Core 3.1 runtime.](https://dotnet.microsoft.com/download/dotnet/3.1/runtime/), and [PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell) (or Windows PowerShell). If you wish to build the app as well, you also need the Universal Windows Platform Development (10.0.19041.0) SDK.

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace JKang.IpcServiceFramework.Client.Tcp
 {
@@ -10,5 +11,7 @@ namespace JKang.IpcServiceFramework.Client.Tcp
         public bool EnableSsl { get; set; }
         public string SslServerIdentity { get; set; }
         public RemoteCertificateValidationCallback SslValidationCallback { get; set; }
+        public X509Certificate ClientCertificate { get; set; }
+        public bool CheckSslCertificateRevocation { get; set; } = false;
     }
 }

@@ -33,20 +33,20 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Creates a new FactoryOrchestratorClient instance. WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
-        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
-        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
-        public FactoryOrchestratorClient(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to <see cref="Constants.DefaultServerPort"/>.</param>
+        /// <param name="serverIdentity">Distinguished name (CN) for the server, defaults to <see cref="Constants.DefaultServerIdentity"/>.</param>
+        /// <param name="certhash">Hash value (Certificate thumbprint) for the server certificate, defaults to <see cref="Constants.DefaultServerCertificateHash"/></param>
+        /// <param name="clientCertificate">X509Certificate to send to the Factory Orchestrator Service for client authentication. Not required by all Factory Orchestrator Service configurations.</param>
+        public FactoryOrchestratorClient(IPAddress host, int port = Constants.DefaultServerPort, string serverIdentity = Constants.DefaultServerIdentity, string certhash = Constants.DefaultServerCertificateHash, X509Certificate2 clientCertificate = null)
         {
             ServerCertificateValidationCallback = CertificateValidationCallback;
             OnConnected = null;
-            _IpcClient = null;
-            IsConnected = false;
             IpAddress = host;
             Port = port;
-            HostName = Resources.Unknown;
             ServerIdentity = serverIdentity;
             CertificateHash = certhash;
+            ClientCertificate = clientCertificate;
+            Reset();
         }
 
         /// <summary> 
@@ -54,11 +54,11 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="certificateValidationCallback">A System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.</param>
-        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
-        public FactoryOrchestratorClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer"):this(host,port,serverIdentity)
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to <see cref="Constants.DefaultServerPort"/>.</param>
+        /// <param name="serverIdentity">Distinguished name (CN) for the server, defaults to <see cref="Constants.DefaultServerIdentity"/>.</param>
+        /// <param name="clientCertificate">X509Certificate to send to the Factory Orchestrator Service for client authentication. Not required by all Factory Orchestrator Service configurations.</param>
+        public FactoryOrchestratorClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = Constants.DefaultServerPort, string serverIdentity = Constants.DefaultServerIdentity, X509Certificate2 clientCertificate = null):this(host,port,serverIdentity, "", clientCertificate)
         {
-
             ServerCertificateValidationCallback = certificateValidationCallback;
         }
 
@@ -66,10 +66,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// Uses DNS-SD to find all Factory Orchestrator services on your local network.
         /// </summary>
         /// <param name="secondsToWait">Number of seconds to wait for services to respond</param>
-        /// <param name="serverIdentity">The service certificate identity to use</param>
-        /// <param name="certhash">The service certificate hash to use</param>
-        /// <returns>List of FactoryOrchestratorClient representing all discovered clients</returns>
-        public static List<FactoryOrchestratorClient> DiscoverFactoryOrchestratorDevices(int secondsToWait = 5, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F")
+        public static List<FactoryOrchestratorClient> DiscoverFactoryOrchestratorDevices(int secondsToWait = 5)
         {
             List<FactoryOrchestratorClient> clients = new List<FactoryOrchestratorClient>();
             using (var sd = new ServiceDiscovery())
@@ -81,10 +78,21 @@ namespace Microsoft.FactoryOrchestrator.Client
                         var port = srv.Port;
                         foreach (var ip in e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<ARecord>())
                         {
-                            var client = new FactoryOrchestratorClient(ip.Address, port, serverIdentity, certhash);
+                            var client = new FactoryOrchestratorClient(ip.Address, port);
+
                             client.HostName = ip.CanonicalName.Replace(".factorch.local", "");
                             var osVer = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<TXTRecord>().SelectMany(x => x.Strings).Where(x => x.StartsWith("OSVersion=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(string.Empty).FirstOrDefault().Replace("OSVersion=", "");
                             client.OSVersion = osVer;
+
+                            var certHash = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<TXTRecord>().SelectMany(x => x.Strings).Where(x => x.StartsWith("CertificateHash=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(Constants.DefaultServerCertificateHash).FirstOrDefault().Replace("CertificateHash=", "");
+                            client._CertificateHash = certHash;
+
+                            var identity = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<TXTRecord>().SelectMany(x => x.Strings).Where(x => x.StartsWith("ServerIdentity=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(Constants.DefaultServerIdentity).FirstOrDefault().Replace("ServerIdentity=", "");
+                            client._ServerIdentity = identity;
+
+                            var version = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<TXTRecord>().SelectMany(x => x.Strings).Where(x => x.StartsWith("ServiceVersion=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(Resources.Unknown).FirstOrDefault().Replace("ServiceVersion=", "");
+                            client.ServiceVersion = version;
+
                             clients.Add(client);
                         }
                     }
@@ -113,6 +121,8 @@ namespace Microsoft.FactoryOrchestrator.Client
                     options.SslServerIdentity = ServerIdentity;
                     options.EnableSsl = true;
                     options.SslValidationCallback = ServerCertificateValidationCallback;
+                    options.ClientCertificate = ClientCertificate;
+                    options.CheckSslCertificateRevocation = false;
                 })
                 .BuildServiceProvider();
 
@@ -133,6 +143,8 @@ namespace Microsoft.FactoryOrchestrator.Client
             {
                 throw CreateIpcException(ex);
             }
+
+            ServiceVersion = serviceVersion;
 
             if (!ignoreVersionMismatch)
             {
@@ -167,8 +179,9 @@ namespace Microsoft.FactoryOrchestrator.Client
         {
             if (!(IPAddress.IsLoopback(IpAddress)))
             {
-                if (sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch) ||
-                    certificate.GetCertHashString() != CertificateHash)
+                if ((sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNotAvailable)) ||
+                    (sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch)) ||
+                    (certificate.GetCertHashString() != CertificateHash))
                     return false;
             }
             return true;
@@ -672,6 +685,14 @@ namespace Microsoft.FactoryOrchestrator.Client
             }
         }
 
+        private void Reset()
+        {
+            _IpcClient = null;
+            IsConnected = false;
+            HostName = Resources.Unknown;
+            OSVersion = Resources.Unknown;
+            ServiceVersion = Resources.Unknown;
+        }
         /// <summary>
         /// True if the Client-Service connection is successfully established.
         /// </summary>
@@ -683,7 +704,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         public IPAddress IpAddress { get; private set; }
 
         /// <summary>
-        /// The port of the connected device used. Factory Orchestrator Service defaults to 45684.
+        /// The port of the connected device used. Factory Orchestrator Service defaults to <see cref="Constants.DefaultServerPort"/>.
         /// </summary>
         public int Port { get; private set; }
 
@@ -700,23 +721,81 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// <summary>
         /// Distinguished name for the server.
         /// </summary>
-        public string ServerIdentity { get; private set; }
+        public string ServerIdentity
+        {
+            get
+            {
+                return _ServerIdentity;
+            }
+            set
+            {
+                _ServerIdentity = value;
+                Reset();
+            }
+        }
 
         /// <summary>
         /// Hash value for server certificate.
         /// </summary>
-        public string CertificateHash { get; private set; }
+        public string CertificateHash
+        {
+            get
+            {
+                return _CertificateHash;
+            }
+            set
+            {
+                _CertificateHash = value;
+                Reset();
+            }
+        }
 
         /// <summary>
         /// System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate
         /// </summary>
-        public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; private set; }
+        public RemoteCertificateValidationCallback ServerCertificateValidationCallback
+        {
+            get
+            {
+                return _ServerCertificateValidationCallback;
+            }
+            set
+            {
+                _ServerCertificateValidationCallback = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// Client certificate sent to the device running Factory Orchestrator Service for client authentication.
+        /// </summary>
+        public X509Certificate2 ClientCertificate
+        {
+            get
+            {
+                return _ClientCertificate;
+            }
+            set
+            {
+                _ClientCertificate = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// String representing the Factory Orchestrator Service version.
+        /// </summary>
+        public string ServiceVersion { get; private set; } = Resources.Unknown;
 
         /// <summary>
         /// The IPC client used to communicate with the service.
         /// </summary>
         private IIpcClient<IFactoryOrchestratorService> _IpcClient;
 
+        private string _CertificateHash;
+        private string _ServerIdentity;
+        private RemoteCertificateValidationCallback _ServerCertificateValidationCallback;
+        private X509Certificate2 _ClientCertificate;
     }
 
     /// <summary>

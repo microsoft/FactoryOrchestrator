@@ -22,6 +22,13 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Automation.Peers;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Resources;
+using System.Linq;
+using Windows.Media.Protection.PlayReady;
+using System.Security.Cryptography;
+using Newtonsoft.Json;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -35,12 +42,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public ConnectionPage()
         {
             this.InitializeComponent();
-            // Default to loopback on port 45684.
+            // Default to loopback on port Constants.DefaultServerPort.
             ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(IPAddress.Loopback);
             ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
             ((App)Application.Current).OnConnectionPage = true;
             connectionSem = new SemaphoreSlim(1, 1);
-            localSettings = ApplicationData.Current.LocalSettings;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -61,6 +67,27 @@ namespace Microsoft.FactoryOrchestrator.UWP
             ServerNameTextBox.Text = Settings.LastServer;
             CertHashTextBox.Text = Settings.LastHash;
             IpTextBox.Text = Settings.LastIp;
+            ClientCertTextBox.Text = Settings.LastClientCertPath;
+            ClientCertPwTextBox.Password = Settings.LastClientCertPw;
+
+            if (!string.IsNullOrWhiteSpace(Settings.LastClientCertSerialized))
+            {
+                try
+                {
+                    byte[] clientCertBytes = JsonConvert.DeserializeObject<byte[]>(Settings.LastClientCertSerialized);
+                    _clientCert = new X509Certificate2(clientCertBytes);
+                }
+                catch (Exception)
+                {
+                    Settings.LastClientCertPath = "";
+                    Settings.LastClientCertPw = "";
+                    Settings.LastClientCertSerialized = null;
+
+                    ClientCertTextBox.Text = Settings.LastClientCertPath;
+                    ClientCertPwTextBox.Password = Settings.LastClientCertPw;
+                }
+            }
+
             this.Loaded += ConnectionPage_Loaded;
 
             Task.Run(async () =>
@@ -124,22 +151,27 @@ namespace Microsoft.FactoryOrchestrator.UWP
             string serverName = ServerNameTextBox.Text;
             string certHash = CertHashTextBox.Text;
 
+            if (!await TrySetClientCertificateAsync(false))
+            {
+                return;
+            }
+
             if (validIp && validPort)
             {
                 ConnectButton.IsEnabled = false;
                 await connectionSem.WaitAsync();
                 try
                 {
-                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverName, certHash);
+                    ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverName, certHash, _clientCert);
                     ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                     if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch))
                     {
                         ((App)Application.Current).OnConnectionPage = false;
                         this.Frame.Navigate(typeof(MainPage), lastNavTag);
-                        localSettings.Values["lastIp"] = IpTextBox.Text;
-                        localSettings.Values["lastPort"] = PortTextBox.Text;
-                        localSettings.Values["lastServer"] = serverName;
-                        localSettings.Values["lastHash"] = certHash;
+                        Settings.LastIp = IpTextBox.Text;
+                        Settings.LastPort = PortTextBox.Text;
+                        Settings.LastServer = serverName;
+                        Settings.LastHash = certHash;
                         AnnounceConnectionSuccess();
                     }
                     else
@@ -175,7 +207,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             ContentDialog failedConnectDialog = new ContentDialog
             {
-                Title = resourceLoader.GetString("BadIpTitle"),
+                Title = string.Format(CultureInfo.CurrentCulture, resourceLoader.GetString("BadIpTitle"), ipStr),
                 Content = string.Format(CultureInfo.CurrentCulture, resourceLoader.GetString("BadIpContent"), ipStr),
                 CloseButtonText = resourceLoader.GetString("Ok")
             };
@@ -208,11 +240,18 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private void CheckIfEnableConnectButton()
         {
-            // Quick check to ensure every text box has something in it
+            // Quick check to ensure every required text box has something in it
             var allTextBoxes = GetAllTextBoxes(this);
             bool validData = true;
             foreach (TextBox textbox in allTextBoxes)
             {
+#pragma warning disable CA1307 // Specify StringComparison
+                if (textbox.Name.Contains("ClientCert"))
+                {
+                    continue;
+                }
+#pragma warning restore CA1307 // Specify StringComparison
+
                 if (String.IsNullOrWhiteSpace(textbox.Text))
                 {
                     validData = false;
@@ -244,6 +283,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
             PortText.Visibility = visibility;
             CertHashText.Visibility = visibility;
             CertHashTextBox.Visibility = visibility;
+            ClientCertText.Visibility = visibility;
+            ClientCertTextBox.Visibility = visibility;
+            ClientCertPwText.Visibility = visibility;
+            ClientCertPwTextBox.Visibility = visibility;
+            ClientCertSavePwCheckBox.Visibility = visibility;
+            ClientCertBrowseButton.Visibility = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily.ToString().Contains("desktop", StringComparison.InvariantCultureIgnoreCase) ? visibility : Visibility.Collapsed;
+
             IpText.Visibility = visibility;
             IpTextBox.Visibility = visibility;
             ConnectButton.Visibility = visibility;
@@ -318,16 +364,17 @@ namespace Microsoft.FactoryOrchestrator.UWP
 
         private async void ResultsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            // Use certificate info from advanced options
-            string serverName = ServerNameTextBox.Text;
-            string certHash = CertHashTextBox.Text;
-
-            // Get IP and port from DNS-SD information
+            // Get IP, port, and service certificate from DNS-SD information
             var item = e.ClickedItem as DeviceInformationDisplay;
             var ipStrings = item.Properties[DnsSdConstants.IpAddressProperty] as string[];
             var port = (UInt16)item.Properties[DnsSdConstants.PortNumberProperty];
+            var attrs = (string[])item.Properties[DnsSdConstants.TextAttributesProperty];
+            string serverIdentity = attrs.Where(x => x.StartsWith("ServerIdentity=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(Constants.DefaultServerIdentity).FirstOrDefault().Replace("ServerIdentity=", "", StringComparison.InvariantCultureIgnoreCase);
+            string serverHash = attrs.Where(x => x.StartsWith("CertificateHash=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(Constants.DefaultServerCertificateHash).FirstOrDefault().Replace("CertificateHash=", "", StringComparison.InvariantCultureIgnoreCase);
+            bool clientCertificateRequired = false;
+            _ = bool.TryParse(attrs.Where(x => x.StartsWith("ClientCertificateRequired=", StringComparison.InvariantCultureIgnoreCase)).DefaultIfEmpty(Constants.DefaultServerCertificateHash).FirstOrDefault().Replace("ClientCertificateRequired=", "", StringComparison.InvariantCultureIgnoreCase), out clientCertificateRequired);
 
-            if ((ipStrings == null) || string.IsNullOrWhiteSpace(serverName) || string.IsNullOrWhiteSpace(certHash))
+            if ((ipStrings == null) || !await TrySetClientCertificateAsync(clientCertificateRequired))
             {
                 return;
             }
@@ -344,16 +391,12 @@ namespace Microsoft.FactoryOrchestrator.UWP
                     IPAddress ip;
                     if (IPAddress.TryParse(ipString, out ip))
                     {
-                        ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverName, certHash);
+                        ((App)Application.Current).Client = new FactoryOrchestratorUWPClient(ip, port, serverIdentity, serverHash, _clientCert);
                         ((App)Application.Current).Client.OnConnected += ((App)Application.Current).OnIpcConnected;
                         if (await ((App)Application.Current).Client.TryConnect(((App)Application.Current).IgnoreVersionMismatch).ConfigureAwait(true))
                         {
                             // We were able to connect to an IP!
                             ((App)Application.Current).OnConnectionPage = false;
-
-                            // Only set IP & Port settings on successfull connection with manual values used (ie. ConnectButton_Click)
-                            localSettings.Values["lastServer"] = serverName;
-                            localSettings.Values["lastHash"] = certHash;
                             this.Frame.Navigate(typeof(MainPage), lastNavTag);
                             break;
                         }
@@ -376,14 +419,132 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        private async Task<bool> TrySetClientCertificateAsync(bool ClientCertificateRequired)
+        {
+            string clientCertPath = Environment.ExpandEnvironmentVariables(ClientCertTextBox.Text);
+            string clientCertPw = ClientCertPwTextBox.Password;
+
+            if (!string.IsNullOrWhiteSpace(clientCertPath))
+            {
+                if ((_clientCert != null) && (clientCertPath.Equals(Settings.LastClientCertPath, StringComparison.OrdinalIgnoreCase)))
+                {
+                    // We have a cert from settings
+                    return true;
+                }
+
+                try
+                {
+                    if ((_clientCertFile == null) || (!string.Equals(_clientCertFile.Path, clientCertPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        // We need to open the cert file manually, requires File System access was granted to our app
+                        _clientCertFile = StorageFile.GetFileFromPathAsync(clientCertPath).AsTask().Result;
+                    }
+
+                    // Try to open the cert
+                    var file = _clientCertFile.OpenStreamForReadAsync().Result;
+                    byte[] bytes = new byte[file.Length];
+                    file.Read(bytes, 0, (int)file.Length);
+
+                    _clientCert?.Dispose();
+                    _clientCert = null;
+                    _clientCert = string.IsNullOrWhiteSpace(clientCertPw) ? new X509Certificate2(bytes) : new X509Certificate2(bytes, clientCertPw);
+
+                    // We were able to open the cert. Cache it in settings.
+                    // Cache both the cert data and its path. That way, if File System access is not enabled on our app, we can still reload this cert without requiring the user to browse to it again manually.
+                    Settings.LastClientCertPath = clientCertPath;
+
+                    if ((bool)ClientCertSavePwCheckBox.IsChecked)
+                    {
+                        Settings.LastClientCertPw = clientCertPw;
+                    }
+                    else if (string.IsNullOrWhiteSpace(clientCertPw))
+                    {
+                        Settings.LastClientCertSerialized = JsonConvert.SerializeObject(_clientCert.GetRawCertData());
+                    }
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    ContentDialog failedCertDialog = new ContentDialog
+                    {
+                        Title = resourceLoader.GetString("BadCertTitle"),
+                        Content = string.Format(CultureInfo.CurrentCulture, resourceLoader.GetString("BadCertContent"), clientCertPath),
+                        CloseButtonText = resourceLoader.GetString("Ok")
+                    };
+                    _ = await failedCertDialog.ShowAsync();
+
+                    return false;
+                }
+            }
+            else
+            {
+                // User cleared text box, remove the cert if we have one saved
+                _clientCert?.Dispose();
+                _clientCert = null;
+                Settings.LastClientCertPath = "";
+                Settings.LastClientCertPw = "";
+                Settings.LastClientCertSerialized = null;
+
+                if (ClientCertificateRequired)
+                {
+                    ContentDialog certRequiredDialog = new ContentDialog
+                    {
+                        Title = resourceLoader.GetString("CertRequiredTitle"),
+                        Content = resourceLoader.GetString("CertRequiredContent"),
+                        CloseButtonText = resourceLoader.GetString("Ok")
+                    };
+                    _ = await certRequiredDialog.ShowAsync();
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private async void ClientCertBrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
+            picker.FileTypeFilter.Add(".pfx");
+            var storageFile = await picker.PickSingleFileAsync();
+
+            if (storageFile != null)
+            {
+                _clientCertFile = storageFile;
+                ClientCertTextBox.Text = storageFile.Path;
+            }
+        }
+
+        private void ServerNameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(ServerNameTextBox.Text))
+            {
+                Settings.LastServer = null;
+                ServerNameTextBox.Text = Settings.LastServer;
+            }
+        }
+
+        private void CertHashTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(CertHashTextBox.Text))
+            {
+                Settings.LastHash = null;
+                CertHashTextBox.Text = Settings.LastHash;
+            }
+        }
+
         private string lastNavTag;
         private readonly SemaphoreSlim connectionSem;
-        private readonly ApplicationDataContainer localSettings;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView();
 
         private ObservableCollection<DeviceInformationDisplay> _resultCollection = new ObservableCollection<DeviceInformationDisplay>();
         private FactoryOrchestratorDeviceWatcher _deviceWatcherHelper;
         private bool _firstLocalHostAttempt = true;
+        private X509Certificate2 _clientCert = null;
+        private StorageFile _clientCertFile = null;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -395,6 +556,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 if (disposing)
                 {
                     connectionSem?.Dispose();
+                    _clientCert?.Dispose();
+                    _clientCert = null;
                 }
 
                 disposedValue = true;

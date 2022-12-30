@@ -75,6 +75,10 @@
       <Project>{c5fda4e1-e631-47b2-ba5f-6558f8506df7}</Project>
       <Name>Microsoft.FactoryOrchestrator.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CoreLibrary\Microsoft.FactoryOrchestrator.Core.csproj">
+      <Project>{5ed97075-7281-4fa3-8e5f-d4b8d273bdcb}</Project>
+      <Name>Microsoft.FactoryOrchestrator.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

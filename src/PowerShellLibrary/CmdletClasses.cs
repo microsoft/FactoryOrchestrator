@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
 using System;
@@ -8,6 +8,7 @@ using System.Management.Automation;
 using Microsoft.FactoryOrchestrator.Core;
 using System.Net;
 using Newtonsoft.Json.Serialization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.FactoryOrchestrator.Client
 {
@@ -43,25 +44,32 @@ namespace Microsoft.FactoryOrchestrator.Client
         public int Port { get; set; }
 
         /// <summary>
-        /// SSL server identity to use for connection.
+        /// SSL server identity (Distinguished name/CN) to use for connection.
         /// </summary>
         [Parameter(Mandatory = false)]
         public string ServerIdentity { get; set; }
 
         /// <summary>
-        /// Certificate hash to use for connection.
+        /// Hash value (Certificate thumbprint) of the server certificate to use for connection.
         /// </summary>
         [Parameter(Mandatory = false)]
         public string CerificateHash { get; set; }
+
+        /// <summary>
+        /// X509Certificate to send to the Factory Orchestrator Service for client authentication. Not required by all Factory Orchestrator Service configurations.
+        /// </summary>
+        [Parameter(Mandatory = false)]
+        public X509Certificate2 ClientCertificate { get; set; }
 
         /// <summary>
         /// CTOR.
         /// </summary>
         public FactoryOrchestratorClientCmdlet()
         {
-            Port = 45684;
-            ServerIdentity = "FactoryServer";
-            CerificateHash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F";
+            Port = Constants.DefaultServerPort;
+            ServerIdentity = Constants.DefaultServerIdentity;
+            CerificateHash = Constants.DefaultServerCertificateHash;
+            ClientCertificate = null;
         }
 
         /// <summary>
@@ -69,7 +77,7 @@ namespace Microsoft.FactoryOrchestrator.Client
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.WriteObject(new FactoryOrchestratorClientSync(IpAddress, Port, ServerIdentity, CerificateHash));
+            this.WriteObject(new FactoryOrchestratorClientSync(IpAddress, Port, ServerIdentity, CerificateHash, ClientCertificate));
         }
     }
 
