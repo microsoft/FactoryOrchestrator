@@ -15,6 +15,8 @@ stages:
       BuildConfiguration: 'Release'
       FORepoRoot: '$(Build.SourcesDirectory)'
     steps:
+    - pwsh: |
+        git config --global core.longpaths true
     - checkout: self
     - template: ./template-set-build-version.yml
     - template: ./template-install-netcore.yml
@@ -43,6 +45,8 @@ stages:
       BuildConfiguration: 'Release'
       FORepoRoot: '$(Build.SourcesDirectory)'
     steps:
+    - pwsh: |
+        git config --global core.longpaths true
     - checkout: self
     - template: ./template-set-build-version.yml
     - pwsh: |

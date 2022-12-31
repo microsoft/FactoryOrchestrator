@@ -9,6 +9,7 @@ steps:
     mkdir $(Build.ArtifactStagingDirectory)\Patch
     pip install --upgrade pip --upgrade -r $(FORepoRoot)\docs\requirements.txt
     mkdocs build --clean --config-file $(FORepoRoot)\docs\mkdocs.yml
+    git config --global core.longpaths true
     git reset HEAD --hard
     git fetch
     git checkout gh-pages
