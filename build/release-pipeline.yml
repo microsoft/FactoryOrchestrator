@@ -58,8 +58,6 @@ stages:
         BuildConfiguration: 'Release'
         FORepoRoot: '$(Build.SourcesDirectory)'
       steps:
-      - pwsh: |
-          git config --global core.longpaths true
       - checkout: self
       - template: ./templates/template-set-initial-variables.yml
       - pwsh: |
@@ -76,8 +74,6 @@ stages:
       variables:
         BuildPlatform: 'AnyCPU'
       steps:
-      - pwsh: |
-          git config --global core.longpaths true
       - checkout: self
       - template: ./templates/template-set-initial-variables.yml
       - template: ./templates/template-install-netcore.yml
@@ -164,8 +160,6 @@ stages:
             BuildPlatform: 'ARM'
         maxParallel: '3'
       steps:
-      - pwsh: |
-          git config --global core.longpaths true
       - checkout: self
       - template: ./templates/template-set-initial-variables.yml
       - template: ./templates/template-install-netcore.yml
@@ -194,8 +188,6 @@ stages:
     jobs:
       - job: 'Sign_Windows'
         steps:
-        - pwsh: |
-            git config --global core.longpaths true
         - checkout: self
           clean: true
         - checkout: ComplianceRepo
@@ -318,8 +310,6 @@ stages:
         pool:
           name: FactoryOrchestrator_1ES
         steps:
-        - pwsh: |
-            git config --global core.longpaths true
         - checkout: self
           clean: true
         
@@ -403,8 +393,6 @@ stages:
     jobs:
       - job: Job_Sign_Publish_NuGet_ServiceZip_Artifacts
         steps:
-        - pwsh: |
-            git config --global core.longpaths true
         - checkout: self
           clean: true
         - checkout: ComplianceRepo
@@ -551,8 +539,6 @@ stages:
           runOnce:
             deploy:
               steps:
-              - pwsh: |
-                  git config --global core.longpaths true
               - checkout: self
                 clean: true
               - template: ./templates/template-set-initial-variables.yml

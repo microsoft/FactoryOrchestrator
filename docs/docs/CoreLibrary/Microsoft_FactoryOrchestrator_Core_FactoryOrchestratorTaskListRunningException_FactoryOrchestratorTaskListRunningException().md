@@ -1,6 +1,0 @@
-### [Microsoft.FactoryOrchestrator.Core](Microsoft_FactoryOrchestrator_Core.md 'Microsoft.FactoryOrchestrator.Core').[FactoryOrchestratorTaskListRunningException](Microsoft_FactoryOrchestrator_Core_FactoryOrchestratorTaskListRunningException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorTaskListRunningException')
-## FactoryOrchestratorTaskListRunningException.FactoryOrchestratorTaskListRunningException() Constructor
-Initializes a new instance of the [FactoryOrchestratorTaskListRunningException](Microsoft_FactoryOrchestrator_Core_FactoryOrchestratorTaskListRunningException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorTaskListRunningException') class.  
-```csharp
-public FactoryOrchestratorTaskListRunningException();
-```

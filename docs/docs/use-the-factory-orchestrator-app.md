@@ -39,7 +39,7 @@ A 'Re-run' button will also appear next to a Task if the TaskList is done execut
 
 ![Results of an aborted running TaskList](./images/re-run-task.png)
 
-If you click on a Task, the results page will load and show you the status of the latest "run" ([TaskRun](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun/)) of that Task, including the any output of the Task. The results page also allows you to see the log file path for that run. You can also use the buttons at the top of the page to view older or newer runs of the Task, provided it has been run multiple times.
+If you click on a Task, the results page will load and show you the status of the latest "run" ([TaskRun](../CoreLibrary/TaskRun/)) of that Task, including the any output of the Task. The results page also allows you to see the log file path for that run. You can also use the buttons at the top of the page to view older or newer runs of the Task, provided it has been run multiple times.
 
 ![Clicking on a Task that has run](./images/test-results.png)
 
@@ -61,7 +61,7 @@ The 'Manage TaskLists' tab in the Factory Orchestrator app allows you to create,
 
 - **Choose individual files to add to a TaskList**
 
-    Use `Create new TaskList` to create a new [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.
+    Use `Create new TaskList` to create a new [TaskList](../CoreLibrary/TaskList/) where you can individual tasks one-at-a-time to your TaskList. When you add tasks this way, you choose the type of task that you're adding and can configure arguments, timeout settings, etc as you add tasks.
 
     ![Create new TaskList button](./images/create-new-tasklist.png)
 

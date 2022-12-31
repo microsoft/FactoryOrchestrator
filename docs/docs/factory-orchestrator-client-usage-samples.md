@@ -7,7 +7,7 @@ This page describes how to perform a variety of tasks with the Factory Orchestra
 Remember:
 
 - All C# client APIs are asynchronous, but all PowerShell APIs are synchronous.
-- To use the C# client APIs in a UWP app, use an instance of FactoryOrchestratorUWPClient instead of [FactoryOrchestratorClient]((../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_FactoryOrchestratorClient%28System_Net_IPAddress_int%29/).
+- To use the C# client APIs in a UWP app, use an instance of FactoryOrchestratorUWPClient instead of [FactoryOrchestratorClient]((../ClientLibrary/FactoryOrchestratorClient).
 - 'device' is used below to refer to the PC running the Factory Orchestrator service you connect to with the client. This could be the same PC as the client.
 
 **All C# code snippets assume you have:**
@@ -69,7 +69,7 @@ foreach ($client in $discovered)
 ```
 
 ## Establishing a connection to the service
-Before executing any other commands, the [Connect](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_Connect%28bool%29/)() API must be called. [Connect](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_Connect%28bool%29/)() verifies the target service is running and has a compatible version with your client. [Connect](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_Connect%28bool%29/)() throws an exeption if the connection fails. Alternately, you can use [TryConnect](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_TryConnect%28bool%29/)() which returns false if the connection fails instead.
+Before executing any other commands, the [Connect](../ClientLibrary/FactoryOrchestratorClient_Connect%28bool%29/)() API must be called. [Connect](../ClientLibrary/FactoryOrchestratorClient_Connect%28bool%29/)() verifies the target service is running and has a compatible version with your client. [Connect](../ClientLibrary/FactoryOrchestratorClient_Connect%28bool%29/)() throws an exeption if the connection fails. Alternately, you can use [TryConnect](../ClientLibrary/FactoryOrchestratorClient_TryConnect%28bool%29/)() which returns false if the connection fails instead.
 
 ### Connect to the service running on the local device (loopback)
 ```csharp
@@ -109,9 +109,9 @@ $client = New-FactoryOrchestratorClient -IpAddress "192.168.0.100" -ServerIdenti
 $client.Connect();
 ```
 
-## Task, [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/), & [TaskRun](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun/) creation, interaction, & manipulation
-### Load [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/)s from a file, run the loaded TaskLists to completion. Then get the generated [TaskRun](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun/) log files.
-[TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/)s defined in [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) files are a great way to organize a set of operations you want Factory Orchestrator to execute. This example shows how to load [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/)(s) from a [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) file and then run the loaded TaskLists using [LoadTaskListsFromXmlFile](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_LoadTaskListsFromXmlFile%28string%29/) and [RunTaskList](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_RunTaskList%28System_Guid_int%29/). It also prints high-level info about the [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) statues with [GetTaskListSummaries](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetTaskListSummaries%28%29/). Depending on the attributes defined for each [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) they may or may not run in parallel.
+## Task, [TaskList](../CoreLibrary/TaskList/), & [TaskRun](../CoreLibrary/TaskRun/) creation, interaction, & manipulation
+### Load [TaskList](../CoreLibrary/TaskList/)s from a file, run the loaded TaskLists to completion. Then get the generated [TaskRun](../CoreLibrary/TaskRun/) log files.
+[TaskList](../CoreLibrary/TaskList/)s defined in [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) files are a great way to organize a set of operations you want Factory Orchestrator to execute. This example shows how to load [TaskList](../CoreLibrary/TaskList/)(s) from a [FactoryOrchestratorXML](../tasks-and-tasklists/#author-and-manage-factory-orchestrator-tasklists) file and then run the loaded TaskLists using [LoadTaskListsFromXmlFile](../ClientLibrary/FactoryOrchestratorClient_LoadTaskListsFromXmlFile%28string%29/) and [RunTaskList](../ClientLibrary/FactoryOrchestratorClient_RunTaskList%28Guid_int%29/). It also prints high-level info about the [TaskList](../CoreLibrary/TaskList/) statues with [GetTaskListSummaries](../ClientLibrary/FactoryOrchestratorClient_GetTaskListSummaries%28%29/). Depending on the attributes defined for each [TaskList](../CoreLibrary/TaskList/) they may or may not run in parallel.
 
 ```csharp
 // Assumes you have an existing FactoryOrchestratorXML file on the filesystem of the service at (string) FactoryOrchestratorXmlPath.
@@ -132,8 +132,8 @@ while ((await client.GetTaskListSummaries()).Any(x => x.IsRunningOrPending))
 await client.GetDirectoryFromDevice(await client.GetLogFolder(), @"C:\some_folder_on_client_for_logs");
 ```
 
-### Modify an existing [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/)
-This example shows how to modify an existing [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) using [QueryTaskList](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_QueryTaskList%28System_Guid%29/) and [UpdateTaskList](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_UpdateTaskList%28Microsoft_FactoryOrchestrator_Core_TaskList%29/).
+### Modify an existing [TaskList](../CoreLibrary/TaskList/)
+This example shows how to modify an existing [TaskList](../CoreLibrary/TaskList/) using [QueryTaskList](../ClientLibrary/FactoryOrchestratorClient_QueryTaskList%28Guid%29/) and [UpdateTaskList](../ClientLibrary/FactoryOrchestratorClient_UpdateTaskList%28TaskList%29/).
 ```csharp
 // Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
 var taskListGuid = new Guid("34d0534b-ed09-46c2-b6bb-73cef9574944");
@@ -153,8 +153,8 @@ taskList.AllowOtherTaskListsToRun = false;
 // Update the TaskList on the service.
 await client.UpdateTaskList(taskList);
 ```
-### Get all existing TaskLists and print out information about each [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/).
-This example uses the [GetTaskListSummaries](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetTaskListSummaries%28%29/) and [QueryTaskList](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_QueryTaskList%28System_Guid%29/) methods print out information about running [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) instances.
+### Get all existing TaskLists and print out information about each [TaskList](../CoreLibrary/TaskList/).
+This example uses the [GetTaskListSummaries](../ClientLibrary/FactoryOrchestratorClient_GetTaskListSummaries%28%29/) and [QueryTaskList](../ClientLibrary/FactoryOrchestratorClient_QueryTaskList%28Guid%29/) methods print out information about running [TaskList](../CoreLibrary/TaskList/) instances.
 
 ```csharp
 var summaries = await client.GetTaskListSummaries();
@@ -174,14 +174,14 @@ foreach (var summary in summaries)
 }
 ```
 
-### Stop executing an existing & running [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/)
+### Stop executing an existing & running [TaskList](../CoreLibrary/TaskList/)
 ```csharp
 // Assumes you have an existing TaskList in the service with a GUID of 34d0534b-ed09-46c2-b6bb-73cef9574944.
 await client.AbortTaskList(new Guid("34d0534b-ed09-46c2-b6bb-73cef9574944"));
 ```
 
-### Check for service events. Use WaitingForExternalTaskRun to handle every [ExternalTask](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_ExternalTask/) requiring manual completion.
-This example uses the GetServiceEvents method to check if an [ExternalTask](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_ExternalTask/) needs manual completion. If so, it uses [QueryTaskRun](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_QueryTaskRun%28System_Guid%29/) and [UpdateTaskRun](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_UpdateTaskRun%28Microsoft_FactoryOrchestrator_Core_TaskRun%29/) to complete the [ExternalTask](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_ExternalTask/).
+### Check for service events. Use WaitingForExternalTaskRun to handle every [ExternalTask](../CoreLibrary/ExternalTask/) requiring manual completion.
+This example uses the GetServiceEvents method to check if an [ExternalTask](../CoreLibrary/ExternalTask/) needs manual completion. If so, it uses [QueryTaskRun](../ClientLibrary/FactoryOrchestratorClient_QueryTaskRun%28Guid%29/) and [UpdateTaskRun](../ClientLibrary/FactoryOrchestratorClient_UpdateTaskRun%28TaskRun%29/) to complete the [ExternalTask](../CoreLibrary/ExternalTask/).
 
 ```csharp
 ulong lastEvent = 0;
@@ -217,7 +217,7 @@ await Task.Delay(5000);
 ```
 
 ### Run a program to completion and print output to console
-This example uses the [RunExecutable](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_RunExecutable%28string_string_string_bool%29/)() method to run a program outside of a [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/). It then uses [QueryTaskRun](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_QueryTaskRun%28System_Guid%29/) to monitor the program's status.
+This example uses the [RunExecutable](../ClientLibrary/FactoryOrchestratorClient_RunExecutable%28string_string_string_bool%29/)() method to run a program outside of a [TaskList](../CoreLibrary/TaskList/). It then uses [QueryTaskRun](../ClientLibrary/FactoryOrchestratorClient_QueryTaskRun%28Guid%29/) to monitor the program's status.
 
 ```csharp
 // Start the program
@@ -257,10 +257,10 @@ foreach ($line in $($taskRun.TaskOutput))
 }
 ```
 
-## Using [ServerPoller](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_ServerPoller_ServerPoller%28System_Nullable_System_Guid__System_Type_int_bool_int%29/) instances to monitor [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) & [TaskRun](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun/) execution asynchronously with C# events
-The [ServerPoller](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_ServerPoller_ServerPoller%28System_Nullable_System_Guid__System_Type_int_bool_int%29/) class is used to automatically poll the service for updates, and generates an [OnUpdatedObject](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_ServerPoller_OnUpdatedObject/) event only when the chosen [TaskList](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskList/) or [TaskRun](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun/) object you are polling updates. It can also be used to query all TaskLists for their high-level status. [ServerPoller](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_ServerPoller_ServerPoller%28System_Nullable_System_Guid__System_Type_int_bool_int%29/) objects are a good choice to asynchronously update your UI or console output.
+## Using [ServerPoller](../ClientLibrary/ServerPoller/) instances to monitor [TaskList](../CoreLibrary/TaskList/) & [TaskRun](../CoreLibrary/TaskRun/) execution asynchronously with C# events
+The [ServerPoller](../ClientLibrary/ServerPoller/) class is used to automatically poll the service for updates, and generates an [OnUpdatedObject](../ClientLibrary/ServerPoller_OnUpdatedObject/) event only when the chosen [TaskList](../CoreLibrary/TaskList/) or [TaskRun](../CoreLibrary/TaskRun/) object you are polling updates. It can also be used to query all TaskLists for their high-level status. [ServerPoller](../ClientLibrary/ServerPoller/) objects are a good choice to asynchronously update your UI or console output.
 
-This example uses the ServerPoller's [StartPolling](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_ServerPoller_StartPolling%28Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient%29/) method and [OnUpdatedObject](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_ServerPoller_OnUpdatedObject/) event to monitor TaskList and [TaskRun](../CoreLibrary/Microsoft_FactoryOrchestrator_Core_TaskRun/) objects.
+This example uses the ServerPoller's [StartPolling](../ClientLibrary/ServerPoller_StartPolling%28FactoryOrchestratorClient%29/) method and [OnUpdatedObject](../ClientLibrary/ServerPoller_OnUpdatedObject/) event to monitor [TaskList](../CoreLibrary/TaskList/) and [TaskRun](../CoreLibrary/TaskRun/) objects.
 
 ```csharp
 object consoleLock = new object();
@@ -355,7 +355,7 @@ void OnUpdatedTaskRun(object source, ServerPollerEventArgs e)
 ```
 
 ## Install an app, enable local loopback on the installed app, and then launch it (Windows Only & requires Windows Device Portal is running)
-This example uses [SendAndInstallApp](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_SendAndInstallApp%28string_System-Collections-Generic-List-string-_string%29/), [EnableLocalLoopbackForApp](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_EnableLocalLoopbackForApp%28string%29/), and [RunApp](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_RunApp%28string%29/) to install a UWP app on the device, enable local loopback on the app (enabling it to talk to a localhost Factory Orchestrator service), and launch the app.
+This example uses [SendAndInstallApp](../ClientLibrary/FactoryOrchestratorClient_SendAndInstallApp%28string_List_string__string%29/), [EnableLocalLoopbackForApp](../ClientLibrary/FactoryOrchestratorClient_EnableLocalLoopbackForApp%28string%29/), and [RunApp](../ClientLibrary/FactoryOrchestratorClient_RunApp%28string%29/) to install a UWP app on the device, enable local loopback on the app (enabling it to talk to a localhost Factory Orchestrator service), and launch the app.
 
 ```csharp
 // Assumes appFolder is a "standard" Visual Studio 2019 published app package with an appx/msix, a .cer certificate, and a dependencies folder.
@@ -392,7 +392,7 @@ await client.RunApp("Contoso.TestApp_8wekyb3d8bbwe");
 ## System information
 The following examples show how to get information about the hardware and software of the device the service is running on.
 ### Get OS and Factory Orchestrator build versions
-This example uses [GetOSVersionString](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetOSVersionString%28%29/), [GetOEMVersionString](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetOEMVersionString%28%29/), [GetServiceVersionString](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetServiceVersionString%28%29/), and [GetClientVersionString](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetClientVersionString%28%29/) to get various system & Factory Orchestrator information.
+This example uses [GetOSVersionString](../ClientLibrary/FactoryOrchestratorClient_GetOSVersionString%28%29/), [GetOEMVersionString](../ClientLibrary/FactoryOrchestratorClient_GetOEMVersionString%28%29/), [GetServiceVersionString](../ClientLibrary/FactoryOrchestratorClient_GetServiceVersionString%28%29/), and [GetClientVersionString](../ClientLibrary/FactoryOrchestratorClient_GetClientVersionString%28%29/) to get various system & Factory Orchestrator information.
 
 ```csharp
 // GetOSVersionString() & GetOEMVersionString() are Windows only
@@ -402,7 +402,7 @@ var servicebuild = await client.GetServiceVersionString();
 var clientbuild = await client.GetClientVersionString();
 ```
 
-### Get network adapter info with [GetIpAddressesAndNicNames](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetIpAddressesAndNicNames%28%29/)
+### Get network adapter info with [GetIpAddressesAndNicNames](../ClientLibrary/FactoryOrchestratorClient_GetIpAddressesAndNicNames%28%29/)
 ```csharp
 var networkinfo = await client.GetIpAddressesAndNicNames();
 Console.WriteLine($"The following networks are present on {client.IpAddress}:");
@@ -412,7 +412,7 @@ foreach (var network in networkinfo)
 }
 ```
 
-### Get installed UWP apps (Windows only) with [GetInstalledApps](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetInstalledApps%28%29/)
+### Get installed UWP apps (Windows only) with [GetInstalledApps](../ClientLibrary/FactoryOrchestratorClient_GetInstalledApps%28%29/)
 ```csharp
 var appAUMIDs = await client.GetInstalledApps();
 Console.WriteLine($"The following UWPs are installed on {client.IpAddress}:");
@@ -423,12 +423,12 @@ foreach (var aumid in appAUMIDs)
 ```
 
 ## System interaction
-### Reboot device with [RebootDevice](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_RebootDevice%28uint%29/)
+### Reboot device with [RebootDevice](../ClientLibrary/FactoryOrchestratorClient_RebootDevice%28uint%29/)
 ```csharp
 await client.RebootDevice();
 ```
 
-### Shutdown device with [ShutdownDevice](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_ShutdownDevice%28uint%29/)
+### Shutdown device with [ShutdownDevice](../ClientLibrary/FactoryOrchestratorClient_ShutdownDevice%28uint%29/)
 ```csharp
 await client.ShutdownDevice();
 ```
@@ -443,27 +443,27 @@ var dirsRecursive = await client.EnumerateDirectories(@"%windir%", true);
 var filesNonRecursve = await client.EnumerateFiles(@"%windir%", false);
 ```
 
-### Copy a file or folder from device to client with [GetFileFromDevice](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetFileFromDevice%28string_string_bool%29/) or [GetDirectoryFromDevice](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_GetDirectoryFromDevice%28string_string_bool%29/)
+### Copy a file or folder from device to client with [GetFileFromDevice](../ClientLibrary/FactoryOrchestratorClient_GetFileFromDevice%28string_string_bool%29/) or [GetDirectoryFromDevice](../ClientLibrary/FactoryOrchestratorClient_GetDirectoryFromDevice%28string_string_bool%29/)
 ```csharp
 // C:\destination_folder_on_client is created if needed
 var bytesReceived = await client.GetDirectoryFromDevice(@"C:\source_folder_on_device", @"C:\destination_folder_on_client");
 bytesReceived += await client.GetFileFromDevice(@"C:\different_folder_on_device\file.txt", @"C:\destination_folder_on_client\file.txt");
 ```
 
-### Copy a file or folder from client to device with [SendFileToDevice](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_SendFileToDevice%28string_string_bool%29/) or [SendDirectoryToDevice](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_SendDirectoryToDevice%28string_string_bool%29/)
+### Copy a file or folder from client to device with [SendFileToDevice](../ClientLibrary/FactoryOrchestratorClient_SendFileToDevice%28string_string_bool%29/) or [SendDirectoryToDevice](../ClientLibrary/FactoryOrchestratorClient_SendDirectoryToDevice%28string_string_bool%29/)
 ```csharp
 // C:\destination_folder_on_device is created if needed
 var bytesSent = await client.SendDirectoryToDevice(@"C:\source_folder_on_client", @"C:\destination_folder_on_device");
 bytesSent += await client.SendFileToDevice(@"C:\different_source_folder_on_client\file.txt", @"C:\destination_folder_on_device\file.txt");
 ```
 
-### Move a file or folder with [MoveFileOrFolder](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_MoveFileOrFolder%28string_string_bool%29/)
+### Move a file or folder with [MoveFileOrFolder](../ClientLibrary/FactoryOrchestratorClient_MoveFileOrFolder%28string_string_bool%29/)
 ```csharp
 await client.MoveFileOrFolder(@"C:\folder_on_device\file.txt", @"C:\different_folder_on_device\file.txt");
 await client.MoveFileOrFolder(@"C:\folder_on_device", @"C:\different_folder_on_device");
 ```
 
-### Delete a file or folder with [DeleteFileOrFolder](../ClientLibrary/Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorClient_DeleteFileOrFolder%28string_bool%29/)
+### Delete a file or folder with [DeleteFileOrFolder](../ClientLibrary/FactoryOrchestratorClient_DeleteFileOrFolder%28string_bool%29/)
 ```csharp
 await client.DeleteFileOrFolder(@"C:\folder_on_device\file.txt");
 await client.DeleteFileOrFolder(@"C:\folder_on_device");

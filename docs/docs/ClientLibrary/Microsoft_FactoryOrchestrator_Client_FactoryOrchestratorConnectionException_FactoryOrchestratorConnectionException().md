@@ -1,6 +1,0 @@
-### [Microsoft.FactoryOrchestrator.Client](Microsoft_FactoryOrchestrator_Client.md 'Microsoft.FactoryOrchestrator.Client').[FactoryOrchestratorConnectionException](Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorConnectionException.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorConnectionException')
-## FactoryOrchestratorConnectionException.FactoryOrchestratorConnectionException() Constructor
-Initializes a new instance of the [FactoryOrchestratorConnectionException](Microsoft_FactoryOrchestrator_Client_FactoryOrchestratorConnectionException.md 'Microsoft.FactoryOrchestrator.Client.FactoryOrchestratorConnectionException') class.  
-```csharp
-public FactoryOrchestratorConnectionException();
-```

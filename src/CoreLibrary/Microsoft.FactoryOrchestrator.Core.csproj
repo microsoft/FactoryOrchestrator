@@ -20,6 +20,7 @@
     <DefaultDocumentationFolder>$(OutputRootPath)/DefaultDocumentation/CoreLibrary</DefaultDocumentationFolder>
     <DefaultDocumentationLinksOutputFile>$(OutputRootPath)/DefaultDocumentationLinks/CoreLibrary.txt</DefaultDocumentationLinksOutputFile>
     <DefaultDocumentationLinksBaseUrl>./../CoreLibrary/</DefaultDocumentationLinksBaseUrl>
+    <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="ClientTemplate\IPCInterfaceHelperTemplate.cs" />
