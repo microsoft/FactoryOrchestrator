@@ -139,9 +139,13 @@ namespace Microsoft.FactoryOrchestrator.UWP
                 // Select the tasklist to trigger ACtiveTestView_SelectionChanged
                 _selectedTask = ActiveTestsResultsView.SelectedIndex;
                 ActiveTestsView.SelectedIndex = ActiveTestsResultsView.SelectedIndex;
-                var item = ActiveTestsResultsView.ContainerFromIndex(ActiveTestsResultsView.SelectedIndex) as FrameworkElement;
+                var item = ActiveTestsResultsView.ContainerFromIndex(ActiveTestsResultsView.SelectedIndex);
                 string status = ((TaskBaseWithTemplate)ActiveTestsResultsView.SelectedItem).ToString();
-                AutomationProperties.SetName(item, status);
+
+                if (item != null)
+                {
+                    AutomationProperties.SetName(item, status);
+                }
             }
         }
 

@@ -26,6 +26,8 @@ using TaskStatus = Microsoft.FactoryOrchestrator.Core.TaskStatus;
 using Makaretu.Dns;
 using System.Net.NetworkInformation;
 using JKang.IpcServiceFramework.Hosting.Tcp;
+using System.Net.Security;
+using System.Security.Cryptography;
 
 namespace Microsoft.FactoryOrchestrator.Service
 {
@@ -65,7 +67,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
         }
 
-        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate, LogLevel logLevel) =>
+        public static IHost CreateIpcHost(bool allowNetworkAccess, int port, X509Certificate2 sslCertificate, RemoteCertificateValidationCallback sslRemoteCertificateCallback, bool checkRemoteCertificateRevocaton, LogLevel logLevel) =>
               Host.CreateDefaultBuilder(null)
                   .ConfigureServices(services =>
                   {
@@ -74,32 +76,19 @@ namespace Microsoft.FactoryOrchestrator.Service
                   .ConfigureIpcHost(builder =>
                   {
                       // configure IPC endpoints
-                      if (allowNetworkAccess)
+                      builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
                       {
-                          builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
-                          {
-                              options.IpEndpoint = IPAddress.Any;
-                              options.Port = port;
-                              options.IncludeFailureDetailsInResponse = true;
-                              options.LogInternalServerErrors = false;
-                              options.MaxConcurrentCalls = 5;
-                              options.SslCertificate = sslCertificate;
-                              options.EnableSsl = true;
-                          });
-                      }
-                      else
-                      {
-                          builder.AddTcpEndpoint<IFactoryOrchestratorService>(options =>
-                          {
-                              options.IpEndpoint = IPAddress.Loopback;
-                              options.Port = port;
-                              options.IncludeFailureDetailsInResponse = true;
-                              options.LogInternalServerErrors = false;
-                              options.MaxConcurrentCalls = 5;
-                              options.SslCertificate = sslCertificate;
-                              options.EnableSsl = true;
-                          });
-                      }
+                          options.IpEndpoint = allowNetworkAccess ? IPAddress.Any : IPAddress.Loopback;
+                          options.Port = port;
+                          options.IncludeFailureDetailsInResponse = true;
+                          options.LogInternalServerErrors = false;
+                          options.MaxConcurrentCalls = 5;
+                          options.SslCertificate = sslCertificate;
+                          options.EnableSsl = true;
+                          options.RemoteSslCertificateValidationCallback = allowNetworkAccess ? sslRemoteCertificateCallback : null;
+                          options.CheckSslCertificateRevocation = allowNetworkAccess ? checkRemoteCertificateRevocaton : false;
+                          options.AlwaysAllowLocalhostSslClients = true;
+                      });
                   })
                   .ConfigureLogging(loggingBuilder =>
                   {
@@ -231,6 +220,8 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// </summary>
         private readonly string _disableContainerValue = @"DisableContainerSupport";
         private readonly string _sslCertificateFile = @"SSLCertificateFile";
+        private readonly string _sslAllowedClientCertificates = @"SSLAllowedClientCertificates";
+        private readonly string _SslUseDefaultClientCertificateValidation = @"SSLUseDefaultClientCertificateValidation";
 
         // OEM Customization registry values
         private readonly string _disableNetworkAccessValue = @"DisableNetworkAccess";
@@ -361,6 +352,18 @@ namespace Microsoft.FactoryOrchestrator.Service
         /// List of apps to enable local loopback on.
         /// </summary>
         public List<string> LocalLoopbackApps { get; private set; }
+        /// <summary>
+        /// If true, use .NET's default SSL client validation, including checking the revocation list.
+        /// </summary>
+        public bool UseDefaultSslClientCertificateValidation { get; private set; }
+        /// <summary>
+        /// If true, allow all SSL client certificates (including no certificate).
+        /// </summary>
+        public bool AllowAllSslClientCertificates { get; private set; }
+        /// <summary>
+        /// Stores all allowed SSL client certificates, indexed by thumbprint.
+        /// </summary>
+        public Dictionary<string, X509Certificate2> AllowedSslClientCertificates { get; private set; }
         public bool IsExecutingBootTasks { get; private set; }
 
         /// <summary>
@@ -475,7 +478,14 @@ namespace Microsoft.FactoryOrchestrator.Service
             // Start IPC server on desired port. Only start if not a reset operation.
             if (_ipcHost == null)
             {
-                _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate, _ipcLogLevel);
+                if (UseDefaultSslClientCertificateValidation || (AllowedSslClientCertificates.Count > 0))
+                {
+                    _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate, ValidateClientSslCertificate, UseDefaultSslClientCertificateValidation, _ipcLogLevel);
+                }
+                else
+                {
+                    _ipcHost = FOServiceExe.CreateIpcHost(IsNetworkAccessEnabled, NetworkPort, SSLCertificate, null, false, _ipcLogLevel);
+                }
                 _ipcCancellationToken = new System.Threading.CancellationTokenSource();
                 _ipcHost.RunAsync(_ipcCancellationToken.Token);
 
@@ -566,6 +576,9 @@ namespace Microsoft.FactoryOrchestrator.Service
                 _profile = new ServiceProfile(Dns.GetHostName(), "_factorch._tcp", (ushort)NetworkPort, _profileIps);
                 _profile.AddProperty("ServiceVersion", GetServiceVersionString());
                 _profile.AddProperty("OSVersion", GetOSVersionString());
+                _profile.AddProperty("ServerIdentity", SSLCertificate.GetNameInfo(X509NameType.SimpleName, false));
+                _profile.AddProperty("CertificateHash", SSLCertificate.GetCertHashString());
+                _profile.AddProperty("ClientCertificateRequired", (UseDefaultSslClientCertificateValidation || (AllowedSslClientCertificates.Count > 0)).ToString());
                 _serviceDiscovery.Advertise(_profile);
                 var ipString = string.Join(", ", _profileIps.Select(x => x.ToString()).ToArray());
                 ServiceLogger.LogDebug(string.Format(CultureInfo.CurrentCulture, Resources.DnsSdUpdated, ipString));
@@ -1355,6 +1368,7 @@ namespace Microsoft.FactoryOrchestrator.Service
             LastEventIndex = 0;
             LastEventTime = DateTime.MinValue;
             LocalLoopbackApps = new List<string>();
+            AllowedSslClientCertificates = new Dictionary<string, X509Certificate2>();
             _openedFiles = new Dictionary<string, (Stream stream, System.Threading.Timer timer)>();
 
             ContainerGuid = Guid.Empty;
@@ -1940,7 +1954,54 @@ namespace Microsoft.FactoryOrchestrator.Service
             }
             catch (Exception)
             {
-                NetworkPort = 45684;
+                NetworkPort = Constants.DefaultServerPort;
+            }
+
+            try
+            {
+                UseDefaultSslClientCertificateValidation = Convert.ToBoolean(GetAppSetting(_SslUseDefaultClientCertificateValidation) ?? new ArgumentNullException(), CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                UseDefaultSslClientCertificateValidation = false;
+            }
+
+            string allowedClientCertificates;
+            try
+            {
+                allowedClientCertificates = (string)(GetAppSetting(_sslAllowedClientCertificates) ?? new ArgumentNullException());
+            }
+            catch (Exception)
+            {
+                allowedClientCertificates = "";
+            }
+
+            if (!string.IsNullOrEmpty(allowedClientCertificates))
+            {
+                if (allowedClientCertificates.Equals("*", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    AllowAllSslClientCertificates = true;
+                }
+                else
+                {
+                    List<string> allowedClientCertificatePaths = allowedClientCertificates.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList<string>();
+                    foreach (string certPath in allowedClientCertificatePaths)
+                    {
+                        try
+                        {
+                            var cert = new X509Certificate2(certPath);
+                            AllowedSslClientCertificates.Add(cert.Thumbprint, cert);
+                        }
+                        catch (CryptographicException e)
+                        {
+                            ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, certPath)} {e.Message}");
+                        }
+                        catch (ArgumentException e)
+                        {
+                            ServiceLogger.LogError($"{string.Format(CultureInfo.CurrentCulture, Resources.CreateDirectoryFailed, certPath)} {e.Message}");
+                        }
+                    }
+                }
             }
 
             string sslCertificateFile;
@@ -1953,7 +2014,7 @@ namespace Microsoft.FactoryOrchestrator.Service
                 sslCertificateFile = "";
             }
 
-            if(string.IsNullOrEmpty(sslCertificateFile))
+            if (string.IsNullOrEmpty(sslCertificateFile))
             {
                 var assm = Assembly.GetExecutingAssembly();
                 string defaultCertName = "FactoryServer.pfx";
@@ -2057,7 +2118,46 @@ namespace Microsoft.FactoryOrchestrator.Service
             return run;
         }
 
-#region IDisposable Support
+        private bool ValidateClientSslCertificate(
+          object sender,
+          X509Certificate certificate,
+          X509Chain chain,
+          SslPolicyErrors sslPolicyErrors)
+        {
+            if (UseDefaultSslClientCertificateValidation && sslPolicyErrors != SslPolicyErrors.None)
+            {
+                // Certificate isn't valid per default validation
+                return false;
+            }
+
+            if (AllowAllSslClientCertificates)
+            {
+                return true;
+            }
+
+            if (certificate == null)
+            {
+                // Cert not given by client
+                return false;
+            }
+
+            string thumbprint = certificate.GetCertHashString();
+            if (!AllowedSslClientCertificates.ContainsKey(thumbprint))
+            {
+                // Cert thumbprint not in allow list
+                return false;
+            }
+
+            if (AllowedSslClientCertificates[thumbprint].RawData.SequenceEqual(certificate.GetRawCertData()))
+            {
+                // Cert is exact match of one in allow list
+                return true;
+            }
+
+            return false;
+        }
+
+        #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -2075,6 +2175,12 @@ namespace Microsoft.FactoryOrchestrator.Service
                     _taskExecutionManager?.Dispose();
                     BootTaskExecutionManager?.Dispose();
                     _serviceDiscovery?.Dispose();
+                    SSLCertificate?.Dispose();
+                    foreach (X509Certificate2 cert in AllowedSslClientCertificates.Values)
+                    {
+                        cert.Dispose();
+                    }
+                    AllowedSslClientCertificates.Clear();
                 }
 
                 disposedValue = true;

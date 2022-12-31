@@ -109,20 +109,34 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="ServerName" x:Name="ServerNameText"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="ServerNameTextBox"  Text="" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ServerNameText}" />
-                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="CertHash" x:Name="CertHashText"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="CertHashTextBox" Text="" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=CertHashText}"/>
-                    <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" x:Uid="IpAddress" x:Name="IpText" Visibility="Collapsed"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="IpTextBox" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}" Visibility="Collapsed"/>
-                    <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="Port" x:Name="PortText"/>
-                    <TextBox Grid.Row="3" Grid.Column="1"   x:Name="PortTextBox" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=PortText}"/>
-                    <Button Grid.Row="4" Grid.Column="0" x:Name="OptionsButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="AdvancedOptionsButton" Click="OptionsButton_Click" IsEnabled="True"/>
-                    <Button Grid.Row="4" Grid.Column="1" Visibility="Collapsed" x:Name="ConnectButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="ClientCert" x:Name="ClientCertText"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="ClientCertTextBox" Text="" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ClientCertText}"/>
+                    <Button Grid.Row="0" Grid.Column="2" x:Name="ClientCertBrowseButton" x:Uid="ClientCertBrowseButton" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" Click="ClientCertBrowseButton_Click" Visibility="Collapsed"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="ClientCertPw" x:Name="ClientCertPwText"/>
+                    <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="ClientCertPwTextBox" Password="" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" Visibility="Collapsed" InputScope="Password" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ClientCertPwText}"/>
+                    <CheckBox Grid.Row="1" Grid.Column="2" x:Name="ClientCertSavePwCheckBox" x:Uid="ClientCertSavePwCheckBox" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" Visibility="Collapsed" IsThreeState="False"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="ServerName" x:Name="ServerNameText"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="ServerNameTextBox"  Text="" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" LostFocus="ServerNameTextBox_LostFocus" TextChanged="TextBox_TextChanged" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=ServerNameText}" />
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="CertHash" x:Name="CertHashText"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" x:Name="CertHashTextBox" Text="" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" LostFocus="CertHashTextBox_LostFocus" InputScope="AlphanumericFullWidth" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=CertHashText}"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" x:Uid="IpAddress" x:Name="IpText" Visibility="Collapsed"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" x:Name="IpTextBox" Margin="5" Width="150"  VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=IpText}" Visibility="Collapsed"/>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" x:Uid="Port" x:Name="PortText"/>
+                    <TextBox Grid.Row="6" Grid.Column="1"   x:Name="PortTextBox" Margin="5" Width="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Visibility="Collapsed" TextAlignment="Center" TextChanged="TextBox_TextChanged" InputScope="Number" KeyDown="TextBox_KeyDown" AutomationProperties.LabeledBy="{Binding ElementName=PortText}"/>
+
+                    <Button Grid.Row="7" Grid.Column="1" Visibility="Collapsed" x:Name="ConnectButton" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="ConnectButton" Click="ConnectButton_Click" IsEnabled="False"/>
                 </Grid>
 
             </Grid>
@@ -131,6 +145,9 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="ValidateXMLButton" x:Uid="ValidateXMLButton" Margin="5" Click="ValidateXMLButton_Click"/>
             <Button x:Name="AboutButton" x:Uid="AboutButton" Margin="5" Click="AboutButton_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Button x:Name="OptionsButton" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="AdvancedOptionsButton" Click="OptionsButton_Click" IsEnabled="True"/>
         </StackPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom">
             <TextBlock x:Name="NetConnectAnnounce" x:Uid="NetConnectAnnounce" TextWrapping="Wrap"  AutomationProperties.LiveSetting="Assertive" Visibility="Collapsed" FontSize="4" />

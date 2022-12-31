@@ -1,4 +1,4 @@
-<!-- Copyright (c) Microsoft Corporation. -->
+﻿<!-- Copyright (c) Microsoft Corporation. -->
 <!-- Licensed under the MIT license. -->
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../common.props" />
@@ -18,6 +18,9 @@
   <PropertyGroup>
     <DefaultDocumentationHome>$(TargetName)</DefaultDocumentationHome>
     <DefaultDocumentationFolder>$(OutputRootPath)/DefaultDocumentation/CoreLibrary</DefaultDocumentationFolder>
+    <DefaultDocumentationLinksOutputFile>$(OutputRootPath)/DefaultDocumentationLinks/CoreLibrary.txt</DefaultDocumentationLinksOutputFile>
+    <DefaultDocumentationLinksBaseUrl>./../CoreLibrary/</DefaultDocumentationLinksBaseUrl>
+    <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="ClientTemplate\IPCInterfaceHelperTemplate.cs" />
@@ -32,7 +35,7 @@
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="DefaultDocumentation" Version="0.6.15">
+    <PackageReference Include="DefaultDocumentation" Version="0.7.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

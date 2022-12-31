@@ -1,4 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.FactoryOrchestrator;
 using Windows.Storage;
 
 namespace Microsoft.FactoryOrchestrator.UWP
@@ -32,9 +37,10 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             if (value == null)
             {
-                throw new System.ArgumentNullException(nameof(value));
+                ApplicationData.Current.LocalSettings.Values.Remove(setting);
+                return notify;
             }
-            if (!value.Equals(ApplicationData.Current.LocalSettings.Values[setting]))
+            else if (!value.Equals(ApplicationData.Current.LocalSettings.Values[setting]))
             {
                 ApplicationData.Current.LocalSettings.Values[setting] = value;
                 return notify;
@@ -94,7 +100,6 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
-
         /// <summary>
         /// Internal setting. Last manually entered IP address that successfully connected.
         /// </summary>
@@ -120,7 +125,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             get
             {
-                return GetAppSetting<string>(LastPortKey, "45684");
+                return GetAppSetting<string>(LastPortKey, Core.Constants.DefaultServerPort.ToString(CultureInfo.InvariantCulture));
             }
             set
             {
@@ -138,7 +143,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             get
             {
-                return GetAppSetting<string>(LastServerKey, "FactoryServer");
+                return GetAppSetting<string>(LastServerKey, Core.Constants.DefaultServerIdentity);
             }
             set
             {
@@ -156,7 +161,7 @@ namespace Microsoft.FactoryOrchestrator.UWP
         {
             get
             {
-                return GetAppSetting<string>(LastHashKey, "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F");
+                return GetAppSetting<string>(LastHashKey, Core.Constants.DefaultServerCertificateHash);
             }
             set
             {
@@ -167,11 +172,68 @@ namespace Microsoft.FactoryOrchestrator.UWP
             }
         }
 
+        /// <summary>
+        /// Internal setting. Last manually entered client SSL cert path that successfully loaded.
+        /// </summary>
+        public static string LastClientCertPath
+        {
+            get
+            {
+                return GetAppSetting<string>(LastClientCertPathKey, "");
+            }
+            set
+            {
+                if (SetAppSetting(LastClientCertPathKey, value))
+                {
+                    NotifyPropertyChanged(LastClientCertPathKey);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal setting. Last manually entered client SSL cert password that successfully loaded.
+        /// </summary>
+        public static string LastClientCertPw
+        {
+            get
+            {
+                return GetAppSetting<string>(LastClientCertPwKey, "");
+            }
+            set
+            {
+                if (SetAppSetting(LastClientCertPwKey, value))
+                {
+                    NotifyPropertyChanged(LastClientCertPwKey);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal setting. Last manually entered client SSL cert as JSON string.
+        /// </summary>
+        public static string LastClientCertSerialized
+        {
+            get
+            {
+                return GetAppSetting<string>(LastClientCertSerializedKey, null);
+            }
+            set
+            {
+                if (SetAppSetting(LastClientCertSerializedKey, value))
+                {
+                    NotifyPropertyChanged(LastClientCertSerializedKey);
+                }
+            }
+        }
+
         public const string ShowExternalTasksKey  = "showExternalTasks";
         public const string LastIpKey  = "lastIp";
         public const string LastHashKey  = "lastHash";
         public const string LastPortKey  = "lastPort";
         public const string LastServerKey  = "lastServer";
         public const string TrackExecutionKey  = "trackExecution";
+        public const string LastClientCertPathKey = "lastClientCertPath";
+        public const string LastClientCertPwKey = "lastClientCertPw";
+        public const string LastClientCertSerializedKey = "lastClientCertX509";
     }
 }

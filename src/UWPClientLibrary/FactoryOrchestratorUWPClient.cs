@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.FactoryOrchestrator.Client;
+using Microsoft.FactoryOrchestrator.Core;
 using Windows.Storage;
 
 namespace Microsoft.FactoryOrchestrator.UWP
@@ -22,20 +24,22 @@ namespace Microsoft.FactoryOrchestrator.UWP
         /// Creates a new FactoryOrchestratorClient instance. WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
-        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
-        /// <param name="certhash">Hash value for the server certificate defaults to E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F.</param>
-        public FactoryOrchestratorUWPClient(IPAddress host, int port = 45684, string serverIdentity = "FactoryServer", string certhash = "E8BF0011168803E6F4AF15C9AFE8C9C12F368C8F") : base(host, port, serverIdentity, certhash)
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to <see cref="Constants.DefaultServerPort"/>.</param>
+        /// <param name="serverIdentity">Distinguished name (CN) for the server, defaults to <see cref="Constants.DefaultServerIdentity"/>.</param>
+        /// <param name="certhash">Hash value (Certificate thumbprint) for the server certificate, defaults to <see cref="Constants.DefaultServerCertificateHash"/>.</param>
+        /// <param name="clientCertificate">X509Certificate2 to send to the Factory Orchestrator Service for client authentication. Not required by all Factory Orchestrator Service configurations.</param>
+        public FactoryOrchestratorUWPClient(IPAddress host, int port = Constants.DefaultServerPort, string serverIdentity = Constants.DefaultServerIdentity, string certhash = Constants.DefaultServerCertificateHash, X509Certificate2 clientCertificate = null) : base(host, port, serverIdentity, certhash, clientCertificate)
         { }
 
-        /// <summary>
+        /// <summary> 
         /// Creates a new FactoryOrchestratorClient instance. WARNING: Use FactoryOrchestratorUWPClient for UWP clients or your UWP app will crash!
         /// </summary>
         /// <param name="host">IP address of the device running Factory Orchestrator Service. Use IPAddress.Loopback for local device.</param>
         /// <param name="certificateValidationCallback">A System.Net.Security.RemoteCertificateValidationCallback delegate responsible for validating the server certificate.</param>
-        /// <param name="port">Port to use. Factory Orchestrator Service defaults to 45684.</param>
-        /// <param name="serverIdentity">Distinguished name for the server defaults to FactoryServer.</param>
-        public FactoryOrchestratorUWPClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = 45684, string serverIdentity = "FactoryServer") : base(host, certificateValidationCallback, port, serverIdentity)
+        /// <param name="port">Port to use. Factory Orchestrator Service defaults to <see cref="Constants.DefaultServerPort"/>.</param>
+        /// <param name="serverIdentity">Distinguished name (CN) for the server, defaults to <see cref="Constants.DefaultServerIdentity"/>.</param>
+        /// <param name="clientCertificate">X509Certificate2 to send to the Factory Orchestrator Service for client authentication. Not required by all Factory Orchestrator Service configurations.</param>
+        public FactoryOrchestratorUWPClient(IPAddress host, RemoteCertificateValidationCallback certificateValidationCallback, int port = Constants.DefaultServerPort, string serverIdentity = Constants.DefaultServerIdentity, X509Certificate2 clientCertificate = null) : base(host, certificateValidationCallback, port, serverIdentity, clientCertificate)
         { }
 
         /// <summary>

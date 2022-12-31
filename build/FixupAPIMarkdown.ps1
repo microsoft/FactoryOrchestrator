@@ -10,7 +10,6 @@ Param
 $ErrorActionPreference = "stop"
 
 Write-Host "Fixing markdown in $DefaultDocumentationFolder."
-Write-Host "Replacing 'https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.' paths..."
 Write-Host "Replacing '``1'' strings..."
 
 $mds = Get-ChildItem -Path $DefaultDocumentationFolder -Include "*.md" -Recurse
@@ -18,7 +17,6 @@ $mds = Get-ChildItem -Path $DefaultDocumentationFolder -Include "*.md" -Recurse
 foreach ($md in $mds)
 {
     $content = Get-Content $md
-    $content = $content.Replace("https://docs.microsoft.com/en-us/dotnet/api/Microsoft.FactoryOrchestrator.Core.", "./../../CoreLibrary/Microsoft-FactoryOrchestrator-Core-")
     $content = $content.Replace("``1'","'")
     Set-Content -Path $md -Value $content 
 }

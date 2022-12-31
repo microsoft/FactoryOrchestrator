@@ -2776,7 +2776,6 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Abstract class to implement INotifyPropertyChanged
     /// </summary>
-    /// <exclude/>
     public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged
     {
         /// <summary>

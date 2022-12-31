@@ -38,7 +38,7 @@ Factory Orchestrator :green_heart: OSS.
 
 * **IpcServiceFramework**
 
-    FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). The fork is equivalent the latest IpcServiceFramework source as of December 2020, with only a project file change to set DisableDynamicCodeGeneration to true so it can be used in .NET Native applications.
+    FactoryOrchestrator forks the source of [IpcServiceFramework](https://github.com/jacqueskang/IpcServiceFramework). The fork is equivalent the latest IpcServiceFramework source as of December 2020, with additions to support client authentication and logging.
 
 * **Pe-Utility**
 

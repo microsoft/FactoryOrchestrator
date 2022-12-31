@@ -1,0 +1,16 @@
+### [Microsoft.FactoryOrchestrator.Core](Microsoft_FactoryOrchestrator_Core.md 'Microsoft.FactoryOrchestrator.Core')
+## FactoryOrchestratorUnkownGuidException Class
+An exception denoting the given GUID is not recognized by Factory Orchestrator.  
+```csharp
+public class FactoryOrchestratorUnkownGuidException : Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception') &#129106; [FactoryOrchestratorException](FactoryOrchestratorException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorException') &#129106; FactoryOrchestratorUnkownGuidException  
+
+| Constructors | |
+| :--- | :--- |
+| [FactoryOrchestratorUnkownGuidException()](FactoryOrchestratorUnkownGuidException_FactoryOrchestratorUnkownGuidException().md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException.FactoryOrchestratorUnkownGuidException()') | Initializes a new instance of the [FactoryOrchestratorUnkownGuidException](FactoryOrchestratorUnkownGuidException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException') class.<br/> |
+| [FactoryOrchestratorUnkownGuidException(string)](FactoryOrchestratorUnkownGuidException_FactoryOrchestratorUnkownGuidException(string).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException.FactoryOrchestratorUnkownGuidException(string)') | Initializes a new instance of the [FactoryOrchestratorUnkownGuidException](FactoryOrchestratorUnkownGuidException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException') class.<br/> |
+| [FactoryOrchestratorUnkownGuidException(string, Exception)](FactoryOrchestratorUnkownGuidException_FactoryOrchestratorUnkownGuidException(string_Exception).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException.FactoryOrchestratorUnkownGuidException(string, System.Exception)') | Initializes a new instance of the [FactoryOrchestratorUnkownGuidException](FactoryOrchestratorUnkownGuidException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException') class.<br/> |
+| [FactoryOrchestratorUnkownGuidException(Guid)](FactoryOrchestratorUnkownGuidException_FactoryOrchestratorUnkownGuidException(Guid).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException.FactoryOrchestratorUnkownGuidException(System.Guid)') | Initializes a new instance of the [FactoryOrchestratorUnkownGuidException](FactoryOrchestratorUnkownGuidException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException') class.<br/> |
+| [FactoryOrchestratorUnkownGuidException(Guid, Type)](FactoryOrchestratorUnkownGuidException_FactoryOrchestratorUnkownGuidException(Guid_Type).md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException.FactoryOrchestratorUnkownGuidException(System.Guid, System.Type)') | Initializes a new instance of the [FactoryOrchestratorUnkownGuidException](FactoryOrchestratorUnkownGuidException.md 'Microsoft.FactoryOrchestrator.Core.FactoryOrchestratorUnkownGuidException') class.<br/> |

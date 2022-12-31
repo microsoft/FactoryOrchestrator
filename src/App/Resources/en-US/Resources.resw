@@ -172,11 +172,11 @@
   <data name="BadIpContent" xml:space="preserve">
     <value>Could not connect to {0}.
 
-Check that the IP address, Server Name and Certificate Hash  is correct and that the Factory Orchestrator Service is running on the target IP.</value>
+Check that the IP address, Server Name and Certificate Hash is correct and that the Factory Orchestrator Service is running on the target device. If a client certificate is required, ensure it is provided and is accepted by the target Service.</value>
     <comment>Message displayed to the user if connection to the target machine cannot be established.</comment>
   </data>
   <data name="BadIpTitle" xml:space="preserve">
-    <value>Unable to connect to target IP</value>
+    <value>Unable to connect to {0}.</value>
   </data>
   <data name="BgTaskBox.Content" xml:space="preserve">
     <value>Add as Background Task?</value>
@@ -806,7 +806,7 @@ On retry</value>
     <comment>button to launch remote desktop uwp app &amp; auto connect to the running container</comment>
   </data>
   <data name="CertHash.Text" xml:space="preserve">
-    <value>Certificate Hash:</value>
+    <value>Server Certificate Hash/Thumbprint:</value>
     <comment>Hash value of the Certificate of the target machine.</comment>
   </data>
   <data name="ServerName.Text" xml:space="preserve">
@@ -854,5 +854,37 @@ On retry</value>
   </data>
   <data name="Close.Text" xml:space="preserve">
     <value>Close</value>
+  </data>
+  <data name="BadCertContent" xml:space="preserve">
+    <value>Could not load the .PFX certificate at {0}. Check that file system access is enabled for this app, the file path, and .PFX password (if required).</value>
+    <comment>Text for Message displayed to the user if given file path cannot be loaded as a valid certificate</comment>
+  </data>
+  <data name="BadCertTitle" xml:space="preserve">
+    <value>Invalid certificate</value>
+    <comment>Header for Message displayed to the user if given file path cannot be loaded as a valid certificate</comment>
+  </data>
+  <data name="ClientCert.Text" xml:space="preserve">
+    <value>Path to .PFX certificate file used for client authentication:</value>
+    <comment>File path to a .pfx file used to authenticate this client with the service</comment>
+  </data>
+  <data name="ClientCertBrowseButton.Content" xml:space="preserve">
+    <value>Browse</value>
+    <comment>Opens file picker UI</comment>
+  </data>
+  <data name="ClientCertPw.Text" xml:space="preserve">
+    <value>.PFX certificate password</value>
+    <comment>password for given .pfx file used to open the .pfx certificate</comment>
+  </data>
+  <data name="ClientCertSavePwCheckBox.Content" xml:space="preserve">
+    <value>Save password?</value>
+    <comment>checkbox to save password in app</comment>
+  </data>
+  <data name="CertRequiredContent" xml:space="preserve">
+    <value>The device you wish to connect to requires you to provide a client certificate (.pfx) for authentication. Please provide one in the "Advanced Options".</value>
+    <comment>Content for message displayed to the user if they must provide a .pfx certificate in order to connect to the remote device.</comment>
+  </data>
+  <data name="CertRequiredTitle" xml:space="preserve">
+    <value>Client .PFX Certificate Required</value>
+    <comment>Header for Message displayed to the user if they must provide a .pfx certificate in order to connect to the remote device.</comment>
   </data>
 </root>

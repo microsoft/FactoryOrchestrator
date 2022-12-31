@@ -51,6 +51,11 @@ namespace Microsoft.FactoryOrchestrator.UWP
         public const string PortNumberProperty = "System.Devices.Dnssd.PortNumber";
 
         /// <summary>
+        /// The text attributes property.
+        /// </summary>
+        public const string TextAttributesProperty = "System.Devices.Dnssd.TextAttributes";
+
+        /// <summary>
         /// The network protocol that will be accepting connections for responses.
         /// </summary>
         public const string NetworkProtocol = "_tcp";
@@ -74,7 +79,8 @@ namespace Microsoft.FactoryOrchestrator.UWP
             DnsSdConstants.ServiceNameProperty,
             DnsSdConstants.InstanceNameProperty,
             DnsSdConstants.IpAddressProperty,
-            DnsSdConstants.PortNumberProperty
+            DnsSdConstants.PortNumberProperty,
+            DnsSdConstants.TextAttributesProperty
         };
 
         /// <summary>

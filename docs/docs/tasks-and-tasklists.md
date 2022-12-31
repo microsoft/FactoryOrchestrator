@@ -6,7 +6,7 @@
 
 Factory Orchestrator uses "Tasks" to capture a single action. Tasks can be executables, scripts, apps, TAEF tests, or external actions. TasksLists are used to order and group Tasks.
 
-You can define a collection of tasks in a **[TaskList](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
+You can define a collection of tasks in a **[TaskList](../CoreLibrary/TaskList/)**. Tasks in a TaskList are run in a defined order, and can be a mixture that includes any type of tasks that's supported by Factory Orchestrator. TaskList data persists through reboots. TaskList data is stored and maintained by the Factory Orchestrator service, and doesn't depend on the app being open or running. Tasks in a TaskList can be configured to run in series, parallel, or in the background.
 
 Factory Orchestrator supports using environment variables (ex: %ProgramData%, $TMPDIR) in all Tasks.
 
@@ -58,18 +58,18 @@ Factory Orchestrator TaskLists allow adding different types of tasks:
 
 ### Background tasks
 
-A [BackgroundTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun-BackgroundTask/) is a type of Task which is not expected to return a pass/fail result. Instead, [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) are started before any Tasks defined in the TaskList, and are not tracked by the Factory Orchestrator Service, though their output is logged to a file. [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) are intended to be used for logging/monitoring tasks that need to be running before any Task in the TaskList executes.
+A [BackgroundTask](../CoreLibrary/TaskRun_BackgroundTask/) is a type of Task which is not expected to return a pass/fail result. Instead, [BackgroundTasks](../CoreLibrary/TaskList-BackgroundTasks/) are started before any Tasks defined in the TaskList, and are not tracked by the Factory Orchestrator Service, though their output is logged to a file. [BackgroundTasks](../CoreLibrary/TaskList-BackgroundTasks/) are intended to be used for logging/monitoring tasks that need to be running before any Task in the TaskList executes.
 
 BackgroundTasks are defined the exactly the same as a normal Task with the following exceptions:
 
-- [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) can only be an Executable, PowerShell, or BatchFile Task
-- [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) cannot have Timeout or [MaxNumberOfRetries](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-MaxNumberOfRetries/) set
+- [BackgroundTasks](../CoreLibrary/TaskList_BackgroundTasks/) can only be an Executable, PowerShell, or BatchFile Task
+- [BackgroundTasks](../CoreLibrary/TaskList_BackgroundTasks/) cannot have Timeout or [MaxNumberOfRetries](../CoreLibrary/TaskBase_MaxNumberOfRetries/) set
 
 When editing a task from the Factory Orchestrator app, you can choose the option of making the task a background task by choosing the "Add as background task?" option.
 
-Once you've run a task, the Factory Orchestrator service creates a **[TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)** that is the output and results of the task, as well as other details about the task such as runtime.
+Once you've run a task, the Factory Orchestrator service creates a **[TaskRun](../CoreLibrary/TaskRun/)** that is the output and results of the task, as well as other details about the task such as runtime.
 
-# Author and manage Factory Orchestrator TaskLists with FactoryOrchestratorXML
+## Author and manage Factory Orchestrator TaskLists with FactoryOrchestratorXML
 
 Factory Orchestrator uses XML files, called FactoryOrchestratorXML, to manage TaskLists and their associated Tasks. An XML file can contain one or more TaskLists, each with any number of Tasks.
 
@@ -77,7 +77,7 @@ The XML can either be hand-authored; or authored, imported, and/or exported usin
 
 You can get started with Factory Orchestrator TaskLists by using the [**Manage TaskLists**](use-the-factory-orchestrator-app.md#managing-tasklists) page in the Factory Orchestrator app to create a TaskList.
 
-## Factory Orchestrator XML Schema
+### Factory Orchestrator XML Schema
 
 When hand-authoring FactoryOrchestratorXML files, you'll need to follow the FactoryOrchestratorXML schema. At the end of this topic, we've also provided a [sample FactoryOrchestratorXML file](#sample-factory-orchestrator-xml-file):
 
@@ -162,7 +162,7 @@ A TaskList element defines a Factory Orchestrator TaskList. The following define
 | Guid                                  | String  | N          | The GUID used to identify the TaskList. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded.                             |
 | RunInParallel                         | Bool    | Y          | If "true", the Tasks in this TaskList are executed in parallel. If "false", the Tasks in this TaskList are executed in order, one at a time.                                                     |
 | AllowOtherTaskListsToRun              | Bool    | Y          | If "false", while this TaskList is running all other TaskLists are blocked from executing. If "true", other TaskLists may execute while this TaskList is running.                                 |
-| TerminateBackgroundTasksOnCompletion  | Bool    | N          | If "true", any [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) defined in this TaskList are forcibly terminated when the TaskList's Tasks complete. If "false", any [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) defined in this TaskList continue executing. Defaults to "true". |
+| TerminateBackgroundTasksOnCompletion  | Bool    | N          | If "true", any [BackgroundTasks](../CoreLibrary/TaskList-BackgroundTasks/) defined in this TaskList are forcibly terminated when the TaskList's Tasks complete. If "false", any [BackgroundTasks](../CoreLibrary/TaskList-BackgroundTasks/) defined in this TaskList continue executing. Defaults to "true". |
 
 #### Sample TaskList element
 
@@ -177,16 +177,16 @@ A Task element defines a Factory Orchestrator Task. Tasks are pass/fail executab
 <!--Delete this table-->
 | Attribute Name         | Type         | Required?    | Details                                                                                                                                                                                                                   |
 |------------------------|--------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| xsi:type               | See details  | Y            | The type of the Task. Allowed values are: [ExecutableTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-ExecutableTask/), [PowerShellTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-PowerShellTask/), BatchFileTask, TAEFTest, [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/), and [ExternalTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-ExternalTask/).                                                                                             |
+| xsi:type               | See details  | Y            | The type of the Task. Allowed values are: [ExecutableTask](../CoreLibrary/ExecutableTask/), [PowerShellTask](../CoreLibrary/PowerShellTask/), BatchFileTask, TAEFTest, [UWPTask](../CoreLibrary/UWPTask/), and [ExternalTask](../CoreLibrary/ExternalTask/).                                                                                             |
 | Name                   | String       | N            | The "friendly name" of the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded, based on the Task type and other attributes.                |
 | Guid                   | String       | N            | The GUID used to identify the Task. If not set, it will be assigned by the Factory Orchestrator Service automatically when the FactoryOrchestratorXML is loaded.                                                          |
 | Path                   | String       | Depends      | See the [Path table below](#path-definitions) to see which Tasks require you to include a Path element.  |                                                                                                                                     |
 | Arguments              | String       | N            | For Executable, PowerShell, BatchFile, and TAEF Tasks: this is the list of arguments to provide to the executable you specified in the "Path".<br><br>   For UWP Tasks: this can be used to provide details about the Task to the client. It is NOT passed to the UWP app.<br><br>For External Tasks: this can be used to provide details about the Task to the client.       |
 | Timeout                | Int          | N            | In seconds, the amount of time to wait for the Task to be completed. Defaults to "-1" (infinite).<br><br> If "-1", the Task will never timeout.<br><br>If the timeout is reached, the Task status is set to "Timeout", a failed state. The Task's executable is also forcibly terminated (if it has one).                                                                                                                        |
 | MaxNumberOfRetries     | Int          | N            | The number of times the Task should automatically be re-run if it completes in a failed state (Aborted/Failed/Timeout). Defaults to "0" (do not retry).<br><br>For example, if this is set to "2", the Task could be run up to 3 times automatically.                                                                         |
-| AbortTaskListOnFailed  | Bool         | N            | If "true", if the Task is run during a TaskList and the Task fails (Aborted/Failed/Timeout), the TaskList is aborted in its current state. Any other pending or running Tasks will be aborted.<br><br>This action takes place after any re-runs specified by [MaxNumberOfRetries](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-MaxNumberOfRetries/).<br><br>While allowed, it is not recommended to use this for "RunInParallel" TaskLists, as the execution order of such a TaskList is not guaranteed, and Tasks may be aborted mid-execution.                                    |
-| TerminateOnCompleted   | Bool         | N            | By default, an app is terminated when the [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) completes. Set to false to not terminate after a [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) completes.  TerminateOnCompleted is ignored if AutoPassedIfLaunched=`true` |
-| AutoPassedIfLaunched   | Bool         | N            | By default, a [UWPTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-UWPTask/) waits for its [TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/) to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched. |
+| AbortTaskListOnFailed  | Bool         | N            | If "true", if the Task is run during a TaskList and the Task fails (Aborted/Failed/Timeout), the TaskList is aborted in its current state. Any other pending or running Tasks will be aborted.<br><br>This action takes place after any re-runs specified by [MaxNumberOfRetries](../CoreLibrary/TaskBase_MaxNumberOfRetries/).<br><br>While allowed, it is not recommended to use this for "RunInParallel" TaskLists, as the execution order of such a TaskList is not guaranteed, and Tasks may be aborted mid-execution.                                    |
+| TerminateOnCompleted   | Bool         | N            | By default, an app is terminated when the [UWPTask](../CoreLibrary/UWPTask/) completes. Set to false to not terminate after a [UWPTask](../CoreLibrary/UWPTask/) completes.  TerminateOnCompleted is ignored if AutoPassedIfLaunched=`true` |
+| AutoPassedIfLaunched   | Bool         | N            | By default, a [UWPTask](../CoreLibrary/UWPTask/) waits for its [TaskRun](../CoreLibrary/TaskRun/) to be completed by a Factory Orchestrator Client. Setting this to true marks the UWP task completed when the app is launched. |
 
 #### Path definitions
 
@@ -216,9 +216,9 @@ The `TerminateBackgroundTasksOnCompletion` attribute on the owning TaskList dete
 Background Tasks are defined the exactly the same as a normal Task with the following exceptions:
 
 - Any Executable, PowerShell, or Batch File Task can be made a Background Task.
-- Background Tasks cannot have Timeout or [MaxNumberOfRetries](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskBase-MaxNumberOfRetries/) set
+- Background Tasks cannot have Timeout or [MaxNumberOfRetries](../CoreLibrary/TaskBase_MaxNumberOfRetries/) set
 
-#### Sample [BackgroundTasks](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskList-BackgroundTasks/) element
+#### Sample [BackgroundTasks](../CoreLibrary/TaskList-BackgroundTasks/) element
 
 ```xml
 <BackgroundTasks>
@@ -226,7 +226,7 @@ Background Tasks are defined the exactly the same as a normal Task with the foll
 </BackgroundTasks>
 ```
 
-## Validate Factory Orchestrator XML
+### Validate Factory Orchestrator XML
 
 You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a Windows PC, even without having to connect to a Factory Orchestrator service.
 
@@ -238,9 +238,9 @@ You can validate FactoryOrchestratorXML using the Factory Orchestrator app on a 
     - If the FactoryOrchestratorXML is valid you will see a success message saying that "FactoryOrchestratorXML was successfully validated."
 
     - If the FactoryOrchestratorXML is invalid, you'll see a message that says "FactoryOrchestratorXML failed validation", with a description of why it failed validation.
-## Sample Factory Orchestrator XML file
+### Sample Factory Orchestrator XML file
 
-The following sample FactoryOrchestratorXML file shows two TaskLists containing various types of tests, as well as a [BackgroundTask](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun-BackgroundTask/) that is part of the first TaskList.
+The following sample FactoryOrchestratorXML file shows two TaskLists containing various types of tests, as well as a [BackgroundTask](../CoreLibrary/TaskRun-BackgroundTask/) that is part of the first TaskList.
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -286,4 +286,4 @@ See [Service Configuration](service-configuration.md#configure-factory-orchestra
 
 ## Factory Orchestrator Task log files
 
-The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/Microsoft-FactoryOrchestrator-Core-TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[SetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-FactoryOrchestratorClient%28System-Net-IPAddress_int%29/).[GetLogFolder](../ClientLibrary/Microsoft-FactoryOrchestrator-Client-FactoryOrchestratorClient-GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.
+The Task log files contain details about the execution of a specific of the Factory Orchestrator Task. There is one log file generated for each run of a Task ([TaskRun](../CoreLibrary/TaskRun/)). The files are saved to `%ProgramData%\FactoryOrchestrator\Logs\` on a Windows and `/var/log/FactoryOrchestrator/logs` on Linux, but this location can be changed using the [FactoryOrchestratorClient SetLogFolder](../ClientLibrary/FactoryOrchestratorClient_SetLogFolder%28string_bool%29/)() API. Use the [FactoryOrchestratorClient GetLogFolder](../ClientLibrary/FactoryOrchestratorClient_GetLogFolder%28%29/)() API to programmatically retrieve the active log folder.

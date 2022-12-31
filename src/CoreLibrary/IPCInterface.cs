@@ -13,13 +13,27 @@ namespace Microsoft.FactoryOrchestrator.Core
     /// <summary>
     /// Class for any cross-project constants.
     /// </summary>
-    /// <exclude/>
     public static class Constants
     {
         /// <summary>
         /// Chunk size in bytes for file transfers.
         /// </summary>
         public const int FileTransferChunkSize = 1048576;
+
+        /// <summary>
+        /// Certificate Hash/Thumbprint for the embedded FactoryServer.pfx certificate
+        /// </summary>
+        public const string DefaultServerCertificateHash = "6A3997F2957570A4E5D28D89F3EB4FA3A4E6AF9D";
+
+        /// <summary>
+        /// Identity for the embedded FactoryServer.pfx certificate
+        /// </summary>
+        public const string DefaultServerIdentity = "FactoryServer";
+
+        /// <summary>
+        /// Default port used by Factory Orchestrator Service
+        /// </summary>
+        public const int DefaultServerPort = 45684;
     }
 
     /// <summary>
